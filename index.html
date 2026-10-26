@@ -4998,6 +4998,10 @@ const VIEW_START_YEAR = 2015;
         <label class="wm-tab"><input type="radio" name="wmMode" value="share"> Share</label>
       </div>
       <div class="wm-seg" id="wmVarSeg" role="group" aria-label="Variant"></div>
+      <div class="wm-seg" role="radiogroup" aria-label="Colours" title="Blue is safe for colour blindness; Classic is the old orange-green look">
+        <label class="wm-tab"><input type="radio" name="wmPal" value="blue" checked> Blue</label>
+        <label class="wm-tab"><input type="radio" name="wmPal" value="classic"> Classic</label>
+      </div>
       <select id="wmVariant" hidden></select>
 
       <div id="wmInputsYear" class="wm-inline">
@@ -5047,14 +5051,15 @@ const VIEW_START_YEAR = 2015;
         <div class="wm-fig-foot"><span id="wmFigNote"></span><span>@LeRaffl</span></div>
       </div>
       <button class="btn chart-dl" onclick="downloadPlotlyChart('worldMapPlot','world_map.png')">↓ Download PNG</button>
+      <button class="btn chart-dl" id="wmGifBtn" title="BEV share year by year, as an animated GIF to post">↓ Download GIF</button>
       <p class="small" style="margin:4px 14px 10px; color:var(--muted-2);">
         Color scale is clipped at the 5th and 95th percentile so regular countries get a useful gradient.
-        The scale runs <b>light&nbsp;→&nbsp;dark</b> in a single hue, so it stays readable with any form of
-        colour blindness — dark always means further along.
-        <span class="wm-sw wm-sw--x" style="background:#c2701a"></span><b>Amber</b> = pioneers that have already reached the threshold.
-        <span class="wm-sw wm-sw--x" style="background:#6e6258"></span><b>Dark grey</b> = no transition: the same markets the tables list as "shows no transition" (under 1&nbsp;% BEV, or a negligible adoption rate), plus fits that do not reach the threshold within a reasonable horizon.
+        <span id="wmScaleNote">The scale runs <b>light&nbsp;→&nbsp;dark</b> in a single hue, so it stays readable with any form of
+        colour blindness — dark always means further along.</span>
+        <span class="wm-sw wm-sw--x" data-wm-sw="pioneer" style="background:#c2701a"></span><b data-wm-name="pioneer">Amber</b> = pioneers that have already reached the threshold.
+        <span class="wm-sw wm-sw--x" data-wm-sw="stalled" style="background:#6e6258"></span><b data-wm-name="stalled">Dark grey</b> = no transition: the same markets the tables list as "shows no transition" (under 1&nbsp;% BEV, or a negligible adoption rate), plus fits that do not reach the threshold within a reasonable horizon.
         Both sit outside the scale and carry a heavier outline, so they never read as just another step.
-        <span class="wm-sw" style="background:#cbc3b6"></span><b>Pale grey</b> = too volatile to show: we have data, but the curve can't give a year yet; listed under the map.
+        <span class="wm-sw" data-wm-sw="withheld" style="background:#cbc3b6"></span><b data-wm-name="withheld">Pale grey</b> = too volatile to show: we have data, but the curve can't give a year yet; listed under the map.
         HDV, Buses and the other variants use the <b>Cars</b> colour scale, so the same colour means the same year on every variant.
         Exact values always live in the hover tooltip.
       </p>
@@ -5063,23 +5068,23 @@ const VIEW_START_YEAR = 2015;
     <div class="card" style="margin-top:14px;">
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw" style="background:#143a6b"></span>Leaders</h3>
+          <h3 class="wm-list-h"><span class="wm-sw" data-wm-sw="rampHi" style="background:#143a6b"></span>Leaders</h3>
           <ol id="wmTopList" style="margin:0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ol>
         </div>
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw" style="background:#aecce9"></span>Laggards</h3>
+          <h3 class="wm-list-h"><span class="wm-sw" data-wm-sw="rampLo" style="background:#aecce9"></span>Laggards</h3>
           <ol id="wmBottomList" style="margin:0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ol>
         </div>
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" style="background:#c2701a"></span>Pioneers</h3>
+          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" data-wm-sw="pioneer" style="background:#c2701a"></span>Pioneers</h3>
           <ul id="wmPioneerList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" style="background:#6e6258"></span>No transition</h3>
+          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" data-wm-sw="stalled" style="background:#6e6258"></span>No transition</h3>
           <ul id="wmStalledList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw" style="background:#cbc3b6"></span>Too volatile to show</h3>
+          <h3 class="wm-list-h"><span class="wm-sw" data-wm-sw="withheld" style="background:#cbc3b6"></span>Too volatile to show</h3>
           <ul id="wmHiddenList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
       </div>
@@ -12629,12 +12634,52 @@ document.addEventListener('keydown', (e) => {
 // with the dataviz validator against every ramp step (Machado 2009 CVD sim):
 // amber ΔE ≥ 21 to every step; the no-transition grey ΔE ≥ 13 (was #8a877e,
 // 10.6 against the mid step under protanopia).
-const WM_COLORS = {
-  ramp: ['#aecce9', '#7fa9d6', '#4f7fb8', '#22579a', '#143a6b'],
-  pioneer: '#c2701a',
-  stalled: '#6e6258',
-  withheld: '#cbc3b6',   // volatile curve / unreliable fit: data, but no year
+// Two palettes, picked with the Blue / Classic switch above the map (the
+// choice is remembered per browser). `ramp` always runs from "least" to
+// "furthest along"; `names` are the words the legend uses for each colour.
+//   blue    — the default: one hue, light -> dark, safe for every kind of
+//             colour blindness (#226).
+//   classic — the pre-#226 look: orange -> green ramp, cyan-blue pioneers,
+//             pink "no transition", light orchid "too volatile to show"
+//             (a paler cousin of the pink). Not colour-blind safe; offered
+//             because it reads well and posts well.
+const WM_PALETTES = {
+  blue: {
+    ramp: ['#aecce9', '#7fa9d6', '#4f7fb8', '#22579a', '#143a6b'],
+    pioneer: '#c2701a',
+    stalled: '#6e6258',
+    withheld: '#cbc3b6',   // volatile curve / unreliable fit: data, but no year
+    names: { pioneer: 'Amber', stalled: 'Dark grey', withheld: 'Pale grey' },
+    scaleNote: 'The scale runs <b>light&nbsp;→&nbsp;dark</b> in a single hue, so it stays readable with any form of colour blindness — dark always means further along.',
+  },
+  classic: {
+    ramp: ['#b5451b', '#a65832', '#9a7b22', '#72bf6a', '#1a9641'],
+    pioneer: '#0096c7',
+    stalled: '#d65aff',
+    withheld: '#f0b3e8',
+    names: { pioneer: 'Cyan-blue', stalled: 'Pink', withheld: 'Light orchid' },
+    scaleNote: 'The scale runs <b>orange&nbsp;→&nbsp;green</b>: green means further along. This palette is not safe for colour blindness — switch to <b>Blue</b> for that.',
+  },
 };
+let wmPaletteKey = 'blue';
+try { if (WM_PALETTES[localStorage.getItem('wmPalette')]) wmPaletteKey = localStorage.getItem('wmPalette'); } catch (_) {}
+let WM_COLORS = WM_PALETTES[wmPaletteKey];
+
+// Swatches and colour words in the legend and the list headings follow the
+// active palette (data-wm-sw / data-wm-name), so they can't drift from the map.
+function wmPaintLegend(){
+  const P = WM_COLORS;
+  const colour = { pioneer: P.pioneer, stalled: P.stalled, withheld: P.withheld,
+                   rampHi: P.ramp[P.ramp.length - 1], rampLo: P.ramp[0] };
+  document.querySelectorAll('[data-wm-sw]').forEach(el => {
+    el.style.background = colour[el.dataset.wmSw] || '';
+  });
+  document.querySelectorAll('[data-wm-name]').forEach(el => {
+    el.textContent = P.names[el.dataset.wmName] || '';
+  });
+  const note = document.getElementById('wmScaleNote');
+  if (note) note.innerHTML = P.scaleNote;
+}
 const WM_REFERENCE_VARIANT = 'whole';
 //
 // Plotly understands full country names when locationmode is set to
@@ -13057,6 +13102,7 @@ function wmRender(){
      Nachbarstufen — die Phase-2-Entscheidung "genau EIN Akzent" bleibt damit
      gewahrt, statt eine zweite Farbfamilie einzufuehren. */
   const SEQ_BLUE = WM_COLORS.ramp.map((c, i) => [i / (WM_COLORS.ramp.length - 1), c]);
+  wmPaintLegend();
   const colorscale = SEQ_BLUE;
   /* Dunkel heisst immer "weiter in der Transformation", in allen drei Modi.
      Bei 'share' waechst der Wert damit (hoher Anteil = dunkel); bei 'year'
@@ -13270,6 +13316,85 @@ function wmRender(){
     : '<li style="opacity:0.6">None</li>';
 }
 
+/* ── Animated GIF of the Share mode, year by year ──────────────────────────
+   Steps the Share slider from its first to its last year, takes a PNG of the
+   map per year (Plotly.toImage), draws it onto a canvas with the title, the
+   year and the source line burnt in (so a posted GIF explains itself), and
+   encodes the frames in the browser with gifenc (no worker, no server). Uses
+   whatever palette, region and variant are on screen. */
+const WM_GIF_LIB = 'https://cdn.jsdelivr.net/npm/gifenc@1.0.3/dist/gifenc.esm.js';
+let wmGifBusy = false;
+
+async function wmDownloadGif(){
+  if (wmGifBusy) return;
+  const btn = document.getElementById('wmGifBtn');
+  const slider = document.getElementById('wmShareYear');
+  const label = document.getElementById('wmShareYearLabel');
+  const shareRadio = document.querySelector('input[name="wmMode"][value="share"]');
+  if (!btn || !slider || !shareRadio || typeof Plotly === 'undefined') return;
+  wmGifBusy = true;
+  wmStopPlay();
+  const before = { mode: wmReadMode(), year: slider.value, text: btn.textContent };
+  const setBtn = t => { btn.textContent = t; };
+  try {
+    setBtn('Preparing GIF…');
+    const { GIFEncoder, quantize, applyPalette } = await import(WM_GIF_LIB);
+    if (!shareRadio.checked) { shareRadio.checked = true; wmRender(); }
+
+    const W = 960, MAP_H = 520, HEAD = 64, FOOT = 34, H = HEAD + MAP_H + FOOT;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const ink = '#1a1a18', mute = '#55534c';
+    const what = { whole: 'new cars', vans: 'new vans', hdv: 'new trucks (HDV)', buses: 'new buses', used: 'used imports' }[WORLDMAP_STATE.variant || 'whole'] || 'new cars';
+    const loadImg = src => new Promise((ok, bad) => { const im = new Image(); im.onload = () => ok(im); im.onerror = bad; im.src = src; });
+
+    const gif = GIFEncoder();
+    const y0 = parseInt(slider.min, 10), y1 = parseInt(slider.max, 10);
+    for (let y = y0; y <= y1; y++) {
+      setBtn(`Building GIF… ${y}`);
+      slider.value = String(y);
+      if (label) label.textContent = String(y);
+      wmRender();
+      const url = await Plotly.toImage('worldMapPlot', { format: 'png', width: W, height: MAP_H });
+      const img = await loadImg(url);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+      ctx.drawImage(img, 0, HEAD, W, MAP_H);
+      ctx.fillStyle = ink; ctx.textBaseline = 'alphabetic';
+      ctx.font = 'bold 24px "Public Sans", Helvetica, Arial, sans-serif';
+      ctx.fillText(`BEV share of ${what}, by market`, 18, 34);
+      ctx.fillStyle = mute; ctx.font = '15px "Public Sans", Helvetica, Arial, sans-serif';
+      ctx.fillText('Each market\'s own S-curve, not an official forecast', 18, 56);
+      ctx.fillStyle = ink; ctx.font = 'bold 46px "Public Sans", Helvetica, Arial, sans-serif';
+      ctx.textAlign = 'right'; ctx.fillText(String(y), W - 18, 52); ctx.textAlign = 'left';
+      ctx.fillStyle = mute; ctx.font = '14px "Public Sans", Helvetica, Arial, sans-serif';
+      ctx.fillText('leraffl.github.io/LeRaffl-Gallery  ·  @LeRaffl', 18, H - 12);
+      const { data } = ctx.getImageData(0, 0, W, H);
+      const palette = quantize(data, 256);
+      const index = applyPalette(data, palette);
+      gif.writeFrame(index, W, H, { palette, delay: y === y1 ? 2500 : 280 });
+    }
+    gif.finish();
+    const blob = new Blob([gif.bytes()], { type: 'image/gif' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `bev_world_map_${y0}-${y1}.gif`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  } catch (err) {
+    console.error('GIF export failed', err);
+    alert('Sorry — the GIF could not be built here (' + (err && err.message || err) + ').');
+  } finally {
+    slider.value = before.year;
+    if (label) label.textContent = before.year;
+    const back = document.querySelector(`input[name="wmMode"][value="${before.mode}"]`);
+    if (back) back.checked = true;
+    wmRender();
+    setBtn(before.text);
+    wmGifBusy = false;
+  }
+}
+
 /* ── Init ── */
 let WORLDMAP_INITED = false;
 let WORLDMAP_LOADING = false;
@@ -13300,6 +13425,20 @@ async function initWorldMap(){
     document.querySelectorAll('input[name="wmMode"]').forEach(radio => {
       radio.addEventListener('change', wmRender);
     });
+
+    // Palette switch (Blue / Classic), remembered per browser.
+    document.querySelectorAll('input[name="wmPal"]').forEach(radio => {
+      radio.checked = radio.value === wmPaletteKey;
+      radio.addEventListener('change', () => {
+        if (!radio.checked || !WM_PALETTES[radio.value]) return;
+        wmPaletteKey = radio.value;
+        WM_COLORS = WM_PALETTES[wmPaletteKey];
+        try { localStorage.setItem('wmPalette', wmPaletteKey); } catch (_) {}
+        wmRender();
+      });
+    });
+
+    document.getElementById('wmGifBtn')?.addEventListener('click', wmDownloadGif);
 
     // Threshold inputs → debounced re-render
     let wmDebounce = null;
