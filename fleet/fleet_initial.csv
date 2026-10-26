@@ -185,3 +185,276 @@ Netherlands,Whole,2022,,324534,186994,,,,7498734,726199,,,,,,115452,,HEV folded 
 Netherlands,Whole,2023,,435717,262406,,,,7549898,609155,,,,,,110830,,HEV folded into PETROL/DIESEL (RDW does not report full hybrids separately)
 Netherlands,Whole,2024,,557798,372662,,,,7594184,508352,,,,,,106053,,HEV folded into PETROL/DIESEL (RDW does not report full hybrids separately)
 Netherlands,Whole,2025,,680625,518198,,,,7580179,419636,,,,,,100852,,HEV folded into PETROL/DIESEL (RDW does not report full hybrids separately)
+Albania,Whole,2014,Eurostat road_eqs_carpda (31 Dec),0,,,42,,101218,272420,,,21,,,4352,378053,HEV = combined PHEV+HEV (source did not split); OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2015,Eurostat road_eqs_carpda (31 Dec),0,,,66,,103545,292457,,,19,,,7543,403630,HEV = combined PHEV+HEV (source did not split); OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2016,Eurostat road_eqs_carpda (31 Dec),13,,,104,,103920,317045,,,19,,,14512,435613,HEV = combined PHEV+HEV (source did not split); OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2017,Eurostat road_eqs_carpda (31 Dec),48,,,193,,94933,300891,,,5,,,21356,417426,HEV = combined PHEV+HEV (source did not split); OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2018,Eurostat road_eqs_carpda (31 Dec),102,,,273,,95545,335215,,,36,,,28856,460027,HEV = combined PHEV+HEV (source did not split); OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2019,Eurostat road_eqs_carpda (31 Dec),124,,,422,,96957,366330,,,85,,,35672,499590,HEV = combined PHEV+HEV (source did not split); OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2020,Eurostat road_eqs_carpda (31 Dec),362,552,,43117,,98380,396790,,0,219,,,77,539497,
+Albania,Whole,2021,Eurostat road_eqs_carpda (31 Dec),624,,,1246,,102432,436756,,,339,,,51883,593280,HEV = combined PHEV+HEV (source did not split); OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2022,Eurostat road_eqs_carpda (31 Dec),1245,9,,2083,,107010,470930,,,396,,,57706,639379,OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2023,Eurostat road_eqs_carpda (31 Dec),2891,39,,3626,,114050,513760,,,563,,,64408,699337,OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2024,Eurostat road_eqs_carpda (31 Dec),5722,59,,5863,,124271,565133,,,969,,,73200,775217,OTHERS likely holds most hybrids (HEV only in 2020)
+Albania,Whole,2025,Eurostat road_eqs_carpda (31 Dec),10938,116,,7745,,135526,610604,,,1458,,,80804,847191,OTHERS likely holds most hybrids (HEV only in 2020)
+Belgium,Whole,2013,Eurostat road_eqs_carpda (31 Dec),1205,,,19148,,1997354,3444115,,291,17,,,42957,5505100,HEV = combined PHEV+HEV (source did not split)
+Belgium,Whole,2014,Eurostat road_eqs_carpda (31 Dec),2238,,,26734,,2048666,3465841,,544,16,,,40640,5584690,HEV = combined PHEV+HEV (source did not split)
+Belgium,Whole,2015,Eurostat road_eqs_carpda (31 Dec),3317,,,35694,,2120619,3463170,,664,18,,,38566,5662059,HEV = combined PHEV+HEV (source did not split)
+Belgium,Whole,2016,Eurostat road_eqs_carpda (31 Dec),5207,,,50515,,2240986,3394689,,1472,21,,,38395,5731292,HEV = combined PHEV+HEV (source did not split)
+Belgium,Whole,2017,Eurostat road_eqs_carpda (31 Dec),7557,,,72221,,2383124,3294317,,2293,19,,,39399,5798939,HEV = combined PHEV+HEV (source did not split)
+Belgium,Whole,2018,Eurostat road_eqs_carpda (31 Dec),10893,,,94301,,2579253,3118474,,3283,17,,,42196,5848425,HEV = combined PHEV+HEV (source did not split)
+Belgium,Whole,2019,Eurostat road_eqs_carpda (31 Dec),18724,,,124828,,2770017,2919818,,6408,17,,,42055,5881874,HEV = combined PHEV+HEV (source did not split)
+Belgium,Whole,2020,Eurostat road_eqs_carpda (31 Dec),31773,,,189597,,2881923,2742664,,9138,15,,,42369,5897488,HEV = combined PHEV+HEV (source did not split)
+Belgium,Whole,2021,Eurostat road_eqs_carpda (31 Dec),52375,,,297809,,2979647,2542650,,9984,22,,,43516,5926009,HEV = combined PHEV+HEV (source did not split)
+Belgium,Whole,2022,Eurostat road_eqs_carpda (31 Dec),89811,182996,,243275,,3047339,2336615,,9741,23,,,45322,5955127,some cells imputed by Eurostat
+Belgium,Whole,2023,Eurostat road_eqs_carpda (31 Dec),181447,265455,,342181,,3106851,2094907,,9090,28,,,47587,6047551,some cells imputed by Eurostat
+Belgium,Whole,2024,Eurostat road_eqs_carpda (31 Dec),303784,326468,,425859,,3135687,1849251,,8544,38,,,49364,6099089,some cells imputed by Eurostat
+Belgium,Whole,2025,Eurostat road_eqs_carpda (31 Dec),395188,386500,,459961,,3136152,1699797,,8052,38,,,50346,6136034,
+Bulgaria,Whole,2016,Eurostat road_eqs_carpda (31 Dec),215,,,2049,,1672134,1237846,,1240,141205,,,88945,3143568,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Bulgaria,Whole,2017,Eurostat road_eqs_carpda (31 Dec),384,,,3487,,1396335,1167984,,1653,142984,,,57588,2770615,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Bulgaria,Whole,2018,Eurostat road_eqs_carpda (31 Dec),710,,,5578,,1339819,1218211,,2218,157440,,,49349,2773325,HEV = combined PHEV+HEV (source did not split)
+Bulgaria,Whole,2019,Eurostat road_eqs_carpda (31 Dec),1185,,,8397,,1312662,1288415,,2928,170707,,,45652,2829946,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Bulgaria,Whole,2020,Eurostat road_eqs_carpda (31 Dec),1933,,,11867,,1170264,1332144,,4245,300137,,,46173,2866763,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Bulgaria,Whole,2021,Eurostat road_eqs_carpda (31 Dec),3369,,,19813,,1083479,1353078,,4820,322369,,,43536,2830464,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Bulgaria,Whole,2022,Eurostat road_eqs_carpda (31 Dec),6293,,,30765,,1066060,1399938,,4248,348366,,,41107,2896777,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Bulgaria,Whole,2023,Eurostat road_eqs_carpda (31 Dec),11472,3232,,44085,,1071600,1456845,,4354,374686,,,40138,3006215,some cells imputed by Eurostat
+Bulgaria,Whole,2024,Eurostat road_eqs_carpda (31 Dec),17826,6026,,68039,,1077343,1516294,,4490,389462,,,38231,3116742,some cells imputed by Eurostat
+Croatia,Whole,2013,Eurostat road_eqs_carpda (31 Dec),0,,,,,834000,563000,,0,,,,51000,1448300,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Croatia,Whole,2014,Eurostat road_eqs_carpda (31 Dec),39,,,,,814000,607000,,,,,,52961,1474495,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Croatia,Whole,2015,Eurostat road_eqs_carpda (31 Dec),163,,,,,793531,650007,,0,31,,,56070,1499802,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Croatia,Whole,2016,Eurostat road_eqs_carpda (31 Dec),233,,,,,780226,711886,,3,49,,,60507,1552904,no hybrid figure (hybrids sit in another column)
+Croatia,Whole,2017,Eurostat road_eqs_carpda (31 Dec),285,,,,,765062,767666,,3,45,,,63026,1596087,no hybrid figure (hybrids sit in another column)
+Croatia,Whole,2018,Eurostat road_eqs_carpda (31 Dec),461,,,,,756203,844546,,5,53,,,65145,1666413,no hybrid figure (hybrids sit in another column)
+Croatia,Whole,2019,Eurostat road_eqs_carpda (31 Dec),725,,,,,743923,913400,,8,56,,,66788,1724900,no hybrid figure (hybrids sit in another column)
+Croatia,Whole,2020,Eurostat road_eqs_carpda (31 Dec),1314,,,,,725077,951149,,8,57,,,68680,1746285,no hybrid figure (hybrids sit in another column)
+Croatia,Whole,2021,Eurostat road_eqs_carpda (31 Dec),2977,,,,,720180,995611,,10,56,,,76631,1795465,no hybrid figure (hybrids sit in another column)
+Croatia,Whole,2022,Eurostat road_eqs_carpda (31 Dec),4801,,,,,721802,1027371,,13,55,,,86725,1840767,no hybrid figure (hybrids sit in another column)
+Croatia,Whole,2023,Eurostat road_eqs_carpda (31 Dec),7058,4506,,38750,,731270,1069231,,16,53,,,59247,1910131,some cells imputed by Eurostat
+Croatia,Whole,2024,Eurostat road_eqs_carpda (31 Dec),10045,6108,,49859,,754176,1110070,,21,51,,,56826,1987156,some cells imputed by Eurostat
+Croatia,Whole,2025,Eurostat road_eqs_carpda (31 Dec),12616,5051,,37858,,803670,1144825,,408,53278,,,607,2058313,
+Cyprus,Whole,2013,Eurostat road_eqs_carpda (31 Dec),6,0,,1820,,422248,50478,,0,0,,,0,474561,
+Cyprus,Whole,2014,Eurostat road_eqs_carpda (31 Dec),15,0,,2091,,421516,54870,,0,0,,,0,478492,
+Cyprus,Whole,2015,Eurostat road_eqs_carpda (31 Dec),23,0,,2421,,424656,60592,,0,0,,,0,487692,
+Cyprus,Whole,2016,Eurostat road_eqs_carpda (31 Dec),40,0,,3122,,434685,70264,,0,0,,,173,508284,
+Cyprus,Whole,2017,Eurostat road_eqs_carpda (31 Dec),87,0,,4418,,438205,83505,,0,0,,,402,526617,
+Cyprus,Whole,2018,Eurostat road_eqs_carpda (31 Dec),114,0,,6041,,444641,99381,,0,0,,,518,550695,
+Cyprus,Whole,2019,Eurostat road_eqs_carpda (31 Dec),167,0,,7834,,449648,114291,,0,0,,,561,572501,
+Cyprus,Whole,2020,Eurostat road_eqs_carpda (31 Dec),240,0,,9992,,443735,123622,,0,0,,,569,578158,
+Cyprus,Whole,2021,Eurostat road_eqs_carpda (31 Dec),333,0,,14438,,447120,129661,,0,0,,,604,592156,
+Cyprus,Whole,2022,Eurostat road_eqs_carpda (31 Dec),830,0,,20375,,449778,129536,,0,0,,,612,601131,
+Cyprus,Whole,2023,Eurostat road_eqs_carpda (31 Dec),1800,803,,30027,,460362,132044,,0,0,,,589,625625,
+Cyprus,Whole,2024,Eurostat road_eqs_carpda (31 Dec),3317,1561,,43161,,464971,133723,,0,0,,,594,647327,
+Cyprus,Whole,2025,Eurostat road_eqs_carpda (31 Dec),5244,2498,,59700,,465414,134442,,0,0,,,543,667841,
+Czechia,Whole,2013,Eurostat road_eqs_carpda (31 Dec),237,,,,,3196233,1525690,,,41,,,6984,4729185,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Czechia,Whole,2014,Eurostat road_eqs_carpda (31 Dec),417,,,,,3189890,1631014,,,51,,,12014,4833386,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Czechia,Whole,2015,Eurostat road_eqs_carpda (31 Dec),713,,,,,3292863,1807953,,,56,,,13731,5115316,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Czechia,Whole,2016,Eurostat road_eqs_carpda (31 Dec),974,,,,,3337837,1954086,,,47,,,14864,5307808,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Czechia,Whole,2017,Eurostat road_eqs_carpda (31 Dec),1525,,,,,3422845,2097056,,,47,,,16749,5538222,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Czechia,Whole,2018,Eurostat road_eqs_carpda (31 Dec),3405,,,,,3390776,2205495,,16552,103838,,,4520,5747913,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat; break in LPG/OTHERS (Eurostat flag b)
+Czechia,Whole,2019,Eurostat road_eqs_carpda (31 Dec),4950,,,,,3475194,2313009,,18611,106613,,,6618,5924995,hybrids not split out are in PETROL/DIESEL
+Czechia,Whole,2020,Eurostat road_eqs_carpda (31 Dec),8109,,,,,3515604,2388353,,19933,106573,,,10683,6049255,hybrids not split out are in PETROL/DIESEL
+Czechia,Whole,2021,Eurostat road_eqs_carpda (31 Dec),9051,,,,,3523023,2415250,,20717,108611,,,12078,6088730,hybrids not split out are in PETROL/DIESEL
+Czechia,Whole,2022,Eurostat road_eqs_carpda (31 Dec),14195,,,17519,,3620358,2503571,,22694,114392,,,3245,6305934,HEV = combined PHEV+HEV (source did not split)
+Czechia,Whole,2023,Eurostat road_eqs_carpda (31 Dec),22441,10997,,16503,,3726784,2467214,,22990,117901,,,117566,6512774,some cells imputed by Eurostat; break in DIESEL (Eurostat flag b)
+Czechia,Whole,2024,Eurostat road_eqs_carpda (31 Dec),36341,21054,,16706,,3786305,2516157,,23066,120873,,,107181,6638172,some cells imputed by Eurostat
+Czechia,Whole,2025,Eurostat road_eqs_carpda (31 Dec),57611,35513,,18447,,3875670,2537462,,22916,123041,,,94084,6774399,some cells imputed by Eurostat
+Estonia,Whole,2013,Eurostat road_eqs_carpda (31 Dec),708,,,1431,,424944,201363,,117,2,,,0,628565,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Estonia,Whole,2014,Eurostat road_eqs_carpda (31 Dec),1067,,,1902,,427114,222632,,233,2,,,0,652950,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Estonia,Whole,2015,Eurostat road_eqs_carpda (31 Dec),1116,,,2426,,431632,241037,,383,2,,,0,676596,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Estonia,Whole,2016,Eurostat road_eqs_carpda (31 Dec),1156,,,3402,,439704,258413,,473,3,,,0,703151,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Estonia,Whole,2017,Eurostat road_eqs_carpda (31 Dec),1191,,,4690,,444701,274797,,562,3,,,0,725944,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Estonia,Whole,2018,Eurostat road_eqs_carpda (31 Dec),1254,,,6344,,446759,291452,,652,3,,,0,746464,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Estonia,Whole,2019,Eurostat road_eqs_carpda (31 Dec),1382,,,9397,,468286,314534,,1324,3,,,0,794926,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Estonia,Whole,2020,Eurostat road_eqs_carpda (31 Dec),1773,,,12683,,466432,325735,,2063,3,,,0,808689,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Estonia,Whole,2021,Eurostat road_eqs_carpda (31 Dec),2456,976,,18977,,462887,338062,,2575,3,,,1,825936,some cells imputed by Eurostat
+Estonia,Whole,2022,Eurostat road_eqs_carpda (31 Dec),3461,1562,,26912,,461928,352691,,2716,24,,,2,849294,some cells imputed by Eurostat
+Estonia,Whole,2023,Eurostat road_eqs_carpda (31 Dec),5796,2781,,36435,,457922,360152,,2618,69,,,2,865773,some cells imputed by Eurostat
+Estonia,Whole,2024,Eurostat road_eqs_carpda (31 Dec),8111,5608,,49450,,444840,358904,,2672,81,,,0,869666,
+Estonia,Whole,2025,Eurostat road_eqs_carpda (31 Dec),10171,8028,,55204,,393122,339912,,2570,88,,,0,809095,stock drop most likely from the 2025 car tax
+France,Whole,2013,Eurostat road_eqs_carpda (31 Dec),17154,29873,,81382,,12837432,22965216,,274,407,,,217492,36149230,
+France,Whole,2014,Eurostat road_eqs_carpda (31 Dec),25950,31361,,122636,,12827010,23429764,,293,374,,,210495,36647883,
+France,Whole,2015,Eurostat road_eqs_carpda (31 Dec),41901,36354,,175877,,13001571,23718626,,313,337,,,205122,37180101,
+France,Whole,2016,Eurostat road_eqs_carpda (31 Dec),61338,42868,,224287,,13305262,23840395,,315,355,,,198656,37673476,
+France,Whole,2017,Eurostat road_eqs_carpda (31 Dec),82481,54115,,292041,,13743343,23752657,,325,324,,,192377,38117663,
+France,Whole,2018,Eurostat road_eqs_carpda (31 Dec),106489,67776,,379875,,14289523,23199412,,342,284,,,185604,38229305,
+France,Whole,2019,Eurostat road_eqs_carpda (31 Dec),141353,84630,,480393,,14915413,22611758,,573,211,,,189225,38423556,
+France,Whole,2020,Eurostat road_eqs_carpda (31 Dec),245112,157475,,646902,,15189888,22025189,,890,178,,,204488,38470122,
+France,Whole,2021,Eurostat road_eqs_carpda (31 Dec),403329,299504,,949250,,15482449,21417978,,1070,168,,,265166,38818914,
+France,Whole,2022,Eurostat road_eqs_carpda (31 Dec),595858,424007,,1259731,,15631315,20666465,,1199,158,,,394606,38973339,
+France,Whole,2023,Eurostat road_eqs_carpda (31 Dec),868138,576366,,1644273,,15821379,19941790,,1337,134,,,505004,39358421,
+France,Whole,2024,Eurostat road_eqs_carpda (31 Dec),1132210,710305,,2196854,,15919234,19201010,,1347,122,,,577851,39738933,
+Hungary,Whole,2013,Eurostat road_eqs_carpda (31 Dec),110,0,,0,,2272281,740114,,440,10,,,27777,3040732,hybrids counted in OTHERS by the source
+Hungary,Whole,2014,Eurostat road_eqs_carpda (31 Dec),175,0,,0,,2266199,809523,,696,12,,,31090,3107695,hybrids counted in OTHERS by the source
+Hungary,Whole,2015,Eurostat road_eqs_carpda (31 Dec),342,0,,0,,2272447,888874,,834,17,,,34342,3196856,hybrids counted in OTHERS by the source
+Hungary,Whole,2016,Eurostat road_eqs_carpda (31 Dec),758,0,,0,,2301168,970997,,925,16,,,39342,3313206,hybrids counted in OTHERS by the source
+Hungary,Whole,2017,Eurostat road_eqs_carpda (31 Dec),1996,0,,0,,2365797,1055268,,1054,16,,,47866,3471997,hybrids counted in OTHERS by the source
+Hungary,Whole,2018,Eurostat road_eqs_carpda (31 Dec),3839,0,,0,,2445468,1131685,,1104,17,,,59710,3641823,hybrids counted in OTHERS by the source
+Hungary,Whole,2019,Eurostat road_eqs_carpda (31 Dec),6595,,,,,2529572,1199155,,1088,19,,,75584,3812013,no hybrid figure (hybrids sit in another column); hybrids counted in OTHERS by the source
+Hungary,Whole,2020,Eurostat road_eqs_carpda (31 Dec),11012,,,,,2561520,1241967,,1092,17,,,105191,3920799,no hybrid figure (hybrids sit in another column); hybrids counted in OTHERS by the source
+Hungary,Whole,2021,Eurostat road_eqs_carpda (31 Dec),18823,,,,,2581637,1272218,,1084,20,,,146377,4020159,no hybrid figure (hybrids sit in another column); hybrids counted in OTHERS by the source
+Hungary,Whole,2022,Eurostat road_eqs_carpda (31 Dec),29836,,,,,2583328,1294087,,1028,30,,,185820,4094129,no hybrid figure (hybrids sit in another column); hybrids counted in OTHERS by the source
+Hungary,Whole,2023,Eurostat road_eqs_carpda (31 Dec),41212,11679,,0,,2583465,1315322,,923,37,,,216013,4168651,some cells imputed by Eurostat; hybrids counted in OTHERS by the source
+Hungary,Whole,2024,Eurostat road_eqs_carpda (31 Dec),60211,12620,,238715,,2582498,1338743,,859,37,,,29384,4263067,some cells imputed by Eurostat
+Hungary,Whole,2025,Eurostat road_eqs_carpda (31 Dec),86372,10780,,299437,,2584058,1364343,,1580,26728,,,1465,4374763,
+Ireland,Whole,2013,Eurostat road_eqs_carpda (31 Dec),280,,,,,1221690,742330,,10,,,,17510,1981830,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Ireland,Whole,2014,Eurostat road_eqs_carpda (31 Dec),560,,,,,1171220,827680,,10,,,,18840,2018310,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Ireland,Whole,2015,Eurostat road_eqs_carpda (31 Dec),1120,,,,,1120410,917690,,0,,,,20680,2060170,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Ireland,Whole,2016,Eurostat road_eqs_carpda (31 Dec),1700,,,,,1052220,1024270,,0,,,,24521,2102720,hybrids not split out are in PETROL/DIESEL; some cells imputed by Eurostat
+Ireland,Whole,2017,Eurostat road_eqs_carpda (31 Dec),2770,,,22560,,980610,1127170,,0,,,,9280,2142390,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Ireland,Whole,2018,Eurostat road_eqs_carpda (31 Dec),4610,,,35710,,922660,1210990,,,,,,8950,2182920,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Ireland,Whole,2019,Eurostat road_eqs_carpda (31 Dec),8590,,,55030,,886040,1294910,,,,,,8640,2253210,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Ireland,Whole,2020,Eurostat road_eqs_carpda (31 Dec),12720,,,75650,,851700,1343460,,,,,,8400,2291940,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Ireland,Whole,2021,Eurostat road_eqs_carpda (31 Dec),21440,,,110770,,820310,1348660,,,,,,8570,2309760,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Ireland,Whole,2022,Eurostat road_eqs_carpda (31 Dec),36970,,,144960,,812420,1331170,,,140,,,9470,2335130,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Ireland,Whole,2023,Eurostat road_eqs_carpda (31 Dec),59400,47080,,138130,,824230,1327470,,140,,,,7680,2404140,some cells imputed by Eurostat
+Ireland,Whole,2024,Eurostat road_eqs_carpda (31 Dec),77336,64682,,167464,,871218,1346910,,173,516,,,6648,2534636,some cells imputed by Eurostat
+Ireland,Whole,2025,Eurostat road_eqs_carpda (31 Dec),103299,92102,,203089,,885031,1328687,,172,920,,,5783,2619083,some cells imputed by Eurostat
+Italy,Whole,2013,Eurostat road_eqs_carpda (31 Dec),4500,,,14957070,,19264000,14930,,774000,1944000,,,46500,36963000,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Italy,Whole,2014,Eurostat road_eqs_carpda (31 Dec),3430,201,,62209,,18895138,15237608,,833668,2042120,,,6379,37080753,some cells imputed by Eurostat
+Italy,Whole,2015,Eurostat road_eqs_carpda (31 Dec),4584,891,,84457,,18568405,15666309,,883190,2137078,,,6319,37351233,some cells imputed by Eurostat
+Italy,Whole,2016,Eurostat road_eqs_carpda (31 Dec),5743,,,120765,,18360105,16260625,,911246,2211368,,,6297,37876138,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Italy,Whole,2017,Eurostat road_eqs_carpda (31 Dec),7560,,,177492,,18196563,16896736,,926704,2309020,,,6257,38520321,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Italy,Whole,2018,Eurostat road_eqs_carpda (31 Dec),12156,,,244484,,18083402,17316888,,945184,2409840,,,6227,39018170,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Italy,Whole,2019,Eurostat road_eqs_carpda (31 Dec),22728,,,334568,,18174338,17467776,,965340,2574287,,,6223,39545232,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Italy,Whole,2020,Eurostat road_eqs_carpda (31 Dec),53079,,,542728,,18072495,17385843,,978832,2678656,,,6241,39717874,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Italy,Whole,2021,Eurostat road_eqs_carpda (31 Dec),118034,,,1031494,,17806656,17093277,,984964,2782057,,,6241,39822723,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Italy,Whole,2022,Eurostat road_eqs_carpda (31 Dec),158131,,,1556620,,17691577,16928077,,971583,2900799,,,6249,40213061,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Italy,Whole,2023,Eurostat road_eqs_carpda (31 Dec),219540,252640,,1959294,,17717147,16777000,,950500,3032796,,,6262,40915229,some cells imputed by Eurostat
+Italy,Whole,2024,Eurostat road_eqs_carpda (31 Dec),279607,286737,,2613615,,17636755,16437562,,925583,3153648,,,6252,41340516,some cells imputed by Eurostat
+Italy,Whole,2025,Eurostat road_eqs_carpda (31 Dec),362224,383258,,3268090,,17564786,16051400,,899801,3257734,,,6257,41795962,some cells imputed by Eurostat
+Latvia,Whole,2013,Eurostat road_eqs_carpda (31 Dec),15,,,3,,361597,272980,,,,,,5,634600,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Latvia,Whole,2014,Eurostat road_eqs_carpda (31 Dec),188,,,4,,300124,305612,,,,,,51871,657799,HEV = combined PHEV+HEV (source did not split)
+Latvia,Whole,2015,Eurostat road_eqs_carpda (31 Dec),211,,,12,,287289,337453,,,,,,54083,679048,HEV = combined PHEV+HEV (source did not split)
+Latvia,Whole,2016,Eurostat road_eqs_carpda (31 Dec),241,,,27,,256379,355043,,81,7297,,,45109,664177,HEV = combined PHEV+HEV (source did not split)
+Latvia,Whole,2017,Eurostat road_eqs_carpda (31 Dec),312,,,57,,248926,387995,,146,13128,,,38972,689536,HEV = combined PHEV+HEV (source did not split)
+Latvia,Whole,2018,Eurostat road_eqs_carpda (31 Dec),442,,,89,,238207,418226,,177,17749,,,32951,707841,HEV = combined PHEV+HEV (source did not split)
+Latvia,Whole,2019,Eurostat road_eqs_carpda (31 Dec),658,,,134,,230506,447468,,220,20339,,,27839,727164,HEV = combined PHEV+HEV (source did not split)
+Latvia,Whole,2020,Eurostat road_eqs_carpda (31 Dec),1205,,,244,,223989,468130,,294,21387,,,23875,739124,HEV = combined PHEV+HEV (source did not split)
+Latvia,Whole,2021,Eurostat road_eqs_carpda (31 Dec),2106,,,490,,221241,492450,,370,21538,,,20493,758688,HEV = combined PHEV+HEV (source did not split)
+Latvia,Whole,2022,Eurostat road_eqs_carpda (31 Dec),3832,926,,17547,,203735,503996,,379,21781,,,17527,769723,
+Latvia,Whole,2023,Eurostat road_eqs_carpda (31 Dec),6369,1521,,24304,,198746,514369,,372,21250,,,14759,781690,
+Latvia,Whole,2024,Eurostat road_eqs_carpda (31 Dec),9234,2910,,32348,,192731,517507,,405,20558,,,12382,788075,
+Latvia,Whole,2025,Eurostat road_eqs_carpda (31 Dec),13916,6837,,42868,,191130,517762,,354,19575,,,10342,802784,
+Lithuania,Whole,2014,Eurostat road_eqs_carpda (31 Dec),70,,,2930,,341390,721151,,28,,,,140099,1205668,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Lithuania,Whole,2015,Eurostat road_eqs_carpda (31 Dec),169,,,3919,,321394,783602,,38,,,,134941,1244063,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Lithuania,Whole,2016,Eurostat road_eqs_carpda (31 Dec),358,,,5678,,315930,847310,,17,33,,,129411,1298737,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Lithuania,Whole,2017,Eurostat road_eqs_carpda (31 Dec),619,,,8622,,319228,907214,,27,44,,,121233,1356987,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Lithuania,Whole,2018,Eurostat road_eqs_carpda (31 Dec),965,,,14108,,331314,968045,,37,61,,,115990,1430520,HEV = combined PHEV+HEV (source did not split); no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Lithuania,Whole,2019,Eurostat road_eqs_carpda (31 Dec),1395,,,20978,,346658,1016219,,43,59,,,113336,1498688,HEV = combined PHEV+HEV (source did not split)
+Lithuania,Whole,2020,Eurostat road_eqs_carpda (31 Dec),2475,,,29175,,362268,1060085,,69,57,,,111336,1565465,HEV = combined PHEV+HEV (source did not split)
+Lithuania,Whole,2021,Eurostat road_eqs_carpda (31 Dec),4831,,,39056,,368594,1088427,,69,57,,,110109,1611143,HEV = combined PHEV+HEV (source did not split)
+Lithuania,Whole,2022,Eurostat road_eqs_carpda (31 Dec),7305,,,52902,,378504,1101970,,88,72,,,109542,1650384,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Lithuania,Whole,2023,Eurostat road_eqs_carpda (31 Dec),11424,7530,,61575,,388289,1121492,,118,96,,,110000,1700524,some cells imputed by Eurostat
+Lithuania,Whole,2024,Eurostat road_eqs_carpda (31 Dec),15741,12291,,78791,,391294,1122031,,142,117,,,109306,1729713,some cells imputed by Eurostat
+Lithuania,Whole,2025,Eurostat road_eqs_carpda (31 Dec),23148,21021,,104960,,407042,1149671,,184,150,,,110680,1816856,
+Luxembourg,Whole,2013,Eurostat road_eqs_carpda (31 Dec),263,0,,1845,,122019,238608,,109,289,,,114,363247,some cells imputed by Eurostat
+Luxembourg,Whole,2014,Eurostat road_eqs_carpda (31 Dec),524,0,,2291,,124916,244530,,135,308,,,407,372827,some cells imputed by Eurostat
+Luxembourg,Whole,2015,Eurostat road_eqs_carpda (31 Dec),580,0,,2617,,128546,248770,,144,326,,,120,381103,some cells imputed by Eurostat
+Luxembourg,Whole,2016,Eurostat road_eqs_carpda (31 Dec),685,0,,2816,,135557,251026,,141,293,,,417,390935,some cells imputed by Eurostat
+Luxembourg,Whole,2017,Eurostat road_eqs_carpda (31 Dec),996,1108,,3363,,147991,249284,,109,1,,,430,403282,
+Luxembourg,Whole,2018,Eurostat road_eqs_carpda (31 Dec),1360,1758,,4231,,162564,244718,,100,1,,,413,415145,some cells imputed by Eurostat
+Luxembourg,Whole,2019,Eurostat road_eqs_carpda (31 Dec),2195,2485,,6244,,177306,237641,,92,0,,,382,426346,some cells imputed by Eurostat
+Luxembourg,Whole,2020,Eurostat road_eqs_carpda (31 Dec),4444,4909,,9751,,186036,227586,,86,0,,,374,433183,some cells imputed by Eurostat
+Luxembourg,Whole,2021,Eurostat road_eqs_carpda (31 Dec),8528,8771,,16876,,191335,213965,,80,0,,,364,439919,
+Luxembourg,Whole,2022,Eurostat road_eqs_carpda (31 Dec),13909,11891,,24353,,193871,200332,,79,0,,,374,444818,some cells imputed by Eurostat
+Luxembourg,Whole,2023,Eurostat road_eqs_carpda (31 Dec),23267,15345,,32472,,197241,184850,,63,0,,,409,453659,
+Luxembourg,Whole,2024,Eurostat road_eqs_carpda (31 Dec),32618,17172,,41194,,197547,168206,,2,0,,,496,457231,
+Luxembourg,Whole,2025,Eurostat road_eqs_carpda (31 Dec),39986,18307,,53031,,197236,152743,,96,339,,,24,461762,
+Malta,Whole,2013,Eurostat road_eqs_carpda (31 Dec),59,,,316,,178144,77379,,2,1,,,195,256096,HEV = combined PHEV+HEV (source did not split)
+Malta,Whole,2014,Eurostat road_eqs_carpda (31 Dec),87,,,351,,183447,81616,,0,2,,,447,265950,HEV = combined PHEV+HEV (source did not split)
+Malta,Whole,2015,Eurostat road_eqs_carpda (31 Dec),136,,,432,,188922,85169,,1,2,,,718,275380,HEV = combined PHEV+HEV (source did not split)
+Malta,Whole,2016,Eurostat road_eqs_carpda (31 Dec),140,,,587,,193179,88048,,2,2,,,963,282921,HEV = combined PHEV+HEV (source did not split)
+Malta,Whole,2017,Eurostat road_eqs_carpda (31 Dec),189,,,861,,197568,91971,,0,4,,,1205,291798,HEV = combined PHEV+HEV (source did not split)
+Malta,Whole,2018,Eurostat road_eqs_carpda (31 Dec),603,,,1436,,201913,94841,,0,5,,,1343,300140,HEV = combined PHEV+HEV (source did not split)
+Malta,Whole,2019,Eurostat road_eqs_carpda (31 Dec),983,273,,2198,,204985,97156,,0,5,,,1530,307130,
+Malta,Whole,2020,Eurostat road_eqs_carpda (31 Dec),1293,785,,2699,,204702,97267,,0,5,,,1607,308358,
+Malta,Whole,2021,Eurostat road_eqs_carpda (31 Dec),1783,1664,,3999,,207548,96414,,0,5,,,1764,313177,
+Malta,Whole,2022,Eurostat road_eqs_carpda (31 Dec),2803,2983,,5781,,208546,95265,,0,5,,,1851,317234,
+Malta,Whole,2023,Eurostat road_eqs_carpda (31 Dec),4364,4041,,8035,,210944,94553,,0,5,,,1910,323852,
+Malta,Whole,2024,Eurostat road_eqs_carpda (31 Dec),7301,4671,,10092,,213454,93039,,0,4,,,1923,330484,
+Malta,Whole,2025,Eurostat road_eqs_carpda (31 Dec),9790,5243,,12120,,215299,91331,,0,4,,,1906,335693,
+Portugal,Whole,2013,Eurostat road_eqs_carpda (31 Dec),456,,,10900,,2155229,2120334,,11,40443,,,105,4327478,HEV = combined PHEV+HEV (source did not split)
+Portugal,Whole,2014,Eurostat road_eqs_carpda (31 Dec),672,204,,13233,,2272319,2366121,,13,46955,,,128,4699645,
+Portugal,Whole,2015,Eurostat road_eqs_carpda (31 Dec),1398,672,,16527,,2184146,2471985,,15,48062,,,158,4722963,
+Portugal,Whole,2016,Eurostat road_eqs_carpda (31 Dec),2383,1787,,20830,,2156073,2619720,,21,49301,,,114,4850229,
+Portugal,Whole,2017,Eurostat road_eqs_carpda (31 Dec),4667,4594,,28175,,2168924,2800640,,33,52315,,,124,5059472,
+Portugal,Whole,2018,Eurostat road_eqs_carpda (31 Dec),9980,9699,,36960,,2217506,2952260,,38,56213,,,314,5282970,
+Portugal,Whole,2019,Eurostat road_eqs_carpda (31 Dec),18139,17526,,91709,,2264850,3044926,,85,57432,,,374,5452119,
+Portugal,Whole,2020,Eurostat road_eqs_carpda (31 Dec),26949,30990,,61308,,2241224,3146222,,114,58717,,,439,5565963,
+Portugal,Whole,2021,Eurostat road_eqs_carpda (31 Dec),43309,47748,,81675,,2219661,3178751,,150,61573,,,517,5632644,
+Portugal,Whole,2022,Eurostat road_eqs_carpda (31 Dec),67347,65769,,105979,,2239757,3231829,,176,66957,,,770,5778584,
+Portugal,Whole,2023,Eurostat road_eqs_carpda (31 Dec),110649,96957,,136359,,2213914,3213105,,236,75505,,,885,5847610,
+Portugal,Whole,2024,Eurostat road_eqs_carpda (31 Dec),165316,133834,,173569,,2293156,3277095,,261,91024,,,1262,6135517,
+Portugal,Whole,2025,Eurostat road_eqs_carpda (31 Dec),241819,181772,,226906,,2342548,3305514,,287,110507,,,1402,6410754,provisional
+Romania,Whole,2018,Eurostat road_eqs_carpda (31 Dec),1103,,,15433,,3535317,2891140,,167,16,,,9360,6452536,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Romania,Whole,2019,Eurostat road_eqs_carpda (31 Dec),2798,,,26446,,3630529,3230617,,213,17,,,12364,6902984,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Romania,Whole,2020,Eurostat road_eqs_carpda (31 Dec),5803,,,44988,,3687912,3512622,,251,19,,,23133,7274728,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Romania,Whole,2021,Eurostat road_eqs_carpda (31 Dec),12433,,,83359,,3706732,3768454,,294,26,,,39741,7611039,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Romania,Whole,2022,Eurostat road_eqs_carpda (31 Dec),24691,,,127323,,3712134,3946451,,327,25,,,54235,7865186,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Romania,Whole,2023,Eurostat road_eqs_carpda (31 Dec),39271,10205,,173742,,3711577,4099355,,390,25,,,72005,8106570,some cells imputed by Eurostat
+Romania,Whole,2024,Eurostat road_eqs_carpda (31 Dec),49594,14634,,251956,,3759984,4284499,,460,27,,,88627,8449781,some cells imputed by Eurostat
+Romania,Whole,2025,Eurostat road_eqs_carpda (31 Dec),61453,19622,,359856,,3774405,4445905,,3473,109179,,,915,8774808,some cells imputed by Eurostat
+Slovenia,Whole,2013,Eurostat road_eqs_carpda (31 Dec),29,,,,,633646,429303,,,,,,817,1066795,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Slovenia,Whole,2014,Eurostat road_eqs_carpda (31 Dec),133,,,,,609213,450422,,99,7313,,,1182,1068362,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Slovenia,Whole,2015,Eurostat road_eqs_carpda (31 Dec),288,,,,,594627,473665,,142,8582,,,1433,1078737,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Slovenia,Whole,2016,Eurostat road_eqs_carpda (31 Dec),457,,,,,583837,500659,,156,9422,,,1992,1096523,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Slovenia,Whole,2017,Eurostat road_eqs_carpda (31 Dec),779,,,,,575060,528809,,217,9952,,,3118,1117935,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Slovenia,Whole,2018,Eurostat road_eqs_carpda (31 Dec),1308,,,,,571225,555500,,236,10200,,,4681,1143150,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Slovenia,Whole,2019,Eurostat road_eqs_carpda (31 Dec),1998,,,,,568597,577772,,273,9855,,,6876,1165371,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Slovenia,Whole,2020,Eurostat road_eqs_carpda (31 Dec),3670,,,,,559184,588692,,316,9340,,,9488,1170690,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Slovenia,Whole,2021,Eurostat road_eqs_carpda (31 Dec),5413,,,,,556424,601917,,341,9244,,,16118,1189457,no hybrid figure (hybrids sit in another column); some cells imputed by Eurostat
+Slovenia,Whole,2022,Eurostat road_eqs_carpda (31 Dec),7977,1546,,0,,559802,605424,,387,9332,,,24833,1207755,some cells imputed by Eurostat
+Slovenia,Whole,2023,Eurostat road_eqs_carpda (31 Dec),12743,2523,,34755,,563481,607546,,443,9007,,,67,1230565,some cells imputed by Eurostat
+Slovenia,Whole,2024,Eurostat road_eqs_carpda (31 Dec),16944,3223,,50299,,568483,602520,,470,8491,,,78,1250508,some cells imputed by Eurostat
+Slovenia,Whole,2025,Eurostat road_eqs_carpda (31 Dec),24548,5213,,68650,,573881,605585,,460,8176,,,75,1286588,some cells imputed by Eurostat
+Spain,Whole,2014,Eurostat road_eqs_carpda (31 Dec),2832,377,,55415,,9663658,12302003,,176,1971,,,3080,22029512,
+Spain,Whole,2015,Eurostat road_eqs_carpda (31 Dec),5243,424,,61972,,9635303,12644560,,398,4792,,,2857,22355549,
+Spain,Whole,2016,Eurostat road_eqs_carpda (31 Dec),5756,454,,106776,,9854718,12880656,,612,8371,,,19487,22876830,some cells imputed by Eurostat
+Spain,Whole,2017,Eurostat road_eqs_carpda (31 Dec),9681,979,,160716,,10073597,14393041,,653,8890,,,29000,24676557,some cells imputed by Eurostat
+Spain,Whole,2018,Eurostat road_eqs_carpda (31 Dec),15865,2931,,233858,,10412137,14572400,,1080,9875,,,56044,25304190,
+Spain,Whole,2019,Eurostat road_eqs_carpda (31 Dec),26197,8579,,337814,,10750260,14606861,,6966,16315,,,83594,25836586,
+Spain,Whole,2020,Eurostat road_eqs_carpda (31 Dec),43203,30872,,470839,,10811465,14555080,,10678,16245,,,95965,26034347,
+Spain,Whole,2021,Eurostat road_eqs_carpda (31 Dec),66085,72642,,679100,,10893556,14441476,,11627,16145,,,113251,26293882,
+Spain,Whole,2022,Eurostat road_eqs_carpda (31 Dec),95617,118697,,911880,,10990982,14328026,,12015,17224,,,131037,26605478,
+Spain,Whole,2023,Eurostat road_eqs_carpda (31 Dec),150282,180447,,1204441,,10876900,14175393,,12094,18373,,,160212,26778142,
+Spain,Whole,2024,Eurostat road_eqs_carpda (31 Dec),208240,239644,,1576757,,10496661,13952057,,12169,18907,,,196537,26700972,
+Spain,Whole,2025,Eurostat road_eqs_carpda (31 Dec),312914,370742,,2031878,,10517959,13758092,,12154,18894,,,258740,27281373,
+Sweden,Whole,2013,Eurostat road_eqs_carpda (31 Dec),1010,1636,,28360,,3129764,1067664,,6859,22,,,259346,4494661,
+Sweden,Whole,2014,Eurostat road_eqs_carpda (31 Dec),2172,4920,,34937,,3048863,1223891,,8148,30,,,261750,4584711,
+Sweden,Whole,2015,Eurostat road_eqs_carpda (31 Dec),4765,9774,,42744,,2958545,1381379,,8551,27,,,262477,4668262,
+Sweden,Whole,2016,Eurostat road_eqs_carpda (31 Dec),7532,18829,,55135,,2887727,1529329,,8403,21,,,260286,4767262,
+Sweden,Whole,2017,Eurostat road_eqs_carpda (31 Dec),11034,32242,,71361,,2821635,1644384,,8041,17,,,256108,4844823,
+Sweden,Whole,2018,Eurostat road_eqs_carpda (31 Dec),16664,49377,,90086,,2754808,1703971,,7531,14,,,247526,4869979,
+Sweden,Whole,2019,Eurostat road_eqs_carpda (31 Dec),30343,66589,,117316,,2694213,1735102,,10840,13,,,232700,4887116,
+Sweden,Whole,2020,Eurostat road_eqs_carpda (31 Dec),55790,122189,,160787,,2642376,1726966,,12845,12,,,222327,4943293,
+Sweden,Whole,2021,Eurostat road_eqs_carpda (31 Dec),110177,189272,,225929,,2546038,1689369,,13735,14,,,211444,4985979,
+Sweden,Whole,2022,Eurostat road_eqs_carpda (31 Dec),197709,239276,,268977,,2437677,1619470,,14665,16,,,201971,4979761,
+Sweden,Whole,2023,Eurostat road_eqs_carpda (31 Dec),291673,272328,,190752,,2405382,1606751,,15110,203,,,194167,4976366,
+Sweden,Whole,2024,Eurostat road_eqs_carpda (31 Dec),358255,313530,,209145,,2337374,1557502,,14626,209,,,186346,4976987,
+Sweden,Whole,2025,Eurostat road_eqs_carpda (31 Dec),432709,373812,,224140,,2297530,1519841,,31396,217,,,159786,5039431,
+Switzerland,Whole,2013,Eurostat road_eqs_carpda (31 Dec),2687,33183,,1663,,3243343,1071447,,4004,15,,,9221,4365563,
+Switzerland,Whole,2014,Eurostat road_eqs_carpda (31 Dec),4443,38623,,2548,,3210217,1162334,,4199,19,,,9503,4431886,
+Switzerland,Whole,2015,Eurostat road_eqs_carpda (31 Dec),7534,43803,,4722,,3182191,1256317,,4205,45,,,10081,4508898,
+Switzerland,Whole,2016,Eurostat road_eqs_carpda (31 Dec),10727,4722,,52734,,3158201,1337937,,4177,63,,,10402,4578963,
+Switzerland,Whole,2017,Eurostat road_eqs_carpda (31 Dec),14543,7480,,60200,,3135179,1397827,,4169,71,,,10585,4630054,
+Switzerland,Whole,2018,Eurostat road_eqs_carpda (31 Dec),19185,11151,,68603,,3122771,1429618,,3967,79,,,10904,4666278,
+Switzerland,Whole,2019,Eurostat road_eqs_carpda (31 Dec),28722,14486,,83932,,3107402,1443303,,4409,81,,,10406,4692741,
+Switzerland,Whole,2020,Eurostat road_eqs_carpda (31 Dec),43405,23788,,109944,,3095340,1446136,,4850,92,,,9962,4733517,
+Switzerland,Whole,2021,Eurostat road_eqs_carpda (31 Dec),71715,44699,,161790,,3062745,1436394,,4770,98,,,11592,4793803,
+Switzerland,Whole,2022,Eurostat road_eqs_carpda (31 Dec),110788,64046,,220410,,2999013,1402826,,4718,97,,,10998,4812896,
+Switzerland,Whole,2023,Eurostat road_eqs_carpda (31 Dec),155556,77489,,286718,,2960777,1365920,,4481,105,,,10498,4861544,
+Switzerland,Whole,2024,Eurostat road_eqs_carpda (31 Dec),202626,88405,,372096,,2907153,1320161,,4135,111,,,9972,4904659,
+Switzerland,Whole,2025,Eurostat road_eqs_carpda (31 Dec),249966,95005,,481035,,2847033,1268708,,3829,716,,,6896,4954884,
+Türkiye,Whole,2013,Eurostat road_eqs_carpda (31 Dec),353,,,83,,2888610,2497209,,80,3852256,,,45332,9283923,HEV = combined PHEV+HEV (source did not split); no hybrid figure (hybrids sit in another column)
+Türkiye,Whole,2014,Eurostat road_eqs_carpda (31 Dec),412,,,113,,2855078,2882885,,101,4076629,,,42697,9857915,HEV = combined PHEV+HEV (source did not split)
+Türkiye,Whole,2015,Eurostat road_eqs_carpda (31 Dec),565,,,324,,2927720,3345951,,84,4271960,,,42733,10589337,HEV = combined PHEV+HEV (source did not split)
+Türkiye,Whole,2016,Eurostat road_eqs_carpda (31 Dec),643,,,517,,3031744,3803772,,63,4439568,,,41691,11317998,HEV = combined PHEV+HEV (source did not split)
+Türkiye,Whole,2017,Eurostat road_eqs_carpda (31 Dec),760,0,,925,,3120407,4256305,,61,4616781,,,40739,12035978,
+Türkiye,Whole,2018,Eurostat road_eqs_carpda (31 Dec),952,0,,4415,,3089626,4568665,,53,4695664,,,38815,12398190,
+Türkiye,Whole,2019,Eurostat road_eqs_carpda (31 Dec),1176,0,,13877,,3020017,4769714,,52,4661655,,,36558,12503049,
+Türkiye,Whole,2020,Eurostat road_eqs_carpda (31 Dec),2797,0,,33690,,3201894,5014356,,44,4809974,,,36286,13099041,
+Türkiye,Whole,2021,Eurostat road_eqs_carpda (31 Dec),6267,0,,86682,,3495172,5158803,,37,4923238,,,35866,13706065,
+Türkiye,Whole,2022,Eurostat road_eqs_carpda (31 Dec),14552,,,134662,,3817104,5261876,,33,5005530,,,35595,14269352,HEV = combined PHEV+HEV (source did not split)
+Türkiye,Whole,2023,Eurostat road_eqs_carpda (31 Dec),80043,,,222328,,4362975,5425652,,26,5094725,,,35385,15221134,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
+Türkiye,Whole,2024,Eurostat road_eqs_carpda (31 Dec),183776,0,,391296,,4908203,5541441,,26,5172445,,,35271,16232458,
+Türkiye,Whole,2025,Eurostat road_eqs_carpda (31 Dec),370591,,,697027,,5375736,5662760,,31,5232317,,,35119,17373581,HEV = combined PHEV+HEV (source did not split)
