@@ -189,9 +189,10 @@ if (file.exists("footnotes.csv")) {
 country_label <- if (variant == "Whole") country else paste0(country, " (", variant, ")")
 
 # Registration-type wording for the extrapolation plots. The Used variants
-# (Austria, Netherlands, Spain) chart used-car registrations, so labelling them
+# (used imports: Netherlands, Spain, …) and Austria's Resale (every used-car
+# registration, mostly owner changes) chart used cars, so labelling them
 # "new registrations" is simply wrong — flagged by Christian Peter on the
-# Austria (Used) projection. Only display strings vary; the internal
+# Austria (Used) projection, as it was then called. Only display strings vary; the internal
 # fit$extrap$Type factor level stays "New Registrations" for every variant.
 # NB: these locals must NOT be named reg_word/reg_Word — plots.R defines
 # accessor functions of exactly those names in the same global environment,
@@ -203,23 +204,39 @@ country_label <- if (variant == "Whole") country else paste0(country, " (", vari
 # genuine Used variant keeps its "used-import" wording. Scope details live in
 # footnotes.csv and the source pages (52 Georgia, 27 Albania).
 FIRST_REG_SOURCES <- c("Georgia", "Albania")
-is_first_reg <- variant != "Used" && country %in% FIRST_REG_SOURCES
-reg_word_lc <- if (variant == "Used") "used-import" else if (is_first_reg) "first" else "new"
-reg_word_uc <- if (variant == "Used") "Used-import" else if (is_first_reg) "First" else "New"
+is_first_reg <- !variant %in% c("Used", "Resale") && country %in% FIRST_REG_SOURCES
+reg_word_lc <- if (variant == "Used") "used-import" else if (variant == "Resale") "used-car" else
+  if (is_first_reg) "first" else "new"
+reg_word_uc <- if (variant == "Used") "Used-import" else if (variant == "Resale") "Used-car" else
+  if (is_first_reg) "First" else "New"
 # Label of the ICE annotation on the trajectory chart ("New ICE in" /
 # "Used-import ICE in"); "First ICE in" would misread, so first-registration
 # sources say "First-registration ICE in".
 reg_ice_uc <- if (is_first_reg) "First-registration" else reg_word_uc
+# Sources that do not count registrations (#283): every variant of the
+# country but Used says "new sales" or "new imports" instead of "new
+# registrations" (title, "… estimates in" box, y-axis, legend); Used keeps
+# "used-import registrations" ("used-import imports" would read badly; the
+# one such series, Paraguay|Used, is data-only). Only the noun changes; the
+# scope itself is spelled out in footnotes.csv, on the source page and in
+# 09-glossary.md "Vehicle scope per source". Sales: ANL (USA), MOTIR (South
+# Korea), CPCA retail/wholesale (China), GAIKINDO wholesales (Indonesia), SRI
+# invoices (Ecuador), naamsa (South Africa), ANAC (Chile), ACAU (Uruguay),
+# AIVAM (Morocco, probe only so far), VAMA member sales + VinFast deliveries
+# + TC Group (Hyundai) sales (Vietnam, 64-source-vietnam). Imports: customs
+# declarations (Nepal, Paraguay).
+SALES_SOURCES  <- c("USA", "South Korea", "China", "Indonesia", "Ecuador", "South Africa",
+                    "Chile", "Uruguay", "Morocco", "Vietnam")
+IMPORT_SOURCES <- c("Nepal", "Paraguay")
+counts <- if (variant %in% c("Used", "Resale")) "registrations" else
+  if (country %in% SALES_SOURCES) "sales" else if (country %in% IMPORT_SOURCES) "imports" else "registrations"
+reg_noun_lc <- counts
+reg_noun_uc <- switch(counts, sales = "Sales", imports = "Import", registrations = "Registration")
 # Legend entry of the fitted curve on the BEV extrapolation chart (NULL keeps
 # the default "New Registrations").
-reg_legend_val <- if (is_first_reg) "First Registrations" else NULL
-# Sources that count SALES rather than registrations (#283). Only the noun
-# changes ("new sales" instead of "new registrations"); the scope itself is
-# spelled out in footnotes.csv and on the source page. Vietnam: VAMA member
-# sales + VinFast deliveries + TC Group (Hyundai) sales (64-source-vietnam).
-SALES_SOURCES <- c("USA", "Vietnam")
-reg_noun_lc <- if (country %in% SALES_SOURCES) "sales" else "registrations"
-reg_noun_uc <- if (country %in% SALES_SOURCES) "Sales" else "Registration"
+reg_legend_val <- if (is_first_reg) "First Registrations" else
+  if (variant == "Resale") "Used-car Registrations" else
+  switch(counts, sales = "New Sales", imports = "New Imports", registrations = NULL)
 
 meta <- list(
   country = country, country_label = country_label,

@@ -7,5 +7,3 @@ Trailing 12 months are:
 73.7% BEV
 0.4% Hybrid
 26.0% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

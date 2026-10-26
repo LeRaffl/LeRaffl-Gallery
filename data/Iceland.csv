@@ -11,12 +11,12 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2018-10,monthly,Whole,ACEA,95.0,172.0,0.0,0.0,0.0,0.0,804.0,
 2018-11,monthly,Whole,ACEA,102.0,171.0,0.0,0.0,0.0,0.0,722.0,
 2018-12,monthly,Whole,ACEA,52.0,102.0,0.0,0.0,0.0,0.0,481.0,
-2019-01,monthly,Whole,ACEA,102.0,123.0,50.36824697,360.0396913,273.2943771,0.0,846.0,
-2019-02,monthly,Whole,ACEA,47.0,124.0,47.6890849,340.8886439,258.7574421,0.0,801.0,
-2019-03,monthly,Whole,ACEA,93.0,148.0,63.94266814,457.0716648,346.9481808,0.0,1074.0,
-2019-04,monthly,Whole,ACEA,78.0,163.0,96.38464903,562.5501859,382.124426,0.0,1201.0,
-2019-05,monthly,Whole,ACEA,108.0,167.0,161.5506232,942.8921933,640.4799913,0.0,2013.0,
-2019-06,monthly,Whole,ACEA,79.0,134.0,109.0647277,636.5576208,432.3955828,0.0,1359.0,
+2019-01,monthly,Whole,ACEA,102.0,123.0,45.74897681,327.0204638,248.2305594,0.0,846.0,HEV/PETROL/DIESEL rescaled to TOTAL-BEV-PHEV (quarterly fuel shares had been applied to the full monthly TOTAL; #343)
+2019-02,monthly,Whole,ACEA,47.0,124.0,46.41200546,331.7598909,251.8281037,0.0,801.0,HEV/PETROL/DIESEL rescaled to TOTAL-BEV-PHEV (quarterly fuel shares had been applied to the full monthly TOTAL; #343)
+2019-03,monthly,Whole,ACEA,93.0,148.0,61.366985,438.6603001,332.9727149,0.0,1074.0,HEV/PETROL/DIESEL rescaled to TOTAL-BEV-PHEV (quarterly fuel shares had been applied to the full monthly TOTAL; #343)
+2019-04,monthly,Whole,ACEA,78.0,163.0,88.87991927,518.7487386,352.3713421,0.0,1201.0,HEV/PETROL/DIESEL rescaled to TOTAL-BEV-PHEV (quarterly fuel shares had been applied to the full monthly TOTAL; #343)
+2019-05,monthly,Whole,ACEA,108.0,167.0,160.9096872,939.1513622,637.9389506,0.0,2013.0,HEV/PETROL/DIESEL rescaled to TOTAL-BEV-PHEV (quarterly fuel shares had been applied to the full monthly TOTAL; #343)
+2019-06,monthly,Whole,ACEA,79.0,134.0,106.1004036,619.2563068,420.6432897,0.0,1359.0,HEV/PETROL/DIESEL rescaled to TOTAL-BEV-PHEV (quarterly fuel shares had been applied to the full monthly TOTAL; #343)
 2019-07,monthly,Whole,ACEA,133,139,91,324,221,0.0,908,
 2019-08,monthly,Whole,ACEA,148,151,115,407,278,0.0,1099,
 2019-09,monthly,Whole,ACEA,92,167,81,289,197,0.0,826,

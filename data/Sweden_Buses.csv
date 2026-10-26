@@ -3,12 +3,12 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2021-07,yearly,Buses,ACEA,,,,,,,728.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
 2023-02,quarterly,Buses,ACEA,32.0,,0.0,0.0,75.0,28.0,135.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
 2022-02,quarterly,Buses,ACEA,40.0,,0.0,0.0,69.0,2.0,111.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2023-05,quarterly,Buses,ACEA,133.0,,0.0,0.0,116.0,20.0,269.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
+2023-05,quarterly,Buses,ACEA,133.0,,0.0,0.0,116.0,18.0,267.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf | later ACEA restatement: OTHERS 2 moved to Q3
 2022-05,quarterly,Buses,ACEA,93.0,,0.0,0.0,284.0,72.0,449.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
 2024-02,quarterly,Buses,ACEA,9.0,,0.0,0.0,107.0,13.0,129.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
 2024-05,quarterly,Buses,ACEA,1.0,,0.0,0.0,156.0,0.0,157.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
 2024-08,quarterly,Buses,ACEA,79.0,,0.0,0.0,152.0,0.0,231.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf
-2023-08,quarterly,Buses,ACEA,75.0,,0.0,0.0,316.0,-2.0,389.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
+2023-08,quarterly,Buses,ACEA,75.0,,0.0,0.0,316.0,0.0,391.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf | restatement carried back: OTHERS 2 to Q2
 2022-08,quarterly,Buses,ACEA,73.0,,0.0,0.0,212.0,0.0,285.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
 2023-11,quarterly,Buses,ACEA,72.0,,0.0,0.0,154.0,99.0,325.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
 2022-11,quarterly,Buses,ACEA,53.0,,0.0,0.0,323.0,20.0,396.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf

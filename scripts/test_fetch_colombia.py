@@ -8,6 +8,10 @@ Covers the two failure modes that cost the fetcher most of 2026:
   classify to the right (year, month), and the newest one must win;
 - merging: a value the parser could not read is unknown, never 0, and never
   overwrites a value already in the CSV.
+
+And the two legs added when the September 2026 PDF was nowhere to be found:
+ANDI press-note discovery and the FENALCO press-text fallback, both against
+real pages saved in scripts/fixtures/colombia/.
 """
 import sys
 from datetime import date
@@ -314,6 +318,269 @@ def test_extract_series_orphan_is_left_out():
     )
     b = fc.extract_series(text)
     assert b == [[(2026, 6, 4935)], [(2024, 1, 1997)]], b
+
+
+# --- ANDI press-note discovery + FENALCO press-text fallback ----------------
+# Fixtures: real pages saved 2026-10-24 (scripts/fixtures/colombia/, anonymous
+# CSRF tokens redacted). No network.
+
+FIX = Path(__file__).resolve().parent / "fixtures" / "colombia"
+FENALCO_POSTS = {
+    (2026, 9): "fenalco_informe-del-sector-automotor-a-septiembre-2026-9171.html",
+    (2026, 8): "fenalco_informe-del-sector-automotor-a-agosto-2026-9088.html",
+    (2026, 7): "fenalco_informe-del-sector-automotor-a-julio-2026-9021.html",
+}
+
+
+def _fix(name: str) -> str:
+    return (FIX / name).read_text(encoding="utf-8")
+
+
+class _Resp:
+    """requests.Response stand-in with .text, .content and raise_for_status()."""
+
+    def __init__(self, status: int, body):
+        self.status_code = status
+        self.content = body.encode("utf-8") if isinstance(body, str) else body
+        self.text = body if isinstance(body, str) else body.decode("latin-1")
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise fc.requests.HTTPError(f"HTTP {self.status_code}")
+
+
+class _MapSession:
+    def __init__(self, served: dict):
+        self.served, self.calls = served, []
+
+    def get(self, url, timeout=None):
+        self.calls.append(url)
+        return self.served.get(url, _Resp(404, "<html>not found</html>"))
+
+
+def _fenalco_site(posts=FENALCO_POSTS, index=None) -> dict:
+    idx = index if index is not None else _fix("fenalco_blog_gremial-4.html")
+    served = {fc.FENALCO_INDEX_URL: _Resp(200, idx)}
+    for (y, m), name in posts.items():
+        served[fc.fenalco_post_url(idx, y, m)] = _Resp(200, _fix(name))
+    return served
+
+
+def _csv_with(tmp: Path, rows: list[str]) -> str:
+    path = tmp / "Colombia.csv"
+    path.write_text(",".join(fc.CSV_COLUMNS) + "\n" + "".join(r + "\n" for r in rows), encoding="utf-8")
+    return str(path)
+
+
+AUG_ROW = "2026-08,monthly,Whole,andi.com.co + fenalco (datos RUNT),4542.0,,9195.0,,,,,13387.0,27124.0,"
+
+
+def test_fenalco_press_text_backtest_matches_the_boletin():
+    # Jul/Aug 2026 came from the PDF; the press text must give the same numbers.
+    assert fc.parse_fenalco_post(_fix(FENALCO_POSTS[(2026, 8)]), 2026, 8) == \
+        {"TOTAL": 27124, "BEV": 4542, "HEV": 9195}
+    assert fc.parse_fenalco_post(_fix(FENALCO_POSTS[(2026, 7)]), 2026, 7) == \
+        {"TOTAL": 28633, "BEV": 4870, "HEV": 9410}
+    csv_rows = fc.read_csv(str(Path(__file__).resolve().parent.parent / "data" / "Colombia.csv"))
+    for (y, m), name in ((k, v) for k, v in FENALCO_POSTS.items() if k != (2026, 9)):
+        row = csv_rows[(f"{y}-{m:02d}", "Whole")]
+        got = fc.parse_fenalco_post(_fix(name), y, m)
+        assert {c: float(row[c]) for c in ("TOTAL", "BEV", "HEV")} == {c: float(v) for c, v in got.items()}, (y, m)
+
+
+def test_fenalco_press_text_september_2026():
+    # "Durante septiembre se registraron 33.835 vehículos nuevos" — not the
+    # YTD "Entre enero y septiembre … 247.212".
+    assert fc.parse_fenalco_post(_fix(FENALCO_POSTS[(2026, 9)]), 2026, 9) == \
+        {"TOTAL": 33835, "BEV": 5895, "HEV": 11261}
+
+
+def test_fenalco_post_rejects_the_wrong_month():
+    try:
+        fc.parse_fenalco_post(_fix(FENALCO_POSTS[(2026, 9)]), 2026, 10)
+    except RuntimeError as exc:
+        assert "does not say it reports octubre 2026" in str(exc), exc
+    else:
+        raise AssertionError("a September post parsed as October")
+
+
+def test_fenalco_post_fails_loudly_on_unknown_wording():
+    page = _fix(FENALCO_POSTS[(2026, 9)]).replace("5.895 unidades", "5.895 vehículos")
+    try:
+        fc.parse_fenalco_post(page, 2026, 9)
+    except RuntimeError as exc:
+        assert "expected one BEV" in str(exc) and "found none" in str(exc), exc
+    else:
+        raise AssertionError("missing BEV wording went unnoticed")
+    # Two different TOTAL statements: refuse rather than pick one.
+    page = _fix(FENALCO_POSTS[(2026, 7)]).replace(
+        "En julio de 2026 se registraron 28.633", "En julio de 2026 se registraron 28.600")
+    try:
+        fc.parse_fenalco_post(page, 2026, 7)
+    except RuntimeError as exc:
+        assert "expected one TOTAL" in str(exc) and "found [28600, 28633]" in str(exc), exc
+    else:
+        raise AssertionError("conflicting totals went unnoticed")
+
+
+def test_fenalco_combined_ev_sentence_counts_for_neither():
+    page = _fix(FENALCO_POSTS[(2026, 9)]).replace(
+        'id="o_wblog_post_footer"',
+        '>Los vehículos eléctricos e híbridos sumaron 17.156 unidades. <div id="o_wblog_post_footer"')
+    assert fc.parse_fenalco_post(page, 2026, 9) == {"TOTAL": 33835, "BEV": 5895, "HEV": 11261}
+
+
+def test_fenalco_index_finds_car_posts_only():
+    idx = _fix("fenalco_blog_gremial-4.html")
+    assert fc.fenalco_post_url(idx, 2026, 9).endswith("/informe-del-sector-automotor-a-septiembre-2026-9171")
+    assert fc.fenalco_post_url(idx, 2026, 8).endswith("/informe-del-sector-automotor-a-agosto-2026-9088")
+    assert fc.fenalco_post_url(idx, 2026, 10) is None
+    assert fc.fenalco_post_url(idx, 2026, 6) is None  # only Jun *2025* is on the page
+
+
+def test_fenalco_fallback_fills_only_the_target_month_and_flags_it():
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        path = _csv_with(Path(tmp), [AUG_ROW])
+        assert fc.fenalco_fallback(_MapSession(_fenalco_site()), "2026-09", path, write=True)
+        rows = fc.read_csv(path)
+        assert sorted(rows) == [("2026-08", "Whole"), ("2026-09", "Whole")]
+        sep = rows[("2026-09", "Whole")]
+        assert (sep["TOTAL"], sep["BEV"], sep["HEV"], sep["ICE"]) == ("33835.0", "5895.0", "11261.0", "16679.0")
+        assert sep["PHEV"] == "" and sep["notes"] == fc.FENALCO_NOTE and sep["source"] == fc.SOURCE
+        assert rows[("2026-08", "Whole")]["notes"] == ""  # previous month untouched
+        # Provisional: the early exit must keep looking for the PDF.
+        assert fc.csv_has_period(path, "2026-09") and not fc.csv_has_final_period(path, "2026-09")
+        assert fc.csv_has_final_period(path, "2026-08")
+
+
+def test_fenalco_fallback_dry_run_writes_nothing():
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        path = _csv_with(Path(tmp), [AUG_ROW])
+        before = Path(path).read_text(encoding="utf-8")
+        assert fc.fenalco_fallback(_MapSession(_fenalco_site()), "2026-09", path, write=False)
+        assert Path(path).read_text(encoding="utf-8") == before
+
+
+def test_fenalco_fallback_month_not_listed_defers_to_the_day_rule():
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        path = _csv_with(Path(tmp), [AUG_ROW])
+        assert fc.fenalco_fallback(_MapSession(_fenalco_site()), "2026-10", path, write=True) is False
+        assert fc.fenalco_fallback(_MapSession({}), "2026-09", path, write=True) is False  # index 404
+
+
+def test_fenalco_fallback_fails_early_when_cross_check_disagrees():
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        # CSV says Aug TOTAL 20.000 — e.g. a passenger-car-only scope. The text
+        # would then not measure the same thing: fail, whatever the day.
+        path = _csv_with(Path(tmp), [AUG_ROW.replace("27124.0", "20000.0")])
+        try:
+            fc.fenalco_fallback(_MapSession(_fenalco_site()), "2026-09", path, write=True)
+        except SystemExit as exc:
+            assert "TOTAL=27124" in str(exc.code), exc.code
+        else:
+            raise AssertionError("cross-check mismatch went unnoticed")
+        assert ("2026-09", "Whole") not in fc.read_csv(path)
+
+
+def test_fenalco_fallback_fails_early_when_the_month_is_listed_but_unparseable():
+    import tempfile
+    site = _fenalco_site()
+    idx = _fix("fenalco_blog_gremial-4.html")
+    site[fc.fenalco_post_url(idx, 2026, 9)] = _Resp(200, "<html>login required</html>")
+    with tempfile.TemporaryDirectory() as tmp:
+        path = _csv_with(Path(tmp), [AUG_ROW])
+        try:
+            fc.fenalco_fallback(_MapSession(site), "2026-09", path, write=True)
+        except SystemExit as exc:
+            assert exc.code not in (0, None) and "FENALCO lists 2026-09" in str(exc.code), exc.code
+        else:
+            raise AssertionError("published-but-unreadable month did not fail")
+
+
+def test_fenalco_fallback_needs_the_previous_month_in_the_csv():
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        path = _csv_with(Path(tmp), [])
+        try:
+            fc.fenalco_fallback(_MapSession(_fenalco_site()), "2026-09", path, write=True)
+        except SystemExit as exc:
+            assert "CSV has no 2026-08 row" in str(exc.code), exc.code
+        else:
+            raise AssertionError("fallback ran without a cross-check")
+
+
+def test_boletin_overwrites_a_provisional_press_text_row():
+    old = {c: "" for c in fc.CSV_COLUMNS}
+    old.update(period="2026-09", time_interval="monthly", variant="Whole", source=fc.SOURCE,
+               BEV="5895.0", HEV="11261.0", ICE="16679.0", TOTAL="33835.0", notes=fc.FENALCO_NOTE)
+    new = {"period": "2026-09", "time_interval": "monthly", "variant": "Whole", "source": fc.SOURCE,
+           "BEV": 5890, "PHEV": "", "HEV": 11265, "PETROL": "", "DIESEL": "", "FLEXFUEL": "",
+           "OTHERS": "", "TOTAL": 33835, "ICE": None, "notes": ""}
+    row, _ = fc.merge_row(old, new)
+    assert row["notes"] == ""
+    assert (row["BEV"], row["HEV"], row["ICE"]) == (5890.0, 11265.0, 16680.0)
+
+
+def test_andi_news_finds_the_embedded_boletin_and_skips_motorcycles():
+    listing = _fix("andi_noticias.html")
+    articles = fc.news_article_links(listing)
+    assert [a.rsplit("/", 1)[-1][:5] for a in articles] == ["18084", "18083"], articles
+    aug_pdf = "https://www.andi.com.co/Uploads/08.%20INFORME%20SECTOR%20AUTOMOTOR%20AGO2026_PRENSA.pdf"
+    served = {fc.ANDI_NEWS_URL: _Resp(200, listing),
+              articles[0]: _Resp(200, _fix("andi_noticia_18084.html")),   # motorcycles report
+              articles[1]: _Resp(200, _fix("andi_noticia_18083.html")),   # cars report
+              aug_pdf: _Resp(200, b"%PDF-1.7 ...")}
+    s = _MapSession(served)
+    assert fc.find_in_andi_news(s, 2026, 8) == (aug_pdf, b"%PDF-1.7 ...")
+    assert not any("Motocicletas" in c for c in s.calls), s.calls
+    # September: no press note embeds it (the real state on 2026-10-24).
+    assert fc.find_in_andi_news(_MapSession(served), 2026, 9) is None
+
+
+def test_andi_news_rejects_an_embedded_url_that_is_not_a_pdf():
+    listing = _fix("andi_noticias.html")
+    articles = fc.news_article_links(listing)
+    aug_pdf = "https://www.andi.com.co/Uploads/08.%20INFORME%20SECTOR%20AUTOMOTOR%20AGO2026_PRENSA.pdf"
+    served = {fc.ANDI_NEWS_URL: _Resp(200, listing),
+              articles[1]: _Resp(200, _fix("andi_noticia_18083.html")),
+              aug_pdf: _Resp(200, b"")}
+    assert fc.find_in_andi_news(_MapSession(served), 2026, 8) is None
+    assert fc.find_in_andi_news(_MapSession({}), 2026, 8) is None  # listing down: leg skipped
+
+
+def test_andi_news_catches_a_ticked_name_guessing_cannot():
+    ticked = "https://www.andi.com.co/Uploads/09.%20INFORME%20SECTOR%20AUTOMOTOR%20SEP2026_PRENSA_639300000000000000.pdf"
+    listing = '<a href="/Home/Noticia/18110-andi-y-fenalco-en-septiembre-de-2026">x</a>'
+    article = f'<iframe src="{ticked}"></iframe>'
+    served = {fc.ANDI_NEWS_URL: _Resp(200, listing),
+              "https://www.andi.com.co/Home/Noticia/18110-andi-y-fenalco-en-septiembre-de-2026": _Resp(200, article),
+              ticked: _Resp(200, b"%PDF-1.7 sep")}
+    assert ticked not in fc.monthly_url_candidates(2026, 9)
+    assert fc.find_in_andi_news(_MapSession(served), 2026, 9) == (ticked, b"%PDF-1.7 sep")
+
+
+def test_resolve_bulletin_tries_press_notes_before_guessing():
+    camara = '<a href="/Uploads/INFORME%20FINAL%20SECTOR%20AUTOMOTOR%20DICIEMBRE%202025.pdf">x</a>'
+    aug_pdf = "https://www.andi.com.co/Uploads/08.%20INFORME%20SECTOR%20AUTOMOTOR%20AGO2026_PRENSA.pdf"
+    listing = _fix("andi_noticias.html")
+    served = {fc.CAMARA_URL: _Resp(200, camara), fc.ANDI_NEWS_URL: _Resp(200, listing),
+              fc.news_article_links(listing)[1]: _Resp(200, _fix("andi_noticia_18083.html")),
+              aug_pdf: _Resp(200, b"%PDF-1.7 aug")}
+    s = _MapSession(served)
+    assert fc.resolve_bulletin(s, "2026-08") == (aug_pdf, 2026, 8, True, b"%PDF-1.7 aug")
+    assert not any(u in s.calls for u in fc.monthly_url_candidates(2026, 8)[1:]), s.calls
+
+
+def test_monthly_url_candidates_try_both_september_spellings():
+    names = [fc._basename(u) for u in fc.monthly_url_candidates(2026, 9)]
+    assert "09. INFORME SECTOR AUTOMOTOR SEP2026_PRENSA.pdf" == names[0]
+    assert "09. INFORME SECTOR AUTOMOTOR SEPT2026_PRENSA.pdf" in names
+    assert "09. INFORME SECTOR AUTOMOTOR SET2026_PRENSA.pdf" in names
+    assert not any("SEPT" in fc._basename(u) for u in fc.monthly_url_candidates(2026, 8))
 
 
 def main() -> None:

@@ -76,6 +76,11 @@ jobs:
       - name: Install dependencies
         run: pip install requests pdfplumber
 
+      # Offline: every "not this URL" answer (404, 520, …) moves on to the
+      # next candidate URL; nothing published is a green no-op.
+      - name: Test the fetcher
+        run: python scripts/test_fetch_acea_cv.py
+
       - name: Fetch & update ACEA commercial-vehicle CSVs
         id: fetch
         run: |

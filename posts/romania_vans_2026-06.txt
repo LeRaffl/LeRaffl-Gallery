@@ -7,5 +7,3 @@ Trailing 4 quarters are:
 7.7% EV
 2.8% Hybrid
 89.5% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -7,5 +7,3 @@ Oct24–Sep25  vs  Oct25–Sep26
 −10.0pp  ICE   (88.0% → 78.0%)
 
 If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2031-05.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -1,9 +1,9 @@
 🇲🇹 Malta - TTM Market Split
 
-Feb24–Jan25  vs  Feb25–Sep26
-+3.1pp  BEV   (32.4% → 35.4%)
-+0.5pp  PHEV  (6.9% → 7.5%)
-+8.3pp  HEV   (18.6% → 26.9%)
-−11.9pp  ICE   (42.1% → 30.2%)
+Sep24–Aug25  vs  Sep25–Sep26
+−4.4pp  BEV   (38.2% → 33.8%)
++0.6pp  PHEV  (6.4% → 7.0%)
++5.8pp  HEV   (22.7% → 28.5%)
+−2.0pp  ICE   (32.7% → 30.8%)
 
-PHEV peaked at 11.4% in 2024-02 (declining for 23 months).
+PHEV peaked at 8.2% in 2024-09 (declining for 23 months).

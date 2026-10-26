@@ -1831,7 +1831,7 @@ a:focus-visible{
   border-color:rgba(170,180,200,.35);
 }
 
-/* Unreliable fit — unsettled, collapsed or stale; replaces the other tags. */
+/* Volatile curve / Unreliable fit — volatile, collapsed or stale; replaces the other tags. */
 .status-pill[data-tag="unsettled"]{
   color:var(--thr-late-txt);
   background:var(--warn-wash);
@@ -3967,7 +3967,7 @@ const VIEW_START_YEAR = 2015;
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-fit">Fit</span>
           <div class="chips tag-filter fx-tags" data-tag-cat="fit" data-group-label="Fit" role="group" aria-labelledby="tg-fit" data-fb-group="tag_fit">
             <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="reliable" data-tag-value="reliable"/><span class="fx-tl">Reliable</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" value="unreliable" data-tag-value="unreliable"/><span class="fx-tl">Unreliable</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" value="unreliable" data-tag-value="unreliable"/><span class="fx-tl">Volatile / unreliable</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="grey"><input type="checkbox" value="notrans" data-tag-value="notrans"/><span class="fx-tl">No transition</span><span class="fx-n" data-n aria-live="off"></span></label>
           </div></div>
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-status">Status</span>
@@ -4998,6 +4998,10 @@ const VIEW_START_YEAR = 2015;
         <label class="wm-tab"><input type="radio" name="wmMode" value="share"> Share</label>
       </div>
       <div class="wm-seg" id="wmVarSeg" role="group" aria-label="Variant"></div>
+      <div class="wm-seg" role="radiogroup" aria-label="Colours" title="Blue is safe for colour blindness; Classic is the old orange-green look">
+        <label class="wm-tab"><input type="radio" name="wmPal" value="blue" checked> Blue</label>
+        <label class="wm-tab"><input type="radio" name="wmPal" value="classic"> Classic</label>
+      </div>
       <select id="wmVariant" hidden></select>
 
       <div id="wmInputsYear" class="wm-inline">
@@ -5047,13 +5051,15 @@ const VIEW_START_YEAR = 2015;
         <div class="wm-fig-foot"><span id="wmFigNote"></span><span>@LeRaffl</span></div>
       </div>
       <button class="btn chart-dl" onclick="downloadPlotlyChart('worldMapPlot','world_map.png')">↓ Download PNG</button>
+      <button class="btn chart-dl" id="wmGifBtn" title="BEV share year by year, as an animated GIF to post">↓ Download GIF</button>
       <p class="small" style="margin:4px 14px 10px; color:var(--muted-2);">
         Color scale is clipped at the 5th and 95th percentile so regular countries get a useful gradient.
-        The scale runs <b>light&nbsp;→&nbsp;dark</b> in a single hue, so it stays readable with any form of
-        colour blindness — dark always means further along.
-        <span class="wm-sw wm-sw--x" style="background:#c2701a"></span><b>Amber</b> = pioneers that have already reached the threshold.
-        <span class="wm-sw wm-sw--x" style="background:#6e6258"></span><b>Dark grey</b> = no transition: the same markets the tables list as "shows no transition" (under 1&nbsp;% BEV, or a negligible adoption rate), plus fits that do not reach the threshold within a reasonable horizon.
+        <span id="wmScaleNote">The scale runs <b>light&nbsp;→&nbsp;dark</b> in a single hue, so it stays readable with any form of
+        colour blindness — dark always means further along.</span>
+        <span class="wm-sw wm-sw--x" data-wm-sw="pioneer" style="background:#c2701a"></span><b data-wm-name="pioneer">Amber</b> = pioneers that have already reached the threshold.
+        <span class="wm-sw wm-sw--x" data-wm-sw="stalled" style="background:#6e6258"></span><b data-wm-name="stalled">Dark grey</b> = no transition: the same markets the tables list as "shows no transition" (under 1&nbsp;% BEV, or a negligible adoption rate), plus fits that do not reach the threshold within a reasonable horizon.
         Both sit outside the scale and carry a heavier outline, so they never read as just another step.
+        <span class="wm-sw" data-wm-sw="withheld" style="background:#cbc3b6"></span><b data-wm-name="withheld">Pale grey</b> = too volatile to show: we have data, but the curve can't give a year yet; listed under the map.
         HDV, Buses and the other variants use the <b>Cars</b> colour scale, so the same colour means the same year on every variant.
         Exact values always live in the hover tooltip.
       </p>
@@ -5062,24 +5068,28 @@ const VIEW_START_YEAR = 2015;
     <div class="card" style="margin-top:14px;">
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw" style="background:#143a6b"></span>Leaders</h3>
+          <h3 class="wm-list-h"><span class="wm-sw" data-wm-sw="rampHi" style="background:#143a6b"></span>Leaders</h3>
           <ol id="wmTopList" style="margin:0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ol>
         </div>
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw" style="background:#aecce9"></span>Laggards</h3>
+          <h3 class="wm-list-h"><span class="wm-sw" data-wm-sw="rampLo" style="background:#aecce9"></span>Laggards</h3>
           <ol id="wmBottomList" style="margin:0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ol>
         </div>
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" style="background:#c2701a"></span>Pioneers</h3>
+          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" data-wm-sw="pioneer" style="background:#c2701a"></span>Pioneers</h3>
           <ul id="wmPioneerList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" style="background:#6e6258"></span>No transition</h3>
+          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" data-wm-sw="stalled" style="background:#6e6258"></span>No transition</h3>
           <ul id="wmStalledList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
+        </div>
+        <div>
+          <h3 class="wm-list-h"><span class="wm-sw" data-wm-sw="withheld" style="background:#cbc3b6"></span>Too volatile to show</h3>
+          <ul id="wmHiddenList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
       </div>
       <p class="small" style="margin:12px 0 0; color:var(--muted-2);">
-        Leaders / Laggards are the top and bottom five <em>normal</em> countries for the selected metric (the swatch is the darkest / lightest step of the scale). <b>Pioneers</b> have already reached the threshold at the time of the last data point. <b>No transition</b> countries sell under 1&nbsp;% BEV or have a fitted curve that does not reach the threshold within a reasonable horizon — the same rule as the "shows no transition" label in Thresholds and Durations.
+        Leaders / Laggards are the top and bottom five <em>normal</em> countries for the selected metric (the swatch is the darkest / lightest step of the scale). <b>Pioneers</b> have already reached the threshold at the time of the last data point. <b>No transition</b> countries sell under 1&nbsp;% BEV or have a fitted curve that does not reach the threshold within a reasonable horizon — the same rule as the "shows no transition" label in Thresholds and Durations. <b>Too volatile to show</b>: we have data, but the fitted curve can't give a year yet, because it still moves a lot with each new month (the gallery tags these <em>Volatile curve</em>). The few with an unreliable fit (collapsed or stale) are listed here too, marked as such. Their charts stay in the gallery.
       </p>
     </div>
 
@@ -5452,11 +5462,23 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
     for(let i=0;i<lead;i++) html += '<div class="sched-day sched-day--blank"></div>';
     for(let d=1; d<=dim; d++){
       const key = ymd(calYear, calMonth, d);
-      const landed = past[key] || [], coming = due[key] || [];
+      const coming = due[key] || [];
       const isToday = key === DATA.today;
       const isPast  = key < DATA.today;
+      // One flag per country, not per variant: Belgium's six variants landing
+      // together drew six identical flags and pushed everyone else into "+N".
+      // The variants ride in the tooltip; the day detail still lists each one.
+      const byBase = new Map();
+      (past[key] || []).forEach(r => {
+        const b = r.base || String(r.label||'').split(' (')[0];
+        if(!byBase.has(b)) byBase.set(b, []);
+        byBase.get(b).push(r);
+      });
+      const landed = [...byBase].map(([b, rs]) => ({flag: rs[0].flag, label: b,
+        extra: rs.map(r => (r.label === b ? '' : r.label.slice(b.length).trim() + ' ')
+                         + 'data through ' + prettyPeriod(r.period)).join('; ')}));
       let chips = landed.slice(0, MAX_CHIPS)
-        .map(r => chip(r.flag, r.label, 'sched-fl--done', 'data through ' + prettyPeriod(r.period))).join('');
+        .map(r => chip(r.flag, r.label, 'sched-fl--done', r.extra)).join('');
       let shown = landed.length;
       if(shown < MAX_CHIPS){
         chips += coming.slice(0, MAX_CHIPS - shown)
@@ -6264,9 +6286,12 @@ const QR = (() => {
   // The domain a list of bars needs to be drawn INSIDE. Starting it at the first
   // bar's end month cuts that bar in half and pushes its cycle label off the
   // plot — the combined chart's leading T12M bar lost its "2021" that way, and
-  // the left clamp then squashed it against the axis.
+  // the left clamp then squashed it against the axis. The edge sits half a month
+  // before the bar's first month, because cx() centres a month on its index: a
+  // monthly first bar (Norway, Denmark) was otherwise still half outside, and the
+  // clamp pushed it onto the second bar.
   function domOf(list, step){
-    return list.length ? [list[0].to - widthMonths(list, 0, step) + 1,
+    return list.length ? [list[0].to - widthMonths(list, 0, step) + 0.5,
                           list[list.length-1].to] : [0,1];
   }
 
@@ -7407,6 +7432,7 @@ function displayLabelFromBase(base){
     whole: 'New Cars',
     used: 'Used Imports',
     'used imports': 'Used Cars (imported)',
+    resale: 'Used Cars (all registrations)',
     private: 'New Cars (Private)',
     industry: 'New Cars (Industry)',
     hdv: 'New HDV',
@@ -7427,6 +7453,7 @@ function displayVariantLabel(v){
     "Whole": "New Cars",
     "Used": "Used Imports",
     "Used Imports": "Used Cars (imported)",
+    "Resale": "Used Cars (all registrations)",
     "Private": "New Cars (Private)",
     "Industry": "New Cars (Industry)",
     "Vans": "New Vans",
@@ -7558,9 +7585,9 @@ function renderHiddenFitsNote(el, rows, keep){
   const hidden = rows.filter(r => (!keep || keep(r)) && rowIsUnreliableFit(r)).map(fitRowKey).sort();
   if (!hidden.length) { el.hidden = true; el.textContent = ''; return; }
   el.hidden = false;
-  el.innerHTML = `<b>Left out — fit not reliable (${hidden.length}):</b> ` +
+  el.innerHTML = `<b>Left out — volatile curve or unreliable fit (${hidden.length}):</b> ` +
     hidden.map(k => k.replace(/&/g,'&amp;').replace(/</g,'&lt;')).join(', ') +
-    '. Their charts stay in the gallery; see the FAQ on the <em>Unreliable fit</em> tag for the criteria.';
+    '. Their charts stay in the gallery; see the FAQ on the <em>Volatile curve / Unreliable fit</em> tags for the criteria.';
 }
 
 // Region filter for the three ranking tabs (#336). No new taxonomy: the
@@ -7763,7 +7790,7 @@ function bandNoteHtml(band, kind, prefix){
     ? ' Not included: ' + band.excluded.map(e => `${esc(e.label)} (${e.why})`).join(', ') + '.' : '';
   const who = prefix ? esc(prefix) + ': ' : '';
   if (band && !band.ok && band.members === 1 && band.excluded.length === 1) {
-    const why = { 'unreliable fit': 'the fit is marked unreliable', 'no band yet': 'no band has been computed for this series yet',
+    const why = { 'unreliable fit': 'the curve is marked volatile or the fit unreliable', 'no band yet': 'no band has been computed for this series yet',
                   'band out of date': 'the band belongs to an older fit; it updates with the next render',
                   'poor fit': 'the S-curve fits this series poorly — its data keep deviating from the curve in one direction for years, so any band would span almost everything',
                   'too few rows': 'the series is too short for a reliable band (fewer than 48 data points)' }[band.excluded[0].why] || band.excluded[0].why;
@@ -8377,14 +8404,14 @@ renderTable();
   // with no suffix.
   const VARIANT_SHORT={
     whole:'', private:'Private', industry:'Industry', hdv:'HDV', vans:'Vans',
-    used:'Used imports','used imports':'Used (imports)','4-wheelers':'4-Wheelers'
+    used:'Used imports','used imports':'Used (imports)',resale:'Used (all)','4-wheelers':'4-Wheelers'
   };
   // Fill style per variant. "solid" uses the region color flat; everything
   // else routes through an SVG <pattern> built from the same color so the
   // shape of the bar still encodes the region.
   const VARIANT_STYLE={
     whole:'solid', private:'diag', industry:'cross', hdv:'thick',
-    vans:'dots', used:'outline','used imports':'outline-dashed',
+    vans:'dots', used:'outline','used imports':'outline-dashed',resale:'outline-dashed',
     '4-wheelers':'solid'
   };
   function variantShort(canon){
@@ -12309,7 +12336,7 @@ const FAQ_DATA = [
       '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) against its reference group:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of the group by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
       '<b>Timing</b> \u2014 when the market crossed (or is projected to cross) <b>10 %</b> BEV share, compared against its reference group. Markets still below 10 % count with their projected year:<br>&nbsp;&nbsp;<b>Early starter</b> = earliest 25 % of the group.<br>&nbsp;&nbsp;<b>Late starter</b> = latest 25 %.<br>&nbsp;&nbsp;The middle half carries no timing tag.',
       '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035 is a fixed calendar date; the timing and speed cut-offs are quartiles of the fitted curves in the group. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
-      '<b>Unreliable fit</b> \u2014 a market whose fitted curve cannot be trusted yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the World Map (a note under each table names what was left out). The chart itself stays in the gallery. Three tests, any one is enough:<br>&nbsp;&nbsp;<b>Unsettled</b> = every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10 % to 80 % in under 3 years while observed BEV share is still below 10 %. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
+      '<b>Volatile curve / Unreliable fit</b> \u2014 a market whose fitted curve can\'t give a reliable year yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the colour scale of the World Map (a note under each table, and the <em>Too volatile to show</em> list under the map, name what was left out). The chart itself stays in the gallery. Three tests, any one is enough. When only the first fails, the pill says <b>Volatile curve</b>: nothing is wrong, the curve just isn\'t pinned down yet. Otherwise it says <b>Unreliable fit</b>.<br>&nbsp;&nbsp;<b>Volatile</b> = every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10 % to 80 % in under 3 years while observed BEV share is still below 10 %. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
       'All thresholds (80 %, 2035, 10 %) are constants of the script that renders the tags; the quartiles (25 / 75 %) and the 4-market minimum per group are the <code>TAG_*</code> constants next to <code>tagGroupCutoffs()</code>; the reliability cut-offs (25 / 5 years swing, 3 years and 10 % for a collapse, 12 months for staleness) are the <code>FIT_*</code> constants shared by every tab. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
     ] },
   { tag: 'general', label: 'General', q: 'What is the shaded band around the curve in Builder and Compare?',
@@ -12318,7 +12345,7 @@ const FAQ_DATA = [
       '<b>Confidence (CI, the default)</b> \u2014 where the <em>curve itself</em> could be. If the same transition could be re-run many times with new monthly data, the band from each re-run would contain the true curve 95 times in 100. This is the one to use for dates: a crossing year with its range.',
       '<b>Prediction (PI)</b> \u2014 where <em>one more month</em> could land. Wider, because a single month scatters around the curve (year-end rushes, subsidy deadlines).',
       '<b>Tolerance (TI)</b> \u2014 where <em>95 % of all months</em> land, with 95 % confidence. The widest of the three.',
-      'All three assume the S-curve shape is right. They do not cover a policy shock or a stall that changes the shape. A fit the gallery marks as <em>Unreliable fit</em> gets no band, and neither does a series whose data keep deviating from the curve in one direction for years (a poor fit) or one that is too short (fewer than 48 data points) — the note under the chart says which. For a group (EU, Big Markets, \u2026) the members\u2019 bands are combined as if they were independent, which is exact for one country and an approximation for groups. The bands are shown for BEV only, and in Compare only with up to three series.',
+      'All three assume the S-curve shape is right. They do not cover a policy shock or a stall that changes the shape. A fit the gallery marks as <em>Volatile curve</em> or <em>Unreliable fit</em> gets no band, and neither does a series whose data keep deviating from the curve in one direction for years (a poor fit) or one that is too short (fewer than 48 data points) — the note under the chart says which. For a group (EU, Big Markets, \u2026) the members\u2019 bands are combined as if they were independent, which is exact for one country and an approximation for groups. The bands are shown for BEV only, and in Compare only with up to three series.',
       'The full explanation, the maths and how the bands were tested: <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/44-uncertainty-bands.md" target="_blank" rel="noopener">docs/architecture/44-uncertainty-bands.md</a>.'
     ] },
   { tag: 'general', label: 'General', q: 'What do the different dot sizes on the charts mean?',
@@ -12593,8 +12620,10 @@ document.addEventListener('keydown', (e) => {
 //                   horizon. Painted warm dark grey: "not slow, but absent".
 // The two exception categories also carry a heavier, darker outline: colour
 // alone cannot separate five ramp steps plus two categories (see #226).
-// Unreliable fits (rowIsUnreliableFit — collapsed, unsettled, stale) are left
-// out on purpose, like in the tables.
+// Volatile curves and unreliable fits (rowIsUnreliableFit — unsettled,
+// collapsed, stale) get no colour from the scale, like in the tables, but a
+// pale neutral layer of their own ("Too volatile to show"), so they don't look like
+// countries without data.
 //
 // Every variant is coloured on the SAME scale as Cars (whole): the P5..P95
 // range is taken from the Cars rows for the chosen mode and threshold, so
@@ -12605,11 +12634,52 @@ document.addEventListener('keydown', (e) => {
 // with the dataviz validator against every ramp step (Machado 2009 CVD sim):
 // amber ΔE ≥ 21 to every step; the no-transition grey ΔE ≥ 13 (was #8a877e,
 // 10.6 against the mid step under protanopia).
-const WM_COLORS = {
-  ramp: ['#aecce9', '#7fa9d6', '#4f7fb8', '#22579a', '#143a6b'],
-  pioneer: '#c2701a',
-  stalled: '#6e6258',
+// Two palettes, picked with the Blue / Classic switch above the map (the
+// choice is remembered per browser). `ramp` always runs from "least" to
+// "furthest along"; `names` are the words the legend uses for each colour.
+//   blue    — the default: one hue, light -> dark, safe for every kind of
+//             colour blindness (#226).
+//   classic — the pre-#226 look: orange -> green ramp, cyan-blue pioneers,
+//             pink "no transition", light orchid "too volatile to show"
+//             (a paler cousin of the pink). Not colour-blind safe; offered
+//             because it reads well and posts well.
+const WM_PALETTES = {
+  blue: {
+    ramp: ['#aecce9', '#7fa9d6', '#4f7fb8', '#22579a', '#143a6b'],
+    pioneer: '#c2701a',
+    stalled: '#6e6258',
+    withheld: '#cbc3b6',   // volatile curve / unreliable fit: data, but no year
+    names: { pioneer: 'Amber', stalled: 'Dark grey', withheld: 'Pale grey' },
+    scaleNote: 'The scale runs <b>light&nbsp;→&nbsp;dark</b> in a single hue, so it stays readable with any form of colour blindness — dark always means further along.',
+  },
+  classic: {
+    ramp: ['#b5451b', '#a65832', '#9a7b22', '#72bf6a', '#1a9641'],
+    pioneer: '#0096c7',
+    stalled: '#d65aff',
+    withheld: '#f0b3e8',
+    names: { pioneer: 'Cyan-blue', stalled: 'Pink', withheld: 'Light orchid' },
+    scaleNote: 'The scale runs <b>orange&nbsp;→&nbsp;green</b>: green means further along. This palette is not safe for colour blindness — switch to <b>Blue</b> for that.',
+  },
 };
+let wmPaletteKey = 'blue';
+try { if (WM_PALETTES[localStorage.getItem('wmPalette')]) wmPaletteKey = localStorage.getItem('wmPalette'); } catch (_) {}
+let WM_COLORS = WM_PALETTES[wmPaletteKey];
+
+// Swatches and colour words in the legend and the list headings follow the
+// active palette (data-wm-sw / data-wm-name), so they can't drift from the map.
+function wmPaintLegend(){
+  const P = WM_COLORS;
+  const colour = { pioneer: P.pioneer, stalled: P.stalled, withheld: P.withheld,
+                   rampHi: P.ramp[P.ramp.length - 1], rampLo: P.ramp[0] };
+  document.querySelectorAll('[data-wm-sw]').forEach(el => {
+    el.style.background = colour[el.dataset.wmSw] || '';
+  });
+  document.querySelectorAll('[data-wm-name]').forEach(el => {
+    el.textContent = P.names[el.dataset.wmName] || '';
+  });
+  const note = document.getElementById('wmScaleNote');
+  if (note) note.innerHTML = P.scaleNote;
+}
 const WM_REFERENCE_VARIANT = 'whole';
 //
 // Plotly understands full country names when locationmode is set to
@@ -12744,10 +12814,18 @@ function wmBuildRows(csvRows, variantCanon){
   }
 
   const out = [];
+  // Volatile / collapsed / stale fits get no colour from the scale (a colour
+  // would claim a crossing year), but a neutral layer of their own, so they
+  // don't read as "no data" (out.hidden, painted in wmRender).
+  out.hidden = [];
   for (const r of byCountry.values()){
-    // Collapsed / unsettled / stale fits leave the country unpainted, like a
-    // country we have no data for — a colour would claim a crossing year.
-    if (rowIsUnreliableFit(r)) continue;
+    if (rowIsUnreliableFit(r)) {
+      const rel = fitReliability(r);
+      out.hidden.push({ country: wmNormalizeCountry(r.country), obs: rel.obs,
+                        volatile: rel.reasons.length === 1 && rel.reasons[0] === 'unsettled',
+                        reasons: rel.reasons, dataPer: rel.dataPer });
+      continue;
+    }
     let v1 = normNumber(r.v1);
     // Defensive fallback only — applyV1Recovery() should already have
     // replaced v1=0 rows at load time with an anchor-reconstructed value.
@@ -13024,6 +13102,7 @@ function wmRender(){
      Nachbarstufen — die Phase-2-Entscheidung "genau EIN Akzent" bleibt damit
      gewahrt, statt eine zweite Farbfamilie einzufuehren. */
   const SEQ_BLUE = WM_COLORS.ramp.map((c, i) => [i / (WM_COLORS.ramp.length - 1), c]);
+  wmPaintLegend();
   const colorscale = SEQ_BLUE;
   /* Dunkel heisst immer "weiter in der Transformation", in allen drei Modi.
      Bei 'share' waechst der Wert damit (hoher Anteil = dunkel); bei 'year'
@@ -13164,7 +13243,28 @@ function wmRender(){
     annotations: []
   };
 
-  Plotly.newPlot('worldMapPlot', [traceNormal, tracePioneer, traceStalled], layout, {
+  // Volatile curve / unreliable fit: we have data, the fit just can't give a
+  // year yet. Pale neutral fill + thin outline, below the scale's lightest
+  // step and darker than land, so it reads neither as a value nor as "no data".
+  const hidden = rows.hidden || [];
+  const wmHiddenWhy = h => h.volatile
+    ? 'Too volatile to show: the projected year still moves a lot with each new month'
+    : 'Not shown: the fit is not reliable (' + h.reasons.join(', ') + ')';
+  const traceHidden = {
+    type: 'choropleth', locationmode: 'country names',
+    locations: hidden.map(h => h.country),
+    z: hidden.map(() => 1),
+    text: hidden.map(h => `<b>${h.country}</b><br>${wmHiddenWhy(h)}` +
+      (isFinite(h.obs) ? `<br>${(h.obs * 100).toFixed(1)} % BEV in the last 12 months` : '') +
+      ''),
+    hovertemplate: '%{text}<extra></extra>',
+    colorscale: [[0, WM_COLORS.withheld], [1, WM_COLORS.withheld]],
+    zmin: 0, zmax: 1,
+    showscale: false,
+    marker: { line: { color: '#8f877c', width: 0.6 } }
+  };
+
+  Plotly.newPlot('worldMapPlot', [traceNormal, tracePioneer, traceStalled, traceHidden], layout, {
     responsive: true, displaylogo: false
   });
 
@@ -13208,6 +13308,91 @@ function wmRender(){
   if (stalledList) stalledList.innerHTML = stalled.length
     ? stalled.map(d => `<li><b>${d.r.country}</b>${d.r.noTrans && isFinite(d.r.obs) ? ` — ${(d.r.obs * 100).toFixed(1)} % BEV` : ''}</li>`).join('')
     : `<li style="opacity:0.6">${mode === 'share' ? 'Not used in this mode' : 'None at this threshold'}</li>`;
+  const hiddenList = document.getElementById('wmHiddenList');
+  if (hiddenList) hiddenList.innerHTML = hidden.length
+    ? hidden.slice().sort((a, b) => a.country.localeCompare(b.country)).map(h =>
+        `<li><b>${h.country}</b>${h.volatile ? '' : ' — unreliable fit'}` +
+        `${isFinite(h.obs) ? `${h.volatile ? ' — ' : ', '}${(h.obs * 100).toFixed(1)} % BEV` : ''}</li>`).join('')
+    : '<li style="opacity:0.6">None</li>';
+}
+
+/* ── Animated GIF of the Share mode, year by year ──────────────────────────
+   Steps the Share slider from its first to its last year, takes a PNG of the
+   map per year (Plotly.toImage), draws it onto a canvas with the title, the
+   year and the source line burnt in (so a posted GIF explains itself), and
+   encodes the frames in the browser with gifenc (no worker, no server). Uses
+   whatever palette, region and variant are on screen. */
+const WM_GIF_LIB = 'https://cdn.jsdelivr.net/npm/gifenc@1.0.3/dist/gifenc.esm.js';
+let wmGifBusy = false;
+
+async function wmDownloadGif(){
+  if (wmGifBusy) return;
+  const btn = document.getElementById('wmGifBtn');
+  const slider = document.getElementById('wmShareYear');
+  const label = document.getElementById('wmShareYearLabel');
+  const shareRadio = document.querySelector('input[name="wmMode"][value="share"]');
+  if (!btn || !slider || !shareRadio || typeof Plotly === 'undefined') return;
+  wmGifBusy = true;
+  wmStopPlay();
+  const before = { mode: wmReadMode(), year: slider.value, text: btn.textContent };
+  const setBtn = t => { btn.textContent = t; };
+  try {
+    setBtn('Preparing GIF…');
+    const { GIFEncoder, quantize, applyPalette } = await import(WM_GIF_LIB);
+    if (!shareRadio.checked) { shareRadio.checked = true; wmRender(); }
+
+    const W = 960, MAP_H = 520, HEAD = 64, FOOT = 34, H = HEAD + MAP_H + FOOT;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const ink = '#1a1a18', mute = '#55534c';
+    const what = { whole: 'new cars', vans: 'new vans', hdv: 'new trucks (HDV)', buses: 'new buses', used: 'used imports' }[WORLDMAP_STATE.variant || 'whole'] || 'new cars';
+    const loadImg = src => new Promise((ok, bad) => { const im = new Image(); im.onload = () => ok(im); im.onerror = bad; im.src = src; });
+
+    const gif = GIFEncoder();
+    const y0 = parseInt(slider.min, 10), y1 = parseInt(slider.max, 10);
+    for (let y = y0; y <= y1; y++) {
+      setBtn(`Building GIF… ${y}`);
+      slider.value = String(y);
+      if (label) label.textContent = String(y);
+      wmRender();
+      const url = await Plotly.toImage('worldMapPlot', { format: 'png', width: W, height: MAP_H });
+      const img = await loadImg(url);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+      ctx.drawImage(img, 0, HEAD, W, MAP_H);
+      ctx.fillStyle = ink; ctx.textBaseline = 'alphabetic';
+      ctx.font = 'bold 24px "Public Sans", Helvetica, Arial, sans-serif';
+      ctx.fillText(`BEV share of ${what}, by market`, 18, 34);
+      ctx.fillStyle = mute; ctx.font = '15px "Public Sans", Helvetica, Arial, sans-serif';
+      ctx.fillText('Each market\'s own S-curve, not an official forecast', 18, 56);
+      ctx.fillStyle = ink; ctx.font = 'bold 46px "Public Sans", Helvetica, Arial, sans-serif';
+      ctx.textAlign = 'right'; ctx.fillText(String(y), W - 18, 52); ctx.textAlign = 'left';
+      ctx.fillStyle = mute; ctx.font = '14px "Public Sans", Helvetica, Arial, sans-serif';
+      ctx.fillText('leraffl.github.io/LeRaffl-Gallery  ·  @LeRaffl', 18, H - 12);
+      const { data } = ctx.getImageData(0, 0, W, H);
+      const palette = quantize(data, 256);
+      const index = applyPalette(data, palette);
+      gif.writeFrame(index, W, H, { palette, delay: y === y1 ? 2500 : 280 });
+    }
+    gif.finish();
+    const blob = new Blob([gif.bytes()], { type: 'image/gif' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `bev_world_map_${y0}-${y1}.gif`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  } catch (err) {
+    console.error('GIF export failed', err);
+    alert('Sorry — the GIF could not be built here (' + (err && err.message || err) + ').');
+  } finally {
+    slider.value = before.year;
+    if (label) label.textContent = before.year;
+    const back = document.querySelector(`input[name="wmMode"][value="${before.mode}"]`);
+    if (back) back.checked = true;
+    wmRender();
+    setBtn(before.text);
+    wmGifBusy = false;
+  }
 }
 
 /* ── Init ── */
@@ -13240,6 +13425,20 @@ async function initWorldMap(){
     document.querySelectorAll('input[name="wmMode"]').forEach(radio => {
       radio.addEventListener('change', wmRender);
     });
+
+    // Palette switch (Blue / Classic), remembered per browser.
+    document.querySelectorAll('input[name="wmPal"]').forEach(radio => {
+      radio.checked = radio.value === wmPaletteKey;
+      radio.addEventListener('change', () => {
+        if (!radio.checked || !WM_PALETTES[radio.value]) return;
+        wmPaletteKey = radio.value;
+        WM_COLORS = WM_PALETTES[wmPaletteKey];
+        try { localStorage.setItem('wmPalette', wmPaletteKey); } catch (_) {}
+        wmRender();
+      });
+    });
+
+    document.getElementById('wmGifBtn')?.addEventListener('click', wmDownloadGif);
 
     // Threshold inputs → debounced re-render
     let wmDebounce = null;
@@ -14333,8 +14532,9 @@ document.addEventListener('click', (e) => {
 
   // Reliability gate: fitReliability() (next to rowHasNoTransition) decides,
   // with the same cut-offs every table and the map use. All three tags are
-  // read off one curve, so an excluded fit (unsettled, collapsed or stale)
-  // carries a single "Unreliable fit" pill instead; a provisional one keeps
+  // read off one curve, so an excluded fit carries a single pill instead:
+  // "Volatile curve" when only the swing test failed, otherwise "Unreliable
+  // fit" (collapsed or stale); a provisional one keeps
   // its tags, drawn hollow.
 
   let byCountry = null;
@@ -14364,7 +14564,11 @@ document.addEventListener('click', (e) => {
         } else if (unsettled) {
           // Status/speed/timing would all be noise here — one pill instead.
           // The glossary popover lists which of the three tests failed.
-          tags.unsettled = { v: 'unsettled', label: 'Unreliable fit', swing: e.rel.swing,
+          // Only the swing test failed: the curve is fine, it just keeps
+          // moving with every new month -> "Volatile curve", not "unreliable".
+          const volatileOnly = e.rel.reasons.length === 1 && e.rel.reasons[0] === 'unsettled';
+          tags.unsettled = { v: volatileOnly ? 'volatile' : 'unsettled',
+                             label: volatileOnly ? 'Volatile curve' : 'Unreliable fit', swing: e.rel.swing,
                              reasons: e.rel.reasons, span: e.rel.span, obs: e.rel.obs,
                              dataPer: e.rel.dataPer };
         } else {
@@ -14466,23 +14670,24 @@ document.addEventListener('click', (e) => {
       }
     },
     unsettled: {
-      name: 'Unreliable fit',
+      name: 'Volatile curve / unreliable fit',
       order: [],
       ticks: [],
       note: 'Status, speed and timing are all read off this one curve, so they are withheld rather than shown as noise. The market is also left out of Thresholds, Durations, Time interval and the World Map. The chart itself stays in the gallery.',
       values: {
-        unsettled: { label: 'Unreliable fit', def: 'The fitted curve cannot be trusted yet: it still moves with every new month, has collapsed into a near-vertical step, or rests on data that is no longer updated.' }
+        volatile:  { label: 'Volatile curve', def: 'The curve takes off, but it still changes a lot with every new month: across the last twelve re-fits its projected 80 % year moved more than 25 years. Nothing is wrong with the data; the curve just isn\'t pinned down yet and settles as more months arrive.' },
+        unsettled: { label: 'Unreliable fit', def: 'The fitted curve cannot be trusted yet: it has collapsed into a near-vertical step, or rests on data that is no longer updated (and may also still be moving with every new month).' }
       }
     },
-    // Sidebar filter only — cards show the Unreliable fit pill above.
+    // Sidebar filter only — cards show the Volatile curve / Unreliable fit pill above.
     fit: {
       name: 'Fit',
       order: [],
       ticks: [],
-      note: 'Every chart has exactly one fit value. Pick one or more to show only those charts; Status, Speed and Start only apply to <em>Reliable</em> charts. Unreliable and no-transition markets are always left out of Thresholds, Durations, Time interval and the World Map.',
+      note: 'Every chart has exactly one fit value. Pick one or more to show only those charts; Status, Speed and Start only apply to <em>Reliable</em> charts. Volatile, unreliable and no-transition markets are always left out of Thresholds, Durations, Time interval and the World Map.',
       values: {
         reliable:   { label: 'Reliable',      def: 'The curve takes off and its fit is settled, plausibly S-shaped and on current data. Only these carry Status, Speed and Start.' },
-        unreliable: { label: 'Unreliable',    def: 'The curve takes off, but its fit is unsettled (the projected 80 % year moved more than 25 years over the last year of re-fits), collapsed (10 → 80 % in under 3 years while below 10 % share) or stale (no data for over 12 months).' },
+        unreliable: { label: 'Volatile / unreliable', def: 'The curve takes off, but it is volatile (the projected 80 % year moved more than 25 years over the last year of re-fits), collapsed (10 → 80 % in under 3 years while below 10 % share) or stale (no data for over 12 months).' },
         notrans:    { label: 'No transition', def: 'No take-off: the latest 12-month BEV share is under 1 %, or (between 1 and 5 %) the fitted curve never gets steeper than 1 percentage point per year.' }
       }
     },
@@ -14563,7 +14768,7 @@ document.addEventListener('click', (e) => {
     // One line per failed test — a fit can fail several at once.
     const reasons = t.reasons || ['unsettled'];
     const lines = reasons.map(r => {
-      if (r === 'unsettled') return `<b>Unsettled</b> \u2014 ${moved}.`;
+      if (r === 'unsettled') return `<b>Volatile</b> \u2014 ${moved}.`;
       if (r === 'collapsed') {
         const span = isFinite(t.span)
           ? `claims 10\u202f%\u202f\u2192\u202f80\u202f% in <b>${t.span < 1 ? Math.round(t.span * 12) + ' months' : t.span.toFixed(1) + ' years'}</b>`
