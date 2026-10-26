@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T12:11:14Z",
+ "generated": "2026-10-26T19:55:22Z",
  "today": "2026-10-26",
  "countries": [
   {
@@ -4804,7 +4804,7 @@
     ],
     "workflow": ".github/workflows/fetch-vietnam.yml"
    },
-   "last_render": null,
+   "last_render": "2026-10-26",
    "flag": "🇻🇳",
    "variants": [
     {

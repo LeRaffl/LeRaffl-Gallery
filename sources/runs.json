@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T12:11:14Z",
+ "generated": "2026-10-26T19:55:22Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -6768,6 +6768,14 @@
    "slug": "uruguay_vans",
    "period": "2026-09",
    "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Vietnam",
+   "base": "Vietnam",
+   "slug": "vietnam",
+   "period": "2026-09",
+   "flag": "🇻🇳"
   }
  ]
 }
