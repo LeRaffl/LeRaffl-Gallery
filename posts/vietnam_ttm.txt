@@ -1,0 +1,8 @@
+🇻🇳 Vietnam - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++11.3pp  BEV     (32.3% → 43.7%)
++0.9pp  Hybrid  (2.3% → 3.2%)
+−12.2pp  ICE     (65.4% → 53.1%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-03.
