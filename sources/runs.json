@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T11:03:29Z",
+ "generated": "2026-10-26T11:28:56Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -6555,6 +6555,14 @@
   },
   {
    "date": "2026-10-26",
+   "label": "Bulgaria (Vans)",
+   "base": "Bulgaria",
+   "slug": "bulgaria_vans",
+   "period": "2026-06",
+   "flag": "🇧🇬"
+  },
+  {
+   "date": "2026-10-26",
    "label": "Chile",
    "base": "Chile",
    "slug": "chile",
@@ -6592,6 +6600,14 @@
    "slug": "ecuador_vans",
    "period": "2026-09",
    "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "France (HDV)",
+   "base": "France",
+   "slug": "france_hdv",
+   "period": "2026-06",
+   "flag": "🇫🇷"
   },
   {
    "date": "2026-10-26",
@@ -6635,6 +6651,62 @@
   },
   {
    "date": "2026-10-26",
+   "label": "Poland (HDV)",
+   "base": "Poland",
+   "slug": "poland_hdv",
+   "period": "2026-09",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Romania (HDV)",
+   "base": "Romania",
+   "slug": "romania_hdv",
+   "period": "2026-06",
+   "flag": "🇷🇴"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Romania (Vans)",
+   "base": "Romania",
+   "slug": "romania_vans",
+   "period": "2026-06",
+   "flag": "🇷🇴"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Singapore",
+   "base": "Singapore",
+   "slug": "singapore",
+   "period": "2026-09",
+   "flag": "🇸🇬"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Slovakia (Vans)",
+   "base": "Slovakia",
+   "slug": "slovakia_vans",
+   "period": "2026-06",
+   "flag": "🇸🇰"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Slovenia (Buses)",
+   "base": "Slovenia",
+   "slug": "slovenia_buses",
+   "period": "2026-06",
+   "flag": "🇸🇮"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Slovenia (HDV)",
+   "base": "Slovenia",
+   "slug": "slovenia_hdv",
+   "period": "2026-06",
+   "flag": "🇸🇮"
+  },
+  {
+   "date": "2026-10-26",
    "label": "South Africa",
    "base": "South Africa",
    "slug": "south_africa",
@@ -6648,6 +6720,14 @@
    "slug": "south_korea",
    "period": "2026-09",
    "flag": "🇰🇷"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Sweden (Buses)",
+   "base": "Sweden",
+   "slug": "sweden_buses",
+   "period": "2026-06",
+   "flag": "🇸🇪"
   },
   {
    "date": "2026-10-26",

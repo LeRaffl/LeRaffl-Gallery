@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T11:03:29Z",
+ "generated": "2026-10-26T11:28:56Z",
  "today": "2026-10-26",
  "countries": [
   {
@@ -510,7 +510,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-26",
    "flag": "🇧🇬",
    "variants": [
     {
@@ -1485,7 +1485,7 @@
     ],
     "workflow": ".github/workflows/fetch-france.yml"
    },
-   "last_render": "2026-10-05",
+   "last_render": "2026-10-26",
    "flag": "🇫🇷",
    "variants": [
     {
@@ -3355,7 +3355,7 @@
     ],
     "workflow": ".github/workflows/fetch-poland.yml"
    },
-   "last_render": "2026-10-10",
+   "last_render": "2026-10-26",
    "flag": "🇵🇱",
    "variants": [
     {
@@ -3525,7 +3525,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-26",
    "flag": "🇷🇴",
    "variants": [
     {
@@ -3546,11 +3546,11 @@
    "source_url": "https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html",
    "cadence_text": "daily 08:00 UTC, 15th–31st, commit-gated",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3592,14 +3592,14 @@
     ],
     "workflow": ".github/workflows/fetch-singapore.yml"
    },
-   "last_render": "2026-09-15",
+   "last_render": "2026-10-26",
    "flag": "🇸🇬",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2016-01",
-     "rows": 117,
+     "rows": 118,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3658,7 +3658,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-26",
    "flag": "🇸🇰",
    "variants": [
     {
@@ -3724,7 +3724,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-26",
    "flag": "🇸🇮",
    "variants": [
     {
@@ -4041,7 +4041,7 @@
     ],
     "workflow": ".github/workflows/fetch-sweden.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-26",
    "flag": "🇸🇪",
    "variants": [
     {
