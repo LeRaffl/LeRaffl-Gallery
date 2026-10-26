@@ -46,6 +46,14 @@ def main():
     checks.append((bool(energy), "Energy view code found"))
     checks.append(("toLocaleString('de-DE')" not in energy, "no de-DE formatting left in the Energy view"))
     checks.append((".replace('.',',')" not in energy, "no decimal-comma replace left in the Energy view"))
+    # Owner decision: international format everywhere on the live page.
+    for m2 in re.finditer(r"toLocaleString\(([^)]*)\)", html):
+        arg = m2.group(1).strip()
+        ln = html.count("\n", 0, m2.start()) + 1
+        checks.append((arg in ("'en-US'", '"en-US"'), f"index.html:{ln} toLocaleString({arg}) must be 'en-US'"))
+    checks.append(("de-DE" not in html.replace("This used to be 'de-DE'", ""), "no de-DE locale anywhere in index.html"))
+    checks.append((not re.search(r"Intl\.NumberFormat\((?!['\"]en-US)", html), "Intl.NumberFormat only with en-US"))
+    checks.append((not re.search(r"\.replace\(\s*['\"]\.['\"]\s*,\s*['\"],['\"]", html), "no decimal-comma replace anywhere"))
     bad = [msg for ok, msg in checks if not ok]
     for msg in bad: print("FAIL:", msg)
     print(f"{len(checks)-len(bad)}/{len(checks)} passed")

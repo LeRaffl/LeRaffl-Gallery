@@ -9745,7 +9745,7 @@ if (stepTraces.length){
         : `data through <b>${frame.date}</b>`,
       // "1 countries" for a single market is noise as well as bad grammar.
       isCountry ? null : (n != null ? `${n} countries` : null),
-      w != null ? `${Number(w).toLocaleString()} vehicles/yr` : null,
+      w != null ? `${fmtInt(Number(w))} vehicles/yr` : null,
       met.length ? `BEV ${met.join(' &middot; ')}` : null,
       unmet.length ? `${unmet.join('% / ')}% not reached by ${Math.round(years[years.length-1])}` : null,
     ].filter(Boolean);
@@ -14405,10 +14405,10 @@ function sdUpdateSumcheck(node) {
 
   if (sum === 0) { el.textContent = 'Categories sum: 0 — only TOTAL set.'; el.className = 'sd-row-sumcheck'; return; }
   if (Math.abs(diff) < 1 || pct < 0.5) {
-    el.textContent = `Categories sum: ${sum.toLocaleString()} ≈ TOTAL (${total.toLocaleString()})`;
+    el.textContent = `Categories sum: ${fmtInt(sum)} ≈ TOTAL (${fmtInt(total)})`;
     el.className = 'sd-row-sumcheck good';
   } else {
-    el.textContent = `Categories sum: ${sum.toLocaleString()} vs TOTAL ${total.toLocaleString()} (off by ${diff.toLocaleString()}, ${pct.toFixed(1)}%) — please double-check.`;
+    el.textContent = `Categories sum: ${fmtInt(sum)} vs TOTAL ${fmtInt(total)} (off by ${fmtInt(diff)}, ${pct.toFixed(1)}%) — please double-check.`;
     el.className = 'sd-row-sumcheck bad';
   }
 }
