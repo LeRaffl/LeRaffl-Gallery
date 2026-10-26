@@ -2,7 +2,7 @@
 country: Uruguay
 slug: uruguay
 method: file
-summary: New-registration data for Uruguay from ACAU's yearly Compilado workbook.
+summary: New-vehicle sales for Uruguay from ACAU's yearly Compilado workbook.
 source_name: ACAU — Compilado XLSX
 source_url: https://www.acau.com.uy/
 underlying: ACAU — Asociación del Comercio Automotor del Uruguay
@@ -30,13 +30,14 @@ workflow: .github/workflows/fetch-uruguay.yml
 fragility_doc: docs/architecture/25-source-uruguay.md
 data_file: data/Uruguay.csv
 market_breakdown: market/uruguay_top.json
+market_unit: sales
 market_class_labels: {MHEV: "Mild hybrid (OTHERS in the data file; counted as ICE in the curves)"}
 ---
 
 # 25 · Source: Uruguay (ACAU Compilado xlsx)
 
 ACAU (*Asociación del Comercio Automotor del Uruguay*, the Uruguayan automotive
-trade association) publishes monthly new-registration data in a yearly Excel
+trade association, i.e. the dealers) publishes monthly new-vehicle sales in a yearly Excel
 workbook ("Compilado YYYY") on `www.acau.com.uy`. Four variants are extracted
 from one shared workbook per year, so a single download serves all CSV updates.
 
