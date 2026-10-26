@@ -7,5 +7,3 @@ Trailing 12 months are:
 80.4% BEV
 0.0% PHEV
 19.6% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
