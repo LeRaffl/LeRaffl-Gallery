@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 61 countries · 7,022 periods drawable · 164 held back · **47 of 61 files cost the chart nothing.**
+**Status:** 61 countries · 7,056 periods drawable · 168 held back · **46 of 61 files cost the chart nothing.**
 
 ---
 
@@ -42,6 +42,11 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 - [ ] **3 rows whose bands do not add up to `TOTAL`** (worst 2017-06: bands miss TOTAL by +34.4%) · 2015-06, 2016-06, 2017-06
 - [ ] **3 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (2 of 3 rows present)) · 2020-02…2020-04
 → *Symptom:* 1 visible gap in the chart, 3 months (worst 2020-02…2020-05).
+
+### Vietnam  ·  costs 8 periods
+
+- [ ] **4 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (2 of 3 rows present)) · 2023-08…2023-09, 2024-07…2024-08
+→ *Symptom:* 2 visible gaps in the chart, 4 months (worst 2023-08…2023-12).
 
 ### Malta  ·  costs 7 periods
 
@@ -194,8 +199,12 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 - A coarse figure is written across finer rows in **`BEV`, `HEV`, `TOTAL`** — up to 36 rows, 2016-01…2022-06. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
 - `time_interval` says **yearly** on 36 rows whose spacing is **monthly**. Nothing reads the label except § 3.2b (a row alone in its cycle), but it misleads every future consumer.
 
+### Vietnam
+
+- A coarse figure is written across finer rows in **`BEV`** — up to 13 rows, 2023-08…2024-08. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
+
 ---
 
 ## Costs the chart nothing
 
-Albania, Argentina, Austria, Belgium, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Ecuador, Estonia, Finland, France, Georgia, Germany, Greece, Hong Kong, Iceland, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Paraguay, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Thailand, Türkiye, UK, USA, Ukraine, Vietnam
+Albania, Argentina, Austria, Belgium, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Ecuador, Estonia, Finland, France, Georgia, Germany, Greece, Hong Kong, Iceland, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Paraguay, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Thailand, Türkiye, UK, USA, Ukraine
