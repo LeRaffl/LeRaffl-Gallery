@@ -368,6 +368,21 @@ Council). Australia stays on the gallery; only the automation fails.
   table as text or a spreadsheet in the monthly post, or a state-level open
   registration dataset with fuel type for every state.
 
+## 🇻🇳 Vietnam — no registration data, so the series counts sales (built 2026-10)
+
+The traffic police (CSGT) publish new registrations only as half-year and year
+totals in press conferences — no month, fuel or brand — and csgt.vn does not
+answer GitHub's runners. The association VAMA covers only its members, and the
+market's biggest seller, VinFast (all electric), is not one. The gap closes
+because the two big non-members publish their own monthly figures (VinFast's
+delivery release, TC Group's Hyundai table) and VAMA estimates the remaining
+imports: the three together are exactly the national total the press quotes
+every month. The price: the series counts **sales, not registrations** (VinFast
+counts deliveries, which run ahead of registrations), and VAMA's ~10 % of
+non-member imports carries no fuel split (OTHERS). Built as
+[64-source-vietnam.md](64-source-vietnam.md); the police figures are kept by hand
+as a cross-check (`checks/vietnam_reference.csv`).
+
 ## General principle (for the LLM being asked "why isn't X on the map?")
 
 If someone points at one of these countries and says "but the data exists,

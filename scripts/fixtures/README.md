@@ -20,10 +20,12 @@ here is ever read by a fetcher's scheduled run.
 | `colombia/fenalco_informe-del-sector-automotor-a-{septiembre-2026-9171,agosto-2026-9088,julio-2026-9021}.html` | FENALCO blog posts for the Sep/Aug/Jul 2026 automotive report (public press text; PDF itself behind login) | `scripts/test_fetch_colombia.py` (`test_fenalco_*`); [18-source-colombia.md](../../docs/architecture/18-source-colombia.md) § FENALCO press-text fallback |
 | `colombia/fenalco_blog_gremial-4.html` | FENALCO gremial-4 blog index (lists the monthly car and motorcycle reports) | `scripts/test_fetch_colombia.py` (`test_fenalco_*`) |
 | `colombia/andi_noticias.html`, `colombia/andi_noticia_18083.html`, `colombia/andi_noticia_18084.html` | ANDI press-note listing; the Aug-2026 car note (boletín embedded as iframe) and the motorcycle note beside it | `scripts/test_fetch_colombia.py` (`test_andi_news_*`, `test_resolve_bulletin_tries_press_notes_before_guessing`) |
+| `vietnam/vama-cover-2026-09.pdf`, `vietnam/vama-detail-2026-09.pdf` | VAMA cover letter (total industry, members' PC / BEV / Hybrid subtotals) and Detail sheet (member models), September 2026 | `scripts/test_fetch_vietnam.py`; [64-source-vietnam.md](../../docs/architecture/64-source-vietnam.md) |
 
 All were uploaded by the maintainer (`Add files via upload`) while the dev
 sandbox could not reach the source, and moved here from `data/` in 2026-10 (the `greece/` files were mirrored
 from seaa.gr by a GitHub Actions run in 2026-10, the sandbox being blocked; the `colombia/` pages were saved from
-andi.com.co / fenalco.com.co on 2026-10-24, anonymous CSRF tokens replaced by `REDACTED`).
+andi.com.co / fenalco.com.co on 2026-10-24, anonymous CSRF tokens replaced by `REDACTED`; the `vietnam/`
+files were downloaded from vama.org.vn by a GitHub Actions run in 2026-10).
 Add a file here only together with the test or doc that uses it, and list it
 in this table.

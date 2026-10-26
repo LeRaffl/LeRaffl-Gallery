@@ -1,0 +1,26 @@
+period,time_interval,variant,source,BEV,PHEV,HEV,MHEV,ICE,OTHERS,TOTAL,notes
+2024-09,monthly,Whole,VAMA + VinFast + TC Group,9300.0,,788.0,256.0,30455.0,3215.0,44014.0,"VinFast rounded ('more than 9,300')"
+2024-10,monthly,Whole,VAMA + VinFast + TC Group,11000.0,,1112.0,308.0,33227.0,2372.0,48019.0,"VinFast rounded ('more than 11,000')"
+2024-11,monthly,Whole,VAMA + VinFast + TC Group,16000.0,,822.0,418.0,39774.0,3045.0,60059.0,"VinFast rounded ('more than 16,000'); VAMA cover letter says total industry 40,200; PC+CV+SPV = 44,200 used"
+2024-12,monthly,Whole,VAMA + VinFast + TC Group,20000.0,,1146.0,333.0,27852.0,2639.0,51970.0,"VinFast rounded ('more than 20,000')"
+2025-01,monthly,Whole,VAMA + VinFast + TC Group,10000.0,,771.0,133.0,13399.0,2240.0,26543.0,"VinFast rounded ('more than 10,000')"
+2025-02,monthly,Whole,VAMA + VinFast + TC Group,12500.0,,590.0,166.0,13743.0,2343.0,29342.0,"VinFast rounded ('more than 12,500')"
+2025-03,monthly,Whole,VAMA + VinFast + TC Group,12100.0,,627.0,275.0,22285.0,3362.0,38649.0,"VinFast rounded ('more than 12,100')"
+2025-04,monthly,Whole,VAMA + VinFast + TC Group,9588.0,,778.0,195.0,19197.0,4025.0,33783.0,
+2025-05,monthly,Whole,VAMA + VinFast + TC Group,11496.0,,769.0,201.0,18402.0,3600.0,34468.0,model split derived from neighbouring months' YTD (VAMA detail sheet mislabelled)
+2025-06,monthly,Whole,VAMA + VinFast + TC Group,11382.0,,930.0,223.0,20911.0,3792.0,37238.0,
+2025-07,monthly,Whole,VAMA + VinFast + TC Group,11479.0,,1002.0,184.0,20966.0,2763.0,36394.0,
+2025-08,monthly,Whole,VAMA + VinFast + TC Group,10922.0,,1083.0,219.0,16349.0,2233.0,30806.0,
+2025-09,monthly,Whole,VAMA + VinFast + TC Group,13927.0,,1122.0,249.0,20963.0,1552.0,37813.0,
+2025-10,monthly,Whole,VAMA + VinFast + TC Group,20388.0,,1148.0,249.0,26565.0,3173.0,51523.0,
+2025-11,monthly,Whole,VAMA + VinFast + TC Group,23186.0,,1141.0,199.0,28861.0,2633.0,56020.0,
+2025-12,monthly,Whole,VAMA + VinFast + TC Group,27650.0,,1309.0,340.0,37938.0,1701.0,68938.0,
+2026-01,monthly,Whole,VAMA + VinFast + TC Group,16172.0,,436.0,427.0,27305.0,2799.0,47139.0,
+2026-02,monthly,Whole,VAMA + VinFast + TC Group,9904.0,,963.0,156.0,12435.0,1079.0,24537.0,model split derived from neighbouring months' YTD (VAMA detail sheet mislabelled)
+2026-03,monthly,Whole,VAMA + VinFast + TC Group,27609.0,,2947.0,196.0,22955.0,1848.0,55555.0,
+2026-04,monthly,Whole,VAMA + VinFast + TC Group,24823.0,,1660.0,63.0,18852.0,3224.0,48622.0,
+2026-05,monthly,Whole,VAMA + VinFast + TC Group,19517.0,,1596.0,74.0,18472.0,1530.0,41189.0,
+2026-06,monthly,Whole,VAMA + VinFast + TC Group,17961.0,,2268.0,79.0,18042.0,3073.0,41423.0,
+2026-07,monthly,Whole,VAMA + VinFast + TC Group,18002.0,,1514.0,122.0,20101.0,5765.0,45504.0,VinFast revised from next month's YTD
+2026-08,monthly,Whole,VAMA + VinFast + TC Group,20164.0,,1297.0,91.0,13763.0,3517.0,38832.0,
+2026-09,monthly,Whole,VAMA + VinFast + TC Group,23627.0,,2171.0,113.0,20058.0,5044.0,51013.0,

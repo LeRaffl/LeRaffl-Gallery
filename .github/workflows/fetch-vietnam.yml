@@ -1,0 +1,162 @@
+name: Fetch Vietnam data (VAMA + VinFast + TC Group)
+
+# Vietnam has no registration statistics anyone can download, so the series
+# is stitched from the three publishers that together cover the passenger-car
+# market (docs/architecture/64-source-vietnam.md):
+#
+#   VAMA       vama.org.vn — the cover letter (total industry, of which
+#              passenger cars; members' PC / BEV / Hybrid subtotals) and the
+#              Detail sheet (member models: mild hybrids, hybrids filed in the
+#              PC block)
+#   VinFast    vingroup.net — the monthly delivery release (Vietnamese;
+#              SEC 6-K text in the history; sec.gov answers runners with 403)
+#   TC Group   thanhcong.vn — the Hyundai release (total, commercial, models)
+#
+# One row per month in data/Vietnam.csv (variant Whole, closest to EU M1):
+# BEV / HEV / MHEV / ICE / OTHERS (non-member imports) / TOTAL. Every input
+# figure is kept in data/raw/vietnam/components.csv, so a month can be
+# rebuilt without the network (--rebuild) and a VinFast revision (next
+# month's year-to-date figure) rewrites the month it belongs to.
+# Also writes market/vietnam_top.json (BEV / HEV / MHEV brands and models),
+# market/vietnam_all_top.json (every powertrain) and market/vietnam_checks.json
+# (our inputs against hand-kept media / police figures; re-run on every push
+# of checks/vietnam_reference.csv).
+#
+# The month is written only once all three sources are in; until then the
+# components file keeps what has arrived (committed) and the CSV is
+# untouched. VAMA publishes around mid-month, VinFast and TC Group around
+# the 10th — polled twice daily, 8th → 28th; the script exits without HTTP
+# when the target month is already complete.
+
+on:
+  workflow_dispatch:
+    inputs:
+      period:
+        description: 'Target month YYYY-MM (default: last month)'
+        required: false
+        default: ''
+      vama_cover:
+        description: 'VAMA cover letter URL (when the listing page misses it)'
+        required: false
+        default: ''
+      vama_detail:
+        description: 'VAMA Detail sheet URL'
+        required: false
+        default: ''
+      vinfast_url:
+        description: 'VinFast release URL (vingroup.net article)'
+        required: false
+        default: ''
+      tc_url:
+        description: 'TC Group release URL (thanhcong.vn)'
+        required: false
+        default: ''
+      rebuild:
+        description: 'No network: rewrite data/Vietnam.csv from data/raw/vietnam/components.csv'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Re-fetch a month that is already complete'
+        required: false
+        default: false
+        type: boolean
+  push:
+    # A hand-entered reference figure re-writes market/vietnam_checks.json.
+    branches: [master]
+    paths: ['checks/vietnam_reference.csv']
+  schedule:
+    # 04:05 and 10:05 UTC (Hanoi 11:05 / 17:05), 8th → 28th.
+    - cron: '5 4,10 8-28 * *'
+
+concurrency: fetch-vietnam
+
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils
+          pip install requests pdfplumber
+
+      # The parsers fail silently when a page is reworded, so the regression
+      # tests gate the fetch (no network; the VAMA PDFs are fixtures).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_vietnam.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update the Vietnam CSV
+        id: fetch
+        run: |
+          python scripts/fetch_vietnam.py \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${VAMA_COVER:+--vama-cover "$VAMA_COVER"} \
+            ${VAMA_DETAIL:+--vama-detail "$VAMA_DETAIL"} \
+            ${VINFAST_URL:+--vinfast-url "$VINFAST_URL"} \
+            ${TC_URL:+--tc-url "$TC_URL"} \
+            ${REBUILD:+--rebuild} \
+            ${FORCE:+--force} \
+            --github-output "$GITHUB_OUTPUT"
+        env:
+          PERIOD:      ${{ inputs.period }}
+          VAMA_COVER:  ${{ inputs.vama_cover }}
+          VAMA_DETAIL: ${{ inputs.vama_detail }}
+          VINFAST_URL: ${{ inputs.vinfast_url }}
+          TC_URL:      ${{ inputs.tc_url }}
+          REBUILD:     ${{ inputs.rebuild == true && '1' || '' }}
+          FORCE:       ${{ inputs.force == true && '1' || '' }}
+
+      # Offline: our inputs against the hand-kept reference figures
+      # (checks/vietnam_reference.csv) → market/vietnam_checks.json, shown on
+      # the source page. The reminder for missing figures is
+      # vietnam-reference-reminder.yml.
+      - name: Compare with the reference figures
+        run: python scripts/check_vietnam_reference.py
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: |
+            data/Vietnam.csv
+            data/raw/vietnam/components.csv
+            market/vietnam_top.json
+            market/vietnam_months.json
+            market/vietnam_all_top.json
+            market/vietnam_all_months.json
+            market/vietnam_checks.json
+          message: 'chore: update Vietnam data from VAMA, VinFast and TC Group'
+          default_author: github_actions
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Vietnam
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="Vietnam" \
+            -f variants="Whole"

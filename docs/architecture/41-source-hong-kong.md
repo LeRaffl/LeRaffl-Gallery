@@ -166,7 +166,8 @@ for them (details in [33](33-expansion-candidates.md#investigated-2026-09--large
 Taiwan's highway-bureau statistics site blocks datacenter IPs and its open
 dataset has no fuel split; Mexico's official series omits BYD (see
 [14](14-data-source-gaps.md)); Russia, Vietnam, the Philippines, Saudi Arabia
-and Egypt publish no free fuel split. Hong Kong is small (~45,000 new cars a
+and Egypt publish no free fuel split (Vietnam was built later from three
+publishers' figures — [64](64-source-vietnam.md)). Hong Kong is small (~45,000 new cars a
 year) but has one of the cleanest registration datasets anywhere and one of
 the highest BEV shares (86 % of new private cars in 2025).
 

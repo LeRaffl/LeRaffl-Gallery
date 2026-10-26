@@ -168,6 +168,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-ukraine.yml`](../../.github/workflows/fetch-ukraine.yml) | 08:40 & 20:40 UTC, 1st → 15th | MIA open vehicle register (`data.gov.ua` CKAN; yearly zips, current year re-uploaded ~the 1st) — fuel from the record, new/used from operation codes ([40](40-source-ukraine.md)) | `Whole` + `Private` + `Industry` + `Used` + `Vans` — one download, every variant; combined Hybrid bucket | every CSV already has the target month from `MIA HSC (data.gov.ua)` → no HTTP |
 | [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | 08:10 UTC, 1st → EOM | ACAU «Compilado YYYY» xlsx + `market/uruguay_top.json` / `uruguay_months.json` | `Whole` (AUTOS + SUV) + `Vans` + `HDV` + `Buses` | `latest_period` per variant ≥ target and the top file current |
 | [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | 10:30 UTC, 10th → EOM | ANL «Total Sales for Website» PDF | `Whole` — trailing 3-month window, re-written each run to absorb ANL revisions | change-detection on the window |
+| [`fetch-vietnam.yml`](../../.github/workflows/fetch-vietnam.yml) | 04:05 & 10:05 UTC, 8th → 28th (+ on push of `checks/vietnam_reference.csv`) | VAMA cover letter + Detail sheet (PDF), VinFast's release on vingroup.net, TC Group's Hyundai table ([64](64-source-vietnam.md)) | `Whole` — passenger-car sales ≈ M1 from three sources; also `market/vietnam_*` and `vietnam_checks.json` | `data/raw/vietnam/components.csv` already has the month complete → no HTTP |
 
 Notes on the schedule shape:
 - **The 08:00 UTC pile-up was deliberately broken up.** It used to be the
@@ -184,7 +185,7 @@ Notes on the schedule shape:
   (HK office hours — TD's upload day is unpredictable, so it polls daily),
   Ireland 04:00 & 13:00
   (SIMI publishes very early on the 1st), Thailand 04:40, Finland 04:40,
-  Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Canada
+  Vietnam 04:05 & 10:05 (8th–28th, Hanoi 11:05 / 17:05 — VinFast and TC Group around the 10th, VAMA mid-month), Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Canada
   06:40, Luxembourg 06:45, Georgia 06:55 (quarterly — only the two months after each quarter, 10th → EOM; Tbilisi 10:55), Albania and Malaysia 07:00, Spain 07:15 (after
   DGT's own 06:30 UTC drop; +14:15 on the 1st–3rd), Colombia 07:30, France 07:40, Nepal 07:50; South Korea 03:35 & 09:35 (MOTIR releases
   at 11:00 KST).
@@ -203,7 +204,7 @@ Notes on the schedule shape:
   they fire many times a month but only do real HTTP on the days the source
   publishes.
 - **Date-window starters** (Poland 6+, Argentina 8+, USA 10+, Indonesia 10+, Albania 10+,
-  Israel 10–20, Chile 14+, South Korea 12–25, Taiwan 12–28, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, France 18+, and the
+  Israel 10–20, Vietnam 8–28, Chile 14+, South Korea 12–25, Taiwan 12–28, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, France 18+, and the
   matching upper cut-offs) reflect the earliest plausible publication day for
   the previous month from that source. Cutting off the empty days saves a
   handful of self-throttle checks; it doesn't change correctness.
@@ -237,6 +238,7 @@ public-submit PRs — are **Australia** (the UK since `fetch-uk.yml` and Georgia
 | [`render-country.yml`](../../.github/workflows/render-country.yml) | (no cron) | On `workflow_dispatch` or `workflow_call` only | Manual or fan-out trigger from a fetch workflow — never auto-runs on its own clock. |
 | [`build-series.yml`](../../.github/workflows/build-series.yml) | (no cron) | On push to `data/**` (one path filter catches all 29 fetchers, manual commits and merged submission PRs) | Regenerates `series/index.json` + `series/*.json` and the generated data-quality checklist. **Since the 2026-09 redesign this output is on the page's read path** — Raw Data *and the landing hero chart* fetch it at runtime (see [Flow F](05-flows.md#flow-f--gallery-read)), so a failure here degrades the live page rather than just aging a table. Does not trigger on `series/**`, so its own commit cannot retrigger it. |
 | [`check-switzerland-acea.yml`](../../.github/workflows/check-switzerland-acea.yml) | `50 10 23-28 * *` | Daily 10:50 UTC, 23rd → 28th | Compares the newest ASTRA months of `data/Switzerland.csv` with ACEA's monthly release (`fetch_switzerland.py --acea-check`); a gap beyond 1 % (total) / 3 % (fuel) is a warning annotation. Writes nothing ([46](46-source-switzerland.md) §4) |
+| [`vietnam-reference-reminder.yml`](../../.github/workflows/vietnam-reference-reminder.yml) | `45 2 12-28 * *`, `45 2 1-11 1,7 *` | Daily 02:45 UTC, 12th → 28th, and 1st → 11th of January and July | Lists the reference figures for Vietnam that are due and missing in `checks/vietnam_reference.csv` (media totals of the three newest months from the 20th; police H1 from 1 July, year from 5 January) and keeps **one** issue labelled `vietnam-reference` (marker `<!-- vietnam-reference -->`) up to date; closes it when nothing is due. The only workflow with `issues: write` ([64](64-source-vietnam.md) §5). |
 | [`backfill-bands.yml`](../../.github/workflows/backfill-bands.yml) | (no cron) | On `workflow_dispatch` only | Recomputes `bands/<slug>.json` (uncertainty bands) for all series or the given countries and commits only `bands/`. Run once after the feature lands and after changing `R/bands.R` ([44](44-uncertainty-bands.md)). |
 | [`runner-canary.yml`](../../.github/workflows/runner-canary.yml) | `29 5 20 * *` | Monthly 20th 05:29 UTC (+ dispatch, + push to the canary's own files) | Runs the OCR/PDF/Playwright fetchers, one render and the system-Python step on the pinned runner image and on the next one, and compares the results. Read-only, never commits; red when the next image changes or breaks something. See [56-runner-upgrades.md](56-runner-upgrades.md). |
 | [`preview-render.yml`](../../.github/workflows/preview-render.yml) | (no cron) | On pull requests touching `R/**` (and manual dispatch) | Renders a fixed set of series with the PR's `R/` and the base branch's `R/` from the same data; uploads the side-by-side `render-preview` artifact and edits one PR comment. Read-only: commits nothing ([02 § 2.17](02-components.md#217-render-preview-githubworkflowspreview-renderyml-scriptsbuild_render_previewpy)). |

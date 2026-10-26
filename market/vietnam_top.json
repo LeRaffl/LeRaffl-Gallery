@@ -1,0 +1,2058 @@
+{
+ "schema": 3,
+ "country": "Vietnam",
+ "variant": "Whole",
+ "source": "VAMA + VinFast + TC Group",
+ "as_of": "2026-09",
+ "window": {
+  "from": "2025-10",
+  "to": "2026-09",
+  "months": 12
+ },
+ "total_registrations": 570295,
+ "unit": "sales (VAMA member models; VinFast and Hyundai from their own releases; non-member imports are one row; Lexus and BMW/MINI, filed by VAMA in separate sheets, count in the totals only)",
+ "classes": {
+  "BEV": {
+   "units": 249003,
+   "share_of_market": 0.43662,
+   "brands": [
+    {
+     "brand": "VINFAST",
+     "units": 248912,
+     "share_of_class": 0.9996
+    },
+    {
+     "brand": "FORD",
+     "units": 91,
+     "share_of_class": 0.0004
+    }
+   ],
+   "models": [
+    {
+     "brand": "VINFAST",
+     "model": "LIMO GREEN",
+     "units": 56169,
+     "share_of_class": 0.2256
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 3",
+     "units": 54798,
+     "share_of_class": 0.2201
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 5 / HERIO GREEN",
+     "units": 46539,
+     "share_of_class": 0.1869
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 6",
+     "units": 29002,
+     "share_of_class": 0.1165
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 7",
+     "units": 12412,
+     "share_of_class": 0.0498
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF MPV 7",
+     "units": 10648,
+     "share_of_class": 0.0428
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 2 / MINIO GREEN",
+     "units": 8472,
+     "share_of_class": 0.034
+    },
+    {
+     "brand": "VINFAST",
+     "model": "EC VAN",
+     "units": 3093,
+     "share_of_class": 0.0124
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 8",
+     "units": 2328,
+     "share_of_class": 0.0093
+    },
+    {
+     "brand": "FORD",
+     "model": "MACH-E",
+     "units": 91,
+     "share_of_class": 0.0004
+    }
+   ]
+  },
+  "HEV": {
+   "units": 18450,
+   "share_of_market": 0.03235,
+   "brands": [
+    {
+     "brand": "TOYOTA",
+     "units": 14032,
+     "share_of_class": 0.7605
+    },
+    {
+     "brand": "HONDA",
+     "units": 4380,
+     "share_of_class": 0.2374
+    },
+    {
+     "brand": "KIA",
+     "units": 38,
+     "share_of_class": 0.0021
+    }
+   ],
+   "models": [
+    {
+     "brand": "TOYOTA",
+     "model": "COROLLA CROSS HYBRID",
+     "units": 5148,
+     "share_of_class": 0.279
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "INNOVA CROSS HYBRID",
+     "units": 4787,
+     "share_of_class": 0.2595
+    },
+    {
+     "brand": "HONDA",
+     "model": "CR-V HYBRID",
+     "units": 2747,
+     "share_of_class": 0.1489
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "YARIS CROSS HYBRID",
+     "units": 2142,
+     "share_of_class": 0.1161
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "CAMRY HYBRID",
+     "units": 1523,
+     "share_of_class": 0.0825
+    },
+    {
+     "brand": "HONDA",
+     "model": "HR-V HYBRID",
+     "units": 1225,
+     "share_of_class": 0.0664
+    },
+    {
+     "brand": "HONDA",
+     "model": "CIVIC HYBRID",
+     "units": 408,
+     "share_of_class": 0.0221
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "ALPHARD HYBRID",
+     "units": 307,
+     "share_of_class": 0.0166
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "LANDCRUISER HYBRID",
+     "units": 116,
+     "share_of_class": 0.0063
+    },
+    {
+     "brand": "KIA",
+     "model": "NEW SORENTO HEV/PHEV",
+     "units": 38,
+     "share_of_class": 0.0021
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "COROLLA HYBRID",
+     "units": 9,
+     "share_of_class": 0.0005
+    }
+   ]
+  },
+  "MHEV": {
+   "units": 2109,
+   "share_of_market": 0.0037,
+   "brands": [
+    {
+     "brand": "SUZUKI",
+     "units": 2109,
+     "share_of_class": 1.0
+    }
+   ],
+   "models": [
+    {
+     "brand": "SUZUKI",
+     "model": "XL7 HYBRID",
+     "units": 2109,
+     "share_of_class": 1.0
+    }
+   ]
+  }
+ },
+ "months": [
+  {
+   "period": "2026-09",
+   "total_registrations": 51013,
+   "classes": {
+    "BEV": {
+     "units": 23627,
+     "share_of_market": 0.46316,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 23624,
+       "share_of_class": 0.9999
+      },
+      {
+       "brand": "FORD",
+       "units": 3,
+       "share_of_class": 0.0001
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 6474,
+       "share_of_class": 0.274
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 5027,
+       "share_of_class": 0.2128
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 3083,
+       "share_of_class": 0.1305
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 2472,
+       "share_of_class": 0.1046
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 2433,
+       "share_of_class": 0.103
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 8",
+       "units": 1494,
+       "share_of_class": 0.0632
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 1092,
+       "share_of_class": 0.0462
+      },
+      {
+       "brand": "FORD",
+       "model": "MACH-E",
+       "units": 3,
+       "share_of_class": 0.0001
+      }
+     ]
+    },
+    "HEV": {
+     "units": 2171,
+     "share_of_market": 0.04256,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1937,
+       "share_of_class": 0.8922
+      },
+      {
+       "brand": "HONDA",
+       "units": 234,
+       "share_of_class": 0.1078
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 630,
+       "share_of_class": 0.2902
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 616,
+       "share_of_class": 0.2837
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 413,
+       "share_of_class": 0.1902
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 189,
+       "share_of_class": 0.0871
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 131,
+       "share_of_class": 0.0603
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LANDCRUISER HYBRID",
+       "units": 116,
+       "share_of_class": 0.0534
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 44,
+       "share_of_class": 0.0203
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 31,
+       "share_of_class": 0.0143
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 1,
+       "share_of_class": 0.0005
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 113,
+     "share_of_market": 0.00222,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 113,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 113,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-08",
+   "total_registrations": 38832,
+   "classes": {
+    "BEV": {
+     "units": 20164,
+     "share_of_market": 0.51926,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 20161,
+       "share_of_class": 0.9999
+      },
+      {
+       "brand": "FORD",
+       "units": 3,
+       "share_of_class": 0.0001
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 6453,
+       "share_of_class": 0.32
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 4265,
+       "share_of_class": 0.2115
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 4203,
+       "share_of_class": 0.2084
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 1256,
+       "share_of_class": 0.0623
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 8",
+       "units": 834,
+       "share_of_class": 0.0414
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 698,
+       "share_of_class": 0.0346
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 695,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "FORD",
+       "model": "MACH-E",
+       "units": 3,
+       "share_of_class": 0.0001
+      }
+     ]
+    },
+    "HEV": {
+     "units": 1297,
+     "share_of_market": 0.0334,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1046,
+       "share_of_class": 0.8065
+      },
+      {
+       "brand": "HONDA",
+       "units": 251,
+       "share_of_class": 0.1935
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 371,
+       "share_of_class": 0.286
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 287,
+       "share_of_class": 0.2213
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 195,
+       "share_of_class": 0.1503
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 192,
+       "share_of_class": 0.148
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 179,
+       "share_of_class": 0.138
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 50,
+       "share_of_class": 0.0386
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 17,
+       "share_of_class": 0.0131
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 6,
+       "share_of_class": 0.0046
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 91,
+     "share_of_market": 0.00234,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 91,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 91,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-07",
+   "total_registrations": 45504,
+   "classes": {
+    "BEV": {
+     "units": 18002,
+     "share_of_market": 0.39561,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 17996,
+       "share_of_class": 0.9997
+      },
+      {
+       "brand": "FORD",
+       "units": 6,
+       "share_of_class": 0.0003
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4891,
+       "share_of_class": 0.2717
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 3874,
+       "share_of_class": 0.2152
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 3871,
+       "share_of_class": 0.215
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 2135,
+       "share_of_class": 0.1186
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 1752,
+       "share_of_class": 0.0973
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 1471,
+       "share_of_class": 0.0817
+      },
+      {
+       "brand": "FORD",
+       "model": "MACH-E",
+       "units": 6,
+       "share_of_class": 0.0003
+      }
+     ]
+    },
+    "HEV": {
+     "units": 1514,
+     "share_of_market": 0.03327,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1233,
+       "share_of_class": 0.8144
+      },
+      {
+       "brand": "HONDA",
+       "units": 281,
+       "share_of_class": 0.1856
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 472,
+       "share_of_class": 0.3118
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 365,
+       "share_of_class": 0.2411
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 278,
+       "share_of_class": 0.1836
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 202,
+       "share_of_class": 0.1334
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 91,
+       "share_of_class": 0.0601
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 78,
+       "share_of_class": 0.0515
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 27,
+       "share_of_class": 0.0178
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 1,
+       "share_of_class": 0.0007
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 122,
+     "share_of_market": 0.00268,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 122,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 122,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-06",
+   "total_registrations": 41423,
+   "classes": {
+    "BEV": {
+     "units": 17961,
+     "share_of_market": 0.4336,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 17955,
+       "share_of_class": 0.9997
+      },
+      {
+       "brand": "FORD",
+       "units": 6,
+       "share_of_class": 0.0003
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 3868,
+       "share_of_class": 0.2154
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 3550,
+       "share_of_class": 0.1977
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 3364,
+       "share_of_class": 0.1873
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2988,
+       "share_of_class": 0.1664
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 1437,
+       "share_of_class": 0.08
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 1254,
+       "share_of_class": 0.0698
+      },
+      {
+       "brand": "FORD",
+       "model": "MACH-E",
+       "units": 6,
+       "share_of_class": 0.0003
+      }
+     ]
+    },
+    "HEV": {
+     "units": 2268,
+     "share_of_market": 0.05475,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1894,
+       "share_of_class": 0.8351
+      },
+      {
+       "brand": "HONDA",
+       "units": 374,
+       "share_of_class": 0.1649
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 884,
+       "share_of_class": 0.3898
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 584,
+       "share_of_class": 0.2575
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 300,
+       "share_of_class": 0.1323
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 224,
+       "share_of_class": 0.0988
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 168,
+       "share_of_class": 0.0741
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 72,
+       "share_of_class": 0.0317
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 34,
+       "share_of_class": 0.015
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 2,
+       "share_of_class": 0.0009
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 79,
+     "share_of_market": 0.00191,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 79,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 79,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-05",
+   "total_registrations": 41189,
+   "classes": {
+    "BEV": {
+     "units": 19517,
+     "share_of_market": 0.47384,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 19503,
+       "share_of_class": 0.9993
+      },
+      {
+       "brand": "FORD",
+       "units": 14,
+       "share_of_class": 0.0007
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 5108,
+       "share_of_class": 0.2617
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4770,
+       "share_of_class": 0.2444
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 3399,
+       "share_of_class": 0.1742
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 1711,
+       "share_of_class": 0.0877
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 1674,
+       "share_of_class": 0.0858
+      },
+      {
+       "brand": "VINFAST",
+       "model": "EC VAN",
+       "units": 1092,
+       "share_of_class": 0.056
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 750,
+       "share_of_class": 0.0384
+      },
+      {
+       "brand": "FORD",
+       "model": "MACH-E",
+       "units": 14,
+       "share_of_class": 0.0007
+      }
+     ]
+    },
+    "HEV": {
+     "units": 1596,
+     "share_of_market": 0.03875,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 999,
+       "share_of_class": 0.6259
+      },
+      {
+       "brand": "HONDA",
+       "units": 597,
+       "share_of_class": 0.3741
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 577,
+       "share_of_class": 0.3615
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 426,
+       "share_of_class": 0.2669
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 216,
+       "share_of_class": 0.1353
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 155,
+       "share_of_class": 0.0971
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 127,
+       "share_of_class": 0.0796
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 44,
+       "share_of_class": 0.0276
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 32,
+       "share_of_class": 0.0201
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 19,
+       "share_of_class": 0.0119
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 74,
+     "share_of_market": 0.0018,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 74,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 74,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-04",
+   "total_registrations": 48622,
+   "classes": {
+    "BEV": {
+     "units": 24823,
+     "share_of_market": 0.51053,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 24774,
+       "share_of_class": 0.998
+      },
+      {
+       "brand": "FORD",
+       "units": 49,
+       "share_of_class": 0.002
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 6480,
+       "share_of_class": 0.261
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 5273,
+       "share_of_class": 0.2124
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 4732,
+       "share_of_class": 0.1906
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2704,
+       "share_of_class": 0.1089
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 2526,
+       "share_of_class": 0.1018
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 1148,
+       "share_of_class": 0.0462
+      },
+      {
+       "brand": "FORD",
+       "model": "MACH-E",
+       "units": 49,
+       "share_of_class": 0.002
+      }
+     ]
+    },
+    "HEV": {
+     "units": 1660,
+     "share_of_market": 0.03414,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1069,
+       "share_of_class": 0.644
+      },
+      {
+       "brand": "HONDA",
+       "units": 591,
+       "share_of_class": 0.356
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 460,
+       "share_of_class": 0.2771
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 440,
+       "share_of_class": 0.2651
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 353,
+       "share_of_class": 0.2127
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 115,
+       "share_of_class": 0.0693
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 106,
+       "share_of_class": 0.0639
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 92,
+       "share_of_class": 0.0554
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 59,
+       "share_of_class": 0.0355
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 35,
+       "share_of_class": 0.0211
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 63,
+     "share_of_market": 0.0013,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 63,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 63,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-03",
+   "total_registrations": 55555,
+   "classes": {
+    "BEV": {
+     "units": 27609,
+     "share_of_market": 0.49697,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 27609,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 6795,
+       "share_of_class": 0.2461
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4729,
+       "share_of_class": 0.1713
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 4218,
+       "share_of_class": 0.1528
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 3152,
+       "share_of_class": 0.1142
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 2521,
+       "share_of_class": 0.0913
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 1969,
+       "share_of_class": 0.0713
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 1732,
+       "share_of_class": 0.0627
+      },
+      {
+       "brand": "VINFAST",
+       "model": "EC VAN",
+       "units": 1136,
+       "share_of_class": 0.0411
+      }
+     ]
+    },
+    "HEV": {
+     "units": 2947,
+     "share_of_market": 0.05305,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2193,
+       "share_of_class": 0.7441
+      },
+      {
+       "brand": "HONDA",
+       "units": 754,
+       "share_of_class": 0.2559
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 826,
+       "share_of_class": 0.2803
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 752,
+       "share_of_class": 0.2552
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 471,
+       "share_of_class": 0.1598
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 464,
+       "share_of_class": 0.1574
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 147,
+       "share_of_class": 0.0499
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 136,
+       "share_of_class": 0.0461
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 121,
+       "share_of_class": 0.0411
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 29,
+       "share_of_class": 0.0098
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA HYBRID",
+       "units": 1,
+       "share_of_class": 0.0003
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 196,
+     "share_of_market": 0.00353,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 196,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 196,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-02",
+   "total_registrations": 24537,
+   "classes": {
+    "BEV": {
+     "units": 9904,
+     "share_of_market": 0.40364,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 9903,
+       "share_of_class": 0.9999
+      },
+      {
+       "brand": "FORD",
+       "units": 1,
+       "share_of_class": 0.0001
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 2274,
+       "share_of_class": 0.2296
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 1808,
+       "share_of_class": 0.1826
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 1601,
+       "share_of_class": 0.1617
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 1165,
+       "share_of_class": 0.1176
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 1042,
+       "share_of_class": 0.1052
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 807,
+       "share_of_class": 0.0815
+      },
+      {
+       "brand": "FORD",
+       "model": "MACH-E",
+       "units": 1,
+       "share_of_class": 0.0001
+      }
+     ]
+    },
+    "HEV": {
+     "units": 963,
+     "share_of_market": 0.03925,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 709,
+       "share_of_class": 0.7362
+      },
+      {
+       "brand": "HONDA",
+       "units": 254,
+       "share_of_class": 0.2638
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 362,
+       "share_of_class": 0.3759
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 212,
+       "share_of_class": 0.2201
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 194,
+       "share_of_class": 0.2015
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 65,
+       "share_of_class": 0.0675
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 45,
+       "share_of_class": 0.0467
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 38,
+       "share_of_class": 0.0395
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 24,
+       "share_of_class": 0.0249
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 22,
+       "share_of_class": 0.0228
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA HYBRID",
+       "units": 1,
+       "share_of_class": 0.001
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 156,
+     "share_of_market": 0.00636,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 156,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 156,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-01",
+   "total_registrations": 47139,
+   "classes": {
+    "BEV": {
+     "units": 16172,
+     "share_of_market": 0.34307,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 16172,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 3868,
+       "share_of_class": 0.2392
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 3185,
+       "share_of_class": 0.1969
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 2737,
+       "share_of_class": 0.1692
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2485,
+       "share_of_class": 0.1537
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 1237,
+       "share_of_class": 0.0765
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 975,
+       "share_of_class": 0.0603
+      },
+      {
+       "brand": "VINFAST",
+       "model": "EC VAN",
+       "units": 865,
+       "share_of_class": 0.0535
+      }
+     ]
+    },
+    "HEV": {
+     "units": 436,
+     "share_of_market": 0.00925,
+     "brands": [
+      {
+       "brand": "HONDA",
+       "units": 219,
+       "share_of_class": 0.5023
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 217,
+       "share_of_class": 0.4977
+      }
+     ],
+     "models": [
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 180,
+       "share_of_class": 0.4128
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 81,
+       "share_of_class": 0.1858
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 65,
+       "share_of_class": 0.1491
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 39,
+       "share_of_class": 0.0894
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 32,
+       "share_of_class": 0.0734
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 23,
+       "share_of_class": 0.0528
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 16,
+       "share_of_class": 0.0367
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 427,
+     "share_of_market": 0.00906,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 427,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 427,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-12",
+   "total_registrations": 68938,
+   "classes": {
+    "BEV": {
+     "units": 27650,
+     "share_of_market": 0.40109,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 27649,
+       "share_of_class": 1.0
+      },
+      {
+       "brand": "FORD",
+       "units": 1,
+       "share_of_class": 0.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 10981,
+       "share_of_class": 0.3971
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 5435,
+       "share_of_class": 0.1966
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 3925,
+       "share_of_class": 0.142
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 3541,
+       "share_of_class": 0.1281
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 1361,
+       "share_of_class": 0.0492
+      },
+      {
+       "brand": "FORD",
+       "model": "MACH-E",
+       "units": 1,
+       "share_of_class": 0.0
+      }
+     ]
+    },
+    "HEV": {
+     "units": 1309,
+     "share_of_market": 0.01899,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1082,
+       "share_of_class": 0.8266
+      },
+      {
+       "brand": "HONDA",
+       "units": 209,
+       "share_of_class": 0.1597
+      },
+      {
+       "brand": "KIA",
+       "units": 18,
+       "share_of_class": 0.0138
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 379,
+       "share_of_class": 0.2895
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 359,
+       "share_of_class": 0.2743
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 294,
+       "share_of_class": 0.2246
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 170,
+       "share_of_class": 0.1299
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 28,
+       "share_of_class": 0.0214
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 26,
+       "share_of_class": 0.0199
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 23,
+       "share_of_class": 0.0176
+      },
+      {
+       "brand": "KIA",
+       "model": "NEW SORENTO HEV/PHEV",
+       "units": 18,
+       "share_of_class": 0.0138
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 11,
+       "share_of_class": 0.0084
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA HYBRID",
+       "units": 1,
+       "share_of_class": 0.0008
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 340,
+     "share_of_market": 0.00493,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 340,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 340,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-11",
+   "total_registrations": 56020,
+   "classes": {
+    "BEV": {
+     "units": 23186,
+     "share_of_market": 0.41389,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 23186,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4655,
+       "share_of_class": 0.2008
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 3072,
+       "share_of_class": 0.1325
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2801,
+       "share_of_class": 0.1208
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 1225,
+       "share_of_class": 0.0528
+      }
+     ]
+    },
+    "HEV": {
+     "units": 1141,
+     "share_of_market": 0.02037,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 831,
+       "share_of_class": 0.7283
+      },
+      {
+       "brand": "HONDA",
+       "units": 300,
+       "share_of_class": 0.2629
+      },
+      {
+       "brand": "KIA",
+       "units": 10,
+       "share_of_class": 0.0088
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 324,
+       "share_of_class": 0.284
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 264,
+       "share_of_class": 0.2314
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 173,
+       "share_of_class": 0.1516
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 141,
+       "share_of_class": 0.1236
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 133,
+       "share_of_class": 0.1166
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 57,
+       "share_of_class": 0.05
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 26,
+       "share_of_class": 0.0228
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 11,
+       "share_of_class": 0.0096
+      },
+      {
+       "brand": "KIA",
+       "model": "NEW SORENTO HEV/PHEV",
+       "units": 10,
+       "share_of_class": 0.0088
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA HYBRID",
+       "units": 2,
+       "share_of_class": 0.0018
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 199,
+     "share_of_market": 0.00355,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 199,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 199,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-10",
+   "total_registrations": 51523,
+   "classes": {
+    "BEV": {
+     "units": 20388,
+     "share_of_market": 0.39571,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 20380,
+       "share_of_class": 0.9996
+      },
+      {
+       "brand": "FORD",
+       "units": 8,
+       "share_of_class": 0.0004
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 7370,
+       "share_of_class": 0.3615
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4619,
+       "share_of_class": 0.2266
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 4160,
+       "share_of_class": 0.204
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2524,
+       "share_of_class": 0.1238
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 1190,
+       "share_of_class": 0.0584
+      },
+      {
+       "brand": "FORD",
+       "model": "MACH-E",
+       "units": 8,
+       "share_of_class": 0.0004
+      }
+     ]
+    },
+    "HEV": {
+     "units": 1148,
+     "share_of_market": 0.02228,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 822,
+       "share_of_class": 0.716
+      },
+      {
+       "brand": "HONDA",
+       "units": 316,
+       "share_of_class": 0.2753
+      },
+      {
+       "brand": "KIA",
+       "units": 10,
+       "share_of_class": 0.0087
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "INNOVA CROSS HYBRID",
+       "units": 287,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS HYBRID",
+       "units": 270,
+       "share_of_class": 0.2352
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V HYBRID",
+       "units": 178,
+       "share_of_class": 0.1551
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CAMRY HYBRID",
+       "units": 158,
+       "share_of_class": 0.1376
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V HYBRID",
+       "units": 105,
+       "share_of_class": 0.0915
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS HYBRID",
+       "units": 85,
+       "share_of_class": 0.074
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC HYBRID",
+       "units": 33,
+       "share_of_class": 0.0287
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 18,
+       "share_of_class": 0.0157
+      },
+      {
+       "brand": "KIA",
+       "model": "NEW SORENTO HEV/PHEV",
+       "units": 10,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA HYBRID",
+       "units": 4,
+       "share_of_class": 0.0035
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 249,
+     "share_of_market": 0.00483,
+     "brands": [
+      {
+       "brand": "SUZUKI",
+       "units": 249,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "SUZUKI",
+       "model": "XL7 HYBRID",
+       "units": 249,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,1654 @@
+{
+ "schema": 3,
+ "country": "Vietnam",
+ "variant": "Whole",
+ "source": "VAMA + VinFast + TC Group",
+ "as_of": "2026-09",
+ "window": {
+  "from": "2025-10",
+  "to": "2026-09",
+  "months": 12
+ },
+ "total_registrations": 570295,
+ "unit": "sales (VAMA member models; VinFast and Hyundai from their own releases; non-member imports are one row; Lexus and BMW/MINI, filed by VAMA in separate sheets, count in the totals only)",
+ "classes": {
+  "ALL": {
+   "units": 570295,
+   "share_of_market": 1.0,
+   "brands": [
+    {
+     "brand": "VINFAST",
+     "units": 248912,
+     "share_of_class": 0.4365
+    },
+    {
+     "brand": "TOYOTA",
+     "units": 71122,
+     "share_of_class": 0.1247
+    },
+    {
+     "brand": "MITSUBISHI",
+     "units": 46017,
+     "share_of_class": 0.0807
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 38365,
+     "share_of_class": 0.0673
+    },
+    {
+     "brand": "OTHER IMPORTS (ALL BRANDS)",
+     "units": 35386,
+     "share_of_class": 0.062
+    },
+    {
+     "brand": "MAZDA",
+     "units": 33143,
+     "share_of_class": 0.0581
+    },
+    {
+     "brand": "KIA",
+     "units": 32820,
+     "share_of_class": 0.0575
+    },
+    {
+     "brand": "FORD",
+     "units": 27167,
+     "share_of_class": 0.0476
+    },
+    {
+     "brand": "HONDA",
+     "units": 26827,
+     "share_of_class": 0.047
+    },
+    {
+     "brand": "SUZUKI",
+     "units": 3987,
+     "share_of_class": 0.007
+    }
+   ],
+   "models": [
+    {
+     "brand": "VINFAST",
+     "model": "LIMO GREEN",
+     "units": 56169,
+     "share_of_class": 0.0985
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 3",
+     "units": 54798,
+     "share_of_class": 0.0961
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 5 / HERIO GREEN",
+     "units": 46539,
+     "share_of_class": 0.0816
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 6",
+     "units": 29002,
+     "share_of_class": 0.0509
+    },
+    {
+     "brand": "MITSUBISHI",
+     "model": "XPANDER",
+     "units": 17949,
+     "share_of_class": 0.0315
+    },
+    {
+     "brand": "MAZDA",
+     "model": "CX-5",
+     "units": 17849,
+     "share_of_class": 0.0313
+    },
+    {
+     "brand": "MITSUBISHI",
+     "model": "XFORCE",
+     "units": 16676,
+     "share_of_class": 0.0292
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "YARIS CROSS",
+     "units": 15450,
+     "share_of_class": 0.0271
+    },
+    {
+     "brand": "FORD",
+     "model": "TERRITORY",
+     "units": 13649,
+     "share_of_class": 0.0239
+    },
+    {
+     "brand": "FORD",
+     "model": "EVEREST",
+     "units": 13427,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF 7",
+     "units": 12412,
+     "share_of_class": 0.0218
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "VIOS",
+     "units": 11859,
+     "share_of_class": 0.0208
+    },
+    {
+     "brand": "VINFAST",
+     "model": "VF MPV 7",
+     "units": 10648,
+     "share_of_class": 0.0187
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "VELOZ CROSS",
+     "units": 10090,
+     "share_of_class": 0.0177
+    },
+    {
+     "brand": "HONDA",
+     "model": "CITY",
+     "units": 9974,
+     "share_of_class": 0.0175
+    }
+   ]
+  }
+ },
+ "months": [
+  {
+   "period": "2026-09",
+   "total_registrations": 51013,
+   "classes": {
+    "ALL": {
+     "units": 51013,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 23624,
+       "share_of_class": 0.4631
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 6509,
+       "share_of_class": 0.1276
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 5044,
+       "share_of_class": 0.0989
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 3192,
+       "share_of_class": 0.0626
+      },
+      {
+       "brand": "KIA",
+       "units": 2846,
+       "share_of_class": 0.0558
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 2734,
+       "share_of_class": 0.0536
+      },
+      {
+       "brand": "MAZDA",
+       "units": 2550,
+       "share_of_class": 0.05
+      },
+      {
+       "brand": "FORD",
+       "units": 2364,
+       "share_of_class": 0.0463
+      },
+      {
+       "brand": "HONDA",
+       "units": 1502,
+       "share_of_class": 0.0294
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 268,
+       "share_of_class": 0.0053
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 6474,
+       "share_of_class": 0.1269
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 5027,
+       "share_of_class": 0.0985
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 3083,
+       "share_of_class": 0.0604
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 2472,
+       "share_of_class": 0.0485
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 2433,
+       "share_of_class": 0.0477
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 8",
+       "units": 1494,
+       "share_of_class": 0.0293
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 1449,
+       "share_of_class": 0.0284
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 1386,
+       "share_of_class": 0.0272
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XFORCE",
+       "units": 1323,
+       "share_of_class": 0.0259
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 1285,
+       "share_of_class": 0.0252
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-08",
+   "total_registrations": 38832,
+   "classes": {
+    "ALL": {
+     "units": 38832,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 20161,
+       "share_of_class": 0.5192
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 4205,
+       "share_of_class": 0.1083
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 3517,
+       "share_of_class": 0.0906
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 2064,
+       "share_of_class": 0.0532
+      },
+      {
+       "brand": "KIA",
+       "units": 2060,
+       "share_of_class": 0.053
+      },
+      {
+       "brand": "MAZDA",
+       "units": 2055,
+       "share_of_class": 0.0529
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1933,
+       "share_of_class": 0.0498
+      },
+      {
+       "brand": "FORD",
+       "units": 1303,
+       "share_of_class": 0.0336
+      },
+      {
+       "brand": "HONDA",
+       "units": 1001,
+       "share_of_class": 0.0258
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 204,
+       "share_of_class": 0.0053
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 6453,
+       "share_of_class": 0.1662
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 4265,
+       "share_of_class": 0.1098
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 4203,
+       "share_of_class": 0.1082
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 1256,
+       "share_of_class": 0.0323
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 1092,
+       "share_of_class": 0.0281
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 8",
+       "units": 834,
+       "share_of_class": 0.0215
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 741,
+       "share_of_class": 0.0191
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 698,
+       "share_of_class": 0.018
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 695,
+       "share_of_class": 0.0179
+      },
+      {
+       "brand": "FORD",
+       "model": "EVEREST",
+       "units": 690,
+       "share_of_class": 0.0178
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-07",
+   "total_registrations": 45504,
+   "classes": {
+    "ALL": {
+     "units": 45504,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 17996,
+       "share_of_class": 0.3955
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 6148,
+       "share_of_class": 0.1351
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 5765,
+       "share_of_class": 0.1267
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 3075,
+       "share_of_class": 0.0676
+      },
+      {
+       "brand": "KIA",
+       "units": 2823,
+       "share_of_class": 0.062
+      },
+      {
+       "brand": "MAZDA",
+       "units": 2557,
+       "share_of_class": 0.0562
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 2318,
+       "share_of_class": 0.0509
+      },
+      {
+       "brand": "HONDA",
+       "units": 2129,
+       "share_of_class": 0.0468
+      },
+      {
+       "brand": "FORD",
+       "units": 1835,
+       "share_of_class": 0.0403
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 318,
+       "share_of_class": 0.007
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4891,
+       "share_of_class": 0.1075
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 3874,
+       "share_of_class": 0.0851
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 3871,
+       "share_of_class": 0.0851
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 2135,
+       "share_of_class": 0.0469
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 1752,
+       "share_of_class": 0.0385
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 1503,
+       "share_of_class": 0.033
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 1471,
+       "share_of_class": 0.0323
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 1229,
+       "share_of_class": 0.027
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XFORCE",
+       "units": 1170,
+       "share_of_class": 0.0257
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XPANDER",
+       "units": 1083,
+       "share_of_class": 0.0238
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-06",
+   "total_registrations": 41423,
+   "classes": {
+    "ALL": {
+     "units": 41423,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 17955,
+       "share_of_class": 0.4335
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 5494,
+       "share_of_class": 0.1326
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 3073,
+       "share_of_class": 0.0742
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 2937,
+       "share_of_class": 0.0709
+      },
+      {
+       "brand": "KIA",
+       "units": 2675,
+       "share_of_class": 0.0646
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 2461,
+       "share_of_class": 0.0594
+      },
+      {
+       "brand": "MAZDA",
+       "units": 2361,
+       "share_of_class": 0.057
+      },
+      {
+       "brand": "HONDA",
+       "units": 2002,
+       "share_of_class": 0.0483
+      },
+      {
+       "brand": "FORD",
+       "units": 1608,
+       "share_of_class": 0.0388
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 309,
+       "share_of_class": 0.0075
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 3868,
+       "share_of_class": 0.0934
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 3550,
+       "share_of_class": 0.0857
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 3364,
+       "share_of_class": 0.0812
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2988,
+       "share_of_class": 0.0721
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 1437,
+       "share_of_class": 0.0347
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 1254,
+       "share_of_class": 0.0303
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 1144,
+       "share_of_class": 0.0276
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XFORCE",
+       "units": 1095,
+       "share_of_class": 0.0264
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XPANDER",
+       "units": 1051,
+       "share_of_class": 0.0254
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 982,
+       "share_of_class": 0.0237
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-05",
+   "total_registrations": 41189,
+   "classes": {
+    "ALL": {
+     "units": 41189,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 19503,
+       "share_of_class": 0.4735
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 5005,
+       "share_of_class": 0.1215
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 2976,
+       "share_of_class": 0.0723
+      },
+      {
+       "brand": "KIA",
+       "units": 2512,
+       "share_of_class": 0.061
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 2504,
+       "share_of_class": 0.0608
+      },
+      {
+       "brand": "MAZDA",
+       "units": 2304,
+       "share_of_class": 0.0559
+      },
+      {
+       "brand": "FORD",
+       "units": 2091,
+       "share_of_class": 0.0508
+      },
+      {
+       "brand": "HONDA",
+       "units": 1870,
+       "share_of_class": 0.0454
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 1530,
+       "share_of_class": 0.0371
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 287,
+       "share_of_class": 0.007
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 5108,
+       "share_of_class": 0.124
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4770,
+       "share_of_class": 0.1158
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 3399,
+       "share_of_class": 0.0825
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 1711,
+       "share_of_class": 0.0415
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 1674,
+       "share_of_class": 0.0406
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XPANDER",
+       "units": 1236,
+       "share_of_class": 0.03
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 1214,
+       "share_of_class": 0.0295
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 1159,
+       "share_of_class": 0.0281
+      },
+      {
+       "brand": "VINFAST",
+       "model": "EC VAN",
+       "units": 1092,
+       "share_of_class": 0.0265
+      },
+      {
+       "brand": "FORD",
+       "model": "EVEREST",
+       "units": 1062,
+       "share_of_class": 0.0258
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-04",
+   "total_registrations": 48622,
+   "classes": {
+    "ALL": {
+     "units": 48622,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 24774,
+       "share_of_class": 0.5095
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 5694,
+       "share_of_class": 0.1171
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 3227,
+       "share_of_class": 0.0664
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 3224,
+       "share_of_class": 0.0663
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 2564,
+       "share_of_class": 0.0527
+      },
+      {
+       "brand": "MAZDA",
+       "units": 2532,
+       "share_of_class": 0.0521
+      },
+      {
+       "brand": "KIA",
+       "units": 2469,
+       "share_of_class": 0.0508
+      },
+      {
+       "brand": "HONDA",
+       "units": 1830,
+       "share_of_class": 0.0376
+      },
+      {
+       "brand": "FORD",
+       "units": 1624,
+       "share_of_class": 0.0334
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 153,
+       "share_of_class": 0.0031
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 6480,
+       "share_of_class": 0.1333
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 5273,
+       "share_of_class": 0.1084
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 4732,
+       "share_of_class": 0.0973
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2704,
+       "share_of_class": 0.0556
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 2526,
+       "share_of_class": 0.052
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VELOZ CROSS",
+       "units": 1503,
+       "share_of_class": 0.0309
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XPANDER",
+       "units": 1273,
+       "share_of_class": 0.0262
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XFORCE",
+       "units": 1250,
+       "share_of_class": 0.0257
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 1238,
+       "share_of_class": 0.0255
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 1177,
+       "share_of_class": 0.0242
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-03",
+   "total_registrations": 55555,
+   "classes": {
+    "ALL": {
+     "units": 55555,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 27609,
+       "share_of_class": 0.497
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 7493,
+       "share_of_class": 0.1349
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 4619,
+       "share_of_class": 0.0831
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 3088,
+       "share_of_class": 0.0556
+      },
+      {
+       "brand": "KIA",
+       "units": 2849,
+       "share_of_class": 0.0513
+      },
+      {
+       "brand": "MAZDA",
+       "units": 2796,
+       "share_of_class": 0.0503
+      },
+      {
+       "brand": "FORD",
+       "units": 2579,
+       "share_of_class": 0.0464
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 1848,
+       "share_of_class": 0.0333
+      },
+      {
+       "brand": "HONDA",
+       "units": 1839,
+       "share_of_class": 0.0331
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 331,
+       "share_of_class": 0.006
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 6795,
+       "share_of_class": 0.1223
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4729,
+       "share_of_class": 0.0851
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 4218,
+       "share_of_class": 0.0759
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 3152,
+       "share_of_class": 0.0567
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 2521,
+       "share_of_class": 0.0454
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 1969,
+       "share_of_class": 0.0354
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 1914,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XPANDER",
+       "units": 1763,
+       "share_of_class": 0.0317
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 1732,
+       "share_of_class": 0.0312
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "DESTINATOR",
+       "units": 1663,
+       "share_of_class": 0.0299
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-02",
+   "total_registrations": 24537,
+   "classes": {
+    "ALL": {
+     "units": 24537,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 9903,
+       "share_of_class": 0.4036
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 3019,
+       "share_of_class": 0.123
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 2258,
+       "share_of_class": 0.092
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1790,
+       "share_of_class": 0.073
+      },
+      {
+       "brand": "KIA",
+       "units": 1740,
+       "share_of_class": 0.0709
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 1721,
+       "share_of_class": 0.0701
+      },
+      {
+       "brand": "FORD",
+       "units": 1478,
+       "share_of_class": 0.0602
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 1079,
+       "share_of_class": 0.044
+      },
+      {
+       "brand": "HONDA",
+       "units": 1052,
+       "share_of_class": 0.0429
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 227,
+       "share_of_class": 0.0093
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 2274,
+       "share_of_class": 0.0927
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 1808,
+       "share_of_class": 0.0737
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 1601,
+       "share_of_class": 0.0652
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF MPV 7",
+       "units": 1165,
+       "share_of_class": 0.0475
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 1042,
+       "share_of_class": 0.0425
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 1008,
+       "share_of_class": 0.0411
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 7",
+       "units": 807,
+       "share_of_class": 0.0329
+      },
+      {
+       "brand": "FORD",
+       "model": "EVEREST",
+       "units": 747,
+       "share_of_class": 0.0304
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 730,
+       "share_of_class": 0.0298
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "CRETA",
+       "units": 645,
+       "share_of_class": 0.0263
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-01",
+   "total_registrations": 47139,
+   "classes": {
+    "ALL": {
+     "units": 47139,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 16172,
+       "share_of_class": 0.3431
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 4865,
+       "share_of_class": 0.1032
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 4724,
+       "share_of_class": 0.1002
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 4597,
+       "share_of_class": 0.0975
+      },
+      {
+       "brand": "MAZDA",
+       "units": 3515,
+       "share_of_class": 0.0746
+      },
+      {
+       "brand": "KIA",
+       "units": 3487,
+       "share_of_class": 0.074
+      },
+      {
+       "brand": "FORD",
+       "units": 2935,
+       "share_of_class": 0.0623
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 2799,
+       "share_of_class": 0.0594
+      },
+      {
+       "brand": "HONDA",
+       "units": 2712,
+       "share_of_class": 0.0575
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 641,
+       "share_of_class": 0.0136
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 3868,
+       "share_of_class": 0.0821
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 3185,
+       "share_of_class": 0.0676
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 2737,
+       "share_of_class": 0.0581
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2485,
+       "share_of_class": 0.0527
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 2104,
+       "share_of_class": 0.0446
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XPANDER",
+       "units": 1938,
+       "share_of_class": 0.0411
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XFORCE",
+       "units": 1666,
+       "share_of_class": 0.0353
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 1545,
+       "share_of_class": 0.0328
+      },
+      {
+       "brand": "FORD",
+       "model": "EVEREST",
+       "units": 1390,
+       "share_of_class": 0.0295
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 2 / MINIO GREEN",
+       "units": 1237,
+       "share_of_class": 0.0262
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-12",
+   "total_registrations": 68938,
+   "classes": {
+    "ALL": {
+     "units": 68938,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 27649,
+       "share_of_class": 0.4011
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 8381,
+       "share_of_class": 0.1216
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 8255,
+       "share_of_class": 0.1197
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 5486,
+       "share_of_class": 0.0796
+      },
+      {
+       "brand": "MAZDA",
+       "units": 4670,
+       "share_of_class": 0.0677
+      },
+      {
+       "brand": "KIA",
+       "units": 4233,
+       "share_of_class": 0.0614
+      },
+      {
+       "brand": "HONDA",
+       "units": 3590,
+       "share_of_class": 0.0521
+      },
+      {
+       "brand": "FORD",
+       "units": 3510,
+       "share_of_class": 0.0509
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 1701,
+       "share_of_class": 0.0247
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 542,
+       "share_of_class": 0.0079
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 10981,
+       "share_of_class": 0.1593
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 5435,
+       "share_of_class": 0.0788
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 3925,
+       "share_of_class": 0.0569
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 3541,
+       "share_of_class": 0.0514
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XFORCE",
+       "units": 3163,
+       "share_of_class": 0.0459
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 2596,
+       "share_of_class": 0.0377
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XPANDER",
+       "units": 2575,
+       "share_of_class": 0.0374
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "DESTINATOR",
+       "units": 2377,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VIOS",
+       "units": 1972,
+       "share_of_class": 0.0286
+      },
+      {
+       "brand": "FORD",
+       "model": "EVEREST",
+       "units": 1847,
+       "share_of_class": 0.0268
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-11",
+   "total_registrations": 56020,
+   "classes": {
+    "ALL": {
+     "units": 56020,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 23186,
+       "share_of_class": 0.4139
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 7330,
+       "share_of_class": 0.1308
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 4587,
+       "share_of_class": 0.0819
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 4257,
+       "share_of_class": 0.076
+      },
+      {
+       "brand": "HONDA",
+       "units": 3986,
+       "share_of_class": 0.0712
+      },
+      {
+       "brand": "MAZDA",
+       "units": 3199,
+       "share_of_class": 0.0571
+      },
+      {
+       "brand": "FORD",
+       "units": 2988,
+       "share_of_class": 0.0533
+      },
+      {
+       "brand": "KIA",
+       "units": 2861,
+       "share_of_class": 0.0511
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 2633,
+       "share_of_class": 0.047
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 384,
+       "share_of_class": 0.0069
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4655,
+       "share_of_class": 0.0831
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 3072,
+       "share_of_class": 0.0548
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2801,
+       "share_of_class": 0.05
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XPANDER",
+       "units": 2234,
+       "share_of_class": 0.0399
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XFORCE",
+       "units": 2203,
+       "share_of_class": 0.0393
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 1766,
+       "share_of_class": 0.0315
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 1663,
+       "share_of_class": 0.0297
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VIOS",
+       "units": 1554,
+       "share_of_class": 0.0277
+      },
+      {
+       "brand": "HONDA",
+       "model": "CITY",
+       "units": 1550,
+       "share_of_class": 0.0277
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 1539,
+       "share_of_class": 0.0275
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-10",
+   "total_registrations": 51523,
+   "classes": {
+    "ALL": {
+     "units": 51523,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VINFAST",
+       "units": 20380,
+       "share_of_class": 0.3956
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 7246,
+       "share_of_class": 0.1406
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 4641,
+       "share_of_class": 0.0901
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 3897,
+       "share_of_class": 0.0756
+      },
+      {
+       "brand": "HONDA",
+       "units": 3314,
+       "share_of_class": 0.0643
+      },
+      {
+       "brand": "OTHER IMPORTS (ALL BRANDS)",
+       "units": 3173,
+       "share_of_class": 0.0616
+      },
+      {
+       "brand": "FORD",
+       "units": 2852,
+       "share_of_class": 0.0554
+      },
+      {
+       "brand": "MAZDA",
+       "units": 2814,
+       "share_of_class": 0.0546
+      },
+      {
+       "brand": "KIA",
+       "units": 2265,
+       "share_of_class": 0.044
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 323,
+       "share_of_class": 0.0063
+      }
+     ],
+     "models": [
+      {
+       "brand": "VINFAST",
+       "model": "VF 5 / HERIO GREEN",
+       "units": 7370,
+       "share_of_class": 0.143
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 3",
+       "units": 4619,
+       "share_of_class": 0.0896
+      },
+      {
+       "brand": "VINFAST",
+       "model": "LIMO GREEN",
+       "units": 4160,
+       "share_of_class": 0.0807
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XPANDER",
+       "units": 2644,
+       "share_of_class": 0.0513
+      },
+      {
+       "brand": "VINFAST",
+       "model": "VF 6",
+       "units": 2524,
+       "share_of_class": 0.049
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "XFORCE",
+       "units": 1854,
+       "share_of_class": 0.036
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 1748,
+       "share_of_class": 0.0339
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 1594,
+       "share_of_class": 0.0309
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 1429,
+       "share_of_class": 0.0277
+      },
+      {
+       "brand": "FORD",
+       "model": "EVEREST",
+       "units": 1415,
+       "share_of_class": 0.0275
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

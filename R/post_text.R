@@ -71,7 +71,7 @@
     Spain = "\U0001F1EA\U0001F1F8", Sweden = "\U0001F1F8\U0001F1EA", Switzerland = "\U0001F1E8\U0001F1ED",
     Taiwan = "\U0001F1F9\U0001F1FC", Thailand = "\U0001F1F9\U0001F1ED", Türkiye = "\U0001F1F9\U0001F1F7", UK = "\U0001F1EC\U0001F1E7",
     Ukraine = "\U0001F1FA\U0001F1E6",
-    Uruguay = "\U0001F1FA\U0001F1FE", USA = "\U0001F1FA\U0001F1F8"
+    Uruguay = "\U0001F1FA\U0001F1FE", USA = "\U0001F1FA\U0001F1F8", Vietnam = "\U0001F1FB\U0001F1F3"
   )
   base <- sub("\\s*\\(.*\\)\\s*", "", country)
   flag <- m[[base]]
