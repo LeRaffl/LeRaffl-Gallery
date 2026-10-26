@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T11:33:54Z",
+ "generated": "2026-10-26T11:57:49Z",
  "today": "2026-10-26",
  "countries": [
   {
@@ -4740,6 +4740,78 @@
      "latest": "2026-09",
      "first": "2024-02",
      "rows": 20,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Vietnam",
+   "slug": "vietnam",
+   "method": "pdf",
+   "source_name": "VAMA monthly sales report + VinFast delivery release + TC Group (Hyundai)",
+   "source_url": "http://vama.org.vn/en/sales-report.html",
+   "cadence_text": "twice daily on the 8th–28th (04:05 and 10:05 UTC) — VinFast and TC Group publish around the 10th, VAMA in the middle of the month; a month is written once all three are in",
+   "interval": "monthly",
+   "latest_period": "2026-09",
+   "expected_period": "2026-09",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "04:05",
+     "10:05"
+    ],
+    "workflow": ".github/workflows/fetch-vietnam.yml"
+   },
+   "last_render": null,
+   "flag": "🇻🇳",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-09",
+     "first": "2024-09",
+     "rows": 25,
      "cadence": "monthly",
      "in_repo": true
     }
