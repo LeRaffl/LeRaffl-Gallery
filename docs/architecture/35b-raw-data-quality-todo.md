@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 60 countries · 6,992 periods drawable · 161 held back · **46 of 60 files cost the chart nothing.**
+**Status:** 60 countries · 6,996 periods drawable · 164 held back · **46 of 60 files cost the chart nothing.**
 
 ---
 
@@ -43,12 +43,11 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 - [ ] **3 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (2 of 3 rows present)) · 2020-02…2020-04
 → *Symptom:* 1 visible gap in the chart, 3 months (worst 2020-02…2020-05).
 
-### Malta  ·  costs 8 periods
+### Malta  ·  costs 7 periods
 
-- [ ] **No rows for 2025-07…2025-07** — 1 periods the CSV says nothing about.
-- [ ] **No rows for 2025-10…2026-03** — 6 periods the CSV says nothing about.
 - [ ] **No rows for 2026-07…2026-07** — 1 periods the CSV says nothing about.
-→ *Symptom:* 3 visible gaps in the chart, 8 months (worst 2025-10…2026-04).
+- [ ] **3 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (2 of 3 rows present)) · 2024-08…2024-10
+→ *Symptom:* 2 visible gaps in the chart, 4 months (worst 2024-08…2024-11).
 
 ### Australia  ·  costs 6 periods
 
