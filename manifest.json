@@ -1112,6 +1112,46 @@
       "country_slug": "uruguay_vans"
     },
     {
+      "country": "Vietnam",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "vietnam_ICE_BEV_20261026.png",
+      "url": "images/2026-09/vietnam_ICE_BEV_20261026.png",
+      "alt": "Vietnam ICE-BEV-Hybrid trajectory",
+      "country_slug": "vietnam"
+    },
+    {
+      "country": "Vietnam",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "vietnam_20261026.png",
+      "url": "images/2026-09/vietnam_20261026.png",
+      "alt": "Vietnam BEV trajectory",
+      "country_slug": "vietnam"
+    },
+    {
+      "country": "Vietnam",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "vietnam_time_20261026.png",
+      "url": "images/2026-09/vietnam_time_20261026.png",
+      "alt": "Vietnam Transition time curve",
+      "country_slug": "vietnam"
+    },
+    {
+      "country": "Vietnam",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "vietnam_ttm_shares_20261026.png",
+      "url": "images/2026-09/vietnam_ttm_shares_20261026.png",
+      "alt": "Vietnam TTM market split graph",
+      "country_slug": "vietnam"
+    },
+    {
       "country": "Colombia",
       "type": "ICE_BEV",
       "period": "2026-09",
