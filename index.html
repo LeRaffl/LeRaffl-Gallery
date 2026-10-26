@@ -11440,7 +11440,12 @@ const FE_CO2_LAYERS = [
  {key:'elec', lab:'Electricity (grid)',    c:'#3a78b5'}
 ];
 const FE_CO2_W = 760, FE_CO2_H = 190, FE_CO2_PADL = 48, FE_CO2_PADR = 14;
-const feFmt = v => v >= 10 ? Math.round(v).toLocaleString('de-DE') : v.toFixed(1).replace('.',',');
+/* One number format for the whole Energy view (KPIs, Sankey labels, hover
+   readout, CO2 axis and headline): international style, locale-independent.
+   >= 10 -> whole number with ',' thousands (fmtInt, the Gallery-wide 'en-US'
+   convention); < 10 -> one decimal with '.'. This used to be 'de-DE' with a
+   decimal comma, so 3,412 TWh read as "3.412" next to an English UI. */
+const feFmt = v => !isFinite(v) ? '\u2014' : Math.abs(v) >= 10 ? fmtInt(v) : (+v).toFixed(1);
 
 /* What every node means, in one sentence. Losses get the longest note because
    they are the point of the chart and the least self-explanatory. */
@@ -11587,7 +11592,7 @@ function feSvg(links, unit, W, H){
   const th = v.reduce((a,n) => a + tot[n]*unit, 0) + gap*(v.length-1);
   let y = padT + ((H-padT-padB) - th)/2;
   v.forEach(n => { const h = tot[n]*unit; pos[n]=[y,h,y,y]; y += h + gap; }); });
- const f = v => v >= 10 ? Math.round(v).toLocaleString('de-DE') : v.toFixed(1).replace('.',',');
+ const f = feFmt;
  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:${H}px">`;
  links.forEach(l => { if (!pos[l.s] || !pos[l.t]) return;
   const h = l.v*unit, xA = xs[FE_COLS[l.s]]+nw, xB = xs[FE_COLS[l.t]];
@@ -11619,7 +11624,7 @@ function feRender(idx){
   scale = Math.max(scale, ...Object.values(by)); });
  const H = 430, unit = (H - 38 - 9*7)/Math.max(scale, 1e-9);
  document.getElementById('feSankey').innerHTML = feSvg(ch.links, unit, 1020, H);
- const f = v => v >= 10 ? Math.round(v).toLocaleString('de-DE') : v.toFixed(1).replace('.',',');
+ const f = feFmt;
  document.getElementById('feK1').textContent = f(ch.primary);
  document.getElementById('feK2').textContent = Math.round(100*ch.work/ch.primary) + '%';
  document.getElementById('feK3').textContent = f(ch.primary/(ch.cars/1e6)*1000);
@@ -11697,7 +11702,7 @@ function feRenderCO2(idx){
  document.getElementById('feCo2Val').textContent = feFmt(cur.co2.total);
  const tPerCar = cur.cars > 0 ? cur.co2.total*1e9/cur.cars/1000 : 0; // Mt*1e9 kg / cars / 1000 = t/car
  document.getElementById('feCo2Meta').innerHTML =
-  (tPerCar >= 10 ? Math.round(tPerCar).toString() : tPerCar.toFixed(1).replace('.',',')) +
+  feFmt(tPerCar) +
   ' t per car &middot; ' + cur.year + (cur.projected ? ' &middot; modelled' : '');
 }
 /* Which grid-emission scenario the emissions chart uses. Default: the grid
