@@ -1,0 +1,9 @@
+🇨🇱 Chile - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++1.3pp  BEV   (1.8% → 3.1%)
++1.6pp  PHEV  (0.8% → 2.4%)
++3.0pp  HEV   (3.3% → 6.3%)
+−5.9pp  ICE   (94.1% → 88.1%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2028-07.

@@ -1,9 +1,9 @@
-🇨🇱 Chile - August 26 - BEV Trajectory
-2.5% BEV
-2.1% PHEV
-95.4% ICE (of which 4.7%p were HEV)
+🇨🇱 Chile - September 26 - BEV Trajectory
+4.2% BEV
+2.7% PHEV
+93.1% ICE (of which 4.6%p were HEV)
 
 Trailing 12 months are:
-2.8% BEV
-2.3% PHEV
-94.9% ICE (of which 6.6%p were HEV)
+3.1% BEV
+2.4% PHEV
+94.5% ICE (of which 6.3%p were HEV)
