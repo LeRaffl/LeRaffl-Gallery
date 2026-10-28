@@ -1,0 +1,9 @@
+🇬🇷 Greece (Buses) - Q3 2026 - EV Trajectory
+55.0% EV
+0.0% PHEV
+45.0% ICE
+
+Trailing 4 quarters are:
+20.4% EV
+0.0% PHEV
+79.6% ICE

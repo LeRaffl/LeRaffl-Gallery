@@ -1,0 +1,6 @@
+🇬🇷 Greece (Buses) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++7.3pp  EV      (13.1% → 20.4%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−7.3pp  ICE     (86.9% → 79.6%)
