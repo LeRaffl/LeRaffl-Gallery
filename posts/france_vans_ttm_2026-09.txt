@@ -1,0 +1,8 @@
+🇫🇷 France (Vans) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++4.3pp  EV      (9.2% → 13.5%)
++1.4pp  Hybrid  (4.4% → 5.7%)
+−5.7pp  ICE     (86.5% → 80.8%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q3 2033.
