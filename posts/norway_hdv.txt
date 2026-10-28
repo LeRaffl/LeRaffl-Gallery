@@ -1,11 +1,9 @@
-🇳🇴 Norway (HDV) - Q2 2026 - EV Trajectory
-22.9% EV
+🇳🇴 Norway (HDV) - Q3 2026 - EV Trajectory
+25.4% EV
 0.0% PHEV
-77.1% ICE
+74.6% ICE
 
 Trailing 4 quarters are:
-22.1% EV
+24.3% EV
 0.0% PHEV
-77.9% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+75.7% ICE
