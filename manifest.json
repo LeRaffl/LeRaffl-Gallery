@@ -1,6 +1,46 @@
 {
-  "updated": "2026-10-27",
+  "updated": "2026-10-28",
   "images": [
+    {
+      "country": "Malta (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "malta_hdv_ICE_BEV_20261028.png",
+      "url": "images/2026-09/malta_hdv_ICE_BEV_20261028.png",
+      "alt": "Malta (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "malta_hdv"
+    },
+    {
+      "country": "Malta (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "malta_hdv_20261028.png",
+      "url": "images/2026-09/malta_hdv_20261028.png",
+      "alt": "Malta (HDV) BEV trajectory",
+      "country_slug": "malta_hdv"
+    },
+    {
+      "country": "Malta (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "malta_hdv_time_20261028.png",
+      "url": "images/2026-09/malta_hdv_time_20261028.png",
+      "alt": "Malta (HDV) Transition time curve",
+      "country_slug": "malta_hdv"
+    },
+    {
+      "country": "Malta (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "malta_hdv_ttm_shares_20261028.png",
+      "url": "images/2026-09/malta_hdv_ttm_shares_20261028.png",
+      "alt": "Malta (HDV) TTM market split graph",
+      "country_slug": "malta_hdv"
+    },
     {
       "country": "Chile",
       "type": "ICE_BEV",
