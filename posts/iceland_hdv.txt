@@ -1,11 +1,9 @@
-🇮🇸 Iceland (HDV) - Q2 2026 - EV Trajectory
-33.9% EV
+🇮🇸 Iceland (HDV) - Q3 2026 - EV Trajectory
+31.7% EV
 0.0% PHEV
-66.1% ICE
+68.3% ICE
 
 Trailing 4 quarters are:
-26.3% EV
+31.2% EV
 0.0% PHEV
-73.7% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+68.8% ICE
