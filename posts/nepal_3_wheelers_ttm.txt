@@ -1,6 +1,6 @@
 🇳🇵 Nepal (3-Wheelers) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-−0.6pp  BEV     (81.0% → 80.4%)
+Nov24–Oct25  vs  Nov25–Oct26
+−1.5pp  BEV     (80.8% → 79.3%)
 +0.0pp  Hybrid  (0.0% → 0.0%)
-+0.6pp  ICE     (19.0% → 19.6%)
++1.5pp  ICE     (19.2% → 20.7%)

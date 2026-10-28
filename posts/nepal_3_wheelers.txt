@@ -1,9 +1,9 @@
-🇳🇵 Nepal (3-Wheelers) - September 26 - BEV Trajectory
-86.9% BEV
+🇳🇵 Nepal (3-Wheelers) - October 26 - BEV Trajectory
+72.9% BEV
 0.0% PHEV
-13.1% ICE
+27.1% ICE
 
 Trailing 12 months are:
-80.4% BEV
+79.3% BEV
 0.0% PHEV
-19.6% ICE
+20.7% ICE

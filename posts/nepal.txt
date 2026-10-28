@@ -1,9 +1,9 @@
-🇳🇵 Nepal - September 26 - BEV Trajectory
-81.5% BEV
-0.5% Hybrid
-18.0% ICE
+🇳🇵 Nepal - October 26 - BEV Trajectory
+74.8% BEV
+0.2% Hybrid
+25.0% ICE
 
 Trailing 12 months are:
-73.7% BEV
-0.4% Hybrid
-26.0% ICE
+74.2% BEV
+0.3% Hybrid
+25.5% ICE
