@@ -1,6 +1,6 @@
 🇷🇴 Romania (Vans) - TTM Market Split
 
-Q3'24–Q2'25  vs  Q3'25–Q2'26
-−0.3pp  EV      (8.0% → 7.7%)
-+2.1pp  Hybrid  (0.7% → 2.8%)
-−1.8pp  ICE     (91.3% → 89.5%)
+Q4'24–Q3'25  vs  Q4'25–Q3'26
+−3.1pp  EV      (9.6% → 6.5%)
++1.9pp  Hybrid  (1.2% → 3.0%)
++1.2pp  ICE     (89.3% → 90.5%)
