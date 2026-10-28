@@ -42,6 +42,46 @@
       "country_slug": "bulgaria_hdv"
     },
     {
+      "country": "Bulgaria (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "bulgaria_vans_ICE_BEV_20261028.png",
+      "url": "images/2026-09/bulgaria_vans_ICE_BEV_20261028.png",
+      "alt": "Bulgaria (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "bulgaria_vans"
+    },
+    {
+      "country": "Bulgaria (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "bulgaria_vans_20261028.png",
+      "url": "images/2026-09/bulgaria_vans_20261028.png",
+      "alt": "Bulgaria (Vans) BEV trajectory",
+      "country_slug": "bulgaria_vans"
+    },
+    {
+      "country": "Bulgaria (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "bulgaria_vans_time_20261028.png",
+      "url": "images/2026-09/bulgaria_vans_time_20261028.png",
+      "alt": "Bulgaria (Vans) Transition time curve",
+      "country_slug": "bulgaria_vans"
+    },
+    {
+      "country": "Bulgaria (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "bulgaria_vans_ttm_shares_20261028.png",
+      "url": "images/2026-09/bulgaria_vans_ttm_shares_20261028.png",
+      "alt": "Bulgaria (Vans) TTM market split graph",
+      "country_slug": "bulgaria_vans"
+    },
+    {
       "country": "Croatia (HDV)",
       "type": "ICE_BEV",
       "period": "2026-09",
