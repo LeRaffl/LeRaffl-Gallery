@@ -1,11 +1,9 @@
-🇸🇰 Slovakia (Buses) - Q2 2026 - EV Trajectory
-0.0% EV
+🇸🇰 Slovakia (Buses) - Q3 2026 - EV Trajectory
+18.4% EV
 0.0% PHEV
-100.0% ICE
+81.6% ICE
 
 Trailing 4 quarters are:
-12.4% EV
+16.0% EV
 0.0% PHEV
-87.6% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+84.0% ICE
