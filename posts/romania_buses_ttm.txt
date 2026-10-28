@@ -1,10 +1,8 @@
 🇷🇴 Romania (Buses) - TTM Market Split
 
-Q?'24–Q?'25  vs  Q?'25–Q?'26
-−1.3pp  EV      (70.4% → 69.2%)
-−7.4pp  Hybrid  (8.2% → 0.8%)
-+8.7pp  ICE     (21.3% → 30.0%)
+Q3'24–Q2'25  vs  Q3'25–Q3'26
++15.7pp  EV      (66.0% → 81.7%)
+−9.0pp  Hybrid  (9.3% → 0.3%)
+−6.7pp  ICE     (24.7% → 18.0%)
 
-Hybrid peaked at 11.3% in Q?'24 (declining for 5 quarters).
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+Hybrid peaked at 11.3% in Q4'24 (declining for 6 quarters).
