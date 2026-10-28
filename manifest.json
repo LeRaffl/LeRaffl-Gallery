@@ -442,6 +442,46 @@
       "country_slug": "germany_buses"
     },
     {
+      "country": "Germany (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "germany_hdv_ICE_BEV_20261028.png",
+      "url": "images/2026-09/germany_hdv_ICE_BEV_20261028.png",
+      "alt": "Germany (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany_hdv"
+    },
+    {
+      "country": "Germany (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "germany_hdv_20261028.png",
+      "url": "images/2026-09/germany_hdv_20261028.png",
+      "alt": "Germany (HDV) BEV trajectory",
+      "country_slug": "germany_hdv"
+    },
+    {
+      "country": "Germany (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "germany_hdv_time_20261028.png",
+      "url": "images/2026-09/germany_hdv_time_20261028.png",
+      "alt": "Germany (HDV) Transition time curve",
+      "country_slug": "germany_hdv"
+    },
+    {
+      "country": "Germany (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "germany_hdv_ttm_shares_20261028.png",
+      "url": "images/2026-09/germany_hdv_ttm_shares_20261028.png",
+      "alt": "Germany (HDV) TTM market split graph",
+      "country_slug": "germany_hdv"
+    },
+    {
       "country": "Greece (Buses)",
       "type": "ICE_BEV",
       "period": "2026-09",
