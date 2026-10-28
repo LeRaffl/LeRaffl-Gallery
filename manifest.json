@@ -2,6 +2,46 @@
   "updated": "2026-10-28",
   "images": [
     {
+      "country": "Cyprus (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/cyprus_buses_ICE_BEV_20261028.png",
+      "alt": "Cyprus (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus_buses"
+    },
+    {
+      "country": "Cyprus (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_buses_20261028.png",
+      "url": "images/2026-09/cyprus_buses_20261028.png",
+      "alt": "Cyprus (Buses) BEV trajectory",
+      "country_slug": "cyprus_buses"
+    },
+    {
+      "country": "Cyprus (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_buses_time_20261028.png",
+      "url": "images/2026-09/cyprus_buses_time_20261028.png",
+      "alt": "Cyprus (Buses) Transition time curve",
+      "country_slug": "cyprus_buses"
+    },
+    {
+      "country": "Cyprus (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_buses_ttm_shares_20261028.png",
+      "url": "images/2026-09/cyprus_buses_ttm_shares_20261028.png",
+      "alt": "Cyprus (Buses) TTM market split graph",
+      "country_slug": "cyprus_buses"
+    },
+    {
       "country": "Iceland (Buses)",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -120,6 +160,46 @@
       "url": "images/2026-09/malta_vans_ttm_shares_20261028.png",
       "alt": "Malta (Vans) TTM market split graph",
       "country_slug": "malta_vans"
+    },
+    {
+      "country": "Romania (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/romania_buses_ICE_BEV_20261028.png",
+      "alt": "Romania (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania_buses"
+    },
+    {
+      "country": "Romania (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_buses_20261028.png",
+      "url": "images/2026-09/romania_buses_20261028.png",
+      "alt": "Romania (Buses) BEV trajectory",
+      "country_slug": "romania_buses"
+    },
+    {
+      "country": "Romania (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_buses_time_20261028.png",
+      "url": "images/2026-09/romania_buses_time_20261028.png",
+      "alt": "Romania (Buses) Transition time curve",
+      "country_slug": "romania_buses"
+    },
+    {
+      "country": "Romania (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_buses_ttm_shares_20261028.png",
+      "url": "images/2026-09/romania_buses_ttm_shares_20261028.png",
+      "alt": "Romania (Buses) TTM market split graph",
+      "country_slug": "romania_buses"
     },
     {
       "country": "Chile",
