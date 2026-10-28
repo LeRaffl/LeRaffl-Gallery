@@ -1,0 +1,8 @@
+🇫🇷 France (Buses) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++2.2pp  EV      (10.7% → 12.9%)
+−1.1pp  Hybrid  (7.3% → 6.2%)
+−1.2pp  ICE     (82.0% → 80.8%)
+
+Hybrid peaked at 11.6% in Q4'24 (declining for 7 quarters).

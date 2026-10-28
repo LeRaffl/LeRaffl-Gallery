@@ -1,11 +1,9 @@
-🇫🇷 France (Buses) - Q2 2026 - EV Trajectory
-11.4% EV
-6.6% Hybrid
-81.9% ICE
+🇫🇷 France (Buses) - Q3 2026 - EV Trajectory
+13.4% EV
+7.4% Hybrid
+79.2% ICE
 
 Trailing 4 quarters are:
-12.1% EV
-5.4% Hybrid
-82.5% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+12.9% EV
+6.2% Hybrid
+80.8% ICE
