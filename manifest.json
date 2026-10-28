@@ -202,6 +202,46 @@
       "country_slug": "cyprus_buses"
     },
     {
+      "country": "Cyprus (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_hdv_ICE_BEV_20261028.png",
+      "url": "images/2026-09/cyprus_hdv_ICE_BEV_20261028.png",
+      "alt": "Cyprus (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus_hdv"
+    },
+    {
+      "country": "Cyprus (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_hdv_20261028.png",
+      "url": "images/2026-09/cyprus_hdv_20261028.png",
+      "alt": "Cyprus (HDV) BEV trajectory",
+      "country_slug": "cyprus_hdv"
+    },
+    {
+      "country": "Cyprus (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_hdv_time_20261028.png",
+      "url": "images/2026-09/cyprus_hdv_time_20261028.png",
+      "alt": "Cyprus (HDV) Transition time curve",
+      "country_slug": "cyprus_hdv"
+    },
+    {
+      "country": "Cyprus (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_hdv_ttm_shares_20261028.png",
+      "url": "images/2026-09/cyprus_hdv_ttm_shares_20261028.png",
+      "alt": "Cyprus (HDV) TTM market split graph",
+      "country_slug": "cyprus_hdv"
+    },
+    {
       "country": "France (Buses)",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -780,6 +820,46 @@
       "url": "images/2026-09/romania_buses_ttm_shares_20261028.png",
       "alt": "Romania (Buses) TTM market split graph",
       "country_slug": "romania_buses"
+    },
+    {
+      "country": "Romania (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_hdv_ICE_BEV_20261028.png",
+      "url": "images/2026-09/romania_hdv_ICE_BEV_20261028.png",
+      "alt": "Romania (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania_hdv"
+    },
+    {
+      "country": "Romania (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_hdv_20261028.png",
+      "url": "images/2026-09/romania_hdv_20261028.png",
+      "alt": "Romania (HDV) BEV trajectory",
+      "country_slug": "romania_hdv"
+    },
+    {
+      "country": "Romania (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_hdv_time_20261028.png",
+      "url": "images/2026-09/romania_hdv_time_20261028.png",
+      "alt": "Romania (HDV) Transition time curve",
+      "country_slug": "romania_hdv"
+    },
+    {
+      "country": "Romania (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_hdv_ttm_shares_20261028.png",
+      "url": "images/2026-09/romania_hdv_ttm_shares_20261028.png",
+      "alt": "Romania (HDV) TTM market split graph",
+      "country_slug": "romania_hdv"
     },
     {
       "country": "Slovakia (HDV)",
