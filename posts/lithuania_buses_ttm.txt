@@ -1,0 +1,8 @@
+🇱🇹 Lithuania (Buses) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
+−2.5pp  EV      (48.0% → 45.4%)
++5.2pp  Hybrid  (0.0% → 5.2%)
+−2.7pp  ICE     (52.0% → 49.4%)
+
+Hybrid peaked at 8.6% in Q4'24 (declining for 7 quarters).

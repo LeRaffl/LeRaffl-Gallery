@@ -1,0 +1,9 @@
+🇱🇹 Lithuania (Buses) - Q3 2026 - EV Trajectory
+11.9% EV
+37.3% Hybrid
+50.7% ICE
+
+Trailing 4 quarters are:
+45.4% EV
+5.2% Hybrid
+49.4% ICE
