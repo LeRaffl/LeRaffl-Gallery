@@ -1,0 +1,8 @@
+🇳🇴 Norway (Vans) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++11.3pp  EV      (42.3% → 53.6%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−11.3pp  ICE     (57.7% → 46.4%)
+
+Hybrid peaked at 0.1% in Q4'24 (declining for 7 quarters).
