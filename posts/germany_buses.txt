@@ -1,11 +1,9 @@
-🇩🇪 Germany (Buses) - Q2 2026 - EV Trajectory
-15.5% EV
-21.4% Hybrid
-63.1% ICE
+🇩🇪 Germany (Buses) - Q3 2026 - EV Trajectory
+17.3% EV
+16.8% Hybrid
+65.9% ICE
 
 Trailing 4 quarters are:
-20.4% EV
-17.2% Hybrid
-62.4% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+19.6% EV
+18.2% Hybrid
+62.2% ICE
