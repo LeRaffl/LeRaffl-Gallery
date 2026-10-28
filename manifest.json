@@ -122,6 +122,46 @@
       "country_slug": "bulgaria_vans"
     },
     {
+      "country": "Croatia (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "croatia_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/croatia_buses_ICE_BEV_20261028.png",
+      "alt": "Croatia (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "croatia_buses"
+    },
+    {
+      "country": "Croatia (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "croatia_buses_20261028.png",
+      "url": "images/2026-09/croatia_buses_20261028.png",
+      "alt": "Croatia (Buses) BEV trajectory",
+      "country_slug": "croatia_buses"
+    },
+    {
+      "country": "Croatia (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "croatia_buses_time_20261028.png",
+      "url": "images/2026-09/croatia_buses_time_20261028.png",
+      "alt": "Croatia (Buses) Transition time curve",
+      "country_slug": "croatia_buses"
+    },
+    {
+      "country": "Croatia (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "croatia_buses_ttm_shares_20261028.png",
+      "url": "images/2026-09/croatia_buses_ttm_shares_20261028.png",
+      "alt": "Croatia (Buses) TTM market split graph",
+      "country_slug": "croatia_buses"
+    },
+    {
       "country": "Croatia (HDV)",
       "type": "ICE_BEV",
       "period": "2026-09",
