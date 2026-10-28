@@ -1,9 +1,9 @@
-🇧🇬 Bulgaria (Vans) - Q2 2026 - EV Trajectory
-5.0% EV
+🇧🇬 Bulgaria (Vans) - Q3 2026 - EV Trajectory
+8.1% EV
 0.0% PHEV
-95.0% ICE
+91.9% ICE
 
 Trailing 4 quarters are:
-3.7% EV
+4.7% EV
 0.0% PHEV
-96.3% ICE
+95.3% ICE
