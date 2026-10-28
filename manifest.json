@@ -322,6 +322,46 @@
       "country_slug": "france_buses"
     },
     {
+      "country": "France (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "france_hdv_ICE_BEV_20261028.png",
+      "url": "images/2026-09/france_hdv_ICE_BEV_20261028.png",
+      "alt": "France (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "france_hdv"
+    },
+    {
+      "country": "France (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "france_hdv_20261028.png",
+      "url": "images/2026-09/france_hdv_20261028.png",
+      "alt": "France (HDV) BEV trajectory",
+      "country_slug": "france_hdv"
+    },
+    {
+      "country": "France (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "france_hdv_time_20261028.png",
+      "url": "images/2026-09/france_hdv_time_20261028.png",
+      "alt": "France (HDV) Transition time curve",
+      "country_slug": "france_hdv"
+    },
+    {
+      "country": "France (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "france_hdv_ttm_shares_20261028.png",
+      "url": "images/2026-09/france_hdv_ttm_shares_20261028.png",
+      "alt": "France (HDV) TTM market split graph",
+      "country_slug": "france_hdv"
+    },
+    {
       "country": "Germany (Buses)",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -880,6 +920,46 @@
       "url": "images/2026-09/norway_hdv_ttm_shares_20261028.png",
       "alt": "Norway (HDV) TTM market split graph",
       "country_slug": "norway_hdv"
+    },
+    {
+      "country": "Norway (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_vans_ICE_BEV_20261028.png",
+      "url": "images/2026-09/norway_vans_ICE_BEV_20261028.png",
+      "alt": "Norway (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway_vans"
+    },
+    {
+      "country": "Norway (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_vans_20261028.png",
+      "url": "images/2026-09/norway_vans_20261028.png",
+      "alt": "Norway (Vans) BEV trajectory",
+      "country_slug": "norway_vans"
+    },
+    {
+      "country": "Norway (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_vans_time_20261028.png",
+      "url": "images/2026-09/norway_vans_time_20261028.png",
+      "alt": "Norway (Vans) Transition time curve",
+      "country_slug": "norway_vans"
+    },
+    {
+      "country": "Norway (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_vans_ttm_shares_20261028.png",
+      "url": "images/2026-09/norway_vans_ttm_shares_20261028.png",
+      "alt": "Norway (Vans) TTM market split graph",
+      "country_slug": "norway_vans"
     },
     {
       "country": "Poland (HDV)",
