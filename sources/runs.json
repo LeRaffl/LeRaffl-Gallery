@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-27T10:01:25Z",
+ "generated": "2026-10-28T10:47:56Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -6776,6 +6776,398 @@
    "slug": "vietnam",
    "period": "2026-09",
    "flag": "🇻🇳"
+  },
+  {
+   "date": "2026-10-27",
+   "label": "Chile",
+   "base": "Chile",
+   "slug": "chile",
+   "period": "2026-09",
+   "flag": "🇨🇱"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Bulgaria (Buses)",
+   "base": "Bulgaria",
+   "slug": "bulgaria_buses",
+   "period": "2026-09",
+   "flag": "🇧🇬"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Bulgaria (HDV)",
+   "base": "Bulgaria",
+   "slug": "bulgaria_hdv",
+   "period": "2026-09",
+   "flag": "🇧🇬"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Bulgaria (Vans)",
+   "base": "Bulgaria",
+   "slug": "bulgaria_vans",
+   "period": "2026-09",
+   "flag": "🇧🇬"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Croatia (Buses)",
+   "base": "Croatia",
+   "slug": "croatia_buses",
+   "period": "2026-09",
+   "flag": "🇭🇷"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Croatia (HDV)",
+   "base": "Croatia",
+   "slug": "croatia_hdv",
+   "period": "2026-09",
+   "flag": "🇭🇷"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Croatia (Vans)",
+   "base": "Croatia",
+   "slug": "croatia_vans",
+   "period": "2026-09",
+   "flag": "🇭🇷"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Cyprus (Buses)",
+   "base": "Cyprus",
+   "slug": "cyprus_buses",
+   "period": "2026-09",
+   "flag": "🇨🇾"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Cyprus (HDV)",
+   "base": "Cyprus",
+   "slug": "cyprus_hdv",
+   "period": "2026-09",
+   "flag": "🇨🇾"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Cyprus (Vans)",
+   "base": "Cyprus",
+   "slug": "cyprus_vans",
+   "period": "2026-09",
+   "flag": "🇨🇾"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "France (Buses)",
+   "base": "France",
+   "slug": "france_buses",
+   "period": "2026-09",
+   "flag": "🇫🇷"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "France (HDV)",
+   "base": "France",
+   "slug": "france_hdv",
+   "period": "2026-09",
+   "flag": "🇫🇷"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "France (Vans)",
+   "base": "France",
+   "slug": "france_vans",
+   "period": "2026-09",
+   "flag": "🇫🇷"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Germany (Buses)",
+   "base": "Germany",
+   "slug": "germany_buses",
+   "period": "2026-09",
+   "flag": "🇩🇪"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Germany (HDV)",
+   "base": "Germany",
+   "slug": "germany_hdv",
+   "period": "2026-09",
+   "flag": "🇩🇪"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Germany (Vans)",
+   "base": "Germany",
+   "slug": "germany_vans",
+   "period": "2026-09",
+   "flag": "🇩🇪"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Greece (Buses)",
+   "base": "Greece",
+   "slug": "greece_buses",
+   "period": "2026-09",
+   "flag": "🇬🇷"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Greece (HDV)",
+   "base": "Greece",
+   "slug": "greece_hdv",
+   "period": "2026-09",
+   "flag": "🇬🇷"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Greece (Vans)",
+   "base": "Greece",
+   "slug": "greece_vans",
+   "period": "2026-09",
+   "flag": "🇬🇷"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Hungary (Buses)",
+   "base": "Hungary",
+   "slug": "hungary_buses",
+   "period": "2026-09",
+   "flag": "🇭🇺"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Hungary (HDV)",
+   "base": "Hungary",
+   "slug": "hungary_hdv",
+   "period": "2026-09",
+   "flag": "🇭🇺"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Hungary (Vans)",
+   "base": "Hungary",
+   "slug": "hungary_vans",
+   "period": "2026-09",
+   "flag": "🇭🇺"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Iceland (Buses)",
+   "base": "Iceland",
+   "slug": "iceland_buses",
+   "period": "2026-09",
+   "flag": "🇮🇸"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Iceland (HDV)",
+   "base": "Iceland",
+   "slug": "iceland_hdv",
+   "period": "2026-09",
+   "flag": "🇮🇸"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Iceland (Vans)",
+   "base": "Iceland",
+   "slug": "iceland_vans",
+   "period": "2026-09",
+   "flag": "🇮🇸"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Lithuania (Buses)",
+   "base": "Lithuania",
+   "slug": "lithuania_buses",
+   "period": "2026-09",
+   "flag": "🇱🇹"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Lithuania (HDV)",
+   "base": "Lithuania",
+   "slug": "lithuania_hdv",
+   "period": "2026-09",
+   "flag": "🇱🇹"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Lithuania (Vans)",
+   "base": "Lithuania",
+   "slug": "lithuania_vans",
+   "period": "2026-09",
+   "flag": "🇱🇹"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Malta (Buses)",
+   "base": "Malta",
+   "slug": "malta_buses",
+   "period": "2026-09",
+   "flag": "🇲🇹"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Malta (HDV)",
+   "base": "Malta",
+   "slug": "malta_hdv",
+   "period": "2026-09",
+   "flag": "🇲🇹"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Malta (Vans)",
+   "base": "Malta",
+   "slug": "malta_vans",
+   "period": "2026-09",
+   "flag": "🇲🇹"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Norway (Buses)",
+   "base": "Norway",
+   "slug": "norway_buses",
+   "period": "2026-09",
+   "flag": "🇳🇴"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Norway (HDV)",
+   "base": "Norway",
+   "slug": "norway_hdv",
+   "period": "2026-09",
+   "flag": "🇳🇴"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Norway (Vans)",
+   "base": "Norway",
+   "slug": "norway_vans",
+   "period": "2026-09",
+   "flag": "🇳🇴"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Poland (Buses)",
+   "base": "Poland",
+   "slug": "poland_buses",
+   "period": "2026-09",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Poland (HDV)",
+   "base": "Poland",
+   "slug": "poland_hdv",
+   "period": "2026-09",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Poland (Vans)",
+   "base": "Poland",
+   "slug": "poland_vans",
+   "period": "2026-09",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Romania (Buses)",
+   "base": "Romania",
+   "slug": "romania_buses",
+   "period": "2026-09",
+   "flag": "🇷🇴"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Romania (HDV)",
+   "base": "Romania",
+   "slug": "romania_hdv",
+   "period": "2026-09",
+   "flag": "🇷🇴"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Romania (Vans)",
+   "base": "Romania",
+   "slug": "romania_vans",
+   "period": "2026-09",
+   "flag": "🇷🇴"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Slovakia (Buses)",
+   "base": "Slovakia",
+   "slug": "slovakia_buses",
+   "period": "2026-09",
+   "flag": "🇸🇰"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Slovakia (HDV)",
+   "base": "Slovakia",
+   "slug": "slovakia_hdv",
+   "period": "2026-09",
+   "flag": "🇸🇰"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Slovakia (Vans)",
+   "base": "Slovakia",
+   "slug": "slovakia_vans",
+   "period": "2026-09",
+   "flag": "🇸🇰"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Slovenia (Buses)",
+   "base": "Slovenia",
+   "slug": "slovenia_buses",
+   "period": "2026-09",
+   "flag": "🇸🇮"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Slovenia (HDV)",
+   "base": "Slovenia",
+   "slug": "slovenia_hdv",
+   "period": "2026-09",
+   "flag": "🇸🇮"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Slovenia (Vans)",
+   "base": "Slovenia",
+   "slug": "slovenia_vans",
+   "period": "2026-09",
+   "flag": "🇸🇮"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Sweden (Buses)",
+   "base": "Sweden",
+   "slug": "sweden_buses",
+   "period": "2026-09",
+   "flag": "🇸🇪"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Sweden (HDV)",
+   "base": "Sweden",
+   "slug": "sweden_hdv",
+   "period": "2026-09",
+   "flag": "🇸🇪"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Sweden (Vans)",
+   "base": "Sweden",
+   "slug": "sweden_vans",
+   "period": "2026-09",
+   "flag": "🇸🇪"
   }
  ]
 }
