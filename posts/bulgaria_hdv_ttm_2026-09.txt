@@ -1,0 +1,6 @@
+🇧🇬 Bulgaria (HDV) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++0.0pp  EV      (0.1% → 0.1%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−0.0pp  ICE     (99.9% → 99.9%)
