@@ -162,6 +162,46 @@
       "country_slug": "malta_vans"
     },
     {
+      "country": "Norway (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/norway_buses_ICE_BEV_20261028.png",
+      "alt": "Norway (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway_buses"
+    },
+    {
+      "country": "Norway (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_buses_20261028.png",
+      "url": "images/2026-09/norway_buses_20261028.png",
+      "alt": "Norway (Buses) BEV trajectory",
+      "country_slug": "norway_buses"
+    },
+    {
+      "country": "Norway (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_buses_time_20261028.png",
+      "url": "images/2026-09/norway_buses_time_20261028.png",
+      "alt": "Norway (Buses) Transition time curve",
+      "country_slug": "norway_buses"
+    },
+    {
+      "country": "Norway (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_buses_ttm_shares_20261028.png",
+      "url": "images/2026-09/norway_buses_ttm_shares_20261028.png",
+      "alt": "Norway (Buses) TTM market split graph",
+      "country_slug": "norway_buses"
+    },
+    {
       "country": "Poland (HDV)",
       "type": "ICE_BEV",
       "period": "2026-09",
