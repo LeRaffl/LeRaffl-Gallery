@@ -1,11 +1,9 @@
-🇩🇪 Germany (HDV) - Q2 2026 - EV Trajectory
-9.9% EV
-0.0% PHEV
-90.1% ICE
+🇩🇪 Germany (HDV) - Q3 2026 - EV Trajectory
+11.3% EV
+0.0% Hybrid
+88.7% ICE
 
 Trailing 4 quarters are:
-8.0% EV
+9.1% EV
 0.0% Hybrid
-92.0% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+90.9% ICE

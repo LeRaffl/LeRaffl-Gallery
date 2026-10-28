@@ -1,0 +1,8 @@
+🇩🇪 Germany (HDV) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++3.6pp  EV      (5.5% → 9.1%)
+−0.0pp  Hybrid  (0.0% → 0.0%)
+−3.6pp  ICE     (94.4% → 90.9%)
+
+Hybrid peaked at 0.0% in Q2'25 (declining for 5 quarters).
