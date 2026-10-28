@@ -1,0 +1,8 @@
+🇸🇪 Sweden (Vans) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++6.4pp  EV      (25.9% → 32.4%)
++0.1pp  Hybrid  (0.0% → 0.1%)
+−6.5pp  ICE     (74.1% → 67.5%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q1 2030.
