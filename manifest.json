@@ -522,6 +522,86 @@
       "country_slug": "iceland_buses"
     },
     {
+      "country": "Iceland (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "iceland_hdv_ICE_BEV_20261028.png",
+      "url": "images/2026-09/iceland_hdv_ICE_BEV_20261028.png",
+      "alt": "Iceland (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "iceland_hdv"
+    },
+    {
+      "country": "Iceland (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "iceland_hdv_20261028.png",
+      "url": "images/2026-09/iceland_hdv_20261028.png",
+      "alt": "Iceland (HDV) BEV trajectory",
+      "country_slug": "iceland_hdv"
+    },
+    {
+      "country": "Iceland (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "iceland_hdv_time_20261028.png",
+      "url": "images/2026-09/iceland_hdv_time_20261028.png",
+      "alt": "Iceland (HDV) Transition time curve",
+      "country_slug": "iceland_hdv"
+    },
+    {
+      "country": "Iceland (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "iceland_hdv_ttm_shares_20261028.png",
+      "url": "images/2026-09/iceland_hdv_ttm_shares_20261028.png",
+      "alt": "Iceland (HDV) TTM market split graph",
+      "country_slug": "iceland_hdv"
+    },
+    {
+      "country": "Iceland (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "iceland_vans_ICE_BEV_20261028.png",
+      "url": "images/2026-09/iceland_vans_ICE_BEV_20261028.png",
+      "alt": "Iceland (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "iceland_vans"
+    },
+    {
+      "country": "Iceland (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "iceland_vans_20261028.png",
+      "url": "images/2026-09/iceland_vans_20261028.png",
+      "alt": "Iceland (Vans) BEV trajectory",
+      "country_slug": "iceland_vans"
+    },
+    {
+      "country": "Iceland (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "iceland_vans_time_20261028.png",
+      "url": "images/2026-09/iceland_vans_time_20261028.png",
+      "alt": "Iceland (Vans) Transition time curve",
+      "country_slug": "iceland_vans"
+    },
+    {
+      "country": "Iceland (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "iceland_vans_ttm_shares_20261028.png",
+      "url": "images/2026-09/iceland_vans_ttm_shares_20261028.png",
+      "alt": "Iceland (Vans) TTM market split graph",
+      "country_slug": "iceland_vans"
+    },
+    {
       "country": "Lithuania (HDV)",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -720,6 +800,46 @@
       "url": "images/2026-09/norway_buses_ttm_shares_20261028.png",
       "alt": "Norway (Buses) TTM market split graph",
       "country_slug": "norway_buses"
+    },
+    {
+      "country": "Norway (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_hdv_ICE_BEV_20261028.png",
+      "url": "images/2026-09/norway_hdv_ICE_BEV_20261028.png",
+      "alt": "Norway (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway_hdv"
+    },
+    {
+      "country": "Norway (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_hdv_20261028.png",
+      "url": "images/2026-09/norway_hdv_20261028.png",
+      "alt": "Norway (HDV) BEV trajectory",
+      "country_slug": "norway_hdv"
+    },
+    {
+      "country": "Norway (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_hdv_time_20261028.png",
+      "url": "images/2026-09/norway_hdv_time_20261028.png",
+      "alt": "Norway (HDV) Transition time curve",
+      "country_slug": "norway_hdv"
+    },
+    {
+      "country": "Norway (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "norway_hdv_ttm_shares_20261028.png",
+      "url": "images/2026-09/norway_hdv_ttm_shares_20261028.png",
+      "alt": "Norway (HDV) TTM market split graph",
+      "country_slug": "norway_hdv"
     },
     {
       "country": "Poland (HDV)",
