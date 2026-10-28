@@ -1,0 +1,9 @@
+🇸🇪 Sweden (HDV) - Q3 2026 - EV Trajectory
+17.5% EV
+0.0% PHEV
+82.5% ICE
+
+Trailing 4 quarters are:
+18.5% EV
+0.0% PHEV
+81.5% ICE
