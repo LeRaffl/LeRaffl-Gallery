@@ -1,11 +1,9 @@
-🇸🇰 Slovakia (HDV) - Q2 2026 - EV Trajectory
-0.4% EV
+🇸🇰 Slovakia (HDV) - Q3 2026 - EV Trajectory
+1.0% EV
 0.0% PHEV
-99.6% ICE
+99.0% ICE
 
 Trailing 4 quarters are:
-0.9% EV
+0.7% EV
 0.0% PHEV
-99.1% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+99.3% ICE
