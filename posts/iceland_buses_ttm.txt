@@ -1,0 +1,8 @@
+🇮🇸 Iceland (Buses) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++21.6pp  EV      (6.1% → 27.7%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−21.6pp  ICE     (93.9% → 72.3%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q4 2027.
