@@ -1,10 +1,8 @@
 🇬🇷 Greece (HDV) - TTM Market Split
 
-Q?'24–Q?'25  vs  Q?'25–Q?'26
-+0.1pp  EV      (7.6% → 7.7%)
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++7.9pp  EV      (9.6% → 17.6%)
 +0.0pp  Hybrid  (0.0% → 0.0%)
-−0.1pp  ICE     (92.4% → 92.3%)
+−7.9pp  ICE     (90.4% → 82.4%)
 
-If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q? 2033.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q2 2033.
