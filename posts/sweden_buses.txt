@@ -1,9 +1,9 @@
-🇸🇪 Sweden (Buses) - Q2 2026 - EV Trajectory
-45.2% EV
+🇸🇪 Sweden (Buses) - Q3 2026 - EV Trajectory
+41.1% EV
 0.0% PHEV
-54.8% ICE
+58.9% ICE
 
 Trailing 4 quarters are:
-46.8% EV
+50.1% EV
 0.0% PHEV
-53.2% ICE
+49.9% ICE

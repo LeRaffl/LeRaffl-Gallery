@@ -1,0 +1,6 @@
+🇸🇪 Sweden (Buses) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++2.6pp  EV      (47.5% → 50.1%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−2.6pp  ICE     (52.5% → 49.9%)
