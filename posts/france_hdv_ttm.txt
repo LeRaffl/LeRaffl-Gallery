@@ -1,8 +1,6 @@
 🇫🇷 France (HDV) - TTM Market Split
 
-Q3'24–Q2'25  vs  Q3'25–Q2'26
-+1.2pp  EV      (3.3% → 4.4%)
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++1.8pp  EV      (3.4% → 5.2%)
 +0.0pp  Hybrid  (0.0% → 0.0%)
-−1.2pp  ICE     (96.7% → 95.6%)
-
-Hybrid peaked at 0.0% in Q3'25 (declining for 3 quarters).
+−1.8pp  ICE     (96.6% → 94.8%)
