@@ -362,6 +362,46 @@
       "country_slug": "france_hdv"
     },
     {
+      "country": "France (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "france_vans_ICE_BEV_20261028.png",
+      "url": "images/2026-09/france_vans_ICE_BEV_20261028.png",
+      "alt": "France (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "france_vans"
+    },
+    {
+      "country": "France (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "france_vans_20261028.png",
+      "url": "images/2026-09/france_vans_20261028.png",
+      "alt": "France (Vans) BEV trajectory",
+      "country_slug": "france_vans"
+    },
+    {
+      "country": "France (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "france_vans_time_20261028.png",
+      "url": "images/2026-09/france_vans_time_20261028.png",
+      "alt": "France (Vans) Transition time curve",
+      "country_slug": "france_vans"
+    },
+    {
+      "country": "France (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "france_vans_ttm_shares_20261028.png",
+      "url": "images/2026-09/france_vans_ttm_shares_20261028.png",
+      "alt": "France (Vans) TTM market split graph",
+      "country_slug": "france_vans"
+    },
+    {
       "country": "Germany (Buses)",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -400,6 +440,46 @@
       "url": "images/2026-09/germany_buses_ttm_shares_20261028.png",
       "alt": "Germany (Buses) TTM market split graph",
       "country_slug": "germany_buses"
+    },
+    {
+      "country": "Greece (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "greece_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/greece_buses_ICE_BEV_20261028.png",
+      "alt": "Greece (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "greece_buses"
+    },
+    {
+      "country": "Greece (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "greece_buses_20261028.png",
+      "url": "images/2026-09/greece_buses_20261028.png",
+      "alt": "Greece (Buses) BEV trajectory",
+      "country_slug": "greece_buses"
+    },
+    {
+      "country": "Greece (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "greece_buses_time_20261028.png",
+      "url": "images/2026-09/greece_buses_time_20261028.png",
+      "alt": "Greece (Buses) Transition time curve",
+      "country_slug": "greece_buses"
+    },
+    {
+      "country": "Greece (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "greece_buses_ttm_shares_20261028.png",
+      "url": "images/2026-09/greece_buses_ttm_shares_20261028.png",
+      "alt": "Greece (Buses) TTM market split graph",
+      "country_slug": "greece_buses"
     },
     {
       "country": "Greece (HDV)",
@@ -682,6 +762,46 @@
       "country_slug": "iceland_vans"
     },
     {
+      "country": "Lithuania (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "lithuania_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/lithuania_buses_ICE_BEV_20261028.png",
+      "alt": "Lithuania (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "lithuania_buses"
+    },
+    {
+      "country": "Lithuania (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "lithuania_buses_20261028.png",
+      "url": "images/2026-09/lithuania_buses_20261028.png",
+      "alt": "Lithuania (Buses) BEV trajectory",
+      "country_slug": "lithuania_buses"
+    },
+    {
+      "country": "Lithuania (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "lithuania_buses_time_20261028.png",
+      "url": "images/2026-09/lithuania_buses_time_20261028.png",
+      "alt": "Lithuania (Buses) Transition time curve",
+      "country_slug": "lithuania_buses"
+    },
+    {
+      "country": "Lithuania (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "lithuania_buses_ttm_shares_20261028.png",
+      "url": "images/2026-09/lithuania_buses_ttm_shares_20261028.png",
+      "alt": "Lithuania (Buses) TTM market split graph",
+      "country_slug": "lithuania_buses"
+    },
+    {
       "country": "Lithuania (HDV)",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -760,6 +880,46 @@
       "url": "images/2026-09/lithuania_vans_ttm_shares_20261028.png",
       "alt": "Lithuania (Vans) TTM market split graph",
       "country_slug": "lithuania_vans"
+    },
+    {
+      "country": "Malta (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "malta_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/malta_buses_ICE_BEV_20261028.png",
+      "alt": "Malta (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "malta_buses"
+    },
+    {
+      "country": "Malta (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "malta_buses_20261028.png",
+      "url": "images/2026-09/malta_buses_20261028.png",
+      "alt": "Malta (Buses) BEV trajectory",
+      "country_slug": "malta_buses"
+    },
+    {
+      "country": "Malta (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "malta_buses_time_20261028.png",
+      "url": "images/2026-09/malta_buses_time_20261028.png",
+      "alt": "Malta (Buses) Transition time curve",
+      "country_slug": "malta_buses"
+    },
+    {
+      "country": "Malta (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "malta_buses_ttm_shares_20261028.png",
+      "url": "images/2026-09/malta_buses_ttm_shares_20261028.png",
+      "alt": "Malta (Buses) TTM market split graph",
+      "country_slug": "malta_buses"
     },
     {
       "country": "Malta (HDV)",
@@ -960,6 +1120,36 @@
       "url": "images/2026-09/norway_vans_ttm_shares_20261028.png",
       "alt": "Norway (Vans) TTM market split graph",
       "country_slug": "norway_vans"
+    },
+    {
+      "country": "Poland (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "poland_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/poland_buses_ICE_BEV_20261028.png",
+      "alt": "Poland (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland_buses"
+    },
+    {
+      "country": "Poland (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "poland_buses_20261028.png",
+      "url": "images/2026-09/poland_buses_20261028.png",
+      "alt": "Poland (Buses) BEV trajectory",
+      "country_slug": "poland_buses"
+    },
+    {
+      "country": "Poland (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "poland_buses_time_20261028.png",
+      "url": "images/2026-09/poland_buses_time_20261028.png",
+      "alt": "Poland (Buses) Transition time curve",
+      "country_slug": "poland_buses"
     },
     {
       "country": "Poland (HDV)",
