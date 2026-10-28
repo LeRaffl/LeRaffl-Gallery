@@ -1,0 +1,9 @@
+🇲🇹 Malta (Buses) - Q3 2026 - EV Trajectory
+0.0% EV
+0.0% PHEV
+100.0% ICE
+
+Trailing 4 quarters are:
+59.7% EV
+0.0% PHEV
+40.3% ICE

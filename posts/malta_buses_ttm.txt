@@ -1,0 +1,6 @@
+🇲🇹 Malta (Buses) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++58.4pp  EV      (1.3% → 59.7%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−58.4pp  ICE     (98.7% → 40.3%)
