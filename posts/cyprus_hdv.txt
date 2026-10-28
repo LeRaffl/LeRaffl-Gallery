@@ -1,4 +1,4 @@
-🇨🇾 Cyprus (HDV) - Q2 2026 - EV Trajectory
+🇨🇾 Cyprus (HDV) - Q3 2026 - EV Trajectory
 0.0% EV
 0.0% PHEV
 100.0% ICE
@@ -7,5 +7,3 @@ Trailing 4 quarters are:
 0.0% EV
 0.5% Hybrid
 99.5% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
