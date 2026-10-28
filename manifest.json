@@ -242,6 +242,46 @@
       "country_slug": "cyprus_hdv"
     },
     {
+      "country": "Cyprus (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_vans_ICE_BEV_20261028.png",
+      "url": "images/2026-09/cyprus_vans_ICE_BEV_20261028.png",
+      "alt": "Cyprus (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus_vans"
+    },
+    {
+      "country": "Cyprus (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_vans_20261028.png",
+      "url": "images/2026-09/cyprus_vans_20261028.png",
+      "alt": "Cyprus (Vans) BEV trajectory",
+      "country_slug": "cyprus_vans"
+    },
+    {
+      "country": "Cyprus (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_vans_time_20261028.png",
+      "url": "images/2026-09/cyprus_vans_time_20261028.png",
+      "alt": "Cyprus (Vans) Transition time curve",
+      "country_slug": "cyprus_vans"
+    },
+    {
+      "country": "Cyprus (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "cyprus_vans_ttm_shares_20261028.png",
+      "url": "images/2026-09/cyprus_vans_ttm_shares_20261028.png",
+      "alt": "Cyprus (Vans) TTM market split graph",
+      "country_slug": "cyprus_vans"
+    },
+    {
       "country": "France (Buses)",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -980,6 +1020,46 @@
       "url": "images/2026-09/romania_hdv_ttm_shares_20261028.png",
       "alt": "Romania (HDV) TTM market split graph",
       "country_slug": "romania_hdv"
+    },
+    {
+      "country": "Romania (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_vans_ICE_BEV_20261028.png",
+      "url": "images/2026-09/romania_vans_ICE_BEV_20261028.png",
+      "alt": "Romania (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania_vans"
+    },
+    {
+      "country": "Romania (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_vans_20261028.png",
+      "url": "images/2026-09/romania_vans_20261028.png",
+      "alt": "Romania (Vans) BEV trajectory",
+      "country_slug": "romania_vans"
+    },
+    {
+      "country": "Romania (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_vans_time_20261028.png",
+      "url": "images/2026-09/romania_vans_time_20261028.png",
+      "alt": "Romania (Vans) Transition time curve",
+      "country_slug": "romania_vans"
+    },
+    {
+      "country": "Romania (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "romania_vans_ttm_shares_20261028.png",
+      "url": "images/2026-09/romania_vans_ttm_shares_20261028.png",
+      "alt": "Romania (Vans) TTM market split graph",
+      "country_slug": "romania_vans"
     },
     {
       "country": "Slovakia (HDV)",
