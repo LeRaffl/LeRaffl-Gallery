@@ -162,6 +162,66 @@
       "country_slug": "malta_vans"
     },
     {
+      "country": "Poland (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "poland_hdv_ICE_BEV_20261028.png",
+      "url": "images/2026-09/poland_hdv_ICE_BEV_20261028.png",
+      "alt": "Poland (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland_hdv"
+    },
+    {
+      "country": "Poland (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "poland_hdv_20261028.png",
+      "url": "images/2026-09/poland_hdv_20261028.png",
+      "alt": "Poland (HDV) BEV trajectory",
+      "country_slug": "poland_hdv"
+    },
+    {
+      "country": "Poland (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "poland_hdv_time_20261028.png",
+      "url": "images/2026-09/poland_hdv_time_20261028.png",
+      "alt": "Poland (HDV) Transition time curve",
+      "country_slug": "poland_hdv"
+    },
+    {
+      "country": "Poland (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "poland_vans_ICE_BEV_20261028.png",
+      "url": "images/2026-09/poland_vans_ICE_BEV_20261028.png",
+      "alt": "Poland (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland_vans"
+    },
+    {
+      "country": "Poland (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "poland_vans_20261028.png",
+      "url": "images/2026-09/poland_vans_20261028.png",
+      "alt": "Poland (Vans) BEV trajectory",
+      "country_slug": "poland_vans"
+    },
+    {
+      "country": "Poland (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "poland_vans_time_20261028.png",
+      "url": "images/2026-09/poland_vans_time_20261028.png",
+      "alt": "Poland (Vans) Transition time curve",
+      "country_slug": "poland_vans"
+    },
+    {
       "country": "Romania (Buses)",
       "type": "ICE_BEV",
       "period": "2026-09",
