@@ -1,11 +1,9 @@
-🇭🇺 Hungary (HDV) - Q2 2026 - EV Trajectory
+🇭🇺 Hungary (HDV) - Q3 2026 - EV Trajectory
 0.9% EV
-0.1% Hybrid
-98.9% ICE
+0.0% PHEV
+99.1% ICE
 
 Trailing 4 quarters are:
-1.0% EV
+0.9% EV
 0.0% Hybrid
-99.0% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+99.1% ICE
