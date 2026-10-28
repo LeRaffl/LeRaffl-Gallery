@@ -2,6 +2,46 @@
   "updated": "2026-10-28",
   "images": [
     {
+      "country": "Bulgaria (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "bulgaria_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/bulgaria_buses_ICE_BEV_20261028.png",
+      "alt": "Bulgaria (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "bulgaria_buses"
+    },
+    {
+      "country": "Bulgaria (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "bulgaria_buses_20261028.png",
+      "url": "images/2026-09/bulgaria_buses_20261028.png",
+      "alt": "Bulgaria (Buses) BEV trajectory",
+      "country_slug": "bulgaria_buses"
+    },
+    {
+      "country": "Bulgaria (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "bulgaria_buses_time_20261028.png",
+      "url": "images/2026-09/bulgaria_buses_time_20261028.png",
+      "alt": "Bulgaria (Buses) Transition time curve",
+      "country_slug": "bulgaria_buses"
+    },
+    {
+      "country": "Bulgaria (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "bulgaria_buses_ttm_shares_20261028.png",
+      "url": "images/2026-09/bulgaria_buses_ttm_shares_20261028.png",
+      "alt": "Bulgaria (Buses) TTM market split graph",
+      "country_slug": "bulgaria_buses"
+    },
+    {
       "country": "Bulgaria (HDV)",
       "type": "ICE_BEV",
       "period": "2026-09",
