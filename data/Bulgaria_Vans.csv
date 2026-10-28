@@ -12,10 +12,11 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2022-08,quarterly,Vans,ACEA,3.0,,0.0,78.0,1111.0,0.0,1192.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
 2023-11,quarterly,Vans,ACEA,62.0,,0.0,50.0,1078.0,17.0,1207.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
 2022-11,quarterly,Vans,ACEA,12.0,,0.0,56.0,1203.0,8.0,1279.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
-2025-02,quarterly,Vans,ACEA,13.0,,0.0,4.0,1194.0,4.0,1215.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf
-2025-05,quarterly,Vans,ACEA,43.0,,0.0,0.0,1359.0,5.0,1407.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
-2025-08,quarterly,Vans,ACEA,69.0,,0.0,8.0,1397.0,0.0,1474.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf | later ACEA restatement: PETROL 40 moved to Q4
+2025-02,quarterly,Vans,ACEA,13.0,,0.0,4.0,1194.0,0.0,1211.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf | later ACEA restatement: OTHERS 4 moved to Q3
+2025-05,quarterly,Vans,ACEA,43.0,,0.0,0.0,1359.0,0.0,1402.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf | later ACEA restatement: OTHERS 5 moved to Q3
+2025-08,quarterly,Vans,ACEA,97.0,,0.0,43.0,1383.0,0.0,1523.0,"https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2026.pdf | restatement carried back: OTHERS 5 to Q2, OTHERS 4 to Q1"
 2025-11,quarterly,Vans,ACEA,48.0,,0.0,0.0,1749.0,0.0,1797.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf | restatement carried back: PETROL 40 to Q3
 2024-11,quarterly,Vans,ACEA,23.0,,0.0,0.0,1634.0,0.0,1657.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf | restatement carried back: PETROL 214 to Q3
-2026-02,quarterly,Vans,ACEA,33.0,,0.0,1.0,1247.0,2.0,1283.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf
-2026-05,quarterly,Vans,ACEA,78.0,,0.0,0.0,1467.0,2.0,1547.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
+2026-02,quarterly,Vans,ACEA,33.0,,0.0,1.0,1247.0,0.0,1281.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf | later ACEA restatement: OTHERS 2 moved to Q3
+2026-05,quarterly,Vans,ACEA,78.0,,0.0,0.0,1467.0,0.0,1545.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf | later ACEA restatement: OTHERS 2 moved to Q3
+2026-08,quarterly,Vans,ACEA,137.0,,0.0,48.0,1502.0,0.0,1687.0,"https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2026.pdf | restatement carried back: OTHERS 2 to Q2, OTHERS 2 to Q1"

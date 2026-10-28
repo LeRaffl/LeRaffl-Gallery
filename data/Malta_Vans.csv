@@ -13,7 +13,8 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2024-11,quarterly,Vans,ACEA,45.0,,3.0,31.0,164.0,0.0,243.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
 2025-02,quarterly,Vans,ACEA,77.0,,1.0,24.0,133.0,0.0,235.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf
 2025-05,quarterly,Vans,ACEA,24.0,,2.0,14.0,131.0,0.0,171.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
-2025-08,quarterly,Vans,ACEA,38.0,,5.0,12.0,99.0,0.0,154.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf | later ACEA restatement: HEV 2 moved to Q4
+2025-08,quarterly,Vans,ACEA,45.0,,2.0,10.0,100.0,0.0,157.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2026.pdf
 2025-11,quarterly,Vans,ACEA,32.0,,0.0,25.0,142.0,1.0,200.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf | restatement carried back: HEV 2 to Q3
 2026-02,quarterly,Vans,ACEA,43.0,,6.0,17.0,129.0,0.0,195.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf
 2026-05,quarterly,Vans,ACEA,27.0,,3.0,20.0,103.0,0.0,153.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
+2026-08,quarterly,Vans,ACEA,30.0,,4.0,15.0,111.0,0.0,161.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2026.pdf
