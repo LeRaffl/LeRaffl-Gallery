@@ -1,0 +1,9 @@
+🇱🇹 Lithuania (Vans) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++5.6pp  EV      (5.6% → 11.1%)
+−0.8pp  Hybrid  (4.7% → 3.9%)
+−4.7pp  ICE     (89.7% → 85.0%)
+
+Hybrid peaked at 4.8% in Q2'25 (declining for 5 quarters).
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q3 2032.
