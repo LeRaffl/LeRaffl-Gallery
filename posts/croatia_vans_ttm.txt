@@ -1,0 +1,8 @@
+🇭🇷 Croatia (Vans) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++4.4pp  EV      (1.2% → 5.6%)
++2.4pp  Hybrid  (0.7% → 3.1%)
+−6.8pp  ICE     (98.1% → 91.3%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q3 2035.
