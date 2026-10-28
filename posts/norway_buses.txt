@@ -1,0 +1,9 @@
+🇳🇴 Norway (Buses) - Q3 2026 - EV Trajectory
+39.4% EV
+0.0% PHEV
+60.6% ICE
+
+Trailing 4 quarters are:
+58.4% EV
+0.0% PHEV
+41.6% ICE
