@@ -1,0 +1,9 @@
+🇸🇮 Slovenia (Buses) - Q3 2026 - EV Trajectory
+36.8% EV
+0.0% PHEV
+63.2% ICE
+
+Trailing 4 quarters are:
+23.5% EV
+0.0% PHEV
+76.5% ICE

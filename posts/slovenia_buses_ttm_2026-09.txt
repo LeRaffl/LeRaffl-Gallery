@@ -1,0 +1,8 @@
+🇸🇮 Slovenia (Buses) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++21.6pp  EV      (1.9% → 23.5%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−21.6pp  ICE     (98.1% → 76.5%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q1 2028.
