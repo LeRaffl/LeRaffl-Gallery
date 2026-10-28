@@ -642,6 +642,46 @@
       "country_slug": "greece_vans"
     },
     {
+      "country": "Hungary (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "hungary_buses_ICE_BEV_20261028.png",
+      "url": "images/2026-09/hungary_buses_ICE_BEV_20261028.png",
+      "alt": "Hungary (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "hungary_buses"
+    },
+    {
+      "country": "Hungary (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "hungary_buses_20261028.png",
+      "url": "images/2026-09/hungary_buses_20261028.png",
+      "alt": "Hungary (Buses) BEV trajectory",
+      "country_slug": "hungary_buses"
+    },
+    {
+      "country": "Hungary (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "hungary_buses_time_20261028.png",
+      "url": "images/2026-09/hungary_buses_time_20261028.png",
+      "alt": "Hungary (Buses) Transition time curve",
+      "country_slug": "hungary_buses"
+    },
+    {
+      "country": "Hungary (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "hungary_buses_ttm_shares_20261028.png",
+      "url": "images/2026-09/hungary_buses_ttm_shares_20261028.png",
+      "alt": "Hungary (Buses) TTM market split graph",
+      "country_slug": "hungary_buses"
+    },
+    {
       "country": "Hungary (HDV)",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -1730,6 +1770,46 @@
       "url": "images/2026-09/sweden_hdv_ttm_shares_20261028.png",
       "alt": "Sweden (HDV) TTM market split graph",
       "country_slug": "sweden_hdv"
+    },
+    {
+      "country": "Sweden (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "sweden_vans_ICE_BEV_20261028.png",
+      "url": "images/2026-09/sweden_vans_ICE_BEV_20261028.png",
+      "alt": "Sweden (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "sweden_vans"
+    },
+    {
+      "country": "Sweden (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "sweden_vans_20261028.png",
+      "url": "images/2026-09/sweden_vans_20261028.png",
+      "alt": "Sweden (Vans) BEV trajectory",
+      "country_slug": "sweden_vans"
+    },
+    {
+      "country": "Sweden (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "sweden_vans_time_20261028.png",
+      "url": "images/2026-09/sweden_vans_time_20261028.png",
+      "alt": "Sweden (Vans) Transition time curve",
+      "country_slug": "sweden_vans"
+    },
+    {
+      "country": "Sweden (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-28",
+      "filename": "sweden_vans_ttm_shares_20261028.png",
+      "url": "images/2026-09/sweden_vans_ttm_shares_20261028.png",
+      "alt": "Sweden (Vans) TTM market split graph",
+      "country_slug": "sweden_vans"
     },
     {
       "country": "Chile",
