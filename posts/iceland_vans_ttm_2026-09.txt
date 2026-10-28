@@ -1,0 +1,9 @@
+🇮🇸 Iceland (Vans) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++5.9pp  EV      (17.8% → 23.6%)
+−0.4pp  Hybrid  (4.9% → 4.5%)
+−5.5pp  ICE     (77.3% → 71.9%)
+
+Hybrid peaked at 7.5% in Q4'25 (declining for 3 quarters).
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q4 2029.
