@@ -1,0 +1,6 @@
+🇧🇬 Bulgaria (Buses) - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
+−20.2pp  EV      (30.0% → 9.8%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++20.2pp  ICE     (70.0% → 90.2%)
