@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-28T10:47:56Z",
- "today": "2026-10-28",
+ "generated": "2026-10-29T11:04:24Z",
+ "today": "2026-10-29",
  "countries": [
   {
    "country": "Albania",
@@ -2823,10 +2823,10 @@
    "source_url": "https://www.customs.gov.np/",
    "cadence_text": "daily 07:50 UTC; cheap-skips until DoC publishes a new month",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-09",
-   "behind": 0,
-   "behind_now": 0,
+   "behind": -1,
+   "behind_now": -1,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -2883,22 +2883,22 @@
     ],
     "workflow": ".github/workflows/fetch-nepal.yml"
    },
-   "last_render": "2026-10-26",
+   "last_render": "2026-10-28",
    "flag": "🇳🇵",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2020-08",
-     "rows": 74,
+     "rows": 75,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "3-Wheelers",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2020-08",
-     "rows": 74,
+     "rows": 75,
      "cadence": "monthly",
      "in_repo": true
     }

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-28T10:47:56Z",
+ "generated": "2026-10-29T11:04:24Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7024,6 +7024,22 @@
    "slug": "malta_vans",
    "period": "2026-09",
    "flag": "🇲🇹"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Nepal",
+   "base": "Nepal",
+   "slug": "nepal",
+   "period": "2026-10",
+   "flag": "🇳🇵"
+  },
+  {
+   "date": "2026-10-28",
+   "label": "Nepal (3-Wheelers)",
+   "base": "Nepal",
+   "slug": "nepal_3_wheelers",
+   "period": "2026-10",
+   "flag": "🇳🇵"
   },
   {
    "date": "2026-10-28",
