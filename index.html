@@ -3293,6 +3293,16 @@ h2 .fb-ctx-btn{
   white-space:nowrap;
   align-self:flex-end;
 }
+.compare-fill__row{display:flex;gap:6px;align-items:center}
+.compare-fill__row select{min-width:0}
+#compareFillN{width:6.5em;flex:0 0 auto}
+#compareFillNote{margin:6px 0 2px;color:var(--muted)}
+@media (max-width:600px){
+  .compare-fill{flex:1 1 100%}
+  .compare-fill__row{flex-wrap:wrap}
+  .compare-fill__row select#compareFillRegion{flex:1 1 100%}
+  .compare-fill__row .btn{flex:1 1 auto}
+}
 .compare-extras{
   display:flex;
   flex-wrap:wrap;
@@ -4464,9 +4474,21 @@ const VIEW_START_YEAR = 2015;
         <label>Pin 3</label>
         <select id="compareSlot3" class="compare-slot"></select>
       </div>
+      <div class="field settings-block is-compact compare-fill" id="compareFill">
+        <label for="compareFillRegion">Fill with region top-N</label>
+        <div class="compare-fill__row">
+          <select id="compareFillRegion" aria-label="Region to fill from"></select>
+          <select id="compareFillN" aria-label="How many countries">
+            <option>3</option><option selected>5</option><option>8</option><option>10</option><option>12</option>
+          </select>
+          <button type="button" id="compareFillBtn" class="btn"
+                  title="Fills the pins and extra series with the N countries of the chosen region that have the highest latest TTM BEV share (trailing 12 months, params.csv ttm_bev_share; only countries with a series for the chosen Variant). Replaces all current series and runs Compare.">Fill</button>
+        </div>
+      </div>
       <button type="button" id="compareAddSlot" class="btn">Add series</button>
       <button type="button" id="compareBuild" class="btn primary">Compare</button>
     </div>
+    <div id="compareFillNote" class="small" aria-live="polite" hidden></div>
     <div id="compareExtras" class="compare-extras" hidden></div>
     <div class="card builder-card">
       <div data-theme="light" id="comparePlot"></div>
@@ -10073,6 +10095,12 @@ if (stepTraces.length){
       sel.appendChild(grpC);
     });
     COMPARE_SLOT_HTML = slots[0].innerHTML;
+    const fillRegion = document.getElementById('compareFillRegion');
+    if(fillRegion && !fillRegion.options.length){
+      fillRankRegionSelect(fillRegion, PARAM_ROWS);
+      fillRegion.options[0].textContent = 'All countries';
+      fillRegion.value = 'cont:Europe';
+    }
     // Sensible defaults so the first paint shows something.
     slots[0].value = 'group:eu';
     slots[1].value = 'group:asia';
@@ -10097,6 +10125,52 @@ if (stepTraces.length){
     });
     return out;
   }
+  // "Fill with region top-N": the N countries of a region with the highest
+  // LATEST TTM BEV share. "Top" = params.csv ttm_bev_share (trailing 12
+  // months up to the latest data period, see data_per), taken from the row of
+  // the chosen Variant; a country without a series for that Variant is left
+  // out. Aggregates are never picked, only countries.
+  function compareTopNForRegion(regionKey, n, variantCanon){
+    const inRegion = rankRegionMatcher(regionKey);
+    const best = new Map();
+    PARAM_ROWS.forEach(r => {
+      if(!r.country || normalizeBase(r.variant) !== variantCanon || !inRegion(r.country)) return;
+      const t = normNumber(r.ttm_bev_share);
+      if(!isFinite(t) || best.has(r.country)) return;
+      best.set(r.country, { country: r.country, variant: r.variant, ttm: t });
+    });
+    return [...best.values()]
+      .sort((a, b) => (b.ttm - a.ttm) || a.country.localeCompare(b.country))
+      .slice(0, n);
+  }
+  function fillCompareWithRegionTopN(){
+    const regionSel = document.getElementById('compareFillRegion');
+    const note = document.getElementById('compareFillNote');
+    if(!regionSel || !COMPARE_SLOT_HTML) return;
+    const n = parseInt(document.getElementById('compareFillN').value, 10) || 5;
+    const variant = document.getElementById('compareVariant').value || 'whole';
+    const vc = normalizeBase(variant);
+    const top = compareTopNForRegion(regionSel.value, n, vc);
+    const regionName = regionSel.selectedOptions[0]?.textContent || 'region';
+    note.hidden = false;
+    if(!top.length){
+      note.textContent = `No countries with a ${document.getElementById('compareVariant').selectedOptions[0]?.textContent || variant} series and a TTM BEV share in ${regionName}.`;
+      return;
+    }
+    const pinned = ['compareSlot1','compareSlot2','compareSlot3'].map(id => document.getElementById(id));
+    const mount = document.getElementById('compareExtras');
+    mount.replaceChildren(); mount.hidden = true;
+    for(let i = pinned.length; i < top.length; i++) addCompareExtra();
+    const targets = [...pinned, ...mount.querySelectorAll('.compare-slot')];
+    targets.forEach((sel, i) => {
+      const t = top[i];
+      sel.value = t ? `country:${t.country}:${t.variant}` : '';
+    });
+    note.textContent = `${regionName} · top ${top.length} by latest TTM BEV share: ` +
+      top.map(t => `${t.country} ${(t.ttm * 100).toFixed(1)}%`).join(', ');
+    document.getElementById('compareBuild')?.click();
+  }
+
   function addCompareExtra(){
     const mount = document.getElementById('compareExtras');
     if(!mount || !COMPARE_SLOT_HTML) return;
@@ -10446,6 +10520,10 @@ if (stepTraces.length){
     document.getElementById('compareBand')?.addEventListener('change', () => {
       const p = document.getElementById('comparePlot');
       if (p && p.data) trigger();
+    });
+    document.getElementById('compareFillBtn')?.addEventListener('click', () => {
+      if(!COMPARE_SLOT_HTML && PARAM_ROWS && PARAM_ROWS.length) initCompare();
+      fillCompareWithRegionTopN();
     });
     document.getElementById('compareAddSlot')?.addEventListener('click', () => {
       if(!COMPARE_SLOT_HTML && PARAM_ROWS && PARAM_ROWS.length) initCompare();
