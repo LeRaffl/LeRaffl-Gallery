@@ -234,6 +234,15 @@ compute_ttm_long <- function(df, bev_label = "BEV", calendar = FALSE) {
   # South Korea, Thailand, Chile).
   stack_order <- c("OTHERS","FLEXFUEL","ETHANOL","LPG","CNG","GAS","PETROL","DIESEL","ICE","MHEV","HEV","EREV","PHEV","BEV")
   long_cols <- stack_order[stack_order %in% names(out)]
+  # A hybrid-type band that never reaches one printable decimal anywhere in the
+  # chart is absent data, not a market share (ACEA CV: PHEV is folded into EV
+  # and HEV is a column of zeros). Leave it out instead of listing "Hybrid" in
+  # the legend with nothing behind it. Its sliver, if any, is already part of
+  # the other bands' 100%, so nothing else moves.
+  absent <- vapply(long_cols, function(c) {
+    c %in% c("HEV", "MHEV", "EREV", "PHEV") && !any(out[[c]] >= 0.0005, na.rm = TRUE)
+  }, logical(1))
+  long_cols <- long_cols[!absent]
   long <- do.call(rbind, lapply(long_cols, function(c) {
     data.frame(month = out$month, type = display_label(c), value = out[[c]],
                stringsAsFactors = FALSE)
