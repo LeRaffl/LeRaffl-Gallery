@@ -18,6 +18,8 @@ checks = [
     ("fleet option label uses helper", "opt.textContent = fleetDisplayName(label);" in HTML),
     ("fleet chart footer uses helper", "selectedCountries.map(fleetDisplayName)" in HTML),
     ("fleet option value stays the data key", "opt.value = c;" in HTML),
+    ("fleet option keeps full name searchable", "opt.dataset.search = label;" in HTML),
+    ("country picker search also matches dataset.search", "(o.dataset.search || '')" in HTML),
 ]
 bad = [n for n, ok in checks if not ok]
 for n, ok in checks: print(("PASS " if ok else "FAIL ") + n)
