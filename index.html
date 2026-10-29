@@ -3385,8 +3385,9 @@ h2 .fb-ctx-btn{
 
 /* ── Shared country-selector look (.country-field) ───────────────────────────
    One visual style for every country picker, taken from the Raw Data picker
-   (.rd-picksum): Public Sans 13.5px, 36px high, 1px --line-3 hairline, 2px
-   radius, --surface-2 fill. Visual only — no markup or behaviour changes.
+   (.rd-picksum): Public Sans 13.5px, padding 7px 11px / line-height 1.5 (= 36.25px
+   high on desktop and mobile), 1px --line-3 hairline, 2px radius, --surface-2 fill.
+   Visual only — no markup or behaviour changes.
    Applied to the Gallery country field, Compare slots (incl. the ones added
    later), Submit-data country, the Hero "change" select (#galHeroHomeSel) and
    the search box + list of the Builder / Fleet multi-select pickers (those
@@ -3400,7 +3401,7 @@ h2 .fb-ctx-btn{
 .country-picker select[multiple]{
   font-family:var(--font-ui);
   font-size:13.5px;
-  line-height:1.3;
+  line-height:1.5;
   color:var(--text);
   background-color:var(--surface-2);
   border:1px solid var(--line-3);
@@ -3413,8 +3414,8 @@ h2 .fb-ctx-btn{
 #sdCountry,
 #galHeroHomeSel,
 .country-picker__top input[type="search"]{
-  height:36px;
-  padding:0 11px;
+  height:auto;
+  padding:7px 11px;      /* = .rd-picksum: 7+20.25+7+2 = 36.25px */
 }
 select.country-field,
 .compare-slot,
@@ -3432,11 +3433,15 @@ select.country-field,
 .country-picker select[multiple]{ padding:6px 8px; }
 .country-picker__count,
 .country-picker__hint{ font-family:var(--font-ui); }
+/* Mobile: Raw Data's picker is 36px on mobile too (it has no mobile rule), so
+   the country fields follow it instead of the gallery sidebar's 44px. */
 @media (max-width:880px){
-  /* touch targets: same 44px everywhere (Gallery already had it) */
-  .country-field,.compare-slot,#countryPick,#sdCountry,#galHeroHomeSel,
-  .country-picker__top input[type="search"],.rd-picksum{ min-height:44px; }
+  #countryPick{ min-height:0; }
 }
+/* Compare: same minimum width as the Raw Data picker. */
+.compare-slot{ min-width:270px; max-width:100%; }
+/* Submit: three columns made the Country select ~111px wide on phones. */
+@media (max-width:600px){ .sd-grid{ grid-template-columns:1fr; } }
 </style>
 
 <script>
