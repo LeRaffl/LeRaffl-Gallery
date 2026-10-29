@@ -3972,9 +3972,9 @@ const VIEW_START_YEAR = 2015;
           </div></div>
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-status">Status</span>
           <div class="chips tag-filter fx-tags" data-tag-cat="status" data-group-label="Status" role="group" aria-labelledby="tg-status" data-fb-group="tag_status">
-            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="past" data-tag-value="past"/><span class="fx-tl">Past 80%</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="past" data-tag-value="past"/><span class="fx-tl">Done</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="blue"><input type="checkbox" value="ontrack" data-tag-value="ontrack"/><span class="fx-tl">On track</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="red"><input type="checkbox" value="late" data-tag-value="late"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="red"><input type="checkbox" value="late" data-tag-value="late"/><span class="fx-tl">Behind</span><span class="fx-n" data-n aria-live="off"></span></label>
           </div></div>
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-speed">Speed</span>
           <div class="chips tag-filter fx-tags" data-tag-cat="speed" data-group-label="Speed" role="group" aria-labelledby="tg-speed" data-fb-group="tag_speed">
@@ -12336,7 +12336,7 @@ const FAQ_DATA = [
   { tag: 'general', label: 'General', q: 'What do the small tags on gallery cards mean?',
     answers: [
       'Each gallery card carries up to three stacked tags summarising the country\u2019s curve at a glance. All three are computed from the same Weibull fit shown in <em>Thresholds</em> and <em>Durations</em>.',
-      '<b>Status</b> \u2014 reading where the country sits relative to the <b>80 %</b> BEV-share-of-new-registrations line and the <b>2035</b> reference year:<br>&nbsp;&nbsp;<b>Past 80 %</b> = projected year of crossing 80 % is already past.<br>&nbsp;&nbsp;<b>On track</b> = projected to cross 80 % by end of 2035.<br>&nbsp;&nbsp;<b>Late</b> = projected to cross 80 % only after 2035.',
+      '<b>Status</b> \u2014 reading where the country sits relative to the <b>80 %</b> BEV-share-of-new-registrations line and the <b>2035</b> reference year:<br>&nbsp;&nbsp;<b>Done</b> = projected year of crossing 80 % is already past.<br>&nbsp;&nbsp;<b>On track</b> = projected to cross 80 % by end of 2035.<br>&nbsp;&nbsp;<b>Behind</b> = projected to cross 80 % only after 2035.',
       '<b>Reference groups</b> \u2014 Speed and Timing compare a market only with the <b>reference group</b> of its vehicle type. For cars that is the main new-car curve (<em>Whole</em>) of every market, one per country; car subsets (private, company, rental, used imports, \u2026) do not shape the scale, they are placed on Whole\u2019s scale. Vans, trucks (HDV), buses, two-wheelers and so on are their own reference groups. Electric trucks reached the market years after electric cars, so a shared yardstick could never call a truck market an early starter. A reference group needs at least <b>4 markets</b>; smaller groups (and their subsets) get no speed or timing tag. Hover a tag for its group\u2019s actual cut-offs, or read <a href="sources/tags.html">How the tags work</a> for the full decision diagram.',
       '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) against its reference group:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of the group by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
       '<b>Timing</b> \u2014 when the market crossed (or is projected to cross) <b>10 %</b> BEV share, compared against its reference group. Markets still below 10 % count with their projected year:<br>&nbsp;&nbsp;<b>Early starter</b> = earliest 25 % of the group.<br>&nbsp;&nbsp;<b>Late starter</b> = latest 25 %.<br>&nbsp;&nbsp;The middle half carries no timing tag.',
@@ -14529,7 +14529,7 @@ document.addEventListener('click', (e) => {
 });
 </script>
 
-<!-- ─── proposed: gallery status pills (Past 80% / On track / Late) ─── -->
+<!-- ─── proposed: gallery status pills (Done / On track / Behind) ─── -->
 <script>
 (function(){
   const PAST_THRESHOLD = TAG_PAST_THRESHOLD; // assets/tag_system.js
@@ -14647,9 +14647,9 @@ document.addEventListener('click', (e) => {
       ticks: ['today', '2035'],
       note: '80 % is a level of new registrations — something the data can reach. 2035 is a fixed calendar date. <b>Where the curve crosses 80 % is the model’s answer</b>, not an observation.',
       values: {
-        past:    { label: 'Past 80%', def: 'The fitted S-curve crossed 80% BEV before today — not a raw monthly observation.' },
+        past:    { label: 'Done',     def: 'The fitted S-curve crossed 80% BEV before today — not a raw monthly observation.' },
         ontrack: { label: 'On track', def: 'The fitted S-curve crosses 80% BEV by the end of 2035.' },
-        late:    { label: 'Late',     def: 'The fitted S-curve crosses 80% BEV only after 2035.' }
+        late:    { label: 'Behind',   def: 'The fitted S-curve crosses 80% BEV only after 2035.' }
       }
     },
     speed: {

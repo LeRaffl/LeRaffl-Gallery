@@ -12,13 +12,13 @@ sections:
   - A reference group needs at least 4 markets. Smaller groups — and their subsets — get no speed or timing tag.
 - heading: Filtering the gallery by tag
   text:
-  - Right under the search box, country and chart types, the gallery offers the tags themselves as chips, in four groups — Fit (Reliable, Volatile / unreliable, No transition), Status (Past 80 %, On track, Late), Speed (Fast, Avg, Slow) and Start (Early, Mid, Late). Start is the Timing tag; Mid is the middle half, which carries no pill on the cards.
+  - Right under the search box, country and chart types, the gallery offers the tags themselves as chips, in four groups — Fit (Reliable, Volatile / unreliable, No transition), Status (Done, On track, Behind), Speed (Fast, Avg, Slow) and Start (Early, Mid, Late). Start is the Timing tag; Mid is the middle half, which carries no pill on the cards.
   - Nothing picked shows everything. Within a group any picked tag matches; across groups all must match — Fast and Early means fast and early, Fast and Avg means either.
   - Every chart has exactly one Fit value. No-transition charts appear only under No transition, never as Reliable, and Volatile / unreliable or No-transition charts carry no Status, Speed or Start — they drop out as soon as one of those is picked. So does a market whose group is too small for a scale, once a Speed or Start value is picked; it is never counted as Mid.
   - Each chip shows how many charts it would give with the other groups' picks applied; chips that would give none are dimmed. Picked tags also appear as removable chips above the results.
 - heading: The three tags
   text:
-  - Status — where the fitted curve crosses 80 % BEV share of new registrations. Past 80 % (already crossed), On track (by the end of 2035), Late (after 2035). The same for every vehicle type.
+  - Status — where the fitted curve crosses 80 % BEV share of new registrations. Done (already crossed), On track (by the end of 2035), Behind (after 2035). The same for every vehicle type.
   - Speed — the slope of the fitted curve at its steepest point. Fast = top quarter of the reference group, Slow = bottom quarter, Avg speed = the middle half.
   - Timing — the year the fitted curve crosses 10 % BEV share. Markets still below 10 % count with their projected year. Early starter = earliest quarter of the reference group, Late starter = latest quarter; the middle half carries no timing tag.
   - Curves that show no transition get a single No transition tag, and fits that can't give a reliable year yet a single pill: Volatile curve when only the re-fit swing is too large (the curve keeps moving with every new month, nothing is wrong with it), Unreliable fit when it has collapsed or its data are stale. Neither counts towards any scale.
@@ -65,9 +65,9 @@ processing:
 - title: Assign the tags
   rules_head: [When, Then]
   rules:
-  - [fitted 80 % crossing before today, Past 80%]
+  - [fitted 80 % crossing before today, Done]
   - [fitted 80 % crossing by end of 2035, On track]
-  - [fitted 80 % crossing after 2035, Late]
+  - [fitted 80 % crossing after 2035, Behind]
   - [speed at or above the group's 75th percentile, Fast]
   - [speed at or below the group's 25th percentile, Slow]
   - [speed in between, Avg speed]
