@@ -8203,7 +8203,7 @@ renderTable();
     return k*invLambda*Math.pow(u,k-1)*Math.exp(-Math.pow(u,k)); 
   }
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
-  function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
+  function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const totalM=Math.round(Math.abs(dYears)*12); const years=Math.floor(totalM/12); const months=totalM%12; const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
   function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); enhanceMultiSelect(sel); }
   function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.filter(r=>!rowIsUnreliableFit(r)).map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
@@ -12966,8 +12966,10 @@ function wmYearFmt(yearFrac){
 
 function wmDurationFmt(years){
   if (!isFinite(years)) return '—';
-  const y = Math.floor(Math.abs(years) + 1e-9);
-  const m = Math.round((Math.abs(years) - y) * 12);
+  // Round to whole months first, then split — otherwise 2.98 years gave "2y 12m".
+  const totalM = Math.round(Math.abs(years) * 12);
+  const y = Math.floor(totalM / 12);
+  const m = totalM % 12;
   const sign = years < 0 ? '-' : '';
   if (y && m) return `${sign}${y}y ${m}m`;
   if (y)      return `${sign}${y}y`;
