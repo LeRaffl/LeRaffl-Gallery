@@ -3566,7 +3566,7 @@ const VIEW_START_YEAR = 2015;
         <h2 class="about-title">How fast is each country replacing combustion cars?</h2>
       </div>
       <p class="about-hero-lede">Monthly new-car registrations, fitted to an S-curve. A snapshot of each market’s transition — not a forecast.
-        <span class="about-hero-note">Open data. 40+ markets, updated as new registrations land.</span>
+        <span class="about-hero-note">Open data. ~60 markets, updated as new registrations land.</span>
       </p>
     </div>
 
@@ -8205,7 +8205,7 @@ renderTable();
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
   function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
   function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); enhanceMultiSelect(sel); }
-  function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.filter(r=>!rowIsUnreliableFit(r)).map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
+  function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.filter(r=>!rowIsUnreliableFit(r)).map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' pp/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
     const mount=document.getElementById('durationsMount'); const sel=document.getElementById('variantMultiD'); makeVariantOptions(rows);
     const regionEl=document.getElementById('regionDur'); fillRankRegionSelect(regionEl, rows);
@@ -8219,7 +8219,7 @@ renderTable();
       <th class="sortable" data-k="_d2080">20→80%</th>
       <th class="sortable" data-k="_d1090">10→90%</th>
       <th class="sortable" data-k="_dC">Custom</th>
-      <th class="sortable" data-k="_speed">Numerical speed</th>
+      <th class="sortable" data-k="_speed" title="Steepest slope of the fitted curve, in percentage points (pp) of BEV share per year — the speed at the inflection point.">Numerical speed</th>
       <th class="sortable" data-k="_periodSort">Data per</th>
       <th class="sortable" data-k="variant">Variant</th>
       <th class="col-tags">Tags</th>
@@ -11306,6 +11306,9 @@ async function loadFleetObserved() {
   }
 }
 
+/* Display label only (data keys stay as they are): the rest of the site says "UK". */
+function fleetDisplayName(name){ return name === 'United Kingdom' ? 'UK' : name; }
+
 function populateFleetCountries() {
   const sel = document.getElementById("fleetCountries");
   if (!sel) return;
@@ -11337,7 +11340,7 @@ function populateFleetCountries() {
     if (regionNames) {
       try { label = regionNames.of(c) || c; } catch { label = c; }
     }
-    opt.textContent = label;
+    opt.textContent = fleetDisplayName(label);
     // Pre-select Norway by default: it has the richest historical data
     // and produces a meaningful first plot without any user action.
     if (c === "NO" || c === "Norway") {
@@ -11993,8 +11996,8 @@ function buildFleetPlot() {
 
   const countryLabel =
     selectedCountries.length <= 8
-      ? selectedCountries.join(", ")
-      : selectedCountries.slice(0, 8).join(", ") + " +" + (selectedCountries.length - 8);
+      ? selectedCountries.map(fleetDisplayName).join(", ")
+      : selectedCountries.slice(0, 8).map(fleetDisplayName).join(", ") + " +" + (selectedCountries.length - 8);
   
   const layout = {
     hovermode: "x", //closest = show one bar value  and x or x unified = show all bars of the year
@@ -14797,7 +14800,7 @@ document.addEventListener('click', (e) => {
     if (!cuts) return base;
     const all = window.__bevTagsByCountry;
     const t = country && all && all[country] && all[country][cat];
-    const fmt = x => !isFinite(x) ? '—' : cat === 'timing' ? tagFmtYearMonth(x) : (x * 100).toFixed(1) + ' %/yr';
+    const fmt = x => !isFinite(x) ? '—' : cat === 'timing' ? tagFmtYearMonth(x) : (x * 100).toFixed(1) + ' pp/yr';
     if (t && t.group && cuts[t.group] && cuts[t.group][cat].ok){
       const g = cuts[t.group], d = g[cat];
       const c = Object.assign({}, base, { ticks: [fmt(d.lo), fmt(d.hi)], values: Object.assign({}, base.values) });
