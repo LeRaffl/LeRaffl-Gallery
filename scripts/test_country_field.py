@@ -29,7 +29,8 @@ check("base rule 13.5px", "font-size:13.5px" in body)
 check("base rule --line-3 hairline", "border:1px solid var(--line-3)" in body)
 check("base rule 2px radius", "border-radius:2px" in body)
 check("base rule --surface-2 fill", "background-color:var(--surface-2)" in body)
-check("single-line height 36px", "height:36px" in css)
+check("Raw metrics: padding 7px 11px, line-height 1.5 (=36.25px)", "padding:7px 11px" in css and "line-height:1.5" in body)
+check("no fixed 36px height (follows Raw box model)", "height:36px" not in css)
 check("select arrow restored", "background-image:var(--select-arrow)" in css)
 
 for sel in ("#countryPick", "#sdCountry", "#galHeroHomeSel", ".compare-slot",
@@ -37,7 +38,11 @@ for sel in ("#countryPick", "#sdCountry", "#galHeroHomeSel", ".compare-slot",
     check(f"rule covers {sel}", sel in (rule.group(0) if rule else ""))
 
 check("hero select no longer full width", re.search(r"#galHeroHomeSel\{[^}]*width:auto", css) is not None)
-check("mobile 44px touch target", re.search(r"@media \(max-width:880px\)\{[^}]*\.country-field[^}]*min-height:44px", css) is not None)
+check("no 44px mobile override on country fields (Raw is 36px on mobile too)", "min-height:44px" not in css)
+check("gallery sidebar 44px rule neutralised for #countryPick", re.search(r"@media \(max-width:880px\)\{\s*#countryPick\{\s*min-height:0", css) is not None)
+check("Raw Data picker itself untouched by the shared block", ".rd-picksum" not in re.sub(r"/\*.*?\*/", "", css, flags=re.S))
+check("compare slots min-width 270px like Raw", re.search(r"\.compare-slot\{[^}]*min-width:270px", css) is not None)
+check("submit grid single column on phones", re.search(r"max-width:600px\)\{\s*\.sd-grid\{[^}]*1fr", css) is not None)
 
 for ident in ("sdCountry", "countryPick"):
     tag = re.search(r'<(?:select|input)[^>]*id="%s"[^>]*>' % ident, HTML)
