@@ -430,7 +430,8 @@ heal_v1_zero_rows("params.csv", "weights.csv")
 # Build the social-media post text and write to posts/<slug>.txt (latest, what
 # the Gallery's Copy-post button + the Apple Shortcut fetch) plus a periodised
 # copy posts/<slug>_<period>.txt that stays around as a history record.
-post_text <- build_post_text(df, country_label, as_of_period, bev_label = bev_label_val)
+post_text <- build_post_text(df, country_label, as_of_period, bev_label = bev_label_val,
+                            has_phev_split = has_phev_split_val)
 if (nzchar(post_text)) {
   dir.create("posts", showWarnings = FALSE)
   writeLines(post_text, file.path("posts", paste0(slug, ".txt")), useBytes = TRUE)
@@ -440,7 +441,8 @@ if (nzchar(post_text)) {
 
 # TTM companion post — shape mirrors the TTM chart bands. The Gallery's
 # Copy-post button on the ttm_shares card fetches posts/<slug>_ttm.txt.
-ttm_post_text <- build_ttm_post_text(df, country_label, as_of_period, bev_label = bev_label_val)
+ttm_post_text <- build_ttm_post_text(df, country_label, as_of_period, bev_label = bev_label_val,
+                                    has_phev_split = has_phev_split_val)
 if (nzchar(ttm_post_text)) {
   dir.create("posts", showWarnings = FALSE)
   writeLines(ttm_post_text, file.path("posts", paste0(slug, "_ttm.txt")), useBytes = TRUE)
