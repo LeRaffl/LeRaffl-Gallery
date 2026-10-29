@@ -2188,6 +2188,33 @@ a:focus-visible{
   font-size:12px;
 }
 
+/* Region preset chips (Fleet / Builder pickers). Same look as the Raw Data
+   presets (.rd-presets button): 11.5px, 3px 8px, --line-3 hairline, 2px radius. */
+.region-presets{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.region-presets__label{
+  font-size:11.5px;
+  color:var(--muted-2);
+  margin-right:2px;
+}
+.region-presets button{
+  border:1px solid var(--line-3);
+  background:var(--surface-2);
+  color:var(--muted);
+  border-radius:2px;
+  padding:3px 8px;
+  font:inherit;
+  font-size:11.5px;
+  cursor:pointer;
+  width:auto;
+}
+.region-presets button:hover{ border-color:var(--accent); color:var(--text); }
+.region-presets button.pri{ color:var(--accent); border-color:var(--accent); }
+
 .country-picker select[multiple]{
   min-height:180px;
 }
@@ -5716,6 +5743,80 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('select[multiple]').forEach(makeMultiSelectToggle);
 });
 
+/* Region presets for a multi-select country picker (Fleet, Builder).
+   Chips: EU (BUILDER_GROUPS.eu) + one chip per continent that has options in
+   this picker, labelled with the number of options, like the Raw Data presets.
+   Click = replace the selection with that region; Ctrl/Cmd/Shift+click = add it.
+   Regions come from window.COUNTRY_REGION (the single mapping the Speed, Fleet
+   and Raw Data tabs share); a country without a mapping simply gets no chip.
+   `nameOf(option)` returns the country name used for the lookup (default: the
+   option text; Fleet values are ISO codes but the text is the name). The chips
+   are re-derived whenever the option list is rebuilt. */
+function regionOfCountryName(name){
+  const map = window.COUNTRY_REGION || {};
+  if(!name) return null;
+  if(map[name]) return map[name];
+  const base = String(name).replace(/\s*\(.*\)\s*$/, '').trim();
+  if(map[base]) return map[base];
+  if(/^Hong Kong/.test(base)) return map['Hong Kong'] || null;
+  return null;
+}
+const REGION_PRESET_ORDER = ['Europe','North America','South America','Asia','Oceania','Africa'];
+function regionPresets(sel, container, opts = {}){
+  const nameOf = opts.nameOf || (o => o.dataset.search || o.textContent);
+  const onChange = opts.onChange || (() => {});
+  const bar = document.createElement('div');
+  bar.className = 'region-presets';
+  bar.setAttribute('role', 'group');
+  bar.setAttribute('aria-label', 'Region presets');
+  container.appendChild(bar);
+
+  const options = () => [...sel.options].filter(o => !o.disabled);
+  const apply = (names, add) => {
+    const want = new Set(names);
+    options().forEach(o => {
+      const hit = want.has(nameOf(o));
+      o.selected = add ? (o.selected || hit) : hit;
+    });
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    onChange();
+  };
+  const render = () => {
+    const byRegion = {};
+    options().forEach(o => {
+      const n = nameOf(o), r = regionOfCountryName(n);
+      if(r) (byRegion[r] = byRegion[r] || []).push(n);
+    });
+    const chips = [];
+    const eu = ((window.BUILDER_GROUPS && window.BUILDER_GROUPS.eu) ? window.BUILDER_GROUPS.eu([]) : []);
+    const euNames = options().map(nameOf).filter(n => eu.includes(n));
+    if(euNames.length) chips.push({ key:'EU', label:'EU', names:euNames });
+    REGION_PRESET_ORDER.forEach(r => {
+      if(byRegion[r] && byRegion[r].length)
+        chips.push({ key:r, label:r, names:byRegion[r] });
+    });
+    bar.innerHTML = '';
+    if(!chips.length) { bar.hidden = true; return; }
+    bar.hidden = false;
+    const lab = document.createElement('span');
+    lab.className = 'region-presets__label';
+    lab.textContent = 'Regions';
+    bar.appendChild(lab);
+    chips.forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.region = c.key;
+      b.textContent = `${c.label} (${c.names.length})`;
+      b.title = `Select ${c.label} (${c.names.length} here). Ctrl/Cmd/Shift+click adds to the selection.`;
+      b.addEventListener('click', e => apply(c.names, e.ctrlKey || e.metaKey || e.shiftKey));
+      bar.appendChild(b);
+    });
+  };
+  render();
+  if(window.MutationObserver) new MutationObserver(render).observe(sel, { childList:true });
+  return bar;
+}
+
 function enhanceCountryMultiSelect(selectOrId, opts = {}){
   const sel = typeof selectOrId === 'string'
     ? document.getElementById(selectOrId)
@@ -5808,6 +5909,10 @@ function enhanceCountryMultiSelect(selectOrId, opts = {}){
   if(window.MutationObserver)
     new MutationObserver(updateCount).observe(sel, {childList:true});
   if(!opts.compact) wrap.insertBefore(actions, sel);
+  if(opts.regions){
+    const bar = regionPresets(sel, wrap, { nameOf: opts.regionNameOf, onChange: updateCount });
+    wrap.insertBefore(bar, sel);
+  }
   wrap.insertBefore(top, sel);
   updateCount();
 }
@@ -9054,7 +9159,7 @@ function marketBucket(rows, vars, test){
       o.value=c; o.textContent=c;
       sel.appendChild(o);
     });
-    enhanceCountryMultiSelect(sel, { placeholder: 'Search countries' });
+    enhanceCountryMultiSelect(sel, { placeholder: 'Search countries', regions: true });
       // Default: World
     if (groupSel) {
       groupSel.value = 'world';
@@ -11346,7 +11451,7 @@ function populateFleetCountries() {
     sel.appendChild(opt);
   });
 
-  enhanceCountryMultiSelect(sel, { placeholder: 'Search fleet countries' });
+  enhanceCountryMultiSelect(sel, { placeholder: 'Search fleet countries', regions: true });
   sel.dispatchEvent(new Event('change', { bubbles: true }));
 
   // Build the category toggle row for whatever country is now selected
