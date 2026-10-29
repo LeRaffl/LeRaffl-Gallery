@@ -3382,6 +3382,61 @@ h2 .fb-ctx-btn{
   .fx-applied{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
   .fx-achip{flex:0 0 auto}
 }
+
+/* ── Shared country-selector look (.country-field) ───────────────────────────
+   One visual style for every country picker, taken from the Raw Data picker
+   (.rd-picksum): Public Sans 13.5px, 36px high, 1px --line-3 hairline, 2px
+   radius, --surface-2 fill. Visual only — no markup or behaviour changes.
+   Applied to the Gallery country field, Compare slots (incl. the ones added
+   later), Submit-data country, the Hero "change" select (#galHeroHomeSel) and
+   the search box + list of the Builder / Fleet multi-select pickers (those
+   are built by enhanceCountryMultiSelect, hence selector-based). */
+.country-field,
+.compare-slot,
+#countryPick,
+#sdCountry,
+#galHeroHomeSel,
+.country-picker__top input[type="search"],
+.country-picker select[multiple]{
+  font-family:var(--font-ui);
+  font-size:13.5px;
+  line-height:1.3;
+  color:var(--text);
+  background-color:var(--surface-2);
+  border:1px solid var(--line-3);
+  border-radius:2px;
+  box-sizing:border-box;
+}
+.country-field,
+.compare-slot,
+#countryPick,
+#sdCountry,
+#galHeroHomeSel,
+.country-picker__top input[type="search"]{
+  height:36px;
+  padding:0 11px;
+}
+select.country-field,
+.compare-slot,
+#sdCountry,
+#galHeroHomeSel{
+  padding-right:34px;
+  background-image:var(--select-arrow);
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:12px 12px;
+}
+#countryPick{ padding-right:28px; }             /* room for the × button */
+/* The Hero select used to stretch over the whole card. */
+#galHeroHomeSel{ width:auto; min-width:270px; max-width:100%; }
+.country-picker select[multiple]{ padding:6px 8px; }
+.country-picker__count,
+.country-picker__hint{ font-family:var(--font-ui); }
+@media (max-width:880px){
+  /* touch targets: same 44px everywhere (Gallery already had it) */
+  .country-field,.compare-slot,#countryPick,#sdCountry,#galHeroHomeSel,
+  .country-picker__top input[type="search"],.rd-picksum{ min-height:44px; }
+}
 </style>
 
 <script>
@@ -3739,7 +3794,7 @@ const VIEW_START_YEAR = 2015;
     <div class="sd-grid">
       <div class="sd-field">
         <label for="sdCountry">Country</label>
-        <select id="sdCountry"></select>
+        <select id="sdCountry" class="country-field"></select>
       </div>
       <div class="sd-field">
         <label for="sdVariant">Variant</label>
@@ -3943,7 +3998,7 @@ const VIEW_START_YEAR = 2015;
         <div class="fx-row">
           <label class="fx-lab" for="countryPick">Country</label>
           <div class="fx-country">
-            <input id="countryPick" list="countryList" autocomplete="off" placeholder="All countries" data-fb-skip/>
+            <input id="countryPick" class="country-field" list="countryList" autocomplete="off" placeholder="All countries" data-fb-skip/>
             <datalist id="countryList"></datalist>
             <button type="button" id="countryClear" class="fx-x" hidden aria-label="Clear country">×</button>
           </div>
@@ -4454,15 +4509,15 @@ const VIEW_START_YEAR = 2015;
       </div>
       <div class="field settings-block is-compact">
         <label>Pin 1</label>
-        <select id="compareSlot1" class="compare-slot"></select>
+        <select id="compareSlot1" class="compare-slot country-field"></select>
       </div>
       <div class="field settings-block is-compact">
         <label>Pin 2</label>
-        <select id="compareSlot2" class="compare-slot"></select>
+        <select id="compareSlot2" class="compare-slot country-field"></select>
       </div>
       <div class="field settings-block is-compact">
         <label>Pin 3</label>
-        <select id="compareSlot3" class="compare-slot"></select>
+        <select id="compareSlot3" class="compare-slot country-field"></select>
       </div>
       <button type="button" id="compareAddSlot" class="btn">Add series</button>
       <button type="button" id="compareBuild" class="btn primary">Compare</button>
