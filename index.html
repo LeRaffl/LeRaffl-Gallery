@@ -3371,6 +3371,7 @@ h2 .fb-ctx-btn{
   font:600 12px/1 inherit;color:var(--tc);background:var(--tb);border:1px solid var(--tl);border-radius:999px;cursor:pointer}
 .fx-achip span:last-child{font-size:15px;opacity:.8}
 .fx-clear{background:none;border:0;color:var(--accent);font:600 12px inherit;text-decoration:underline;cursor:pointer;min-height:30px;padding:0 6px}
+.fx-region{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--line-2);border-radius:3px;background:var(--surface-2,#fff);font-size:14px}
 @media (min-width:881px){
   #tab-gallery aside.side{max-height:calc(100vh - var(--header-h) - 56px);overflow-y:auto;overscroll-behavior:contain}
 }
@@ -3938,6 +3939,11 @@ const VIEW_START_YEAR = 2015;
           <input id="search" type="search" autocomplete="off"
                  aria-label="Search charts by country, type or filename"
                  placeholder="Search country, type or file…" />
+        </div>
+
+        <div class="fx-row">
+          <label class="fx-lab" for="regionGal">Region</label>
+          <select id="regionGal" class="rank-region fx-region" aria-label="Filter charts by region" title="Show only charts of one continent or European group. Combines with Country, Types and Tags."><option value="">All regions</option></select>
         </div>
 
         <div class="fx-row">
@@ -7112,6 +7118,7 @@ lbImg.addEventListener('click', () => { if(lb.open) lb.close(); });
 const cols = document.getElementById('cols');
 const empty = document.getElementById('empty');
 const countrySelect = document.getElementById('countrySelect');
+const regionGal = document.getElementById('regionGal');
 const periodSelect  = document.getElementById('periodSelect');
 const searchInput   = document.getElementById('search');
 const stats         = document.getElementById('stats');
@@ -7239,7 +7246,7 @@ const SEARCH_ALIASES = {
   'South Korea':'korea',
   'Netherlands':'holland'
 };
-function applyFilters(all, tagOverride){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; const tagF=tagOverride||getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
+function applyFilters(all, tagOverride){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const inRegion=rankRegionMatcher(regionGal?regionGal.value:''); const period=periodSelect.value; const tagF=tagOverride||getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!inRegion(it.country)) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
 // Tag filters — logic in assets/tag_system.js (tagFilterValue/Passes/Counts);
 // these two read the chip state and look up a chart's tags.
 function getActiveTagFilters(){
@@ -7257,6 +7264,7 @@ function passesTagFilter(country, filters){
 loadManifest().then(({images})=>{
   const imgs = Array.isArray(images)?images:[]; if(!imgs.length){ empty.hidden=false; empty.textContent='No charts found. manifest.json loaded but contains no images.'; return; }
   uniq(imgs.map(x=>x.country)).sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; countrySelect.append(o);});
+  if(regionGal){ fillRankRegionSelect(regionGal, imgs); regionGal.options[0].textContent='All regions'; }
   const periods=uniq(imgs.map(x=>x.period).filter(Boolean)).sort(); if(periods.length){ periodSelect.hidden=false; periods.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=prettyPeriod(p); periodSelect.append(o);}); }
   const update=()=>{ const list=applyFilters(imgs); renderColumns(list); if(window.__fxTagUi) window.__fxTagUi(imgs, list.length);}; window.__fxRefresh=update; const reset=()=>{ rowsShown={}; update(); };
   // Search input is debounced by ~150 ms so rapid typing does not
@@ -7264,6 +7272,7 @@ loadManifest().then(({images})=>{
   // is immediate — users expect selects/checkboxes to react instantly.
   const resetDebounced = debounce(reset, 150);
   [countrySelect,periodSelect].forEach(el=>el.addEventListener('change',reset));
+  if(regionGal) regionGal.addEventListener('change',reset);
   typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',resetDebounced);  loadMoreBtn.addEventListener('click',()=>showMore(Object.keys(galleryView?galleryView.sections:{}), loadMoreBtn)); if(showAllBtn) showAllBtn.addEventListener('click',()=>{ const l=Object.keys(galleryView?galleryView.sections:{}); showMore(l, showAllBtn, true); });
   // Tag-filter chips — same reset() flow as the type chips.
   document.querySelectorAll('.tag-filter input[data-tag-value]').forEach(c => c.addEventListener('change', reset));
@@ -15557,7 +15566,8 @@ document.addEventListener('click', (e) => {
     const sel = $('countrySelect'), pick = $('countryPick'), list = $('countryList'), clr = $('countryClear');
     if (!sel || !pick) return;
     // mirror the country options (filled after manifest load)
-    const sync = () => { list.innerHTML = [...sel.options].filter(o => o.value).map(o => `<option value="${o.value.replace(/"/g,'&quot;')}">`).join(''); };
+    const regionSel = $('regionGal');
+    const sync = () => { const inR = rankRegionMatcher(regionSel ? regionSel.value : ''); list.innerHTML = [...sel.options].filter(o => o.value && inR(o.value)).map(o => `<option value="${o.value.replace(/"/g,'&quot;')}">`).join(''); };
     new MutationObserver(sync).observe(sel, { childList: true }); sync();
     const setCountry = v => { sel.value = v; sel.dispatchEvent(new Event('change')); pick.value = v; clr.hidden = !v; };
     const match = () => [...sel.options].find(o => o.value && o.value.toLowerCase() === pick.value.trim().toLowerCase());
@@ -15565,6 +15575,12 @@ document.addEventListener('click', (e) => {
     pick.addEventListener('input', () => { const o = match(); if (o && o.value !== sel.value) setCountry(o.value); });
     pick.addEventListener('change', () => { const o = match(); setCountry(o ? o.value : ''); });
     clr.addEventListener('click', () => setCountry(''));
+    // Region narrows the country suggestions; a country picked earlier that
+    // lies outside the new region is dropped (it could only show 0 charts).
+    if (regionSel) regionSel.addEventListener('change', () => {
+      sync();
+      if (sel.value && !rankRegionMatcher(regionSel.value)(sel.value)) setCountry('');
+    });
     // Tag chips (always visible): live counts + applied-filters bar.
     // "More filters" (Month, Latest only): badge + Clear. Called by the
     // gallery after every render.
@@ -15579,6 +15595,7 @@ document.addEventListener('click', (e) => {
       return PREFIXED.has(g.dataset.tagCat) ? `${g.dataset.groupLabel}: ${t}` : t; };
     const clearAll = () => {
       const ps = $('periodSelect'); if (ps.value) ps.value = '';
+      if (regionSel && regionSel.value) { regionSel.value = ''; sync(); }
       chips.forEach(c => { c.checked = false; });
       fire(ps);                          // one re-render for everything
       $('search').focus({ preventScroll: true });
@@ -15602,8 +15619,10 @@ document.addEventListener('click', (e) => {
       const hiddenN = (ps.value ? 1 : 0) + (lo.checked ? 0 : 1);
       badge.textContent = hiddenN; badge.hidden = !hiddenN; clearBtn.hidden = !hiddenN;
       badge.setAttribute('aria-label', `${hiddenN} changed`);
-      const n = on.length + (ps.value ? 1 : 0);
+      const rg = regionSel && regionSel.value;
+      const n = on.length + (ps.value ? 1 : 0) + (rg ? 1 : 0);
       bar.replaceChildren();
+      if (rg) bar.append(mk('Region: ' + regionSel.options[regionSel.selectedIndex].textContent, () => { regionSel.value = ''; fire(regionSel); }));
       if (ps.value) bar.append(mk('Month: ' + ps.options[ps.selectedIndex].textContent, () => { ps.value = ''; fire(ps); }));
       on.forEach(c => { const b = mk(labelOf(c), () => { c.checked = false; fire(c); c.focus({ preventScroll: true }); });
         b.dataset.tone = c.parentNode.dataset.tone; bar.append(b); });
