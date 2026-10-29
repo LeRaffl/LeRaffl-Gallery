@@ -40,11 +40,11 @@ hev_note: PHEV and HEV come from the register's EU hybrid type of each new vehic
 backfill: Whole is ACEA to 2020-12 (quarterly) and Transpordiamet from 2021-01 — the first workbook with the EU hybrid type. Private, Industry, Used, Vans, HDV and Buses from 2021-01; the quarterly ACEA rows of Vans/HDV/Buses are kept in data/Estonia_legacy.csv.
 scope_note: Vehicles first registered in Estonia in the month — new ones from the register's list of new vehicles, used imports as the difference between all first registrations and the new ones. Vehicles deregistered since are still counted in the month they were registered.
 caveats:
-- 'Whole runs about 0.6 % above ACEA''s Estonian figure (2022–2026), almost all of it in HEV and petrol; BEV and PHEV agree to within a few cars a month. December 2024 — the rush before the 2025 car tax — is 151 cars (4 %) above ACEA. In January 2025 ACEA''s BEV figure includes 25 fuel-cell cars that this source counts as OTHERS.'
+- 'Whole runs about 0.6% above ACEA''s Estonian figure (2022–2026), almost all of it in HEV and petrol; BEV and PHEV agree to within a few cars a month. December 2024 — the rush before the 2025 car tax — is 151 cars (4%) above ACEA. In January 2025 ACEA''s BEV figure includes 25 fuel-cell cars that this source counts as OTHERS.'
 - 'Bi-fuel cars with a petrol engine and an LPG or CNG kit count as PETROL — the register''s engine type decides, which is also how ACEA''s figure (the legacy series) counts them. Cars with a dedicated CNG engine are OTHERS.'
-- 'Used: hybrids are one combined number (HEV column, PHEV absent) — the first-registration sheet has engine types only, no hybrid type. Used imports are a market of their own: 11–12 % of them were BEV in 2025–2026, more than among new cars.'
+- 'Used: hybrids are one combined number (HEV column, PHEV absent) — the first-registration sheet has engine types only, no hybrid type. Used imports are a market of their own: 11–12% of them were BEV in 2025–2026, more than among new cars.'
 - 'Buses: a few to about 70 vehicles a month, so single fleet deliveries (electric city buses in 2024-05 and 2026-06/07) swing the shares.'
-- 'The step at 2021-01 is a change of source, not of definition: ACEA''s Estonian figures are the same register (2021 quarters: within 3 %, BEV and PHEV within a few cars), but they were quarterly before 2022.'
+- 'The step at 2021-01 is a change of source, not of definition: ACEA''s Estonian figures are the same register (2021 quarters: within 3%, BEV and PHEV within a few cars), but they were quarterly before 2022.'
 processing:
 - title: Download
   text:
@@ -103,7 +103,7 @@ processing:
       then: OTHERS
 - title: Checks before writing
   text:
-  - The workbook checks itself. New passenger cars counted from "Uued sõidukid" must equal the headline table's "sh uued" (of which new) passenger cars, and so must the "Kytus_esm" sheet's; all first registrations of passenger cars must equal its "Kokku"; new vans + lorries and new buses must equal their headline columns. A difference above 0.5 % (and 3 vehicles) stops the run. Unknown engine, hybrid or owner values may not exceed 2 % of a month, and a month below a quarter of the usual volume is not written. 69 of 69 months 2021-01 … 2026-09 pass; 68 match exactly, one (2024-07) by one car.
+  - The workbook checks itself. New passenger cars counted from "Uued sõidukid" must equal the headline table's "sh uued" (of which new) passenger cars, and so must the "Kytus_esm" sheet's; all first registrations of passenger cars must equal its "Kokku"; new vans + lorries and new buses must equal their headline columns. A difference above 0.5% (and 3 vehicles) stops the run. Unknown engine, hybrid or owner values may not exceed 2% of a month, and a month below a quarter of the usual volume is not written. 69 of 69 months 2021-01 … 2026-09 pass; 68 match exactly, one (2024-07) by one car.
 market_breakdown: market/estonia_top.json
 market_designation_note: brand and model as the register writes them in the list of new vehicles (Mark, Mudel), upper-cased; "VOLKSWAGEN, VW" is shown as VOLKSWAGEN. The model is the register's model name — body and trim variants of one model stay separate where the register names them separately (BZ4X and BZ4X TOURING).
 market_powertrain_note: the same classes as the Whole CSV — BEV, PHEV (OVC-HEV), HEV (NOVC-HEV), PETROL and DIESEL — counted per vehicle from the same sheet, so the tables add up to the chart's monthly figures exactly.
@@ -138,7 +138,7 @@ Variants:  Whole · Private · Industry · Used · Vans · HDV · Buses (all mon
 Split:     counted per vehicle: OVC-HEV → PHEV, NOVC-HEV → HEV (§3).
            Used: one combined hybrid number in HEV, no PHEV column.
 Check:     every month against the workbook's headline table — 69/69 pass,
-           68 exact (§4.1). vs ACEA 2022-01..2026-08: +0.6 % total,
+           68 exact (§4.1). vs ACEA 2022-01..2026-08: +0.6% total,
            BEV/PHEV within a few cars a month (§4.2).
 ```
 
@@ -218,7 +218,7 @@ Bi-fuel cars go by their engine type, not by the fuel combination column
 (`Kütusekombinatsioon`, e.g. `BENSIIN-LPG`): ACEA's Estonian figure counts them as petrol
 (its OTHERS is 0 from 2025), and the Used sheet has only the engine type, so one rule
 serves every variant. Unknown engine, hybrid or owner values are listed as a warning and
-stop the run above 2 % of a month (`KNOWN_ENGINES`, `KNOWN_HYBRID`, `KNOWN_OWNER`).
+stop the run above 2% of a month (`KNOWN_ENGINES`, `KNOWN_HYBRID`, `KNOWN_OWNER`).
 
 ## 4. Validation
 
@@ -237,20 +237,20 @@ Whole, Transpordiamet minus the ACEA row it replaced (ACEA monthly from 2022):
 
 | Year | Total | BEV | PHEV | HEV | Petrol | Diesel | Others |
 |---|---|---|---|---|---|---|---|
-| 2022 | +94 (+0.5 %) | −20 | −27 | +109 | +48 | −19 | +4 |
-| 2023 | +171 (+0.8 %) | +2 | −4 | +70 | +69 | +33 | +1 |
-| 2024 | +359 (+1.4 %) | −2 | 0 | +180 | +89 | +87 | +5 |
-| 2025 | +72 (+0.6 %) | −21 | 0 | +18 | +48 | +2 | +25 |
-| 2026 (Jan–Aug) | +82 (+0.6 %) | +5 | 0 | +34 | +37 | +6 | 0 |
+| 2022 | +94 (+0.5%) | −20 | −27 | +109 | +48 | −19 | +4 |
+| 2023 | +171 (+0.8%) | +2 | −4 | +70 | +69 | +33 | +1 |
+| 2024 | +359 (+1.4%) | −2 | 0 | +180 | +89 | +87 | +5 |
+| 2025 | +72 (+0.6%) | −21 | 0 | +18 | +48 | +2 | +25 |
+| 2026 (Jan–Aug) | +82 (+0.6%) | +5 | 0 | +34 | +37 | +6 | 0 |
 
-The largest month is 2024-12 (+151, 4 %, the rush before the car tax of 2025); every other
-month is within 2.5 %. The −21 BEV / +25 OTHERS of 2025 is January 2025: 25 fuel-cell cars
-that ACEA counted as BEV. For the 2021 quarters (ACEA quarterly) the gap is +3.1 %, +1.0 %,
-+0.4 % and +0.6 %. Each replaced row keeps ACEA's figure in its `notes`
+The largest month is 2024-12 (+151, 4%, the rush before the car tax of 2025); every other
+month is within 2.5%. The −21 BEV / +25 OTHERS of 2025 is January 2025: 25 fuel-cell cars
+that ACEA counted as BEV. For the 2021 quarters (ACEA quarterly) the gap is +3.1%, +1.0%,
++0.4% and +0.6%. Each replaced row keeps ACEA's figure in its `notes`
 (`replaces ACEA (TOTAL 1479, +7; BEV 174 / …)`), the correction trail for later checks.
 
 Vans, HDV and Buses against ACEA's quarterly reconstructions (`data/Estonia_legacy.csv`):
-Vans within −1 … +3 % (ACEA's "BEV" is BEV + PHEV and matches ours), HDV within a few
+Vans within −1 … +3% (ACEA's "BEV" is BEV + PHEV and matches ours), HDV within a few
 vehicles a quarter, Buses equal or within 1–5 vehicles (2026-Q2: 74 = 74, 18 BEV = 18).
 
 ## 5. Interplay with fetch-acea

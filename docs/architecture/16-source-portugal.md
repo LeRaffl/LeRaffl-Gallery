@@ -235,7 +235,7 @@ series exactly, like the electrified ones (verified 2026-10-10).
   45 388 over 56 brands; all fuels: 14 086 / 169 330 over 73 brands).
   `collect_brands` re-checks it on every run and raises otherwise (a brand
   missing from the table would make the ranking lie). The month's all-fuels total
-  is compared with the CSV row by `market_top.check_scope` (1 % warn, 5 % abort).
+  is compared with the CSV row by `market_top.check_scope` (1% warn, 5% abort).
 * **Headline = year to date.** ACAP's own `Acumulado` ranking, so it restarts every
   January and the page says so (`market_window_note`). There is no way to ask for
   an earlier month or a rolling twelve months — same limitation as §2's "no year

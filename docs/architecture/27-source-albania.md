@@ -276,7 +276,7 @@ Discovery notes (these cost real time to pin down):
 
 **Sanity reference:** `robbieandrew.github.io/carsales/albania_carsales_monthly.csv`
 (Robbie Andrew's mirror of the same DPSHTRR source, with a different column
-schema).  Small deviations (tens of cars per month, < 1 %) are acceptable —
+schema).  Small deviations (tens of cars per month, < 1%) are acceptable —
 Andrew's series includes LPG as a separate column while we fold it into OTHERS,
 and minor retroactive corrections appear in the source.  Large deviations
 (hundreds of cars) indicate a parsing or filter regression.

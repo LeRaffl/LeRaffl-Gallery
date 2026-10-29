@@ -37,8 +37,8 @@ backfill: from 2021-01, the first month in which the plug-in codes hold plug-ins
 scope_note: New registrations (新領牌照) of vehicles with a regular Taiwanese plate — military vehicles, unregistered vehicles and temporary plates excluded — counted in the month the plate was issued. Motorcycles and special vehicles are in no variant.
 caveats:
 - The series starts in 2021-01. Until 2020 the register coded many conventional full hybrids as 汽油/電能 ("petrol and electricity", today's plug-in code) — about 17,000 a year in 2012–14, when plug-ins were almost unknown. The dedicated hybrid code appeared in 2017 and took over completely in December 2020; from 2021 the plug-in codes are consistent, so the history is not spliced across the recoding.
-- Hybrids are a large and growing slice (39 % of new cars in the twelve months to August 2026) and count as ICE in the BEV/PHEV/ICE curves. The register has no separate mild-hybrid code, so HEV can hold mild hybrids registered as hybrids.
-- BEV registrations come in waves (Tesla, about 60 % of BEVs, delivers in quarter-end pushes — December 2025 had 7,166 BEVs, November 1,926). Single months swing between 5 % and 17 %; read the trend.
+- Hybrids are a large and growing slice (39% of new cars in the twelve months to August 2026) and count as ICE in the BEV/PHEV/ICE curves. The register has no separate mild-hybrid code, so HEV can hold mild hybrids registered as hybrids.
+- BEV registrations come in waves (Tesla, about 60% of BEVs, delivers in quarter-end pushes — December 2025 had 7,166 BEVs, November 1,926). Single months swing between 5% and 17%; read the trend.
 - Vans include vehicles from 3.5 to 5 t up to 6 m long since 2020-09-04 (a regulatory change that moved them from 大貨車), so Vans is slightly wider than EU N1 and HDV slightly narrower than N2+N3.
 - The brand table on this page is every powertrain together — THB publishes brands and fuels in two separate tables, so who sells the battery-electric cars cannot be read from it (Tesla, a battery-only brand, is the exception).
 processing:
@@ -64,7 +64,7 @@ processing:
       then: in no variant
 - title: Powertrain
   text:
-  - THB records each vehicle's fuel (使用燃料) from its type approval in thirteen categories, each defined in the table's notes. They map one to one onto the gallery's columns; a category the fetcher does not know is counted as OTHERS and listed, and above 1 % of a month's cars the run stops.
+  - THB records each vehicle's fuel (使用燃料) from its type approval in thirteen categories, each defined in the table's notes. They map one to one onto the gallery's columns; a category the fetcher does not know is counted as OTHERS and listed, and above 1% of a month's cars the run stops.
   decision:
     ask: THB fuel category?
     branches:
@@ -87,7 +87,7 @@ processing:
       then: LPG
 - title: Check against the brand table
   text:
-  - The ministry publishes THB's new registrations a second time, by brand (table Seq 118), compiled separately. For every month and vehicle kind the fetcher writes, the brand table's total must equal the fuel table's — they have been identical for every month since 2012. A difference beyond 3 vehicles (0.1 %) stops the run, as does a month whose fuels do not add up to the table's own total.
+  - The ministry publishes THB's new registrations a second time, by brand (table Seq 118), compiled separately. For every month and vehicle kind the fetcher writes, the brand table's total must equal the fuel table's — they have been identical for every month since 2012. A difference beyond 3 vehicles (0.1%) stops the run, as does a month whose fuels do not add up to the table's own total.
 market_breakdown: market/taiwan_top.json
 market_heading: Who sells the new cars
 market_designation_note: THB publishes brands only, no models. A brand is the registrant THB records; locally built cars appear under the local maker (國瑞 Kuozui for Toyota, 本田 Honda Taiwan, 三陽 San Yang for Hyundai, 福特六和 Ford Lio Ho, 日產 Yulon Nissan) and are merged with the marque's imports; China Motor (中華 — Mitsubishi and its own models) stays itself. THB's own "others" line (brands without a code of their own) counts towards the total but is not ranked; so do, since June 2026, about 600–850 cars a month that THB's total holds but no brand in the ministry's code list carries (a newly itemised brand the database does not list yet).
@@ -140,7 +140,7 @@ Fuel:      電能 → BEV; 汽油/電能, 柴油/電能, 電能/汽油, 電能/�
 History:   2021-01 → today (68 months at 2026-08); earlier plug-in coding
            is inconsistent (§4).
 Checked:   brand-table totals = fuel-table totals for every vehicle kind and
-           month (272 of 272); BEV 2025 32,358 vs 32,558 in the press (−0.6 %).
+           month (272 of 272); BEV 2025 32,358 vs 32,558 in the press (−0.6%).
 ```
 
 ## 1. Why this source
@@ -180,10 +180,10 @@ own `nameMapping` gives the same labels back (`parse_display_json`).
 
 | THB kind | Variant | 2025 | BEV 2025 | TTM to 2026-08 BEV |
 |---|---|---:|---:|---:|
-| 小客車 passenger cars | Whole | 363,653 | 8.9 % | 10.5 % |
-| 小貨車 light goods | Vans | 39,089 | 0.5 % | 0.7 % |
-| 大貨車 heavy goods | HDV | 5,519 | 0.3 % | 0.4 % |
-| 大客車 buses and coaches | Buses | 1,950 | 46.2 % | 60.1 % |
+| 小客車 passenger cars | Whole | 363,653 | 8.9% | 10.5% |
+| 小貨車 light goods | Vans | 39,089 | 0.5% | 0.7% |
+| 大貨車 heavy goods | HDV | 5,519 | 0.3% | 0.4% |
+| 大客車 buses and coaches | Buses | 1,950 | 46.2% | 60.1% |
 
 CSV columns: `BEV, PHEV, EREV, HEV, PETROL, DIESEL, LPG, OTHERS, TOTAL`;
 `source` = `THB register via MOTC statistics database`. TOTAL is THB's own
@@ -214,8 +214,8 @@ THB's definitions (table notes, 4.(1)–(13)), shortened:
 "Uses electricity" in THB's wording is electricity as an energy input — a
 plug. The hybrid codes say "only fuel". So PHEV/HEV is the register's own
 distinction, not a classification from model names. 2026 to August (Whole):
-PHEV 2,531 (1.1 %), of which 2,322 electric-led (電能/汽油) and 207
-combustion-led (汽油/電能); EREV practically zero; HEV 99,154 (41.5 %), of which
+PHEV 2,531 (1.1%), of which 2,322 electric-led (電能/汽油) and 207
+combustion-led (汽油/電能); EREV practically zero; HEV 99,154 (41.5%), of which
 611 e-POWER.
 
 Every label has a test, including the look-alikes 電能 / 電能(增程) /
@@ -235,14 +235,14 @@ The plug-in code 汽油/電能 meant something else until 2020:
 | 2021 | 465 | 59,212 | 6,997 |
 
 Before 2017 the register had no hybrid code, and Toyota's hybrids were
-registered as "petrol and electricity" — 5 % of the market in 2012 "plug-ins"
+registered as "petrol and electricity" — 5% of the market in 2012 "plug-ins"
 is impossible. The dedicated code appeared in June 2017 and took over model by
 model; in December 2020 汽油/電能 fell from 554 to 104 a month, and from
 January 2021 it holds 20–60 genuine plug-ins a month. BEV and the totals are
 unaffected, but one series has one start (invariant 3) — the gallery does not
 reclassify THB's old codes by guesswork. The 2012–2020 months remain in the
-ministry's table for anyone who wants the BEV history alone (BEV share 0.07 %
-in 2012, 1.6 % in 2020).
+ministry's table for anyone who wants the BEV history alone (BEV share 0.07%
+in 2012, 1.6% in 2020).
 
 ## 5. Governance and validation
 
@@ -254,37 +254,37 @@ already hold the newest month):
   different vehicle kind, a month missing from the response.
 - **Sums:** every month's fuels must add up to THB's 總計 exactly.
 - **Unknown fuel categories** are queried too, counted as OTHERS and listed
-  (`::warning`); above 1 % of a month's Whole the run aborts.
+  (`::warning`); above 1% of a month's Whole the run aborts.
 - **Cross-check against the brand table** (Seq 118, compiled separately):
   each vehicle kind's monthly total must equal the fuel table's — beyond
-  max(3, 0.1 %) the run aborts. Result of the backfill: **272 of 272
+  max(3, 0.1%) the run aborts. Result of the backfill: **272 of 272
   variant-months identical** (2021-01 → 2026-08); for passenger cars, all 167
   months 2012-09 → 2026-08 are identical.
-- **Completeness:** a new month below 40 % of the trailing-12 median Whole
-  TOTAL is held back (Lunar New Year Februaries run at 54–74 % of it: 2026-02
-  had 19,676, 65 %).
+- **Completeness:** a new month below 40% of the trailing-12 median Whole
+  TOTAL is held back (Lunar New Year Februaries run at 54–74% of it: 2026-02
+  had 19,676, 65%).
 
 Independent check (press, same register): full-year 2025 BEV registrations
-32,358 here vs 32,558 in the Taiwanese motoring press (TVBS, −0.6 %);
-December 2025 7,166 vs 7,186 (−0.3 %). The press's "nearly 8 %" BEV share of
+32,358 here vs 32,558 in the Taiwanese motoring press (TVBS, −0.6%);
+December 2025 7,166 vs 7,186 (−0.3%). The press's "nearly 8%" BEV share of
 2025 is BEV over passenger cars **plus** light goods vehicles (32,358 /
-402,742 = 8.0 %); over passenger cars alone it is 8.9 %.
+402,742 = 8.0%); over passenger cars alone it is 8.9%.
 
 ## 6. Reading the fit
 
-Taiwan's BEV share of new passenger cars went from 1.8 % (2021) to 4.4 %
-(2022), 5.9 % (2023), 9.3 % (2024), 8.9 % (2025) and 10.4 % in January–August
-2026 (August 12.6 %). Hybrids are the bigger movement — 15.6 % in 2021, 41.5 %
+Taiwan's BEV share of new passenger cars went from 1.8% (2021) to 4.4%
+(2022), 5.9% (2023), 9.3% (2024), 8.9% (2025) and 10.4% in January–August
+2026 (August 12.6%). Hybrids are the bigger movement — 15.6% in 2021, 41.5%
 in 2026 — and count as ICE in the curves, so the combustion share in the
 charts falls far slower than "petrol" does. BEVs have long been exempt from
 commodity tax (貨物稅) and from the vehicle license tax (使用牌照稅); both
 exemptions have been extended several times rather than phased out, and
-hybrids pay half the commodity tax. Tesla, about 60 % of BEVs, delivers in
-quarter-end waves (June 2026 15.6 %, July 4.7 %), so single months are lumpy.
+hybrids pay half the commodity tax. Tesla, about 60% of BEVs, delivers in
+quarter-end waves (June 2026 15.6%, July 4.7%), so single months are lumpy.
 
-Buses are a real transition (15.6 % electric in 2021, 59.6 % in 2026 —
+Buses are a real transition (15.6% electric in 2021, 59.6% in 2026 —
 the government's city-bus electrification programme), but a small, lumpy
-series (100–200 a month, fleet batches). Vans and HDV are below 1 % BEV:
+series (100–200 a month, fleet batches). Vans and HDV are below 1% BEV:
 *No transition* by the gallery's rule.
 
 ## 7. Outputs
@@ -328,9 +328,9 @@ sequenceDiagram
     else no
         Py->>MOTC: DisplayPublishDate.json; Display?Seq=118
         Py->>MOTC: Display.json Seq 104, one query per vehicle kind (24 months)
-        Py->>Py: labels = page labels? fuels sum to 總計? unknown fuels ≤ 1 %?
+        Py->>Py: labels = page labels? fuels sum to 總計? unknown fuels ≤ 1%?
         Py->>MOTC: Display.json Seq 118 (brand totals; all brands for Whole)
-        Py->>Py: brand-table totals = fuel-table totals? completeness ≥ 40 %?
+        Py->>Py: brand-table totals = fuel-table totals? completeness ≥ 40%?
         Py->>CSV: line-level upserts (changed lines only)
         Py->>Top: trailing-12-month brand ranking (class ALL)
         Py-->>Cron: run report → step summary
@@ -368,8 +368,8 @@ sequenceDiagram
 ## 9. Not built (yet)
 
 - **Motorcycles (`2-Wheelers`)** are in the same table (機車, ≈ 700,000 a year):
-  electric scooters peaked at 18.7 % in 2019 (Gogoro, subsidies) and fell to
-  about 6 %; a 2026 recoding puts 18 % of new motorcycles under a hybrid code.
+  electric scooters peaked at 18.7% in 2019 (Gogoro, subsidies) and fell to
+  about 6%; a 2026 recoding puts 18% of new motorcycles under a hybrid code.
   A subsidy-driven, non-monotonic curve with a fresh coding change — left out
   until the coding settles.
 - **Private / Rental slices** of Whole are in the table (自用 / 營業 / 租賃 /

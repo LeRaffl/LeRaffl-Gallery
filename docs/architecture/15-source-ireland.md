@@ -180,7 +180,7 @@ road tractors). Both are defensible; the difference is documented here and in
 
 All four are backfilled to 2010-01 (Vans/HDV 196 months, Buses 183 — early
 months with zero bus registrations are skipped). Commercials are diesel-dominated
-with electrification just starting (HDV BEV ≈ 1–2 % recently), so their fits are
+with electrification just starting (HDV BEV ≈ 1–2% recently), so their fits are
 deliberately noisy — that volatility is itself the signal.
 
 ## 6. Backfill & the FLEXFUEL completeness gotcha

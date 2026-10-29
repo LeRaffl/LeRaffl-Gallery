@@ -89,7 +89,7 @@ number, and complete by construction (BYD and every Chinese import are in
 it). The records carry no fuel field, so the powertrain is classified from
 the model designation, which in Argentina spells it out for almost every
 electrified car; the classifier is validated against ACARA's published
-electrified totals (BEV exact, HEV/PHEV within 0.4 % for H1 2026). That
+electrified totals (BEV exact, HEV/PHEV within 0.4% for H1 2026). That
 also answers the "what would change the decision" line below: the free,
 machine-readable DNRPA endpoint existed — it had not been looked for.
 
@@ -97,7 +97,7 @@ The previous shelving rationale, kept for the record:
 
 - **Best data:** ACARA / SIOMMA "Informe de Electromovilidad". It's
   **registry-based** (patentamientos via DNRPA), so it's *complete* — BYD and
-  other Chinese imports are included (BYD Dolphin Mini + Yuan Pro were ~74 % of
+  other Chinese imports are included (BYD Dolphin Mini + Yuan Pro were ~74% of
   BEVs in Q1 2026). Granularity is the best in the region: BEV / PHEV / HEV /
   **MHEV** broken out separately.
 - **Why it's shelved:** the reports are **not freely downloadable**. They are
@@ -122,7 +122,7 @@ electrified import split only in press prose. The customs administration
 the HS 2017 tariff line (which names the powertrain) and the declared state
 new/used — complete by construction (every importer, CADAM member or not).
 Paraguay builds no cars, so imports are its market; the series matches
-CADAM's yearly electrified imports 2021–2025 within 2–6 %. Caveat kept on
+CADAM's yearly electrified imports 2021–2025 within 2–6%. Caveat kept on
 the chart: imports, not registrations.
 **What would change it:** the DNRA statistics portal becoming reachable with
 a monthly first-registration series by fuel — then the registry should
@@ -137,18 +137,18 @@ PDF bulletin (fuel split for all segments only, with that table only since
 SRI publishes that register as free record-level open data, one CSV per year
 since 2017: every invoiced new vehicle with brand, catalogue description,
 class and fuel. Counted once per vehicle it reproduces AEADE's annual market
-within 0.2 % (2019–2024) and its monthly figures within about 1 %, complete by
+within 0.2% (2019–2024) and its monthly figures within about 1%, complete by
 construction (every brand). SRI has a single hybrid code, so the plug-ins
 are split off by a published rule table on the model (as for Argentina);
-2025 matches ZEMO's plug-in count within 0.3 % and AEADE's yearbook within
-5 %. Full and mild hybrids stay one figure (`HEV`).
+2025 matches ZEMO's plug-in count within 0.3% and AEADE's yearbook within
+5%. Full and mild hybrids stay one figure (`HEV`).
 **What would change it:** SRI adding a plug-in flag — then the rule table
 could be retired.
 
 ### 🇨🇷 Costa Rica — a strong curve, but no published series (checked 2026-10)
 
 Costa Rica is one of Latin America's fastest EV markets — the press reports
-battery-electric cars at about 20 % of new cars in the first half of 2026,
+battery-electric cars at about 20% of new cars in the first half of 2026,
 quoting Registro Nacional (the property registry, where every vehicle is
 inscribed) through the environment ministry MINAE. But nothing structured is
 published: the Registro Nacional's statistics compendium has yearly EV plate
@@ -175,7 +175,7 @@ public dashboard whose query API can be read, as for Peru).
   so it is absent from both the EV count *and* the total.
   - Cross-check: INEGI RAIAVL EV+PHEV ≈ **30,000** (Jan–Oct 2025) vs. the EV-
     focused EMA barometer's ≈ **96,636** (full-year 2025) and Bloomberg's
-    ~100,000 *Chinese* EV+PHEV imports (BYD >80 %). The official series is ~⅓
+    ~100,000 *Chinese* EV+PHEV imports (BYD >80%). The official series is ~⅓
     of reality on the EV segment.
   - Because BYD is missing from numerator *and* denominator, and BYD is a large
     share of BEVs but a small share of the total market, the resulting **BEV
@@ -240,8 +240,8 @@ No sub-Saharan African country is on the gallery yet, and the reasons are
 structural, not incidental. Three features recur across the region and each
 one collides with a different gallery assumption:
 
-- **Used-import dominance.** Most African car markets are 70–90 % *used*
-  imports (Ethiopia ~85 %, ~90 % of those Toyotas). The gallery models the
+- **Used-import dominance.** Most African car markets are 70–90% *used*
+  imports (Ethiopia ~85%, ~90% of those Toyotas). The gallery models the
   **flow of new registrations** as an organic S-curve; a market whose flow
   is second-hand imports is a *different population* (only the Netherlands
   `Used` variant touches this) and its BEV share moves for import-policy
@@ -264,24 +264,24 @@ old no-login rule, so worth a second look now that Thailand and Indonesia set
 the free-account precedent). Kenya, Nigeria and Egypt have manufacturer/importer associations but
 no freely machine-readable fuel-split series.
 
-### 🇪🇹 Ethiopia — a 100 % EV import *mandate*, but the signal is a policy step over a used-import market, not an adoption curve
+### 🇪🇹 Ethiopia — a 100% EV import *mandate*, but the signal is a policy step over a used-import market, not an adoption curve
 
 Ethiopia is the one African market people ask about, because in January 2024
 it became the first country in the world to **ban the import of
 internal-combustion passenger vehicles** (extended in 2025 to SKD/CKD kits
-and, in stages, to commercial vehicles). "Ethiopia is going 100 % electric"
+and, in stages, to commercial vehicles). "Ethiopia is going 100% electric"
 is the headline. It still fails the gallery's bar, for four compounding
 reasons:
 
 - **The market is used imports, so "new registrations" is the wrong lens.**
-  ~85 % of vehicle imports are second-hand, ~90 % of those Toyotas; genuine
-  new-car sales are a rounding error (excise up to 100 % on >1,800 cc under
-  Proclamation 1287/2023, plus 15 % VAT and surcharges push a new car's
+  ~85% of vehicle imports are second-hand, ~90% of those Toyotas; genuine
+  new-car sales are a rounding error (excise up to 100% on >1,800 cc under
+  Proclamation 1287/2023, plus 15% VAT and surcharges push a new car's
   landed cost past 5× its import value). The meaningful quantity for Ethiopia
   is the BEV share of *all vehicle imports* (new **and** used together) — a
   different population from every other country in the gallery.
 - **It's a policy step, not an organic transition.** The import ban forces
-  the BEV share of incoming vehicles toward 100 % by decree, independent of
+  the BEV share of incoming vehicles toward 100% by decree, independent of
   demand. The Weibull/logistic model describes *organic* S-curves; a
   mandated step-change either fits degenerately or breaks (the mirror image
   of the Japan/Croatia "no transition" breakdown).
@@ -352,11 +352,11 @@ Council). Australia stays on the gallery; only the automation fails.
 - **FCAI media release** (`fcai.com.au`, one WordPress post a month, readable
   through the site's public REST API `/wp-json/wp/v2/posts?categories=8`,
   no key). The text gives the market total, the battery-electric share "from
-  all sources" (September 2026: 24.2 %) and growth rates for PHEV, HEV,
+  all sources" (September 2026: 24.2%) and growth rates for PHEV, HEV,
   petrol and diesel — **percentages, no counts**. The tables in the post are
   **images** (sales by class, top-10 brands, top-10 models, sales by state);
   none of them is a fuel-type table, in any of the 2024–2026 releases.
-  Reconstructing counts from "PHEV +122.7 % on a year earlier" chains
+  Reconstructing counts from "PHEV +122.7% on a year earlier" chains
   rounding errors month after month and is not a source.
 - **VFACTS itself** (counts by powertrain, brand, model) is the FCAI's paid
   report. Fails (c).
@@ -378,7 +378,7 @@ because the two big non-members publish their own monthly figures (VinFast's
 delivery release, TC Group's Hyundai table) and VAMA estimates the remaining
 imports: the three together are exactly the national total the press quotes
 every month. The price: the series counts **sales, not registrations** (VinFast
-counts deliveries, which run ahead of registrations), and VAMA's ~10 % of
+counts deliveries, which run ahead of registrations), and VAMA's ~10% of
 non-member imports carries no fuel split (OTHERS). Built as
 [64-source-vietnam.md](64-source-vietnam.md); the police figures are kept by hand
 as a cross-check (`checks/vietnam_reference.csv`).

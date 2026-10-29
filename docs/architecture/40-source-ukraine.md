@@ -36,7 +36,7 @@ scope_note: First registrations only (new or used-import), by the MIA's own oper
 caveats:
 - The register has one combined hybrid fuel value — plug-in, full and mild hybrids cannot be told apart, so there is no PHEV curve and plug-ins sit inside ICE.
 - New vs used comes from the register's operation codes. Code 105 ("new vehicle from a dealer, imported") only exists from August 2018; before that new and used dealer sales shared one code, so the series starts 2018-09.
-- Registrations, not sales. The carmakers' association Ukrautoprom (dealer sales) reports ~3–5 % more new cars; BEV counts agree within ~1 % (see the developer doc).
+- Registrations, not sales. The carmakers' association Ukrautoprom (dealer sales) reports ~3–5% more new cars; BEV counts agree within ~1% (see the developer doc).
 - EV imports were VAT-exempt until 31 Dec 2025. December 2025 shows a pull-forward spike and 2026 a sharp drop in both new and used BEV registrations — a policy step, not noise.
 - Used is a different population from new registrations (used imports, dominated by customs policy); read it next to Whole, not as part of it.
 processing:
@@ -104,7 +104,7 @@ processing:
       then: OTHERS
     - when: any other value
       then: OTHERS
-      note: above 2 % of a month's Whole the run stops
+      note: above 2% of a month's Whole the run stops
 market_breakdown: market/ukraine_top.json
 market_class_names:
   HEV: Hybrid
@@ -202,8 +202,8 @@ vehicles, and it is listed every month in the run report instead.
 
 **Why the series starts 2018-09.** Code 105 appeared in August 2018 (660
 records, then ~6,000 a month). Before that, code 100 covered *all* dealer
-first registrations: in 2013–2018-08, 82 % of its passenger cars were at most
-one model year old and 12 % were four or more years old — new and used
+first registrations: in 2013–2018-08, 82% of its passenger cars were at most
+one model year old and 12% were four or more years old — new and used
 mixed. Splitting them by model year would be our heuristic, not the source's
 definition, so we don't (invariant 3 spirit: no invented history).
 
@@ -219,7 +219,7 @@ CSV columns: `BEV, HEV, PETROL, DIESEL, OTHERS, TOTAL`; `source` =
 | `ЕЛЕКТРО АБО БЕНЗИН`, `ЕЛЕКТРО АБО ДИЗЕЛЬНЕ ПАЛИВО`, `БЕНЗИН, ГАЗ АБО ЕЛЕКТРО`, `ГАЗ ТА ЕЛЕКТРО` | HEV — **combined Hybrid** | the register has no plug-in flag; a RAV4 Hybrid, a Volvo XC90 T8 and a 48 V Audi Q8 TDI all carry "electric or …" |
 | `БЕНЗИН` | PETROL | |
 | `ДИЗЕЛЬНЕ ПАЛИВО` | DIESEL | |
-| `БЕНЗИН АБО ГАЗ`, `ГАЗ`, `ДИЗЕЛЬНЕ ПАЛИВО АБО ГАЗ`, `ВОДЕНЬ`, blank, `НЕ ВИЗНАЧЕНО` | OTHERS | LPG/CNG bi-fuel, hydrogen, unknown (Whole 2018-09 → 2026-08: 11,660 of 601,704 = 1.9 %) |
+| `БЕНЗИН АБО ГАЗ`, `ГАЗ`, `ДИЗЕЛЬНЕ ПАЛИВО АБО ГАЗ`, `ВОДЕНЬ`, blank, `НЕ ВИЗНАЧЕНО` | OTHERS | LPG/CNG bi-fuel, hydrogen, unknown (Whole 2018-09 → 2026-08: 11,660 of 601,704 = 1.9%) |
 
 This is the **Türkiye / Georgia / Colombia combined-hybrid convention**
 ([09](09-glossary.md) "Hybrid"): the HEV column holds every hybrid, there is no
@@ -255,11 +255,11 @@ For scale: IAR's August-2026 EV market of 9,074 BEVs = 504 new (our Whole) +
 | Check | On failure |
 |---|---|
 | Required columns resolve (both header layouts: 2013–2025 `OPER_CODE`+`OPER_NAME`; 2026 merged op column, `POWER_KWT` added, `N_REG_NEW` dropped) | abort, nothing written |
-| Every yearly file in range yields records; > 0.1 % unparsable date/op | abort |
+| Every yearly file in range yields records; > 0.1% unparsable date/op | abort |
 | Target month covered: the extract's cut day (from the member name, e.g. `reestrtz31.08.2026` — **exclusive**, the file ends on 30 Aug) must be within 3 days of the month end | "not published yet", retry next slot |
 | A month whose newest record is before its last day | row written with a factual note in `notes` ("MIA extract has no records after …"); listed in the step summary |
-| Target Whole ≥ 40 % of the trailing-12 median | not written (`--force` overrides) |
-| Unknown `FUEL` strings ≤ 2 % of Whole (else schema drift) | abort; below that → OTHERS + listed in the report |
+| Target Whole ≥ 40% of the trailing-12 median | not written (`--force` overrides) |
+| Unknown `FUEL` strings ≤ 2% of Whole (else schema drift) | abort; below that → OTHERS + listed in the report |
 | Private + Industry + blank-PERSON = Whole; fuels sum to TOTAL, every month | abort |
 | First-registration-like op codes outside the two sets | listed in the step summary every run |
 | Fetcher + `market_top` regression tests (`test_fetch_ukraine.py`) | the workflow stops before fetching |
@@ -283,14 +283,14 @@ from the same register. July 2026 (their release of 2026-08-05 / -08-11):
 
 | | Ukrautoprom | this pipeline | Δ |
 |---|---:|---:|---:|
-| New passenger cars | 5,754 | 5,488 | −4.6 % |
-| New BEV passenger cars | 423 | 421 | −0.5 % |
-| Used-import BEV passenger cars | 3,333 | 3,361 | +0.8 % |
-| Jan–Jul 2026 new cars | ~38,800 | 37,677 | −2.9 % |
-| Toyota / BMW / Hyundai / Mazda / Suzuki / Audi | 986 / 308 / 298 / 259 / 194 / 156 | 958 / 309 / 293 / 259 / 193 / 160 | ≤ 3 % |
-| Skoda | 693 | 584 | −16 % |
+| New passenger cars | 5,754 | 5,488 | −4.6% |
+| New BEV passenger cars | 423 | 421 | −0.5% |
+| Used-import BEV passenger cars | 3,333 | 3,361 | +0.8% |
+| Jan–Jul 2026 new cars | ~38,800 | 37,677 | −2.9% |
+| Toyota / BMW / Hyundai / Mazda / Suzuki / Audi | 986 / 308 / 298 / 259 / 194 / 156 | 958 / 309 / 293 / 259 / 193 / 160 | ≤ 3% |
+| Skoda | 693 | 584 | −16% |
 
-BEV — the headline — agrees within 1 %. The total gap sits almost entirely in
+BEV — the headline — agrees within 1%. The total gap sits almost entirely in
 Skoda (assembled in Ukraine by Eurocar, sold partly to state and fleet buyers
 whose cars reach the register through other procedures or later); no other
 first-registration code carries the missing units. We keep the register's
@@ -299,10 +299,10 @@ definition — first registrations — and note the gap rather than patch it.
 ## 6a. Reading the fit (first render, 2026-09-24)
 
 The new-car BEV share is not a smooth adoption curve yet: it climbs from
-0.5 % (2019) to ~15 % (2024), then **spikes** in H2 2025 — 52 % in
+0.5% (2019) to ~15% (2024), then **spikes** in H2 2025 — 52% in
 December 2025 — as buyers pulled purchases ahead of the end of the EV-import
-VAT exemption, and **collapses** to 3–10 % in 2026. The generalized Weibull
-fit (20→80 % in ~7 years at first render) is pulled up by that spike and
+VAT exemption, and **collapses** to 3–10% in 2026. The generalized Weibull
+fit (20→80% in ~7 years at first render) is pulled up by that spike and
 sits well above the 2026 points; expect it to flatten as post-exemption
 months accumulate. Same caveat, same reason, as Argentina's quota-driven
 early fit ([39](39-source-argentina.md)). The `Used` series (used imports)

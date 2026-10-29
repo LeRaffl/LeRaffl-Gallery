@@ -33,7 +33,7 @@ hev_note: TD's fuel field (Electric / Petrol / Diesel / LPG) has no hybrid value
 backfill: record-level files from 2019-11; TD's aggregate table reaches back to 2016-05 but with a different new/used definition before 2019, so it is not spliced on
 scope_note: First registrations in Hong Kong only (new, or used imports), by TD's own first-registration status; taxis (their own vehicle class), own-use imports (status D) and government auctions (F) are in no variant.
 caveats:
-- The fuel field has no hybrid value. Plug-in hybrids are recovered from the model designation (few — about 1 % of new cars in 2025–26); full and mild hybrids cannot be told apart and are counted as petrol.
+- The fuel field has no hybrid value. Plug-in hybrids are recovered from the model designation (few — about 1% of new cars in 2025–26); full and mild hybrids cannot be told apart and are counted as petrol.
 - The EV first-registration-tax concession was cut for applications from 1 April 2024 and ended for applications from 1 April 2026. Registrations spike in the months before each date and the BEV share steps down after it — a policy effect, not noise.
 - Private cars only; taxis (about 100 a month, mostly LPG hybrids and now BEVs) are a separate vehicle class and not in Whole.
 - The record files match TD's own table 4.1(e) exactly for every month compared, except one used-import car in June 2020.
@@ -97,10 +97,10 @@ processing:
           note: as registered — full and mild hybrids included
     - when: LPG, hydrogen, or a value TD has not used before
       then: OTHERS
-      note: an unknown value above 2 % of a month's Whole stops the run
+      note: an unknown value above 2% of a month's Whole stops the run
 - title: Check against TD's own table
   text:
-  - TD's Monthly Traffic and Transport Digest (table 4.1(e)) counts first-registered private cars by status and fuel. Every run compares the records with it, month by month and status by status; a difference beyond 2 cars and 0.5 % stops the run.
+  - TD's Monthly Traffic and Transport Digest (table 4.1(e)) counts first-registered private cars by status and fuel. Every run compares the records with it, month by month and status by status; a difference beyond 2 cars and 0.5% stops the run.
 market_breakdown: market/hong_kong_top.json
 market_class_labels:
   PETROL: Petrol, hybrids included (TD's fuel value; the CSV has no hybrid column)
@@ -169,7 +169,7 @@ dataset has no fuel split; Mexico's official series omits BYD (see
 and Egypt publish no free fuel split (Vietnam was built later from three
 publishers' figures — [64](64-source-vietnam.md)). Hong Kong is small (~45,000 new cars a
 year) but has one of the cleanest registration datasets anywhere and one of
-the highest BEV shares (86 % of new private cars in 2025).
+the highest BEV shares (86% of new private cars in 2025).
 
 ## 2. Record → CSV row
 
@@ -218,7 +218,7 @@ the new statuses but without models, so no plug-in split — also left out.
 |---|---|
 | `Electric` | BEV — TD's own value, never reclassified |
 | `Petrol`, `Diesel` | PHEV / EREV if a plug-in rule matches, else PETROL / DIESEL |
-| `LPG`, `Hydrogen`, anything else | OTHERS (unknown strings listed in the report; > 2 % of Whole aborts) |
+| `LPG`, `Hydrogen`, anything else | OTHERS (unknown strings listed in the report; > 2% of Whole aborts) |
 
 The fuel field follows Cap. 311L (Air Pollution Control (Motor Vehicle Fuel)
 Regulation) and has **no hybrid value**: a plug-in hybrid is "Petrol". Full
@@ -254,8 +254,8 @@ Deliberately **not** plug-ins (pinned in the tests): Maserati `… HYBRID`
 `E:HEV` (full hybrids without a plug), Range Rover `P400` (mild), Volvo `T6`
 before Recharge, Lamborghini `URUS S`.
 
-**Scale.** New private cars 2019-11 → 2026-07: 930 PHEV + 8 EREV — 0.06 %
-in 2022, 0.7 % in 2025, 1.2 % in Jan–Jul 2026 (mostly GAC E9, BYD Sealion 6,
+**Scale.** New private cars 2019-11 → 2026-07: 930 PHEV + 8 EREV — 0.06%
+in 2022, 0.7% in 2025, 1.2% in Jan–Jul 2026 (mostly GAC E9, BYD Sealion 6,
 Denza B5). The first-registration tax treats plug-ins as petrol cars, so
 they never took off in Hong Kong; a mistake in one rule moves a handful of
 cars, not the curve.
@@ -270,9 +270,9 @@ those brands shows up there the month it arrives.
 
 | Variant | Rule | EU anchor | 2025 |
 |---|---|---|---|
-| `Whole` | `Private Car` ∧ status A/B/C1 | M1 | 43,335 (BEV 86.3 %) |
-| `Used` | `Private Car` ∧ status C2 | M1, **used imports** (like Netherlands/Spain/Ukraine `Used`) | 7,608 (BEV 0.5 %) |
-| `Vans` | `LGV` ∧ gross weight ≤ 3.5 t ∧ status A/B/C1/E | N1 | 1,236 (BEV 35.2 %) |
+| `Whole` | `Private Car` ∧ status A/B/C1 | M1 | 43,335 (BEV 86.3%) |
+| `Used` | `Private Car` ∧ status C2 | M1, **used imports** (like Netherlands/Spain/Ukraine `Used`) | 7,608 (BEV 0.5%) |
+| `Vans` | `LGV` ∧ gross weight ≤ 3.5 t ∧ status A/B/C1/E | N1 | 1,236 (BEV 35.2%) |
 
 **Not produced:** taxis (class `Taxi`, M1 but not "private car"; ~1,000 a
 year), buses and goods vehicles > 3.5 t (TD's LGV class runs to 5.5 t; MGV,
@@ -286,12 +286,12 @@ dataset at all.
 | Check | On failure |
 |---|---|
 | Required columns resolve (all three header layouts, §2) | abort, nothing written |
-| > 0.1 % of a file's rows short or without a vehicle class | abort |
+| > 0.1% of a file's rows short or without a vehicle class | abort |
 | A month file with zero records | abort (broken upload) |
-| Target Whole ≥ 25 % of the trailing-12 median (loose on purpose: after the April 2026 deadline June ran at 49 %) | not written (`--force` overrides); 25–50 % → written with a `::warning::` |
-| Unknown fuel strings ≤ 2 % of Whole | abort above; below → OTHERS, listed |
+| Target Whole ≥ 25% of the trailing-12 median (loose on purpose: after the April 2026 deadline June ran at 49%) | not written (`--force` overrides); 25–50% → written with a `::warning::` |
+| Unknown fuel strings ≤ 2% of Whole | abort above; below → OTHERS, listed |
 | Unknown vehicle classes / statuses | listed in the step summary |
-| **Cross-check vs TD table 4.1(e)** — private cars by status A/B/C1/C2 and electric, every month the table has | ≤ 2 units or 0.5 % → reported; more → abort (`--force` overrides) |
+| **Cross-check vs TD table 4.1(e)** — private cars by status A/B/C1/C2 and electric, every month the table has | ≤ 2 units or 0.5% → reported; more → abort (`--force` overrides) |
 | Fuels sum to TOTAL, every row | abort |
 | Months missing on the portal between the first and the newest | `::warning::` annotation |
 | Fetcher + `market_top` regression tests (`test_fetch_hong_kong.py`) | the workflow stops before fetching |
@@ -311,9 +311,9 @@ times). That is the tolerance the cross-check allows.
 
 **Plausibility.** New private cars 2025: 43,335 (TD's gross new
 registrations of private cars, table 4.1(c), count used imports too:
-≈ 51,000). BEV share of new private cars: 16 % (2020) → 60 % (2022) → 86 %
+≈ 51,000). BEV share of new private cars: 16% (2020) → 60% (2022) → 86%
 (2025). Counting used imports too (Whole + Used, close to the scope of TD's own
-headline figure) the 2024 BEV share is 71 %.
+headline figure) the 2024 BEV share is 71%.
 
 ## 6a. Reading the fit
 
@@ -321,17 +321,17 @@ Two policy steps dominate the recent months:
 
 - **April 2024** — the EV first-registration-tax concession was cut (to
   HK$58,500; HK$172,500 under "One-for-One Replacement"; none above HK$500,000
-  pre-tax value). March–April 2024: ~5,700 new cars a month, BEV 90 %;
-  May–July: ~2,300 a month, BEV ~70 %.
+  pre-tax value). March–April 2024: ~5,700 new cars a month, BEV 90%;
+  May–July: ~2,300 a month, BEV ~70%.
 - **April 2026** — the concession ended for applications from 1 April 2026
   (orders placed by 25 February 2026 keep it if registered by 24 February
-  2027). March–April 2026: ~9,000 a month, BEV 95 %; June 2026: 1,910, BEV 73 %.
+  2027). March–April 2026: ~9,000 a month, BEV 95%; June 2026: 1,910, BEV 73%.
 
 Expect the fit to be pulled up by the pre-deadline months and the post-2026
 points to sit below it until the market settles; as with Ukraine's VAT
 deadline ([40](40-source-ukraine.md)) this is policy, not noise. `Used`
 (Japanese-market Toyota/Honda MPVs) has almost no BEVs and no trend; `Vans`
-is small but shows a real transition (BEV 1 % in 2022 → 46 % in 2026).
+is small but shows a real transition (BEV 1% in 2022 → 46% in 2026).
 
 ## 7. Outputs
 
@@ -398,7 +398,7 @@ sequenceDiagram
 | `schema drift: columns [...] not in header [...]` | TD renamed a column | map the new name in `FIELDS` / `norm_header()`; add the header to the tests |
 | `N of M rows are short or have no vehicle class` | a malformed or truncated upload | re-run later; if TD fixed nothing, report the file to TD (tdenq@td.gov.hk) |
 | `Cross-check against TD table 4.1(e) failed` | records and TD's table disagree beyond 2 units | compare the named months by hand (both URLs are in the front-matter). A re-uploaded record file → re-run with `backfill`; a table revision the records don't have yet → wait a run; a genuine definition change → document it here, then `force` |
-| `unknown fuel strings … schema drift` | a new fuel value (> 2 % of Whole) | map it in `FUEL_MAP` with a test |
+| `unknown fuel strings … schema drift` | a new fuel value (> 2% of Whole) | map it in `FUEL_MAP` with a test |
 | `is not published on the portal yet` | normal between the 1st and the upload day | nothing |
 | `below 25% of the trailing median` (not written) or the `unusually low` warning (written) | a partial upload — or a real collapse (a tax deadline just passed) | compare with TD's table 4.1(e) / press; if genuine and not written, re-run with `force` |
 | `months missing on the portal` warning | TD skipped or removed a month | the CSV keeps the old row; nothing is written for the gap |

@@ -29,7 +29,7 @@ caveats:
 - All vehicle types, not only passenger cars (EU M1) — trucks, vans and buses are in the total (the release does not state their share). Compare the level with M1-only countries with care.
 - Sales as reported by the makers' and importers' associations, not registry counts.
 - Imported hybrids include mild hybrids (KAIDA does not separate them before 2025 and MOTIR adds them together); domestic makers' mild hybrids are not in the hybrid figure.
-- 'Tesla is missing before 2024: KAIDA only counts Tesla from 2024 data on, so BEV and the total are too low up to 2023-12 (roughly 10 % of BEV in 2021–2023) — a step at 2024-01. BYD (from 2025) is included. See issue #257.'
+- 'Tesla is missing before 2024: KAIDA only counts Tesla from 2024 data on, so BEV and the total are too low up to 2023-12 (roughly 10% of BEV in 2021–2023) — a step at 2024-01. BYD (from 2025) is included. See issue #257.'
 - MOTIR revises the previous month in the following release; the series always holds the latest published figure.
 - '2017–2024 were entered by hand from the same releases and are not re-verified automatically; from 2025 every month is parsed and cross-checked (two transcription errors in the hand-entered rows were corrected: 2025-09 and 2026-04).'
 fetcher: scripts/fetch_south_korea.py
@@ -82,7 +82,7 @@ previous source-page stub said "no public source link yet".
 | Source | What it has | Why not (now) |
 |---|---|---|
 | KOTSA «자동차종합정보 신규등록정보» API on data.go.kr (dataset 15059401) | Registrations 2015 →, monthly; filters: vehicle type (1 = 승용 passenger car), fuel, model code (차명코드), region, use, owner sex/age, displacement, domestic/import | Returns **one count per query** (no group-by). Fuel codes have **no plug-in value** (only 하이브리드(휘발유+전기) / (CNG+전기)). Needs a data.go.kr service key (account; whether a foreigner can register without Korean identity verification is unconfirmed). The model-code table has 63,939 trim-level codes without a brand column, so brand/model tables would need thousands of calls a month. Best candidate for a future **passenger-car (M1) registration series** — see §7. |
-| KAIDA import statistics | Imports by brand × model × fuel | Behind a data-membership login; imports only (~20 % of the market). |
+| KAIDA import statistics | Imports by brand × model × fuel | Behind a data-membership login; imports only (~20% of the market). |
 | KAMA | Domestic makers | No machine-readable powertrain table found. |
 | MOLIT registration statistics (stat.molit.go.kr) | Registered **stock** by fuel | Stock, not new registrations. |
 
@@ -133,7 +133,7 @@ Line-level upserts; a row whose numbers are unchanged is left byte-for-byte
   2024 the imports close: 2026-08 MOTIR imports 31,039 vs KAIDA passenger
   imports 29,817 incl. Tesla 10,400 and BYD 3,002. So **BEV and TOTAL are
   too low up to 2023-12** by Tesla's volume (≈ 12–18k a year 2020–2023, i.e.
-  ~10 % of BEV in 2021–2023, more in 2020) and the BEV share steps up at
+  ~10% of BEV in 2021–2023, more in 2020) and the BEV share steps up at
   2024-01. Left as published (invariant 3); backfill decision: issue #257.
 - **Hybrids**: KAIDA's hybrid count for imports includes **mild hybrids**
   (MOTIR footnote «수입차는 MHEV 포함»); domestic makers' mild hybrids are not
@@ -150,7 +150,7 @@ Line-level upserts; a row whose numbers are unchanged is left byte-for-byte
 | 하이브리드 + 전기차 + 플러그인 + 수소차 = 친환경차 내수 (± 2) | abort |
 | 내수 판매량 (표 3) = 내 수 (참고 1) when both are present | abort |
 | ICE ≥ 0 | abort |
-| Newest month ≥ 25 % of the trailing-12 median TOTAL | not written (`force` overrides) |
+| Newest month ≥ 25% of the trailing-12 median TOTAL | not written (`force` overrides) |
 | Changes against the CSV and year-earlier differences | listed in the step summary |
 | Parser regression tests (`test_fetch_south_korea.py`) | workflow stops before fetching |
 
@@ -173,8 +173,8 @@ quarterly ones) were parsed and compared with `data/South Korea.csv`:
 
 Releases before 2025 hold the eco table as a graphic or in a different
 layout (pdfplumber finds no text row); those months stay as entered.
-Annual totals 2017–2025: 1.63–1.89 M vehicles, BEV 0.8 % (2017) → 12.9 %
-(2025) → 24.4 % (Jan–Aug 2026).
+Annual totals 2017–2025: 1.63–1.89 M vehicles, BEV 0.8% (2017) → 12.9%
+(2025) → 24.4% (Jan–Aug 2026).
 
 ## 6. Operations and debugging
 
