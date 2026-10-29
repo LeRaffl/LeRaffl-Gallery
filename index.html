@@ -7246,7 +7246,18 @@ const SEARCH_ALIASES = {
   'South Korea':'korea',
   'Netherlands':'holland'
 };
-function applyFilters(all, tagOverride){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const inRegion=rankRegionMatcher(regionGal?regionGal.value:''); const period=periodSelect.value; const tagF=tagOverride||getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!inRegion(it.country)) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
+/* Manifest filenames occasionally split the variant suffix wrongly, which
+   leaves series under names like "Hong (Kong Used)" or "India-Wheelers" (for
+   "Hong Kong (Used)" / "India (2-Wheelers)"). The region filter reads the
+   country through this so those cards stay with Hong Kong and India; the
+   card titles and the Country picker keep the manifest spelling. */
+function galleryRegionName(country){
+  const c = String(country || '');
+  if (/^Hong \(Kong\b/.test(c)) return 'Hong Kong';
+  if (/^India-\w*Wheelers?$/i.test(c)) return 'India';
+  return c;
+}
+function applyFilters(all, tagOverride){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const inRegion=rankRegionMatcher(regionGal?regionGal.value:''); const period=periodSelect.value; const tagF=tagOverride||getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!inRegion(galleryRegionName(it.country))) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
 // Tag filters — logic in assets/tag_system.js (tagFilterValue/Passes/Counts);
 // these two read the chip state and look up a chart's tags.
 function getActiveTagFilters(){
@@ -15567,7 +15578,7 @@ document.addEventListener('click', (e) => {
     if (!sel || !pick) return;
     // mirror the country options (filled after manifest load)
     const regionSel = $('regionGal');
-    const sync = () => { const inR = rankRegionMatcher(regionSel ? regionSel.value : ''); list.innerHTML = [...sel.options].filter(o => o.value && inR(o.value)).map(o => `<option value="${o.value.replace(/"/g,'&quot;')}">`).join(''); };
+    const sync = () => { const inR = rankRegionMatcher(regionSel ? regionSel.value : ''); list.innerHTML = [...sel.options].filter(o => o.value && inR(galleryRegionName(o.value))).map(o => `<option value="${o.value.replace(/"/g,'&quot;')}">`).join(''); };
     new MutationObserver(sync).observe(sel, { childList: true }); sync();
     const setCountry = v => { sel.value = v; sel.dispatchEvent(new Event('change')); pick.value = v; clr.hidden = !v; };
     const match = () => [...sel.options].find(o => o.value && o.value.toLowerCase() === pick.value.trim().toLowerCase());
@@ -15579,7 +15590,7 @@ document.addEventListener('click', (e) => {
     // lies outside the new region is dropped (it could only show 0 charts).
     if (regionSel) regionSel.addEventListener('change', () => {
       sync();
-      if (sel.value && !rankRegionMatcher(regionSel.value)(sel.value)) setCountry('');
+      if (sel.value && !rankRegionMatcher(regionSel.value)(galleryRegionName(sel.value))) setCountry('');
     });
     // Tag chips (always visible): live counts + applied-filters bar.
     // "More filters" (Month, Latest only): badge + Clear. Called by the
