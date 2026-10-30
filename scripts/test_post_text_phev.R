@@ -57,5 +57,11 @@ d4 <- mk(n, bev = seq(20, 200, length.out = n), hev = 30, phev = seq(10, 100, le
 ttm4 <- build_ttm_post_text(d4, "Belgium (HDV)", d4$period[n], bev_label = "BEV", has_phev_split = TRUE)
 ok(has(ttm4, "PHEV") && has(ttm4, "HEV"), "ttm: split source keeps PHEV and HEV bands")
 
+# --- one threshold for posts and TTM legend ------------------------------------
+ok(identical(HYBRID_MIN_SHARE, 0.0005), "HYBRID_MIN_SHARE is the 0.05% one-decimal floor")
+lit <- function(f) sum(grepl("0\\.0005|5e-4", sub("#.*$", "", readLines(f))))
+ok(lit("R/data.R") == 1, "R/data.R: the threshold is defined exactly once")
+ok(lit("R/post_text.R") == 0, "R/post_text.R: uses HYBRID_MIN_SHARE, no literal copy")
+
 if (fails > 0) { cat(fails, "failure(s)\n"); quit(status = 1) }
 cat("test_post_text_phev: all checks passed\n")
