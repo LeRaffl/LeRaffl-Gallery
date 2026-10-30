@@ -11,9 +11,9 @@ function statusTagFor(t80, now){
   if (!isFinite(t80)) return null;
   const d = now || new Date();
   const today = d.getUTCFullYear() + d.getUTCMonth() / 12;
-  if (t80 <= today)            return { v: 'past',    label: 'Past 80%' };
+  if (t80 <= today)            return { v: 'past',    label: 'Done' };
   if (t80 <= TAG_TARGET_YEAR)  return { v: 'ontrack', label: 'On track' };
-  return                              { v: 'late',    label: 'Late' };
+  return                              { v: 'late',    label: 'Behind' };
 }
 
 // ── Tag system v2 (#294) ────────────────────────────────────────────────
@@ -201,7 +201,7 @@ function tagFmtYearMonth(y){
 // group, so AND would always be empty); groups are AND-ed.
 const TAG_FILTER_GROUPS = [
   { cat: 'fit',    label: 'Fit',    values: [['reliable', 'Reliable'], ['unreliable', 'Volatile / unreliable'], ['notrans', 'No transition']] },
-  { cat: 'status', label: 'Status', values: [['past', 'Past 80%'], ['ontrack', 'On track'], ['late', 'Late']] },
+  { cat: 'status', label: 'Status', values: [['past', 'Done'], ['ontrack', 'On track'], ['late', 'Behind']] },
   { cat: 'speed',  label: 'Speed',  values: [['fast', 'Fast'], ['avg', 'Avg'], ['slow', 'Slow']] },
   { cat: 'timing', label: 'Start',  values: [['early', 'Early'], ['mid', 'Mid'], ['late_start', 'Late']] },
 ];

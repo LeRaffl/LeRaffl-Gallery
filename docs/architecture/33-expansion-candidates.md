@@ -140,7 +140,7 @@ Caveats:
   registrations. Registrations are what the gallery prefers anyway.
 - **Telangana structural break:** Telangana ran its own registration IT and
   only joined Vahan on **2026-03-15**. All-India Vahan series before that date
-  exclude Telangana (~3–4 % of the market); after it, the state flows in. Needs
+  exclude Telangana (~3–4% of the market); after it, the state flows in. Needs
   a footnote (footnotes.csv) and possibly a level-shift sanity check around
   Mar 2026. Lakshadweep is also absent (negligible).
 - **Category filter:** Vahan counts every vehicle class. `Whole` should filter
@@ -159,7 +159,7 @@ monthly market statistics with an unusually fine energy split — press relays
 (Medias24, EcoActu, Le Matin) consistently quote **BEV / PHEV / HEV / MHEV /
 REEV** unit counts plus petrol/diesel for passenger cars. Morocco's formal new
 market flows through AIVAM member importers, and the stats already count the
-21 Chinese brands (11.3 % share H1 2026), so the LatAm-style BYD hole does not
+21 Chinese brands (11.3% share H1 2026), so the LatAm-style BYD hole does not
 appear to exist here.
 
 - Mapping per existing conventions: REEV → PHEV (EREV convention, see
@@ -223,7 +223,7 @@ significant EV importer is outside it**).
   (store under the middle month).
 - No public petrol/diesel split of the ICE remainder → USA convention
   (ICE = TOTAL − BEV − PHEV − HEV in one bucket, OTHERS = 0).
-- Realistically this is a *slow* curve (BEV share ≈ 0.2 %), but it would be
+- Realistically this is a *slow* curve (BEV share ≈ 0.2%), but it would be
   the gallery's first African market and an honest early-stage data point.
 
 ---
@@ -236,7 +236,7 @@ significant EV importer is outside it**).
 > brand, model, kind, gross weight and owner type — on data.gov.ua (CKAN,
 > free, no key). New vs used comes from the register's own operation codes
 > (clean from 2018-09); hybrids are one combined bucket. Validated against
-> Ukrautoprom (BEV within 1 %). See [40-source-ukraine.md](40-source-ukraine.md).
+> Ukrautoprom (BEV within 1%). See [40-source-ukraine.md](40-source-ukraine.md).
 > The Serbia build below stayed deferred in the same session: its
 > importers' association publishes the fuel split only in irregular
 > quarter/half-year prose articles (Q1, H1, 9M), too thin for a monthly fit.
@@ -252,7 +252,7 @@ significant EV importer is outside it**).
 > weight — free, no key, from 2019-11. Whole / Used / Vans; BEV from the fuel
 > field, plug-ins from the model designation (the fuel field has no hybrid
 > value). Matches TD's own aggregate table exactly. Small market (~45,000 new
-> cars a year), very high BEV share (86 % in 2025). See
+> cars a year), very high BEV share (86% in 2025). See
 > [41-source-hong-kong.md](41-source-hong-kong.md).
 
 ## Built outside this list — 🇵🇪 Peru (2026-09)
@@ -265,7 +265,7 @@ significant EV importer is outside it**).
 > brand × model × class × body × powertrain for any month from 2019-01.
 > Whole (M1) and Vans (N1); BEV / PHEV / HEV (full + mild) from AAP's own
 > powertrain class; matches AAP's printed monthly report exactly for all 90
-> months. ≈ 190,000 new light vehicles a year, BEV 0.5 %, PHEV 0.8 % in 2026.
+> months. ≈ 190,000 new light vehicles a year, BEV 0.5%, PHEV 0.8% in 2026.
 > See [45-source-peru.md](45-source-peru.md). The same technique (a public
 > "publish to web" Power BI report) is worth trying wherever a registry or
 > association shows an interactive dashboard but no download.
@@ -279,8 +279,8 @@ significant EV importer is outside it**).
 > (powertrain) and the declared state new/used. Whole (new cars, NCM 87.03) from
 > 2017-01, Used (used-car imports) as a data-only CSV; **imports, not registrations** — as for
 > Nepal. Validated against CADAM's yearly electrified imports (2021–2025 within
-> 2–6 %) and OLACDE's EV fleet count. ≈ 30,000 new cars a year, electrified
-> share 13.4 % in 2025, 24 % in 2026 to September (BEV 2.4 % → 4.0 %). See
+> 2–6%) and OLACDE's EV fleet count. ≈ 30,000 new cars a year, electrified
+> share 13.4% in 2025, 24% in 2026 to September (BEV 2.4% → 4.0%). See
 > [47-source-paraguay.md](47-source-paraguay.md).
 
 ## Built outside this list — 🇪🇨 Ecuador (2026-10)
@@ -291,10 +291,10 @@ significant EV importer is outside it**).
 > official monthly sales statistics are built from. Whole (cars + SUVs) and
 > Vans (pickups + vans) from 2018-01, each vehicle counted once at its first
 > processing; powertrain from SRI's catalogue description; plug-ins split off
-> the hybrids by a published rule table (2025 within 0.3 % of ZEMO). Matches AEADE's annual market 2019–2024 within 0.2 %
-> and every monthly bulletin since 2024-05 within about 1 %. ≈ 80,000 new cars
-> and SUVs a year; BEV share 5.1 % in 2025, 11.5 % in January–August 2026
-> (August 18.9 %), hybrids another 27 %. See
+> the hybrids by a published rule table (2025 within 0.3% of ZEMO). Matches AEADE's annual market 2019–2024 within 0.2%
+> and every monthly bulletin since 2024-05 within about 1%. ≈ 80,000 new cars
+> and SUVs a year; BEV share 5.1% in 2025, 11.5% in January–August 2026
+> (August 18.9%), hybrids another 27%. See
 > [48-source-ecuador.md](48-source-ecuador.md).
 
 ## Built outside this list — 🇹🇼 Taiwan (2026-10)
@@ -308,8 +308,8 @@ significant EV importer is outside it**).
 > categories. Whole (小客車) / Vans / HDV / Buses from 2021-01 (THB's old
 > plug-in code still held conventional hybrids until December 2020); every
 > month cross-checked against THB's separately compiled brand table (identical
-> for all 272 variant-months). ≈ 400,000 new passenger cars a year, BEV 8.9 %
-> in 2025 and 10.4 % in January–August 2026, hybrids another 41 %; buses 60 %
+> for all 272 variant-months). ≈ 400,000 new passenger cars a year, BEV 8.9%
+> in 2025 and 10.4% in January–August 2026, hybrids another 41%; buses 60%
 > electric. Brands only, every powertrain (no brand × fuel table). See
 > [49-source-taiwan.md](49-source-taiwan.md).
 
@@ -355,7 +355,7 @@ significant EV importer is outside it**).
 ## Automated, not new — 🇳🇴 Norway (2026-10)
 
 > **Status: AUTOMATED (2026-10-09).** Not a new country: Norway (130k new cars
-> in 2024, 180k in 2025; BEV 96 % in 2025) had been on the gallery since the start,
+> in 2024, 180k in 2025; BEV 96% in 2025) had been on the gallery since the start,
 > hand-transcribed from OFV and since 2026-04 filled from ACEA's copy. Since
 > the September 2026 release OFV's monthly article carries its fuel, brand
 > and model tables as HTML, and OFV publishes an open JSON export (CC BY
@@ -379,7 +379,7 @@ van de inschrijvingen" links, on its last page, monthly CSVs on
 `datafiles.mobilit.belgium.be/OPENDATA/DGTRSR/MonthlyRegistrations/`
 (`YYYYMM_Immatriculations-Inschrijvingen.csv` from 2025-01, plus a 2013–2024
 history file; CC0). The web page sits behind a CAPTCHA for scripts, the file
-server does not. They are ACEA's source (Whole ~0.4 % above ACEA, BEV within
+server does not. They are ACEA's source (Whole ~0.4% above ACEA, BEV within
 ~30 cars) and add `Private`, `Industry` and monthly `Vans` / `HDV` / `Buses`
 from 2013. No make/model (no market table), no clean Used. See
 [59](59-source-belgium.md).
@@ -406,7 +406,7 @@ networks, or a data agreement.
 > registrations of M1 by new/used status × fuel field (table 5, from 2024)
 > and an open register snapshot with the EU hybrid category and brand/model;
 > both answer GitHub's runners (the 2026-09-28 CAPTCHA did not recur).
-> `scripts/fetch_lithuania.py` writes `Whole` from 2024-01 (−0.2 % against
+> `scripts/fetch_lithuania.py` writes `Whole` from 2024-01 (−0.2% against
 > ACEA, exact against Regitra's own totals) and adds `Used` — the used-import
 > market, 3.6× the new one. The PHEV/HEV split is derived (ACEA's counted
 > split, else the snapshot's share). See
@@ -461,7 +461,7 @@ from GitHub's runners. It lists every new vehicle with EU category, engine
 type, EU hybrid type (from 2021), owner type, make and model, so one file
 gives `Whole`, `Private`, `Industry`, `Used`, monthly `Vans` / `HDV` /
 `Buses` and the brand/model tables. Whole agrees with ACEA within about
-+0.6 % overall (2022–2026). ACEA is now only a conditional fallback. See
++0.6% overall (2022–2026). ACEA is now only a conditional fallback. See
 [57](57-source-estonia.md).
 
 On top of the Latvia re-check table above, Hungary was probed in the same round: no
@@ -477,8 +477,8 @@ monthly drivetrain table on KSH, `data.gov.hu` or `kormany.hu` — only green-pl
 > monthly), reachable from runners; `scripts/fetch_new_zealand.py` asks it
 > for grouped counts. With the legacy scope — new **and used-import** light
 > vehicles, which the old doc had wrongly called "new" — it reproduces the
-> Ray Willis rows to about 1 % in every column through 2026-03; the six
-> hand-entered months 2026-04..09 ran 5–15 % high in petrol and diesel only
+> Ray Willis rows to about 1% in every column through 2026-03; the six
+> hand-entered months 2026-04..09 ran 5–15% high in petrol and diesel only
 > and were rewritten. Since the same PR New Zealand is split into EU-class variants like the other countries — `Whole` (new M1), `Vans` (new N1), `HDV` (new N2+N3), `Used` (used-import M1) — all from the same query; the old light-vehicle series is parked in `data/New Zealand_legacy.csv`. It also writes `market/new_zealand_top.json`. See
 > [19-source-new-zealand.md](19-source-new-zealand.md).
 > Rejected on the way (same session): Australia (FCAI's VFACTS is paid; the
@@ -494,7 +494,7 @@ before settling; probes ran from GitHub runners, "desk" is web research only.
 | Market (new cars/yr) | Best source | Finding | Verdict |
 |---|---|---|---|
 | 🇲🇽 Mexico (~1.5M) | INEGI RAIAVL | re-checked: the roster grew to "22 AMIA + 8 non-affiliated companies, 44 brands" (2026 bulletins), but BYD still does not report — the press quotes BYD as an estimate (desk) | shelved, unchanged ([14](14-data-source-gaps.md)) |
-| 🇨🇷 Costa Rica (~70k, BEV ≈ 20 % in 2026) | Registro Nacional (registrations), MINAE (EV statistics) | the press quotes monthly BEV units and shares from Registro Nacional data, but nothing structured is published: the Registro Nacional's statistics compendium (2025) has only yearly EV plate counts; MINAE's energy site (`energia.minae.go.cr`) does not resolve from runners and `minae.go.cr` answers 403; `registronacional.go.cr` fails TLS; the national portal `datos.go.cr` answers runners but its catalogue was not searched in depth | **no source** — a strong curve, worth a re-check if MINAE or the Registro publish a monthly table ([14](14-data-source-gaps.md)) |
+| 🇨🇷 Costa Rica (~70k, BEV ≈ 20% in 2026) | Registro Nacional (registrations), MINAE (EV statistics) | the press quotes monthly BEV units and shares from Registro Nacional data, but nothing structured is published: the Registro Nacional's statistics compendium (2025) has only yearly EV plate counts; MINAE's energy site (`energia.minae.go.cr`) does not resolve from runners and `minae.go.cr` answers 403; `registronacional.go.cr` fails TLS; the national portal `datos.go.cr` answers runners but its catalogue was not searched in depth | **no source** — a strong curve, worth a re-check if MINAE or the Registro publish a monthly table ([14](14-data-source-gaps.md)) |
 | 🇵🇭 Philippines (~0.5M) | CAMPI + TMA | the electrified split (HEV / BEV / PHEV) is published monthly, but for member brands only — the press adds "including brands not affiliated with CAMPI" as an estimate (desk) | shelved — completeness |
 | 🇰🇿 Kazakhstan (~0.2M) | AKAB / KAU (dealer sales), stat.gov.kz | NEV counts from "official dealers" only, no full fuel split; `data.egov.kz`'s API answers 403 to runners | shelved |
 | 🇺🇿 Uzbekistan (~0.4M) | Statistics Agency (stat.uz) | quarterly EV **fleet** totals (122.7k on 2026-07-01), no new-registration flow by fuel (desk) | shelved |
@@ -513,7 +513,7 @@ almost nothing); "desk" means web research only.
 | 🇹🇼 Taiwan (~450k) | ~~Highway Bureau statistics site `stat.thb.gov.tw`~~ → **MOTC statistics database `statis.motc.gov.tw`** (the ministry's copy of THB's tables) | THB's own site is still blocked (2026-10-04: Imperva "Error 16" for plain requests, TLS-impersonating clients and a real headless browser alike), but the Ministry's statistics database republishes THB's monthly new registrations by vehicle kind × fuel (table Seq 104, from 2012-01) and × brand (Seq 118), with a JSON endpoint runners reach | **BUILT 2026-10-04** — see below and [49](49-source-taiwan.md) |
 | 🇲🇽 Mexico (~1.5M) | INEGI RAIAVL | unchanged — omits BYD ([14](14-data-source-gaps.md)) | shelved |
 | 🇷🇺 Russia (~1.5M) | Autostat (MVD/GIBDD data, licensed) | re-checked 2026-09-28: the fuel-split tables are sold per report (3,000–10,000 ₽, also via the Autostat Info reseller); the free part is news prose — a monthly BEV count and a top-10 model list, no split of the total market. Reachable from runners — the obstacle is price, not access. Details in [14](14-data-source-gaps.md#-russia--the-monthly-fuel-split-exists-but-only-for-sale) | shelved |
-| 🇻🇳 Vietnam / 🇵🇭 Philippines (~0.5M each) | VAMA / CAMPI+TMA industry releases | member-reported, key EV sellers not in the roster, no free fuel split (desk) | Philippines shelved. **Vietnam built 2026-10** ([64](64-source-vietnam.md)): the two big non-members publish their own monthly figures (VinFast — all electric — and Hyundai Thành Công), and VAMA's member sheet splits BEV and hybrids by model, so VAMA + VinFast + TC reproduces the national total the press quotes; only VAMA's non-member import estimate (~10 %) has no fuel split |
+| 🇻🇳 Vietnam / 🇵🇭 Philippines (~0.5M each) | VAMA / CAMPI+TMA industry releases | member-reported, key EV sellers not in the roster, no free fuel split (desk) | Philippines shelved. **Vietnam built 2026-10** ([64](64-source-vietnam.md)): the two big non-members publish their own monthly figures (VinFast — all electric — and Hyundai Thành Công), and VAMA's member sheet splits BEV and hybrids by model, so VAMA + VinFast + TC reproduces the national total the press quotes; only VAMA's non-member import estimate (~10%) has no fuel split |
 | 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | viable (§ South Africa above) but quarterly, all-vehicle NEV table, brand/model not per drivetrain | built 2026-10-14 ([60](60-source-south-africa.md)) |
 | 🇷🇸 Serbia (~35k) | data.gov.rs | the national portal's search returns **no MoI registration dataset** (only a municipal bus-fleet list) — the importers' quarterly prose remains the only fuel split (§ Serbia) | unchanged |
 | 🇵🇪 Peru (~190k) | ~~datosabiertos.gob.pe~~ → **AAP's public BI-AAP report (SUNARP)** | the open-data portal has nothing usable, but AAP publishes SUNARP first registrations as a public Power BI report whose query API is open — brand × model × body × powertrain, day by day, from 2019-01 | **BUILT 2026-09-28** — see below and [45](45-source-peru.md) |
@@ -530,7 +530,7 @@ so the next session doesn't redo the search.
   exists is annual/ad-hoc ministry claims (Saudi Ministry of Investment EV
   counts), Dubai RTA EV-fleet totals, and paid market research. Fails
   access + format. Re-check if Saudi GASTAT or UAE MoI start publishing.
-- **🇯🇴 Jordan:** the EV story is dramatic (EVs ≈ 55 % of vehicle imports) but
+- **🇯🇴 Jordan:** the EV story is dramatic (EVs ≈ 55% of vehicle imports) but
   the only recurring numbers are **Zarqa Free Zone customs-clearance figures**
   relayed through press releases — clearances include re-exports, cadence is
   irregular, and there is no structured publication. Clearance ≠ registration;

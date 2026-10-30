@@ -94,7 +94,7 @@ CPCA reports both tracks in the same article:
   the month (≈ registrations). This is the headline series →
   `data/China.csv`, `variant="Whole"`.
 - **Wholesale (批发)** — manufacturer shipments to dealers, **including exports
-  and inventory build-up**, so it runs 20–40 % higher than retail →
+  and inventory build-up**, so it runs 20–40% higher than retail →
   `data/China_Wholesale.csv`, `variant="Wholesale"`.
 
 Both CSVs share the canonical column set
@@ -220,7 +220,7 @@ TOTAL 1,510k) renders as:
 37.1% ICE
 ```
 
-— bands sum to 100 %, and the post `ICE %` equals the CSV `ICE/TOTAL` (37.1 %).
+— bands sum to 100%, and the post `ICE %` equals the CSV `ICE/TOTAL` (37.1%).
 
 > **History / regression note.** Before the May-2026 fix, `post_text.R` used the
 > *narrow* PHEV column and `ice = 1 - bev - phev`, which silently left the EREV
@@ -231,10 +231,10 @@ TOTAL 1,510k) renders as:
 > and nothing changes. Fixed alongside the OCR work. The stale post refreshes on
 > the next render — see §7.
 
-## 6. Postmortem — the May 2026 "42.2 % BEV" incident
+## 6. Postmortem — the May 2026 "42.2% BEV" incident
 
-**Symptom.** A user reported China May-2026 at **42.2 % BEV**; the gallery
-showed **41.2 %**.
+**Symptom.** A user reported China May-2026 at **42.2% BEV**; the gallery
+showed **41.2%**.
 
 **Cause.** The scheduled fetch ran on a runner where the retail-slide OCR
 failed (`tesseract -l eng` garbled the digits to `3 45 55.6 7`, which the NEV
@@ -244,7 +244,7 @@ NEV columns were off:
 
 | | ws-proportional (wrong) | CPCA slide (correct) | Δ |
 |---|---|---|---|
-| BEV | 622,099 | **637,000** | +14,901 (41.2 % → **42.2 %**) |
+| BEV | 622,099 | **637,000** | +14,901 (41.2% → **42.2%**) |
 | PHEV | 261,197 | **228,000** | −33,197 |
 | EREV | 66,704 | **85,000** | +18,296 |
 

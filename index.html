@@ -3972,9 +3972,9 @@ const VIEW_START_YEAR = 2015;
           </div></div>
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-status">Status</span>
           <div class="chips tag-filter fx-tags" data-tag-cat="status" data-group-label="Status" role="group" aria-labelledby="tg-status" data-fb-group="tag_status">
-            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="past" data-tag-value="past"/><span class="fx-tl">Past 80%</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="past" data-tag-value="past"/><span class="fx-tl">Done</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="blue"><input type="checkbox" value="ontrack" data-tag-value="ontrack"/><span class="fx-tl">On track</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="red"><input type="checkbox" value="late" data-tag-value="late"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="red"><input type="checkbox" value="late" data-tag-value="late"/><span class="fx-tl">Behind</span><span class="fx-n" data-n aria-live="off"></span></label>
           </div></div>
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-speed">Speed</span>
           <div class="chips tag-filter fx-tags" data-tag-cat="speed" data-group-label="Speed" role="group" aria-labelledby="tg-speed" data-fb-group="tag_speed">
@@ -6446,7 +6446,7 @@ const QR = (() => {
         tip.innerHTML = `<div class="h">${o.title} · ${head}</div><table>`
           + keys.filter(k=>(b.v[k]||0)>0).reverse().map(k=>
             `<tr><td class="k"><span class="sw" style="background:${C[k]}"></span>${labelFor(k, S.c)}</td>
-             <td class="v">${S.u==='rel'?((b.v[k]/b.tot)*100).toFixed(1)+' %':nice(b.v[k]*(S.u==='abs'?(b.scale||1):1))}</td></tr>`).join('')
+             <td class="v">${S.u==='rel'?((b.v[k]/b.tot)*100).toFixed(1)+'%':nice(b.v[k]*(S.u==='abs'?(b.scale||1):1))}</td></tr>`).join('')
           + `<tr class="tot"><td>TOTAL</td><td class="v">${nice(b.tot*(S.u==='abs'?(b.scale||1):1))}</td></tr></table>`;
         tip.classList.add('on');
       });
@@ -7673,13 +7673,13 @@ function rankRegionFilename(filename, selId){
 // and above the curve) and combined with the same weights as the curve,
 // assuming independent members: sigma_agg = sqrt(sum(((w_c/W) * sigma_c)^2)).
 // That is sound for the CI (separate fits) and an approximation for PI / TI.
-const BAND_MIN_COVERAGE = 0.8;   // members with a usable band must carry >= 80 % of the weight
+const BAND_MIN_COVERAGE = 0.8;   // members with a usable band must carry >= 80% of the weight
 // Whether a band may be shown at all is decided in R (R/bands.R, BANDS_MIN_ROWS
 // and BANDS_MAX_PERSIST) and written into each file as quality.usable, so the
 // rule lives in one place and a reader of bands/ sees it too: too few rows
 // (the CI misses its 95 % badly) or a poor fit (persistence >= 0.9: the data
 // keep deviating from the S-curve in one direction for years).
-const BAND_LABELS = { ci: '95 % confidence band', pi: '95 % prediction band', ti: '95/95 tolerance band' };
+const BAND_LABELS = { ci: '95% confidence band', pi: '95% prediction band', ti: '95/95 tolerance band' };
 const BAND_SHORT  = { ci: 'CI', pi: 'PI', ti: 'TI' };
 const BAND_ALPHA  = { ci: 0.22, pi: 0.16, ti: 0.11 };
 const BAND_DOC_URL = 'https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/44-uncertainty-bands.md';
@@ -7762,7 +7762,7 @@ async function aggregateBand(rows, weightFn, kind, years, curvePct){
     // = z * sqrt(sum((w/W * h/z)^2)) = sqrt(sum((w/W * h)^2)); the z cancels.
     const dlo = Math.sqrt(vlo), dhi = Math.sqrt(vhi);
     const l = Math.max(0, c - 100 * dlo), h = Math.min(100, c + 100 * dhi);
-    lo.push(l); hi.push(h); text.push(`${BAND_SHORT[kind]} ${l.toFixed(1)}–${h.toFixed(1)} %`);
+    lo.push(l); hi.push(h); text.push(`${BAND_SHORT[kind]} ${l.toFixed(1)}–${h.toFixed(1)}%`);
   });
   return { ok: true, lo, hi, text, excluded, coverage, members: used.length, single };
 }
@@ -7798,7 +7798,7 @@ function bandNoteHtml(band, kind, prefix){
   }
   if (!band || !band.ok) {
     return `<div class="band-note">${who}no ${BAND_LABELS[kind]} shown` +
-      (band && band.members ? ` — series with a usable band carry ${Math.round(100 * (band.coverage || 0))} % of the weight (at least ${Math.round(100 * BAND_MIN_COVERAGE)} % needed).` : '.') +
+      (band && band.members ? ` — series with a usable band carry ${Math.round(100 * (band.coverage || 0))}% of the weight (at least ${Math.round(100 * BAND_MIN_COVERAGE)}% needed).` : '.') +
       list + link + '</div>';
   }
   const how = band.single ? '' : ' Combined from the member countries, treated as independent (approximate).';
@@ -12336,20 +12336,20 @@ const FAQ_DATA = [
   { tag: 'general', label: 'General', q: 'What do the small tags on gallery cards mean?',
     answers: [
       'Each gallery card carries up to three stacked tags summarising the country\u2019s curve at a glance. All three are computed from the same Weibull fit shown in <em>Thresholds</em> and <em>Durations</em>.',
-      '<b>Status</b> \u2014 reading where the country sits relative to the <b>80 %</b> BEV-share-of-new-registrations line and the <b>2035</b> reference year:<br>&nbsp;&nbsp;<b>Past 80 %</b> = projected year of crossing 80 % is already past.<br>&nbsp;&nbsp;<b>On track</b> = projected to cross 80 % by end of 2035.<br>&nbsp;&nbsp;<b>Late</b> = projected to cross 80 % only after 2035.',
+      '<b>Status</b> \u2014 reading where the country sits relative to the <b>80%</b> BEV-share-of-new-registrations line and the <b>2035</b> reference year:<br>&nbsp;&nbsp;<b>Done</b> = projected year of crossing 80% is already past.<br>&nbsp;&nbsp;<b>On track</b> = projected to cross 80% by end of 2035.<br>&nbsp;&nbsp;<b>Behind</b> = projected to cross 80% only after 2035.',
       '<b>Reference groups</b> \u2014 Speed and Timing compare a market only with the <b>reference group</b> of its vehicle type. For cars that is the main new-car curve (<em>Whole</em>) of every market, one per country; car subsets (private, company, rental, used imports, \u2026) do not shape the scale, they are placed on Whole\u2019s scale. Vans, trucks (HDV), buses, two-wheelers and so on are their own reference groups. Electric trucks reached the market years after electric cars, so a shared yardstick could never call a truck market an early starter. A reference group needs at least <b>4 markets</b>; smaller groups (and their subsets) get no speed or timing tag. Hover a tag for its group\u2019s actual cut-offs, or read <a href="sources/tags.html">How the tags work</a> for the full decision diagram.',
-      '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) against its reference group:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of the group by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
-      '<b>Timing</b> \u2014 when the market crossed (or is projected to cross) <b>10 %</b> BEV share, compared against its reference group. Markets still below 10 % count with their projected year:<br>&nbsp;&nbsp;<b>Early starter</b> = earliest 25 % of the group.<br>&nbsp;&nbsp;<b>Late starter</b> = latest 25 %.<br>&nbsp;&nbsp;The middle half carries no timing tag.',
-      '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035 is a fixed calendar date; the timing and speed cut-offs are quartiles of the fitted curves in the group. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
-      '<b>Volatile curve / Unreliable fit</b> \u2014 a market whose fitted curve can\'t give a reliable year yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the colour scale of the World Map (a note under each table, and the <em>Too volatile to show</em> list under the map, name what was left out). The chart itself stays in the gallery. Three tests, any one is enough. When only the first fails, the pill says <b>Volatile curve</b>: nothing is wrong, the curve just isn\'t pinned down yet. Otherwise it says <b>Unreliable fit</b>.<br>&nbsp;&nbsp;<b>Volatile</b> = every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10 % to 80 % in under 3 years while observed BEV share is still below 10 %. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
-      'All thresholds (80 %, 2035, 10 %) are constants of the script that renders the tags; the quartiles (25 / 75 %) and the 4-market minimum per group are the <code>TAG_*</code> constants next to <code>tagGroupCutoffs()</code>; the reliability cut-offs (25 / 5 years swing, 3 years and 10 % for a collapse, 12 months for staleness) are the <code>FIT_*</code> constants shared by every tab. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
+      '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) against its reference group:<br>&nbsp;&nbsp;<b>Fast</b> = top 25% of the group by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50%.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25%.',
+      '<b>Timing</b> \u2014 when the market crossed (or is projected to cross) <b>10%</b> BEV share, compared against its reference group. Markets still below 10% count with their projected year:<br>&nbsp;&nbsp;<b>Early starter</b> = earliest 25% of the group.<br>&nbsp;&nbsp;<b>Late starter</b> = latest 25%.<br>&nbsp;&nbsp;The middle half carries no timing tag.',
+      '<b>Data or model?</b> \u2014 80% and 10% are levels of new registrations, so a market either has reached them or has not. 2035 is a fixed calendar date; the timing and speed cut-offs are quartiles of the fitted curves in the group. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
+      '<b>Volatile curve / Unreliable fit</b> \u2014 a market whose fitted curve can\'t give a reliable year yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the colour scale of the World Map (a note under each table, and the <em>Too volatile to show</em> list under the map, name what was left out). The chart itself stays in the gallery. Three tests, any one is enough. When only the first fails, the pill says <b>Volatile curve</b>: nothing is wrong, the curve just isn\'t pinned down yet. Otherwise it says <b>Unreliable fit</b>.<br>&nbsp;&nbsp;<b>Volatile</b> = every time new data arrives the curve is refitted, and we track how far the projected 80% crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10% to 80% in under 3 years while observed BEV share is still below 10%. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
+      'All thresholds (80%, 2035, 10%) are constants of the script that renders the tags; the quartiles (25 / 75%) and the 4-market minimum per group are the <code>TAG_*</code> constants next to <code>tagGroupCutoffs()</code>; the reliability cut-offs (25 / 5 years swing, 3 years and 10% for a collapse, 12 months for staleness) are the <code>FIT_*</code> constants shared by every tab. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
     ] },
   { tag: 'general', label: 'General', q: 'What is the shaded band around the curve in Builder and Compare?',
     answers: [
-      'An <b>uncertainty band</b> around the fitted BEV curve. The dropdown <em>Uncertainty band</em> switches between three kinds, or off. Each answers a different question; all three are 95 %.',
+      'An <b>uncertainty band</b> around the fitted BEV curve. The dropdown <em>Uncertainty band</em> switches between three kinds, or off. Each answers a different question; all three are 95%.',
       '<b>Confidence (CI, the default)</b> \u2014 where the <em>curve itself</em> could be. If the same transition could be re-run many times with new monthly data, the band from each re-run would contain the true curve 95 times in 100. This is the one to use for dates: a crossing year with its range.',
       '<b>Prediction (PI)</b> \u2014 where <em>one more month</em> could land. Wider, because a single month scatters around the curve (year-end rushes, subsidy deadlines).',
-      '<b>Tolerance (TI)</b> \u2014 where <em>95 % of all months</em> land, with 95 % confidence. The widest of the three.',
+      '<b>Tolerance (TI)</b> \u2014 where <em>95% of all months</em> land, with 95% confidence. The widest of the three.',
       'All three assume the S-curve shape is right. They do not cover a policy shock or a stall that changes the shape. A fit the gallery marks as <em>Volatile curve</em> or <em>Unreliable fit</em> gets no band, and neither does a series whose data keep deviating from the curve in one direction for years (a poor fit) or one that is too short (fewer than 48 data points) — the note under the chart says which. For a group (EU, Big Markets, \u2026) the members\u2019 bands are combined as if they were independent, which is exact for one country and an approximation for groups. The bands are shown for BEV only, and in Compare only with up to three series.',
       'The full explanation, the maths and how the bands were tested: <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/44-uncertainty-bands.md" target="_blank" rel="noopener">docs/architecture/44-uncertainty-bands.md</a>.'
     ] },
@@ -13028,7 +13028,7 @@ function wmHover(row, mode, pct, pct2, value){
   if (row.noTrans && mode !== 'share'){
     return `<b>${row.country}</b><br><b>Shows no transition</b> — no crossing year.<br>` +
       `<span style="opacity:0.75">` +
-      (isFinite(row.obs) ? `${(row.obs * 100).toFixed(1)} % BEV in the last 12 months` : '') +
+      (isFinite(row.obs) ? `${(row.obs * 100).toFixed(1)}% BEV in the last 12 months` : '') +
       (row.dataPer ? `<br>data per: ${row.dataPer}` : '') + `</span><extra></extra>`;
   }
   const y20  = wmYearAt(row, 0.20);
@@ -13260,7 +13260,7 @@ function wmRender(){
     locations: hidden.map(h => h.country),
     z: hidden.map(() => 1),
     text: hidden.map(h => `<b>${h.country}</b><br>${wmHiddenWhy(h)}` +
-      (isFinite(h.obs) ? `<br>${(h.obs * 100).toFixed(1)} % BEV in the last 12 months` : '') +
+      (isFinite(h.obs) ? `<br>${(h.obs * 100).toFixed(1)}% BEV in the last 12 months` : '') +
       ''),
     hovertemplate: '%{text}<extra></extra>',
     colorscale: [[0, WM_COLORS.withheld], [1, WM_COLORS.withheld]],
@@ -13311,13 +13311,13 @@ function wmRender(){
     ? pioneer.map(d => `<li><b>${d.r.country}</b> — fitted curve already past ${pct}% (${wmFmt('year', d.v)})</li>`).join('')
     : '<li style="opacity:0.6">None at this threshold</li>';
   if (stalledList) stalledList.innerHTML = stalled.length
-    ? stalled.map(d => `<li><b>${d.r.country}</b>${d.r.noTrans && isFinite(d.r.obs) ? ` — ${(d.r.obs * 100).toFixed(1)} % BEV` : ''}</li>`).join('')
+    ? stalled.map(d => `<li><b>${d.r.country}</b>${d.r.noTrans && isFinite(d.r.obs) ? ` — ${(d.r.obs * 100).toFixed(1)}% BEV` : ''}</li>`).join('')
     : `<li style="opacity:0.6">${mode === 'share' ? 'Not used in this mode' : 'None at this threshold'}</li>`;
   const hiddenList = document.getElementById('wmHiddenList');
   if (hiddenList) hiddenList.innerHTML = hidden.length
     ? hidden.slice().sort((a, b) => a.country.localeCompare(b.country)).map(h =>
         `<li><b>${h.country}</b>${h.volatile ? '' : ' — unreliable fit'}` +
-        `${isFinite(h.obs) ? `${h.volatile ? ' — ' : ', '}${(h.obs * 100).toFixed(1)} % BEV` : ''}</li>`).join('')
+        `${isFinite(h.obs) ? `${h.volatile ? ' — ' : ', '}${(h.obs * 100).toFixed(1)}% BEV` : ''}</li>`).join('')
     : '<li style="opacity:0.6">None</li>';
 }
 
@@ -14529,7 +14529,7 @@ document.addEventListener('click', (e) => {
 });
 </script>
 
-<!-- ─── proposed: gallery status pills (Past 80% / On track / Late) ─── -->
+<!-- ─── proposed: gallery status pills (Done / On track / Behind) ─── -->
 <script>
 (function(){
   const PAST_THRESHOLD = TAG_PAST_THRESHOLD; // assets/tag_system.js
@@ -14645,11 +14645,11 @@ document.addEventListener('click', (e) => {
       name: 'Status',
       order: ['past', 'ontrack', 'late'],
       ticks: ['today', '2035'],
-      note: '80 % is a level of new registrations — something the data can reach. 2035 is a fixed calendar date. <b>Where the curve crosses 80 % is the model’s answer</b>, not an observation.',
+      note: '80% is a level of new registrations — something the data can reach. 2035 is a fixed calendar date. <b>Where the curve crosses 80% is the model’s answer</b>, not an observation.',
       values: {
-        past:    { label: 'Past 80%', def: 'The fitted S-curve crossed 80% BEV before today — not a raw monthly observation.' },
+        past:    { label: 'Done',     def: 'The fitted S-curve crossed 80% BEV before today — not a raw monthly observation.' },
         ontrack: { label: 'On track', def: 'The fitted S-curve crosses 80% BEV by the end of 2035.' },
-        late:    { label: 'Late',     def: 'The fitted S-curve crosses 80% BEV only after 2035.' }
+        late:    { label: 'Behind',   def: 'The fitted S-curve crosses 80% BEV only after 2035.' }
       }
     },
     speed: {
@@ -14667,11 +14667,11 @@ document.addEventListener('click', (e) => {
       name: 'Start (timing)',
       order: ['early', 'mid', 'late_start'],
       ticks: ['25th pct', '75th pct'],
-      note: '10 % is a level of new registrations. <b>The crossing year comes from the fit</b> — for markets still below 10 % it is extrapolated, and those count too. The cut years are the quartiles of that year in the <b>reference group</b> (Whole for cars and all car subsets; vans, trucks, buses each their own), so trucks are compared with trucks. Cards carry no timing pill for the middle half — the sidebar filter calls it <em>Mid</em>. Groups with fewer than 4 markets get no timing at all and drop out once a Start value is picked.',
+      note: '10% is a level of new registrations. <b>The crossing year comes from the fit</b> — for markets still below 10% it is extrapolated, and those count too. The cut years are the quartiles of that year in the <b>reference group</b> (Whole for cars and all car subsets; vans, trucks, buses each their own), so trucks are compared with trucks. Cards carry no timing pill for the middle half — the sidebar filter calls it <em>Mid</em>. Groups with fewer than 4 markets get no timing at all and drop out once a Start value is picked.',
       values: {
-        early:      { label: 'Early starter', def: 'Among the earliest quarter of its vehicle group to cross 10 % BEV share.' },
-        mid:        { label: 'Mid',           def: 'Crosses 10 % BEV share with the middle half of its vehicle group.' },
-        late_start: { label: 'Late starter',  def: 'Among the latest quarter of its vehicle group to cross 10 % BEV share.' }
+        early:      { label: 'Early starter', def: 'Among the earliest quarter of its vehicle group to cross 10% BEV share.' },
+        mid:        { label: 'Mid',           def: 'Crosses 10% BEV share with the middle half of its vehicle group.' },
+        late_start: { label: 'Late starter',  def: 'Among the latest quarter of its vehicle group to cross 10% BEV share.' }
       }
     },
     unsettled: {
@@ -14680,7 +14680,7 @@ document.addEventListener('click', (e) => {
       ticks: [],
       note: 'Status, speed and timing are all read off this one curve, so they are withheld rather than shown as noise. The market is also left out of Thresholds, Durations, Time interval and the World Map. The chart itself stays in the gallery.',
       values: {
-        volatile:  { label: 'Volatile curve', def: 'The curve takes off, but it still changes a lot with every new month: across the last twelve re-fits its projected 80 % year moved more than 25 years. Nothing is wrong with the data; the curve just isn\'t pinned down yet and settles as more months arrive.' },
+        volatile:  { label: 'Volatile curve', def: 'The curve takes off, but it still changes a lot with every new month: across the last twelve re-fits its projected 80% year moved more than 25 years. Nothing is wrong with the data; the curve just isn\'t pinned down yet and settles as more months arrive.' },
         unsettled: { label: 'Unreliable fit', def: 'The fitted curve cannot be trusted yet: it has collapsed into a near-vertical step, or rests on data that is no longer updated (and may also still be moving with every new month).' }
       }
     },
@@ -14692,8 +14692,8 @@ document.addEventListener('click', (e) => {
       note: 'Every chart has exactly one fit value. Pick one or more to show only those charts; Status, Speed and Start only apply to <em>Reliable</em> charts. Volatile, unreliable and no-transition markets are always left out of Thresholds, Durations, Time interval and the World Map.',
       values: {
         reliable:   { label: 'Reliable',      def: 'The curve takes off and its fit is settled, plausibly S-shaped and on current data. Only these carry Status, Speed and Start.' },
-        unreliable: { label: 'Volatile / unreliable', def: 'The curve takes off, but it is volatile (the projected 80 % year moved more than 25 years over the last year of re-fits), collapsed (10 → 80 % in under 3 years while below 10 % share) or stale (no data for over 12 months).' },
-        notrans:    { label: 'No transition', def: 'No take-off: the latest 12-month BEV share is under 1 %, or (between 1 and 5 %) the fitted curve never gets steeper than 1 percentage point per year.' }
+        unreliable: { label: 'Volatile / unreliable', def: 'The curve takes off, but it is volatile (the projected 80% year moved more than 25 years over the last year of re-fits), collapsed (10 → 80% in under 3 years while below 10% share) or stale (no data for over 12 months).' },
+        notrans:    { label: 'No transition', def: 'No take-off: the latest 12-month BEV share is under 1%, or (between 1 and 5%) the fitted curve never gets steeper than 1 percentage point per year.' }
       }
     },
     notrans: {
@@ -14732,7 +14732,7 @@ document.addEventListener('click', (e) => {
     return null;
   }
 
-  const pct = x => (x * 100).toFixed(1).replace(/\.0$/, '') + ' %';
+  const pct = x => (x * 100).toFixed(1).replace(/\.0$/, '') + '%';
   const yr  = x => isFinite(x) ? String(Math.round(x)) : '—';
 
   // "Is this tag standing on data, or on the fit reaching past it?" — answered
@@ -14803,9 +14803,9 @@ document.addEventListener('click', (e) => {
       const c = Object.assign({}, base, { ticks: [fmt(d.lo), fmt(d.hi)], values: Object.assign({}, base.values) });
       const who = `${g.label} (${d.n} markets)` + (t.ref ? '' : ' — this subset is compared against that reference');
       if (cat === 'timing'){
-        c.values.early      = { label: 'Early starter', def: `Crosses 10 % BEV share by ${fmt(d.lo)} — earliest quarter of ${who}.` };
-        c.values.mid        = { label: 'Mid',           def: `Crosses 10 % BEV share between ${fmt(d.lo)} and ${fmt(d.hi)} — middle half of ${who}.` };
-        c.values.late_start = { label: 'Late starter',  def: `Crosses 10 % BEV share in ${fmt(d.hi)} or later — latest quarter of ${who}.` };
+        c.values.early      = { label: 'Early starter', def: `Crosses 10% BEV share by ${fmt(d.lo)} — earliest quarter of ${who}.` };
+        c.values.mid        = { label: 'Mid',           def: `Crosses 10% BEV share between ${fmt(d.lo)} and ${fmt(d.hi)} — middle half of ${who}.` };
+        c.values.late_start = { label: 'Late starter',  def: `Crosses 10% BEV share in ${fmt(d.hi)} or later — latest quarter of ${who}.` };
       } else {
         c.values.slow = { label: 'Slow',      def: `Inflection speed at or below ${fmt(d.lo)} — bottom quarter of ${who}.` };
         c.values.avg  = { label: 'Avg speed', def: `Between ${fmt(d.lo)} and ${fmt(d.hi)} — middle half of ${who}.` };
