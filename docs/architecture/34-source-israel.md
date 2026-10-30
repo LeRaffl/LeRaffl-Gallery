@@ -78,7 +78,7 @@ processing:
               then: DIESEL
             - when: electric/petrol or electric/diesel
               then: PHEV
-          note: more than 5 % of a month not found in the catalogue raises a warning
+          note: more than 5% of a month not found in the catalogue raises a warning
     - when: LPG (גפ"מ) or blank
       then: OTHERS
     - when: any other value
@@ -202,12 +202,12 @@ month store needed, the registry can be re-read at will). It runs behind
   decides a record's column; `aggregate_month` (the CSV) and `month_units` (the
   tables) both call it, so a table can never classify a car differently from the
   chart. Checked 2026-09-28: for 2025-09 → 2026-07 the counted month totals equal
-  the CSV's within 0.1 %; the newest month was +2.6 % because the registry keeps
+  the CSV's within 0.1%; the newest month was +2.6% because the registry keeps
   absorbing late entries after the CSV row was written (`market_top.check_scope`
-  logs every month, warns above 3 % and aborts the refresh above 10 %).
+  logs every month, warns above 3% and aborts the refresh above 10%).
 * **Brand translation.** `BRAND_STEMS` maps the leading Hebrew stem to the Latin
   brand (punctuation ignored, longest stem wins: "ג'אקו" JAECOO vs "ג'אק" JAC).
-  Coverage of the 305 000 registrations of 2025-09 → 2026-08: 99.8 %. A manufacturer
+  Coverage of the 305 000 registrations of 2025-09 → 2026-08: 99.8%. A manufacturer
   without a stem is **shown in Hebrew** and announced as a workflow warning
   ("Israel brands not translated"), never merged into a wrong brand — today
   "איויאיסי סין" (model LIMO, 612 units, a Chinese electric MPV whose Latin brand

@@ -24,7 +24,7 @@ cadence: daily from the 10th to the end of the month, 10:30 UTC — ANL publishe
 variants:
 - Whole
 variant_notes:
-  Whole: "All new light-duty vehicles SOLD in the US — passenger cars AND light trucks (pickups, SUVs/crossovers, minivans, vans) up to 10,000 lb GVWR. Not EU M1 — pickups (≈ 15 % of US production per EPA's Automotive Trends Report) and light commercial vans are inside. Not registrations."
+  Whole: "All new light-duty vehicles SOLD in the US — passenger cars AND light trucks (pickups, SUVs/crossovers, minivans, vans) up to 10,000 lb GVWR. Not EU M1 — pickups (≈ 15% of US production per EPA's Automotive Trends Report) and light commercial vans are inside. Not registrations."
 hev_split: true
 hev_note: ANL reports HEV (conventional, non-plug-in hybrids) as its own column; ANL does not say whether mild hybrids are counted as HEV.
 backfill: none needed — every PDF carries the full history from Dec-2010; a full refresh (`--months 0`) rewrites all rows from the current release.

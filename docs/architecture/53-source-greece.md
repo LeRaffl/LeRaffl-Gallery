@@ -30,11 +30,11 @@ variants:
 variant_notes:
   Whole: New passenger cars incl. taxis (SEAA's "PC and taxi cars", EU M1) — the scope of ACEA's Greek figure.
 hev_split: true
-hev_note: HEV, PETROL and DIESEL are ACEA's counts (SEAA's own, which SEAA does not publish) once ACEA has published the month — source "SEAA / ACEA". Until then they are derived from the press release's one-decimal fuel shares — source "SEAA" — typically about 5 cars off the count, at most 15 in 9 months out of 10 and at most 50 (0.4 % of the month). HEV includes mild hybrids. BEV, PHEV and TOTAL are always SEAA's exact counts.
+hev_note: HEV, PETROL and DIESEL are ACEA's counts (SEAA's own, which SEAA does not publish) once ACEA has published the month — source "SEAA / ACEA". Until then they are derived from the press release's one-decimal fuel shares — source "SEAA" — typically about 5 cars off the count, at most 15 in 9 months out of 10 and at most 50 (0.4% of the month). HEV includes mild hybrids. BEV, PHEV and TOTAL are always SEAA's exact counts.
 backfill: SEAA from 2022-01 (the first full month with exact BEV/PHEV counts); ACEA before that (quarterly figures spread over the quarter's months, as before). HEV/PETROL/DIESEL of 2022-01..2026-08 are the old ACEA rows' counts wherever ACEA's month matches SEAA's (54 of 56). The old all-ACEA series is kept as data/Greece_legacy.csv.
 scope_note: New passenger cars and taxis registered in Greece (SEAA's PC + taxi tables). Used imports are not counted — ELSTAT publishes them without a fuel split.
 caveats:
-- 'Until ACEA publishes a month (about a week after SEAA), its HEV, PETROL, DIESEL and OTHERS are derived from one-decimal fuel shares (source "SEAA"): typically about 5 cars off the count, at most 15 in 9 months out of 10, at most 50 (0.4 % of the month). When ACEA publishes, its counted HEV/PETROL/DIESEL replace them and OTHERS becomes TOTAL minus the rest (source "SEAA / ACEA"). BEV, PHEV and TOTAL, and so the BEV share, never change.'
+- 'Until ACEA publishes a month (about a week after SEAA), its HEV, PETROL, DIESEL and OTHERS are derived from one-decimal fuel shares (source "SEAA"): typically about 5 cars off the count, at most 15 in 9 months out of 10, at most 50 (0.4% of the month). When ACEA publishes, its counted HEV/PETROL/DIESEL replace them and OTHERS becomes TOTAL minus the rest (source "SEAA / ACEA"). BEV, PHEV and TOTAL, and so the BEV share, never change.'
 - 2022-12 and 2023-07 keep the derived split — ACEA's rows for those months are wrong (below), so their split does not fit SEAA's counts.
 - 'A month the press release has announced but whose statistics files are not out yet is written provisionally from the press release (BEV, PHEV and TOTAL only) and marked "provisional" in its notes; the run that finds the statistics files replaces it.'
 - Two ACEA months were wrong and are corrected by SEAA — 2022-12 (ACEA 8,001 cars, SEAA 6,486) and 2023-07 (ACEA 8,342, SEAA 12,380). SEAA's own year-to-date columns confirm its figures.
@@ -65,7 +65,7 @@ processing:
   text:
   - SEAA counts hybrids, petrol and diesel but publishes them only as shares with one decimal; ACEA publishes SEAA's counts about a week later. So the split is first derived from the shares and replaced by ACEA's counts when they appear — whichever of the two fetchers runs second does it. TOTAL, BEV and PHEV always stay SEAA's.
   decision:
-    ask: ACEA's release for the month out, and its TOTAL / BEV / PHEV the same as SEAA's (within 1 % / 2 %)?
+    ask: ACEA's release for the month out, and its TOTAL / BEV / PHEV the same as SEAA's (within 1% / 2%)?
     branches:
     - when: "yes"
       then: HEV, PETROL, DIESEL = ACEA's counts; OTHERS = TOTAL − BEV − PHEV − HEV − PETROL − DIESEL; source "SEAA / ACEA"
@@ -94,7 +94,7 @@ processing:
       then: the derived split stays
 - title: Cross-checks
   text:
-  - The press release's preliminary counts and its BEV share must agree with the statistics files within 3 %, or the run stops. A month far below the usual volume is not written. The model lines of each BEV/PHEV file are summed and compared with the file's own total; only months where they agree feed the brand and model lists.
+  - The press release's preliminary counts and its BEV share must agree with the statistics files within 3%, or the run stops. A month far below the usual volume is not written. The model lines of each BEV/PHEV file are summed and compared with the file's own total; only months where they agree feed the brand and model lists.
 market_breakdown: market/greece_top.json
 market_designation_note: the brand is SEAA's make, the model SEAA's "Range" (the model family — MODEL Y, ATTO 2, PROACE CITY), as printed in the BEV and PHEV files.
 market_powertrain_note: BEV and PHEV exactly as in the CSV (SEAA's BEV and PHEV files). Hybrids are not ranked — SEAA publishes them only as a share.
@@ -192,11 +192,11 @@ CNG) as shares with one decimal, e.g. 2026-08: petrol 18.8, diesel 1.3, HEV 59.8
 3. TOTAL − BEV − PHEV is split in those shares; OTHERS takes LPG, CNG and the
    remainder. Largest-remainder rounding keeps the row summing to TOTAL.
 
-With one decimal the rounding alone would be within ±0.05 % of TOTAL per column; in
+With one decimal the rounding alone would be within ±0.05% of TOTAL per column; in
 practice the press release's shares and the final statistics differ slightly too. Against
 ACEA's counted figures (2022-01..2026-08 without its two wrong months) a derived column is
-off by a median of 3–5 cars, by at most 8–13 in 9 months out of 10 (≤ 0.13 % of the month)
-and by at most 50 (HEV 2024-07, 0.4 %).
+off by a median of 3–5 cars, by at most 8–13 in 9 months out of 10 (≤ 0.13% of the month)
+and by at most 50 (HEV 2024-07, 0.4%).
 
 **ACEA's counts replace it.** `scripts/acea_split.py` does the merge, called from both
 fetchers so the order they run in does not matter:
@@ -208,7 +208,7 @@ fetchers so the order they run in does not matter:
 
 HEV/PETROL/DIESEL are ACEA's; OTHERS is TOTAL − BEV − PHEV − HEV − PETROL − DIESEL, so the
 row always sums to SEAA's TOTAL. The merge is refused, and the derived split stays, when
-ACEA's TOTAL is more than 1 % or its BEV/PHEV more than 2 % (at least 5 cars) off SEAA's —
+ACEA's TOTAL is more than 1% or its BEV/PHEV more than 2% (at least 5 cars) off SEAA's —
 not the same month (2022-12, 2023-07) — or OTHERS would be negative. The run log says
 which. ACEA publishes no July release, so a July keeps the derived split (2026-07 has ACEA's
 split only because that row was derived by hand from ACEA's year-to-date sums).
@@ -257,10 +257,10 @@ Every run, before anything is written:
 - Printed month = file-name month, for every file.
 - Shares within 1.5 points (§3), else no split.
 - Press-release preliminary counts and BEV share × TOTAL vs the statistics files: a
-  difference above 3 % stops the run.
-- A new month below 25 % of the trailing-12 median TOTAL is not written; below 50 % a
-  warning (Greek Augusts are legitimately ~45 %).
-- Model lines vs the file's own summary line: off by more than max(3, 3 %) and the month
+  difference above 3% stops the run.
+- A new month below 25% of the trailing-12 median TOTAL is not written; below 50% a
+  warning (Greek Augusts are legitimately ~45%).
+- Model lines vs the file's own summary line: off by more than max(3, 3%) and the month
   is left out of the brand/model lists (SEAA's 2022–2023 electric files miss a few
   lines). Counts never come from the model table.
 - Fuels sum to TOTAL in every row written.
@@ -294,7 +294,7 @@ The step summary of each run lists the months written with their files and check
   without a split until `parse_press_release` is fixed and the month re-run with
   `--period … --force`.
 - **"… not the same month or the split does not fit; national row kept"** (in either
-  fetcher's log) — ACEA's TOTAL/BEV/PHEV differ from SEAA's by more than 1 % / 2 %. Compare
+  fetcher's log) — ACEA's TOTAL/BEV/PHEV differ from SEAA's by more than 1% / 2%. Compare
   the two releases by hand; if ACEA is wrong (as in 2022-12) nothing is to be done, the
   derived split stays.
 - **seaa.gr unreachable** — nothing is written; ACEA fills the month around the 20th–25th

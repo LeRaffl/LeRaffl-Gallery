@@ -2,7 +2,7 @@
 explainer: true
 slug: tags
 title: How the tags work
-summary: Every gallery card carries up to three small tags — Status, Speed and Timing — read off the market's fitted S-curve. Status is absolute (80 % share and the year 2035). Speed and Timing are relative — a market is compared with the other markets of its vehicle type, so trucks are measured against trucks, not against cars.
+summary: Every gallery card carries up to three small tags — Status, Speed and Timing — read off the market's fitted S-curve. Status is absolute (80% share and the year 2035). Speed and Timing are relative — a market is compared with the other markets of its vehicle type, so trucks are measured against trucks, not against cars.
 boxplots: true
 sections:
 - heading: Reference groups
@@ -18,9 +18,9 @@ sections:
   - Each chip shows how many charts it would give with the other groups' picks applied; chips that would give none are dimmed. Picked tags also appear as removable chips above the results.
 - heading: The three tags
   text:
-  - Status — where the fitted curve crosses 80 % BEV share of new registrations. Done (already crossed), On track (by the end of 2035), Behind (after 2035). The same for every vehicle type.
+  - Status — where the fitted curve crosses 80% BEV share of new registrations. Done (already crossed), On track (by the end of 2035), Behind (after 2035). The same for every vehicle type.
   - Speed — the slope of the fitted curve at its steepest point. Fast = top quarter of the reference group, Slow = bottom quarter, Avg speed = the middle half.
-  - Timing — the year the fitted curve crosses 10 % BEV share. Markets still below 10 % count with their projected year. Early starter = earliest quarter of the reference group, Late starter = latest quarter; the middle half carries no timing tag.
+  - Timing — the year the fitted curve crosses 10% BEV share. Markets still below 10% count with their projected year. Early starter = earliest quarter of the reference group, Late starter = latest quarter; the middle half carries no timing tag.
   - Curves that show no transition get a single No transition tag, and fits that can't give a reliable year yet a single pill: Volatile curve when only the re-fit swing is too large (the curve keeps moving with every new month, nothing is wrong with it), Unreliable fit when it has collapsed or its data are stale. Neither counts towards any scale.
 processing:
 - title: Read every fitted curve
@@ -61,19 +61,19 @@ processing:
     - when: 'no'
       then: no speed / timing tag for the group and its subsets
     - when: 'yes'
-      then: 25th and 75th percentile of the 10 % year and of the speed
+      then: 25th and 75th percentile of the 10% year and of the speed
 - title: Assign the tags
   rules_head: [When, Then]
   rules:
-  - [fitted 80 % crossing before today, Done]
-  - [fitted 80 % crossing by end of 2035, On track]
-  - [fitted 80 % crossing after 2035, Behind]
+  - [fitted 80% crossing before today, Done]
+  - [fitted 80% crossing by end of 2035, On track]
+  - [fitted 80% crossing after 2035, Behind]
   - [speed at or above the group's 75th percentile, Fast]
   - [speed at or below the group's 25th percentile, Slow]
   - [speed in between, Avg speed]
-  - [10 % year at or below the group's 25th percentile, Early starter]
-  - [10 % year at or above the group's 75th percentile, Late starter]
-  - [10 % year in between, no timing tag]
+  - [10% year at or below the group's 25th percentile, Early starter]
+  - [10% year at or above the group's 75th percentile, Late starter]
+  - [10% year in between, no timing tag]
 ---
 
 # 61 — Gallery tag system (v2)
@@ -87,7 +87,7 @@ every tag popover. The page draws **live boxplots** (`assets/tag_boxplots.js`)
 from `params.csv` with the gallery's own tag functions.
 
 Introduced for [#294](https://github.com/LeRaffl/LeRaffl-Gallery/issues/294):
-the old timing cut-offs were fixed calendar years (10 % before 2023 = *Early*,
+the old timing cut-offs were fixed calendar years (10% before 2023 = *Early*,
 after 2025 = *Late*) for every variant, and the speed quartiles came from one
 pool mixing cars with trucks, so not a single HDV market could ever be an
 *Early starter*.
@@ -97,7 +97,7 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | File | Role |
 |---|---|
 | `assets/fit_core.js` | `parseCSV`, `normNumber`, `getDataPer`, `inv_x_years`, `rowHasNoTransition`, `fitReliability` + `FIT_*` — moved verbatim out of index.html; classic script, globals as before |
-| `assets/tag_system.js` | **all tag logic**: `TAG_PARENT` (subset → parent; **add a line here for a new subset**), `tagGroupOf()`, `tagIsReference()`, `tagGroupCutoffs()` (only eligible reference rows, one per country; `TAG_MIN_GROUP = 4`, `TAG_LOW_Q / TAG_HIGH_Q`), `timingTagFor()`, `speedTagFor()`, `statusTagFor()` (80 % / `TAG_TARGET_YEAR` 2035), `tagComputeAll(rows)`; **sidebar filter**: `TAG_FILTER_GROUPS`, `tagFilterValue()`, `tagFilterPasses()`, `tagFilterCounts()`; **display**: `tagFmtYearMonth()` (decimal year → "Nov 2021") |
+| `assets/tag_system.js` | **all tag logic**: `TAG_PARENT` (subset → parent; **add a line here for a new subset**), `tagGroupOf()`, `tagIsReference()`, `tagGroupCutoffs()` (only eligible reference rows, one per country; `TAG_MIN_GROUP = 4`, `TAG_LOW_Q / TAG_HIGH_Q`), `timingTagFor()`, `speedTagFor()`, `statusTagFor()` (80% / `TAG_TARGET_YEAR` 2035), `tagComputeAll(rows)`; **sidebar filter**: `TAG_FILTER_GROUPS`, `tagFilterValue()`, `tagFilterPasses()`, `tagFilterCounts()`; **display**: `tagFmtYearMonth()` (decimal year → "Nov 2021") |
 | `assets/tag_boxplots.js` | SVG boxplots with tag braces; `mount()` for sources/tags.html, `svg()` for the gallery popover |
 | `index.html` | loads `fit_core.js` + `tag_system.js` in `<head>` (before every inline script), `tag_boxplots.js` deferred. Tag IIFE (*gallery status pills*): pills, `window.__bevTagsByCountry / __bevTagCutoffs / __bevTagPoints`; glossary IIFE: popover with group cut-offs and mini boxplot (`boxplotRow()`) |
 | `sources/tags.html` | generated explainer page; loads the three assets + `../params.csv` — never index.html |
@@ -164,7 +164,7 @@ control (removed 2026-10-17): always newest first (`GALLERY_SORT`). Feedback con
 
 ## Cut-offs on params.csv as of 2026-10-17
 
-| Group | timing n | 10 % crossing P25 / P75 | speed n | speed P25 / P75 (%/yr) |
+| Group | timing n | 10% crossing P25 / P75 | speed n | speed P25 / P75 (%/yr) |
 |---|---|---|---|---|
 | Cars (Whole) | 52 | Nov 2021 / Sep 2026 | 51 | 5.0 / 11.4 |
 | Vans | 18 | Jul 2024 / Oct 2028 | 18 | 3.7 / 10.5 |

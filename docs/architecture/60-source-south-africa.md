@@ -79,7 +79,7 @@ processing:
   - TOTAL is passenger plus commercial sales of the quarter; ICE is TOTAL minus BEV, PHEV and HEV. The row sits on the quarter's middle month. Every review repeats the year-ago quarter, often slightly revised — reviews are read oldest first, so the newest figure wins.
 - title: Check it
   text:
-  - For every year whose four quarters and annual column are known, the quarters must add up to the year (within a few units — naamsa's restatements). If they only add up with one quarter's plug-in and hybrid values exchanged, that quarter was printed in the wrong rows and is swapped back; otherwise the gap is reported and the published values stay. The newest quarter's total must be at least 75 % of the same quarter a year earlier (a warning below 90 %).
+  - For every year whose four quarters and annual column are known, the quarters must add up to the year (within a few units — naamsa's restatements). If they only add up with one quarter's plug-in and hybrid values exchanged, that quarter was printed in the wrong rows and is swapped back; otherwise the gap is reported and the published values stay. The newest quarter's total must be at least 75% of the same quarter a year earlier (a warning below 90%).
   decision:
     ask: Do the year's quarters add up to its annual column?
     branches:
@@ -153,10 +153,10 @@ sales". Motorcycles are not part of naamsa's statistics.
 The NEV table relates to that total, not to passenger cars:
 
 - Q2-2026 review, p. 6: *"NEV sales comprised 5,6% of total new vehicle sales
-  during the second quarter 2026"* — 8,611 / (109,236 + 43,883) = 5.62 %.
+  during the second quarter 2026"* — 8,611 / (109,236 + 43,883) = 5.62%.
 - Q2-2026 review, p. 6: *"For the full year 2025, NEV sales by 30 industry
   brands increased by 7,1% to 16,716 units … and comprised 2,8% of the total
-  new vehicle market"* — 16,716 / 596,818 = 2.80 %.
+  new vehicle market"* — 16,716 / 596,818 = 2.80%.
 - September 2026 media release, p. 2: *"Electrification is also beginning to
   extend beyond the passenger vehicle market, with emerging adoption across
   the light and medium commercial vehicle segments."*
@@ -191,14 +191,14 @@ no Time-lapse month yet; it will enter by itself once the series is long enough.
 | Check | What happens |
 |---|---|
 | Column sum | every NEV column must equal "Total NEVs" — else the review is skipped and listed |
-| Year reconciliation | four quarters vs the annual column, ±max(5, 0.5 %); a PHEV↔HEV swap in one quarter that fixes it is applied and reported (Q4-2025 review: 2024-Q4 printed 4,156 / 261, 2025-Q4 3,452 / 1,026 in the wrong rows). Runs on every normal run, not only on a backfill: the four newest reviews of distinct quarters always hold the last full year's four quarters (current + year-ago columns) and, from its Q1 review on, its annual column — so a repeated Q4 misprint is caught and cannot overwrite an already repaired row |
-| Completeness | newest total < 75 % of the year-ago quarter aborts (`--force` overrides), < 90 % warns |
+| Year reconciliation | four quarters vs the annual column, ±max(5, 0.5%); a PHEV↔HEV swap in one quarter that fixes it is applied and reported (Q4-2025 review: 2024-Q4 printed 4,156 / 261, 2025-Q4 3,452 / 1,026 in the wrong rows). Runs on every normal run, not only on a backfill: the four newest reviews of distinct quarters always hold the last full year's four quarters (current + year-ago columns) and, from its Q1 review on, its annual column — so a repeated Q4 misprint is caught and cannot overwrite an already repaired row |
+| Completeness | newest total < 75% of the year-ago quarter aborts (`--force` overrides), < 90% warns |
 | Foreign rows | a row with another `source` is never overwritten without `--force` |
 | Restatements | rows from `naamsa.net` are overwritten by a newer review and listed as `updated` |
 | Unknown layout | a review the parser cannot read is listed in the summary; the run fails only if none can be read |
 
-Cross-check against naamsa's own sentences: 2026-Q2 NEV share 5.62 % (naamsa
-"5,6 %"); 2025 NEVs 16,716 = 2.80 % of 596,818 (naamsa "2,8 %").
+Cross-check against naamsa's own sentences: 2026-Q2 NEV share 5.62% (naamsa
+"5,6%"); 2025 NEVs 16,716 = 2.80% of 596,818 (naamsa "2,8%").
 
 ## 6. Operations and debugging runbook
 
