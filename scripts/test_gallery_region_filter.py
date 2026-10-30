@@ -30,4 +30,10 @@ check("original country select still the source of truth", 'id="countrySelect" h
 check("split manifest names map to their base country",
       "function galleryRegionName(" in H and "inRegion(galleryRegionName(it.country))" in H
       and "inR(galleryRegionName(o.value))" in H)
+import re
+_tag = re.search(r'<select[^>]*id="regionGal"[^>]*>', H)
+check("#regionGal uses the shared .country-field look (needs #377)", bool(_tag and "country-field" in _tag.group(0)))
+check("no separate .fx-region look left", "fx-region" not in H)
+check("mobile: sidebar 44px select rule neutralised for #regionGal",
+      re.search(r"max-width:880px\)\{\s*#tab-gallery \.side #regionGal\{min-height:0", H) is not None)
 sys.exit(1 if fails else 0)

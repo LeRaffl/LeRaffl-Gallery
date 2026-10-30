@@ -3371,7 +3371,12 @@ h2 .fb-ctx-btn{
   font:600 12px/1 inherit;color:var(--tc);background:var(--tb);border:1px solid var(--tl);border-radius:999px;cursor:pointer}
 .fx-achip span:last-child{font-size:15px;opacity:.8}
 .fx-clear{background:none;border:0;color:var(--accent);font:600 12px inherit;text-decoration:underline;cursor:pointer;min-height:30px;padding:0 6px}
-.fx-region{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--line-2);border-radius:3px;background:var(--surface-2,#fff);font-size:14px}
+/* Look comes from the shared .country-field class (font, padding, border, arrow);
+   only the sidebar width is set here. */
+#regionGal{width:100%}
+@media (max-width:880px){
+  #tab-gallery .side #regionGal{min-height:0}   /* the sidebar's 44px select rule would make it taller than Country (36.25px) */
+}
 @media (min-width:881px){
   #tab-gallery aside.side{max-height:calc(100vh - var(--header-h) - 56px);overflow-y:auto;overscroll-behavior:contain}
 }
@@ -3943,7 +3948,7 @@ const VIEW_START_YEAR = 2015;
 
         <div class="fx-row">
           <label class="fx-lab" for="regionGal">Region</label>
-          <select id="regionGal" class="rank-region fx-region" aria-label="Filter charts by region" title="Show only charts of one continent or European group. Combines with Country, Types and Tags."><option value="">All regions</option></select>
+          <select id="regionGal" class="rank-region country-field" aria-label="Filter charts by region" title="Show only charts of one continent or European group. Combines with Country, Types and Tags."><option value="">All regions</option></select>
         </div>
 
         <div class="fx-row">
