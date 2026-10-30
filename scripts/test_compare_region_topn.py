@@ -34,4 +34,5 @@ import re
 for _id in ("compareFillRegion", "compareFillN"):
     _tag = re.search(r'<select[^>]*id="%s"[^>]*>' % _id, H)
     check(f"#{_id} uses the shared .country-field look (needs #377)", bool(_tag and "country-field" in _tag.group(0)))
+check("Fill button stretches to the select height", re.search(r"\.compare-fill__row\{[^}]*align-items:stretch", H) is not None)
 sys.exit(1 if fails else 0)
