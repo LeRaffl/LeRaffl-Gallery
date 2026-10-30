@@ -30,4 +30,8 @@ check("fill runs Compare", "getElementById('compareBuild')?.click()" in H)
 check("button click wired", "getElementById('compareFillBtn')?.addEventListener('click'" in H)
 check("note states the ranking basis", "by latest TTM BEV share:" in H)
 check("percent shown in fixed international format", "(t.ttm * 100).toFixed(1)" in H)
+import re
+for _id in ("compareFillRegion", "compareFillN"):
+    _tag = re.search(r'<select[^>]*id="%s"[^>]*>' % _id, H)
+    check(f"#{_id} uses the shared .country-field look (needs #377)", bool(_tag and "country-field" in _tag.group(0)))
 sys.exit(1 if fails else 0)
