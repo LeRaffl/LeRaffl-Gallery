@@ -121,9 +121,8 @@
 # (default, old behaviour): an empty/zero PHEV is a measured zero and the PHEV
 # line stays. FALSE (e.g. ACEA commercial vehicles, where PHEV is folded into the
 # "EV" figure): there is no PHEV line at all, and a Hybrid line only appears
-# when the HEV column carries a real share (>= .pt_min_share, i.e. at least
-# 0.05%, which is what one decimal can still show).
-.pt_min_share <- 0.0005
+# when the HEV column carries a real share (>= HYBRID_MIN_SHARE from R/data.R, i.e.
+# at least 0.05%, which is what one decimal can still show).
 
 .pt_triplet_lines <- function(vals, bev_label = "BEV", has_phev_split = TRUE) {
   total <- vals[["TOTAL"]]
@@ -150,7 +149,7 @@
 
   use_phev   <- phev_broad > 0
   use_hybrid <- !use_phev && !is.na(hev) && is.finite(hev) &&
-    (if (has_phev_split) hev > 0 else hev >= .pt_min_share)
+    (if (has_phev_split) hev > 0 else hev >= HYBRID_MIN_SHARE)
 
   bev_line <- sprintf("%s %s", .pt_pct(bev0), bev_label)
 
@@ -347,7 +346,7 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
   # Same for a hybrid series that is absent in both windows (shares below one
   # printable decimal): no "+0.0pp Hybrid (0.0% -> 0.0%)" band, no peak, no
   # crossing. ICE absorbs the sliver, as in the main post.
-  if (hev_ok && !any(c(hev_s[cur], hev_s[pri]) >= .pt_min_share, na.rm = TRUE)) hev_ok <- FALSE
+  if (hev_ok && !any(c(hev_s[cur], hev_s[pri]) >= HYBRID_MIN_SHARE, na.rm = TRUE)) hev_ok <- FALSE
   if (!hev_ok) {
     hev_s <- rep(0, N)
     ice_s <- pmax(0, 1 - bev_s - phev_s)
@@ -401,7 +400,7 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
     since <- cur - pk_i
     if (since < peak_min_lag) return(NULL)
     if (!isTRUE(series[cur] < series[pk_i])) return(NULL)
-    if (!isTRUE(series[pk_i] >= .pt_min_share)) return(NULL)  # would print "peaked at 0.0%"
+    if (!isTRUE(series[pk_i] >= HYBRID_MIN_SHARE)) return(NULL)  # would print "peaked at 0.0%"
     pk_label  <- if (is_quarterly) .pt_short_quarter(periods[pk_i]) else periods[pk_i]
     lag_label <- if (is_quarterly) sprintf("%d quarters", since) else sprintf("%d months", since)
     sprintf("%s peaked at %s in %s (declining for %s).", label, fmt_pct(series[pk_i]), pk_label, lag_label)
