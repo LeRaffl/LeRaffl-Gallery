@@ -14,6 +14,7 @@ import pathlib, re, sys
 HTML = (pathlib.Path(__file__).resolve().parent.parent / "index.html").read_text(encoding="utf-8")
 checks = [
     ("lede says BEV share", "Battery-electric (BEV) share of monthly new-car registrations" in HTML),
+    ("lede note says ~60 markets (same line as #373)", "Open data. ~60 markets" in HTML and "40+ markets" not in HTML),
     ("TTM spelled out in hero title", "trailing 12 months (TTM) as of" in HTML),
     ("BEV spelled out in hero subtitle", "Battery Electric Vehicles (BEV) as a share of new-car registrations" in HTML),
     ("no '· you' label left", "· you<" not in HTML and ">· you" not in HTML),
