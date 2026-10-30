@@ -30,7 +30,7 @@ variants:
 - HDV
 - Buses
 variant_notes:
-  Whole: New passenger cars registered in Belgium (DIV "New vehicle", use group Passenger car — new plate or a transferred plate), monthly from 2013-01. The figures behind ACEA's Belgian series; DIV runs ~0.4 % above it.
+  Whole: New passenger cars registered in Belgium (DIV "New vehicle", use group Passenger car — new plate or a transferred plate), monthly from 2013-01. The figures behind ACEA's Belgian series; DIV runs ~0.4% above it.
   Private: New passenger cars whose keeper is not VAT-registered (DIV keeper type "Natural/Legal Person") — in practice private persons. From 2013-01. Private + Industry = Whole.
   Industry: New passenger cars whose keeper is a VAT-registered legal person (DIV "Legal Person (VAT)") — companies, leasing and rental fleets; Belgium's large company-car market — plus the few rows without a keeper type (0–63 cars a month), so that Private + Industry = Whole. From 2013-01.
   Vans: New light goods vehicles (camionnettes, up to 3.5 t). Monthly from 2013-01 (yearly/quarterly ACEA before, kept in data/Belgium_legacy.csv).
@@ -41,8 +41,8 @@ hev_note: DIV's fuel field has "Plug-in Hybrid Petrol / Gasoil / LPG" for plug-i
 backfill: Every variant is DIV from 2013-01 (the start of the history file). The former ACEA rows — Whole quarterly 2018-01…2022-09 and every ACEA row of Vans/HDV/Buses (yearly 2021–2022, then quarterly) — are kept in data/Belgium_legacy.csv. Whole's ACEA monthly rows 2022-10…2026-08 were replaced; each DIV row's note keeps ACEA's figure where it differed.
 scope_note: Registrations of new vehicles in the month as DIV booked them — a new car counts whether it got a new plate or a plate transferred from the keeper's previous car (Belgian plates follow the owner). Used-vehicle registrations are not written (see caveats).
 caveats:
-- 'Whole runs 86–251 cars (median 155, ~0.4 %) above ACEA''s monthly figure in every month 2022-10 … 2026-08 but one; BEV agrees within 0–34 cars. PHEV is 1–13 % below ACEA in 2025–2026 (ACEA''s July 2026 row is derived from a year-to-date difference and is 24 % higher). Two of ACEA''s Belgian rows were plainly wrong (2023-02: 2,291, 2023-09: 2,965 against DIV 40,056 / 39,034) and are corrected.'
-- 'April 2025 is the exception the other way: DIV''s 2025-04 file is about 13 % short (32,737 cars against ACEA''s 37,812, which equals ACEA''s own year-to-date difference; FY2025 ACEA 414,770, DIV 411,384; the Vans / HDV / Buses quarter holding April 2025 is 3–5 % low as well). The DIV rows are kept, because their HEV definition matches the rest of the series and the shares are usable, and their notes say CHECK. Volumes for that month are too low.'
+- 'Whole runs 86–251 cars (median 155, ~0.4%) above ACEA''s monthly figure in every month 2022-10 … 2026-08 but one; BEV agrees within 0–34 cars. PHEV is 1–13% below ACEA in 2025–2026 (ACEA''s July 2026 row is derived from a year-to-date difference and is 24% higher). Two of ACEA''s Belgian rows were plainly wrong (2023-02: 2,291, 2023-09: 2,965 against DIV 40,056 / 39,034) and are corrected.'
+- 'April 2025 is the exception the other way: DIV''s 2025-04 file is about 13% short (32,737 cars against ACEA''s 37,812, which equals ACEA''s own year-to-date difference; FY2025 ACEA 414,770, DIV 411,384; the Vans / HDV / Buses quarter holding April 2025 is 3–5% low as well). The DIV rows are kept, because their HEV definition matches the rest of the series and the shares are usable, and their notes say CHECK. Volumes for that month are too low.'
 - 'HEV includes mild hybrids (see the hybrid note), so the HEV column is not comparable with ACEA-fed countries; the PHEV and BEV curves are.'
 - 'Private is "not VAT-registered", not strictly natural persons: DIV''s keeper type lumps natural persons with legal persons that have no VAT number (associations, some public bodies). Leased cars count by their keeper (the leasing company is VAT-registered, so leased cars are Industry).'
 - 'No Used variant: DIV''s "Used vehicle" counts every registration of a used car — imports and domestic changes of keeper alike — and the files cannot separate them, so it does not match this repo''s Used definition (first national registration). An open decision for the reviewer.'
@@ -103,7 +103,7 @@ processing:
       then: OTHERS
 - title: Checks before writing
   text:
-  - The header must be exactly DIV's 14 columns and every row of a monthly file must belong to that month. Unknown use-group, fuel, keeper or vehicle-flag values may not exceed 2 % of a month (below that they go to OTHERS with a warning). A Whole month below a quarter of the usual volume is not written. Whole is compared with the ACEA row it replaces and the difference reported (more than 2 % is flagged); it is not enforced, because three of ACEA's Belgian rows were wrong.
+  - The header must be exactly DIV's 14 columns and every row of a monthly file must belong to that month. Unknown use-group, fuel, keeper or vehicle-flag values may not exceed 2% of a month (below that they go to OTHERS with a warning). A Whole month below a quarter of the usual volume is not written. Whole is compared with the ACEA row it replaces and the difference reported (more than 2% is flagged); it is not enforced, because three of ACEA's Belgian rows were wrong.
 fetcher: scripts/fetch_belgium.py
 workflow: .github/workflows/fetch-belgium.yml
 fragility_doc: docs/architecture/59-source-belgium.md
@@ -116,7 +116,7 @@ data_file: data/Belgium.csv
 monthly registration files (DIV, the vehicle registration service). They are
 open data (CC0), ~220 KB a month, on a plain file server, published on the 2nd
 of the following month — about three weeks before ACEA — and they are what
-ACEA's Belgian figure is built from: Whole runs ~0.4 % above ACEA every month,
+ACEA's Belgian figure is built from: Whole runs ~0.4% above ACEA every month,
 BEV agrees within ~30 cars. They add `Private` / `Industry` (VAT-registered
 keeper) and turn Vans / HDV / Buses from quarterly ACEA reconstructions into
 monthly series, all from 2013-01. Hybrids are split into plug-in (PHEV) and
@@ -169,11 +169,11 @@ page). Points worth knowing:
 
 * **Plates follow the owner in Belgium.** A new car registered on a plate
   transferred from the keeper's previous car is "Plate reused" but still a new
-  vehicle — both plate flags count (about 25–30 % of new cars). Counting only
-  "New Plate" would undercount Whole by ~30 %.
+  vehicle — both plate flags count (about 25–30% of new cars). Counting only
+  "New Plate" would undercount Whole by ~30%.
 * **Keeper type** is VAT-based: "Legal Person (VAT)" → Industry; "Natural/Legal
-  Person" (no VAT number) → Private. In 2026 Industry is 54 % of new cars (61 %
-  BEV), Private 46 % (11 % BEV).
+  Person" (no VAT number) → Private. In 2026 Industry is 54% of new cars (61%
+  BEV), Private 46% (11% BEV).
 * **Hybrids**: DIV distinguishes plug-in from non-plug-in, but not full from
   mild hybrids, so HEV = full + mild.
 
@@ -185,25 +185,25 @@ ACEA's monthly Belgian rows 2022-10 … 2026-08 (44 comparable months):
 
 | | DIV − ACEA |
 |---|---|
-| TOTAL | +86 … +251 cars, median +155 (~0.4 %), never below — except 2025-04 (−5,075: DIV's file is short, below) |
+| TOTAL | +86 … +251 cars, median +155 (~0.4%), never below — except 2025-04 (−5,075: DIV's file is short, below) |
 | BEV | 0 … +34 cars |
-| PHEV | median −1 %; 2025–2026 DIV 1–13 % lower |
+| PHEV | median −1%; 2025–2026 DIV 1–13% lower |
 | HEV | DIV ~2.5× higher (mild hybrids — ACEA files them under petrol/diesel) |
 
 Two ACEA rows in the repo were wrong and are corrected by DIV: 2023-02
 (2,291 — DIV 40,056) and 2023-09 (2,965 — DIV 39,034). 2026-07 is an ACEA
 row derived from a year-to-date difference (ACEA had no July release); its
-PHEV is 24 % above DIV.
+PHEV is 24% above DIV.
 
 **2025-04 is a short DIV file, not an ACEA error.** DIV has 32,737 cars,
 ACEA 37,812 — and ACEA's figure is its own year-to-date difference
 (Jan–Apr 158,751 − Jan–Mar 120,939). Over 2025 DIV is 3,386 below ACEA
-(411,384 vs 414,770) although it is ~0.4 % *above* in every other month, and
-the CV quarter holding April 2025 is 3–5 % low in Vans, HDV and Buses alike.
+(411,384 vs 414,770) although it is ~0.4% *above* in every other month, and
+the CV quarter holding April 2025 is 3–5% low in Vans, HDV and Buses alike.
 The DIV rows stay (their HEV includes mild hybrids like the rest of the
 series; an ACEA row would put a one-month HEV dip into it), and their notes
 say `CHECK`. Since 2026-10 the fetcher raises a `::warning::` and writes the
-same remark when a month it writes over an ACEA row is more than 2 % off.
+same remark when a month it writes over an ACEA row is more than 2% off.
 
 ### 4.2 Against ACEA's CV quarters (Vans / HDV / Buses)
 
@@ -229,9 +229,9 @@ DIV is ACEA's source for commercial vehicles too.
 | `data/Belgium_Buses.csv` | Buses | 2013-01 |
 | `data/Belgium_legacy.csv` | the former ACEA rows (Whole quarterly 2018–2022, all CV rows) — an archive, not a series | — |
 
-January–August 2026: Whole 289,454 (BEV 37.7 %, PHEV 5.4 %, HEV 33.3 %),
-Private 134,120, Industry 155,333, Vans 47,229 (BEV 7.4 %), HDV 5,791, Buses
-864 (BEV 20.7 %).
+January–August 2026: Whole 289,454 (BEV 37.7%, PHEV 5.4%, HEV 33.3%),
+Private 134,120, Industry 155,333, Vans 47,229 (BEV 7.4%), HDV 5,791, Buses
+864 (BEV 20.7%).
 
 ## 6. Open decisions
 
@@ -260,7 +260,7 @@ roster; its self-throttle sentinel is now Germany.
 | "unexpected header" | DIV changed the schema: compare the new header with `HEADER` in the fetcher |
 | "got an HTML page, not a CSV" | the file server now has the bot challenge too — run from a browser, report upstream |
 | "unknown values" | a new fuel / use-group label: add it to `FUEL_CLASS` / `USE_VARIANT` / `USE_IGNORED` and a test |
-| `::warning:: Belgium YYYY-MM vs ACEA` / notes say CHECK | DIV is more than 2 % off the ACEA row it replaced. Check ACEA's month against its year-to-date difference: if ACEA is consistent, DIV's file is short (as 2025-04) — the row stays, flagged; if ACEA is not, ACEA was wrong (as 2023-02 / 2023-09) |
+| `::warning:: Belgium YYYY-MM vs ACEA` / notes say CHECK | DIV is more than 2% off the ACEA row it replaced. Check ACEA's month against its year-to-date difference: if ACEA is consistent, DIV's file is short (as 2025-04) — the row stays, flagged; if ACEA is not, ACEA was wrong (as 2023-02 / 2023-09) |
 
 ```mermaid
 sequenceDiagram

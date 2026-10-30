@@ -158,8 +158,8 @@ definitions (invariant 3). The body-type split of the same quarter
 1,999 lorries/trucks, 1,313 special vehicles, 985 vans ("furgon") and 124
 buses out of 43,449. The age split (`mobile/vehicle-age`) shows how used the
 flow is: 7,440 vehicles at most two years old in 2026-Q2; in 2026-Q3 9,133
-of 42,758 (21.4 %) were at most two years old and 33,607 (78.6 %) older
-(18 unknown) — the "79 % over 2 years old, Q3 2026" in `footnotes.csv`.
+of 42,758 (21.4%) were at most two years old and 33,607 (78.6%) older
+(18 unknown) — the "79% over 2 years old, Q3 2026" in `footnotes.csv`.
 
 **Chart wording.** Because the series is first registrations incl. used
 imports, Georgia is in `FIRST_REG_SOURCES` (`R/render_country.R`): the
@@ -175,10 +175,10 @@ Registrations", annotation "First-registration ICE in"). The gallery label
   sum of the quarters category by category. It held for every year 2017–2025
   and for 2026 (I+II) on 2026-10-09 — Geostat's year figure is the year to
   date, so this is also a check of the newest quarter.
-- **Completeness guard (new quarter).** TOTAL < 50 % of the same quarter a
-  year earlier stops the run (`force` overrides it); < 75 % is a warning in
+- **Completeness guard (new quarter).** TOTAL < 50% of the same quarter a
+  year earlier stops the run (`force` overrides it); < 75% is a warning in
   the step summary. Real shocks exist (2020-Q2 was 10,025 against 19,574 a
-  year earlier — 51 %), hence the loose limit.
+  year earlier — 51%), hence the loose limit.
 - **Schema drift stops:** an unknown or missing category, a value that is not
   a non-negative integer, a category listed twice, a picker without a
   "Quarter" selector, or a quarter the picker lists while `mobile/fuels` is
@@ -197,9 +197,9 @@ Registrations", annotation "First-registration ICE in"). The gallery label
 
 ## 6. Reading the fit
 
-BEV share of the flow: around 1 % in 2017–2019, down to 0.3–0.5 % in
-2020–2021, 1.3 % in 2023, 3.0 % in 2024, 4.5 % in 2025 and 7.4 % in
-2026-Q1–Q2 (8.6 % in Q2 alone). Because most vehicles are used imports
+BEV share of the flow: around 1% in 2017–2019, down to 0.3–0.5% in
+2020–2021, 1.3% in 2023, 3.0% in 2024, 4.5% in 2025 and 7.4% in
+2026-Q1–Q2 (8.6% in Q2 alone). Because most vehicles are used imports
 (the model table is led by models of the US used market — Subaru Forester,
 VW Jetta, Toyota Camry, Ford Fusion, Tesla Model 3), the curve tracks what the used-car supply
 offers a few years after the new-car markets that produce it; read it next
@@ -236,7 +236,7 @@ sequenceDiagram
         Py-->>Cron: no-op (one request)
     else no
         Py->>API: mobile/fuels for the target and the 3 quarters before it
-        Py->>Py: categories known? year (quarter=99) = sum of quarters? total ≥ 50 % of a year earlier?
+        Py->>Py: categories known? year (quarter=99) = sum of quarters? total ≥ 50% of a year earlier?
         Py->>CSV: append the new quarter (line-level)
         Py->>API: mobile/treemap × 4
         Py->>Top: last four quarters, class ALL
@@ -268,7 +268,7 @@ sequenceDiagram
 | `categories … missing` | a required category vanished — likely a rename | as above |
 | `listed in the picker but mobile/fuels is empty` | Geostat lists a quarter before its data is loaded | wait for the next run; if it persists, check the portal |
 | `year cross-check` | the year figure ≠ the sum of the quarters: a quarter was revised, or the year figure is being reloaded | re-run later; if it persists, compare the quarters on the portal and decide with `force` |
-| `completeness guard` | the new quarter is under 50 % of a year earlier — a partial upload, or a real collapse | check the portal and the news; if real, dispatch with `force` |
+| `completeness guard` | the new quarter is under 50% of a year earlier — a partial upload, or a real collapse | check the portal and the news; if real, dispatch with `force` |
 | `… differs from the CSV … kept unless force` | Geostat revised an older quarter (or a hand-entered row has a typo — those are corrected, as 2023-Q3 was) | nothing breaks; to adopt Geostat's figure dispatch with `quarter = YYYY-Qn` and `force` |
 | `top brands/models not refreshed` warning | the treemap failed or lists more vehicles than the quarter | the CSV is committed anyway; replay with `--from-dir` and look at `treemap_units` |
 

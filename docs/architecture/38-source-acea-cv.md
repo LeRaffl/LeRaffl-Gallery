@@ -100,25 +100,25 @@ no national Vans/HDV/Buses source at all, or vice versa. `TARGET_COUNTRIES` in
 - **Czechia is OUT since 2026-10.** The RSV register extract
   (`scripts/fetch_czechia.py`, [51](51-source-czechia.md)) carries monthly Vans / HDV /
   Buses with a BEV/PHEV split back to 2016 (Buses within a few vehicles of these ACEA
-  checkpoints, HDV about −1 %, Vans about −2.5 %). The quarterly rows this fetcher wrote
+  checkpoints, HDV about −1%, Vans about −2.5%). The quarterly rows this fetcher wrote
   are parked byte for byte in `data/Czechia_legacy.csv`.
 - **Latvia is OUT since 2026-10.** CSDD's first-registration records
   (`scripts/fetch_latvia.py`, [58](58-source-latvia.md)) carry monthly Vans / HDV / Buses
   with BEV and PHEV separate back to 2015. Against these checkpoints: Vans equal in
-  2023-Q1/Q2 and 0–13 % below in 2024–2026 with the same electric count (ACEA's "BEV" is
+  2023-Q1/Q2 and 0–13% below in 2024–2026 with the same electric count (ACEA's "BEV" is
   BEV + PHEV), HDV equal where ACEA's quarters are sound, Buses within 0–6 a quarter. The
   rows this fetcher wrote are parked in `data/Latvia_legacy.csv`.
 - **Estonia is OUT since 2026-10.** Transpordiamet's monthly «Infoleht» workbook
   (`scripts/fetch_estonia.py`, [57](57-source-estonia.md)) carries monthly Vans / HDV /
   Buses with a counted BEV/PHEV/HEV split from 2021-01. Against these checkpoints: Vans
-  within −1 … +3 % (ACEA's "BEV" = our BEV + PHEV), HDV within a few vehicles a quarter,
+  within −1 … +3% (ACEA's "BEV" = our BEV + PHEV), HDV within a few vehicles a quarter,
   Buses equal or within 1–5. The rows this fetcher wrote are parked in
   `data/Estonia_legacy.csv`.
 - **Belgium is OUT since 2026-10.** The FPS Mobility's monthly DIV registration files
   (`scripts/fetch_belgium.py`, [59](59-source-belgium.md)) carry monthly Vans / HDV / Buses
   with BEV and PHEV separate back to 2013. DIV is ACEA's source for commercial vehicles too:
-  the checkpoints agree within about 1 % (Vans 2026-Q2 18,605 / 18,585), except the quarter
-  holding DIV's short 2025-04 file (3–5 % low). The rows this fetcher wrote are parked in
+  the checkpoints agree within about 1% (Vans 2026-Q2 18,605 / 18,585), except the quarter
+  holding DIV's short 2025-04 file (3–5% low). The rows this fetcher wrote are parked in
   `data/Belgium_legacy.csv`.
 - **Greece stays IN.** Its passenger cars moved to SEAA in 2026-10
   (`scripts/fetch_greece.py`, [53](53-source-greece.md)), but SEAA and ELSTAT publish vans,

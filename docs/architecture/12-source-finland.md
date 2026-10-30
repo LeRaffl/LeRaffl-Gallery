@@ -357,10 +357,10 @@ time and builds the trailing-twelve-month + single-month rankings through
   the whole gap between the two totals), so it would not be the chart's diesel.
   Petrol matches StatFin to the car.
 - **Scope guard:** each month's Traficom BEV count and total must match
-  `data/Finland.csv` within 5 % (live register vs StatFin's snapshot), or
+  `data/Finland.csv` within 5% (live register vs StatFin's snapshot), or
   nothing is published.
 - The model-series table only supplies designations: if it fails or its
-  per-class sums (BEV, PHEV, petrol) disagree with the make table (> 2 %), the page keeps the brand
+  per-class sums (BEV, PHEV, petrol) disagree with the make table (> 2%), the page keeps the brand
   tables and a warning names the month.
 - Runs after the CSVs are written (or alone, when the data is current but the
   top file is not), behind `market_top.guarded`; the file is committed with the

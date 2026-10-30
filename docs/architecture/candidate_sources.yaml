@@ -37,7 +37,7 @@ candidates:
     source_url: "https://uvoznicivozila.rs/"
     findings:
       - "Data model confirmed from three published reports (Q1-2025, H1-2025, H1-2026): first registrations of new M1 cars, sourced from the Ministry of Internal Affairs. N1 vans and L two-wheelers are reported separately."
-      - "Fuel split: petrol, diesel, hybrids (all types, one bucket), electric, other. H1-2025: 16,473 cars, 161 electric (0.98 %), 6,039 hybrids."
+      - "Fuel split: petrol, diesel, hybrids (all types, one bucket), electric, other. H1-2025: 16,473 cars, 161 electric (0.98%), 6,039 hybrids."
       - "Monthly figures exist only as totals in the text; the drivetrain split is quarterly / half-yearly."
       - "The national open-data portal data.gov.rs has no Interior Ministry registration dataset (checked 2026-09)."
     blockers:
@@ -129,7 +129,7 @@ candidates:
     verdict: no-source
     checked: "2026-10"
     probed: true
-    summary: "One of Latin America's fastest EV markets (BEV about 20 % of new cars in 2026) — but no monthly table by fuel is published."
+    summary: "One of Latin America's fastest EV markets (BEV about 20% of new cars in 2026) — but no monthly table by fuel is published."
     source_name: "Registro Nacional / MINAE (environment ministry)"
     source_url: "https://www.registronacional.go.cr/"
     findings:

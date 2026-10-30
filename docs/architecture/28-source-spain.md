@@ -53,17 +53,17 @@ caveats:
 processing:
 - title: Download
   text:
-  - DGT publishes one zip per month with one fixed-width record per registered vehicle (714 characters, 69 fields). One pass over the file fills every variant; a month with more than 1 % of records of another length, or a Whole total under 2,000, stops the run.
+  - DGT publishes one zip per month with one fixed-width record per registered vehicle (714 characters, 69 fields). One pass over the file fills every variant; a month with more than 1% of records of another length, or a Whole total under 2,000, stops the run.
   - Until that monthly zip is out (around the 15th), the month is summed from DGT's daily zips instead — same records, one file per registration day — but only once every weekday file (national holidays excepted) is there. Those rows are marked provisional and the monthly zip replaces them.
 - title: Pick the vehicles
   text:
   - Cars and two-wheelers are picked by DGT's national vehicle type; vans, lorries and buses by the EU homologation category, which DGT records for them reliably.
-  - Whole is every new vehicle DGT registers as a passenger car — EU class M1 — with no model list on top. It therefore also holds the off-roaders (type 25) and the passenger versions of vans (Multivan, Tourneo, Berlingo, Proace Verso, …, about 2 % of the market), which ANFAC — and with it ACEA — counts as light commercials; some DGT-based sites also leave out the off-roaders.
+  - Whole is every new vehicle DGT registers as a passenger car — EU class M1 — with no model list on top. It therefore also holds the off-roaders (type 25) and the passenger versions of vans (Multivan, Tourneo, Berlingo, Proace Verso, …, about 2% of the market), which ANFAC — and with it ACEA — counts as light commercials; some DGT-based sites also leave out the off-roaders.
   decision:
     ask: DGT vehicle type?
     branches:
     - when: 40 turismo or 25 todo terreno (passenger car, off-roader)
-      note: incl. passenger versions of vans (Multivan, Tourneo, Berlingo, …), which ANFAC/ACEA count as vans — about 2 % of Whole
+      note: incl. passenger versions of vans (Multivan, Tourneo, Berlingo, …), which ANFAC/ACEA count as vans — about 2% of Whole
       then:
         ask: New or used?
         branches:
@@ -273,8 +273,8 @@ IEST help):
 | Zip URL | `https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/matriculaciones/export_mensual_mat_{YYYYMM}.zip` — month directory **not zero-padded** (`2026/4/`, the padded variant 404s). ~16–17 MB, one `.txt` inside. |
 | Access | Anonymous HTTP 200 from a GitHub Actions runner with browser headers + dgt.es warmup GET. No WAF trouble observed. Design PDF also downloads (910 KB, `/export/sites/web-DGT/.galleries/downloads/dgt-en-cifras/matraba/MATRICULACIONES_MATRABA.pdf`). |
 | Layout | 714-char fixed-width records, 69 fields; the design table gives (name, CHAR length) with **no position column** — positions are cumulative lengths, and they tile to exactly 714. Transcribed as `MATRABA_LAYOUT` in `fetch_spain.py`, spot-verified against real records (INE municipality code, tipo/clasificación/categoría at computed offsets). ~180–190k records/month. Banner line present in the monthly file (the design doc claims it's daily-only — outdated). Encoding latin-1. |
-| Trámite mix | The monthly file is 96–97 % clave trámite `1` (matriculación); `9` (re-matriculación, ≈ clase 7 histórica) and `B` are excluded by the new+turismo filters anyway. FEC_MATRICULA is ≈100 % in-month — no cut-off drift vs ANFAC. |
-| Key code tables (Anexo I) | COD_PROPULSION: 0 gasolina, 1 diésel, 2 eléctrico, 6 GLP, 7 GNC, 8 GNL, 9 H2, B etanol, C biodiésel. COD_SERVICIO/SERVICIO: `B00` particular (~75 %), `A01` alquiler sin conductor (~34–35k/month!), `A00` público, … CATEGORIA_VEHICULO_ELECTRICO: BEV/REEV/PHEV/HEV (+FCEV, single digits). COD_TIPO: 40 turismo, 25 todo terreno, 20 furgoneta, 30 autobús… |
+| Trámite mix | The monthly file is 96–97% clave trámite `1` (matriculación); `9` (re-matriculación, ≈ clase 7 histórica) and `B` are excluded by the new+turismo filters anyway. FEC_MATRICULA is ≈100% in-month — no cut-off drift vs ANFAC. |
+| Key code tables (Anexo I) | COD_PROPULSION: 0 gasolina, 1 diésel, 2 eléctrico, 6 GLP, 7 GNC, 8 GNL, 9 H2, B etanol, C biodiésel. COD_SERVICIO/SERVICIO: `B00` particular (~75%), `A01` alquiler sin conductor (~34–35k/month!), `A00` público, … CATEGORIA_VEHICULO_ELECTRICO: BEV/REEV/PHEV/HEV (+FCEV, single digits). COD_TIPO: 40 turismo, 25 todo terreno, 20 furgoneta, 30 autobús… |
 
 Publication day, since observed: the monthly file lands on the **15th**,
 06:30 UTC (§3b). Still unverified: layout stability across older years
@@ -300,8 +300,8 @@ https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/matriculaciones/export_ma
 | Cut | By registration date: every record's FEC_MATRICULA is the file's day (bar a stray historic plate). No cross-month drift, so a month = its days' files. |
 | Weekends | Usually 404; sometimes a file with 1–2 records (trailers, mopeds). |
 | Lifetime | **Deleted once the monthly file is published** — July/August daily files were already gone, so a same-month daily-vs-monthly diff was impossible. |
-| September 2026 | Daily sum, Whole: 96,047 cars, BEV 17,650 (18.38 %), BEV+PHEV+EREV 32,565. ANFAC: 93,858 / 31,945 → +2.3 % / +1.9 %, the usual DGT-vs-ANFAC scope gap (§4). |
-| Third-party check | [cardatasales.com](https://cardatasales.com/) (also built on DGT registrations): over 2025-01…2026-08 its totals run 3.4–5.2 % and its BEV 0.8–2.6 % below our monthly-file rows; September's daily sum sits in the same band (−3.6 % / −0.5 %; BEV 17,558 vs 17,650). The gap is pure scope, decomposed exactly per brand (probe 2026-10-03, Jul/Aug 2026): it drops **COD_TIPO 25 todo terreno** (Volvo XC60/XC90, Land Rover, Land Cruiser, BMW X5–X7, GLE/GLS, Cayenne …; 1,058 in Aug) **and** the van-derived M1 people movers ANFAC also drops (Proace Verso, Townstar/Primastar, Multivan/Caddy, Tourneo, Rifter, Berlingo …; ≈1,850 in Aug): 70,458 − 1,058 − 1,850 = 67,550, its exact August total. So ANFAC ≈ ours − people movers, cardatasales ≈ ANFAC − todoterrenos. Our Whole keeps both (EU M1, invariant 5). |
+| September 2026 | Daily sum, Whole: 96,047 cars, BEV 17,650 (18.38%), BEV+PHEV+EREV 32,565. ANFAC: 93,858 / 31,945 → +2.3% / +1.9%, the usual DGT-vs-ANFAC scope gap (§4). |
+| Third-party check | [cardatasales.com](https://cardatasales.com/) (also built on DGT registrations): over 2025-01…2026-08 its totals run 3.4–5.2% and its BEV 0.8–2.6% below our monthly-file rows; September's daily sum sits in the same band (−3.6% / −0.5%; BEV 17,558 vs 17,650). The gap is pure scope, decomposed exactly per brand (probe 2026-10-03, Jul/Aug 2026): it drops **COD_TIPO 25 todo terreno** (Volvo XC60/XC90, Land Rover, Land Cruiser, BMW X5–X7, GLE/GLS, Cayenne …; 1,058 in Aug) **and** the van-derived M1 people movers ANFAC also drops (Proace Verso, Townstar/Primastar, Multivan/Caddy, Tourneo, Rifter, Berlingo …; ≈1,850 in Aug): 70,458 − 1,058 − 1,850 = 67,550, its exact August total. So ANFAC ≈ ours − people movers, cardatasales ≈ ANFAC − todoterrenos. Our Whole keeps both (EU M1, invariant 5). |
 
 **How `fetch_spain.py` uses them.** When the monthly file of the target
 month 404s, it fetches every daily file of that month. The month counts as
@@ -336,24 +336,24 @@ todoterrenos" wording. Its deltas vs the CSV, stable across all four months:
 
 | Fuel | Δ DGT-C vs CSV | Verdict |
 |---|---|---|
-| HEV | **−0.04 % … +0.17 %** (2026-05: ±0 *to the unit*) | identical bucket |
-| PETROL | +0.8 … +1.7 % | ≈ identical |
-| OTHERS | +1.5 … +3.5 % (small base) | ≈ identical |
-| PHEV | +1.6 … +3.2 % | small systematic surplus |
-| BEV | +3.1 … +3.6 % | small systematic surplus |
-| DIESEL | **+29 … +39 %** (+1.0 … +1.5 k units) | definitional, see below |
-| TOTAL | +1.9 … +2.5 % | — |
+| HEV | **−0.04% … +0.17%** (2026-05: ±0 *to the unit*) | identical bucket |
+| PETROL | +0.8 … +1.7% | ≈ identical |
+| OTHERS | +1.5 … +3.5% (small base) | ≈ identical |
+| PHEV | +1.6 … +3.2% | small systematic surplus |
+| BEV | +3.1 … +3.6% | small systematic surplus |
+| DIESEL | **+29 … +39%** (+1.0 … +1.5 k units) | definitional, see below |
+| TOTAL | +1.9 … +2.5% | — |
 
 In BEV-share terms (the gallery's headline metric) DGT-C sits **+0.05 to
-+0.28 pp** above the CSV series — e.g. 2026-05: 10.86 % vs 10.77 %.
++0.28 pp** above the CSV series — e.g. 2026-05: 10.86% vs 10.77%.
 
 **What the residual is (and is not).** The probe falsified, in order: trámite
-contamination (99.9 % of Filter C is plain clave `1`), month-cut-off effects
-(≈100 % in-month), tipo-25 scope (only ~1.7 k units, almost all PHEV/HEV —
+contamination (99.9% of Filter C is plain clave `1`), month-cut-off effects
+(≈100% in-month), tipo-25 scope (only ~1.7 k units, almost all PHEV/HEV —
 removing them *hurts* the HEV match), clase-matrícula scope (Filter B ≈ A),
-and autocaravanas (the diesel excess is 94 % inside clasificación `1000`,
+and autocaravanas (the diesel excess is 94% inside clasificación `1000`,
 plain turismo). What remains is a segment of ~2.4 k units/month with a
-signature of ~55 % diesel, ~10 % BEV, ~10 % PHEV, ~10 % petrol and **zero
+signature of ~55% diesel, ~10% BEV, ~10% PHEV, ~10% petrol and **zero
 HEV** — the profile of M1-homologated people movers / van-derived passenger
 vehicles (Multivan, V-Class, Vito Tourer, ID.Buzz, …), which DGT types as
 `40` but Ideauto/ANFAC segments into *light commercials* on a per-model
@@ -365,7 +365,7 @@ so this residual is the irreducible definitional difference between
 (2026-01…03, source `ACEA / DGT / asierlizarraga`) show *the same* deltas as
 the pure-ACEA rows — the curated history follows the ANFAC market
 definition, not raw DGT-C. Switching the series to DGT-C therefore
-introduces a one-time definitional step (+~2 % TOTAL, +~30 % diesel,
+introduces a one-time definitional step (+~2% TOTAL, +~30% diesel,
 +~0.1–0.3 pp BEV share) unless the history is backfilled from DGT microdata
 under the same Filter-C definition (see §4b).
 

@@ -31,7 +31,7 @@ hev_note: BEV, PHEV and HEV are AAP's own powertrain classes. HEV counts full AN
 backfill: from 2019-01, the first month in the BI-AAP model; April 2020 has no registrations (COVID-19 lockdown)
 scope_note: First registrations of new light vehicles in Peru. Minibuses (Camionetas with body Microbús, M2), ambulances and hearses, all heavy vehicles and motorcycles are in no variant.
 caveats:
-- BEV and PHEV shares are still very small (0.5 % and 0.8 % of new cars in 2025–26) — the fit sits at the very start of the S-curve and moves a lot with each new month.
+- BEV and PHEV shares are still very small (0.5% and 0.8% of new cars in 2025–26) — the fit sits at the very start of the S-curve and moves a lot with each new month.
 - 'Pickups are counted in Vans, not in Whole (they are N1 goods vehicles), so AAP''s "livianos" figures are larger than Whole: July 2026 BEV = 65 in BI-AAP''s light vehicles = 57 Whole + 6 Vans (pickups, dropsides) + 2 minibuses (in no variant).'
 - HEV includes mild hybrids (48 V Suzuki, Mercedes, BMW, Audi systems), about half of all hybrids in 2025.
 - No registrations in April 2020 (the registry was closed during the COVID-19 lockdown); that month has no row and May 2020 is tiny.
@@ -68,10 +68,10 @@ processing:
               then: in no variant
             - when: any other body
               then: in no variant
-              note: listed in the run summary; above 1 % of the month's light vehicles the run stops
+              note: listed in the run summary; above 1% of the month's light vehicles the run stops
         - when: any other class
           then: in no variant
-          note: listed in the run summary; above 1 % of the month's light vehicles the run stops
+          note: listed in the run summary; above 1% of the month's light vehicles the run stops
     - when: Pesados (trucks, tractors, buses), Menores (motorcycles, three-wheelers) or any other group
       then: in no variant
 - title: Powertrain
@@ -101,7 +101,7 @@ processing:
       then: the month is not written (see below)
     - when: any other value
       then: OTHERS
-      note: above 2 % of a month's Whole the run stops
+      note: above 2% of a month's Whole the run stops
 - title: Month
   text:
   - AAP reloads the report on no fixed day, and the newest month of each reload is a preliminary cut. A month goes into the CSV only once it is provably complete; months already written are rewritten on every reload, because AAP re-classifies the powertrain split of earlier months.
@@ -122,8 +122,8 @@ processing:
             branches:
             - when: yes, with the same total of new light and heavy vehicles
               then: written
-              note: a month not in the CSV yet that falls below 40 % of the trailing twelve-month median is still held back
-            - when: yes, but the totals differ by more than 2 vehicles and 0.5 %
+              note: a month not in the CSV yet that falls below 40% of the trailing twelve-month median is still held back
+            - when: yes, but the totals differ by more than 2 vehicles and 0.5%
               then: the run stops, nothing is written
             - when: not yet
               then: held back until the report has it
@@ -196,7 +196,7 @@ Autostat Info reseller) is sold per report (3,000–10,000 ₽); the free part i
 news prose with a monthly BEV total and a top-10 list — no fuel split of the
 total market, no complete brand/model table. It fails the bar; details in
 [33](33-expansion-candidates.md#investigated-2026-09--large-markets-still-missing).
-Peru (≈ 187,000 new light vehicles in 2025, +40 % in 2026) was the best
+Peru (≈ 187,000 new light vehicles in 2025, +40% in 2026) was the best
 source found instead.
 
 ## 2. Record → CSV row
@@ -257,7 +257,7 @@ split of the old `HIBRIDO` code.
 | `GNV`, `BI-GNV`, `DUAL GNV` | CNG |
 | `GLP`, `BI-GLP`, `DUAL GLP` | LPG |
 | `GNL`, `BI-GNL`, `DUAL GNL` (LNG), `-` (not stated) | OTHERS |
-| anything else | OTHERS, listed in the report; > 2 % of Whole aborts |
+| anything else | OTHERS, listed in the report; > 2% of Whole aborts |
 
 **Mild hybrids.** Until 2024 the registry's `HIBRIDO` held full and mild
 hybrids together — Suzuki's 48 V models, Mercedes, Audi and BMW mild hybrids
@@ -278,8 +278,8 @@ after printing; see §5a.
 
 | Variant | Rule (group `LIVIANOS`) | EU anchor | 2025 |
 |---|---|---|---|
-| `Whole` | class `AUTOMOVIL`, `STATION WAGON`, `SUV,TODOTERRENOS`, or `CAMIONETAS` with body `MULTIPROPOSITO` | M1 | 136,531 (BEV 0.47 %, PHEV 0.35 %, HEV 6.4 %) |
-| `Vans` | class `PICK UP Y FURGONETAS` (pickup, chassis-cab, dropside, box van, reefer), or `CAMIONETAS` with body `PANEL` | N1 | 40,345 (BEV 0.25 %, diesel 84 %) |
+| `Whole` | class `AUTOMOVIL`, `STATION WAGON`, `SUV,TODOTERRENOS`, or `CAMIONETAS` with body `MULTIPROPOSITO` | M1 | 136,531 (BEV 0.47%, PHEV 0.35%, HEV 6.4%) |
+| `Vans` | class `PICK UP Y FURGONETAS` (pickup, chassis-cab, dropside, box van, reefer), or `CAMIONETAS` with body `PANEL` | N1 | 40,345 (BEV 0.25%, diesel 84%) |
 
 **Pickups are in `Vans`, not in `Whole`.** Peru's pickups (Toyota Hilux, Ford
 Ranger, Great Wall Poer, …) are registered as goods vehicles, so they follow
@@ -327,7 +327,7 @@ hold** (`main()` steps 1–3 and the `writable` filter):
    on 2 October can never yield "October";
 2. **AAP has classified it** — no light vehicle with an empty `Elect`;
 3. **AAP's printed monthly report has it and the month's total agrees**
-   (new light + heavy vehicles, ±2 units / 0.5 %).
+   (new light + heavy vehicles, ±2 units / 0.5%).
 
 Rule 3 is the proof of completeness, and it works because the printed totals
 are **never revised**: the "Evolución mensual" tables of five editions
@@ -335,7 +335,7 @@ are **never revised**: the "Evolución mensual" tables of five editions
 month. A month that passes 1–2 but is not in the report yet is **held back**
 (`::notice::`, step summary) and written on the first run after the report
 appears. Without a reachable report no new month is written at all, only
-revisions of months already in the CSVs. A new month below 40 % of the
+revisions of months already in the CSVs. A new month below 40% of the
 trailing median is held back as well (a second guard, never needed so far).
 
 **Revisions exist, and they are powertrain re-classifications, not new
@@ -383,10 +383,10 @@ the series should follow — like the Netherlands' or Spain's registry fetchers.
 | Month strictly before the reload month | never a candidate |
 | Month classified by AAP (no light vehicle with an empty `Elect`) | month not written (`::warning::`), retried next run |
 | **Month confirmed by AAP's printed report** (in its table, total agrees) | held back (`::notice::`), written once the report has it; no report reachable → no new month, revisions only |
-| Unknown powertrain values ≤ 2 % of Whole | abort above; below → OTHERS, listed |
-| Light-vehicle class/body in no variant (not on the excluded list) ≤ 1 % | abort above; listed in the step summary |
-| A new month's Whole ≥ 40 % of the trailing-12 median | held back (`::warning::`; `--force` overrides) |
-| **Cross-check vs AAP's printed report** — new light + heavy vehicles per month, every month in its "Evolución mensual" table | ≤ 2 units or 0.5 % → reported; more → abort (`--force` overrides); report unreachable → warning |
+| Unknown powertrain values ≤ 2% of Whole | abort above; below → OTHERS, listed |
+| Light-vehicle class/body in no variant (not on the excluded list) ≤ 1% | abort above; listed in the step summary |
+| A new month's Whole ≥ 40% of the trailing-12 median | held back (`::warning::`; `--force` overrides) |
+| **Cross-check vs AAP's printed report** — new light + heavy vehicles per month, every month in its "Evolución mensual" table | ≤ 2 units or 0.5% → reported; more → abort (`--force` overrides); report unreachable → warning |
 | Revised earlier rows | applied, listed in the step summary + `::notice::` |
 | Fuels sum to TOTAL, every row | abort |
 | Fetcher + `market_top` regression tests (`test_fetch_peru.py`) | the workflow stops before fetching |
@@ -409,16 +409,16 @@ rows (`--from-json`). All three produced byte-identical CSVs and
 no-op.
 
 **Plausibility.** New light vehicles 2025 (group `LIVIANOS`): 186,981;
-Whole + Vans = 176,876, the rest (≈ 10,100) minibuses and special bodies. The 2026 boom (+40 % year on year)
-is in AAP's report too. BEV share of new cars 0.01 % (2019) → 0.14 % (2023) →
-0.47 % (2025); PHEV 0.35 % (2025) → 0.8 % (Jan–Jul 2026); HEV incl. mild
-0.3 % → 6.4 % → 7.5 %. Top BEVs in the year to July 2026: Volvo EX30, BYD
+Whole + Vans = 176,876, the rest (≈ 10,100) minibuses and special bodies. The 2026 boom (+40% year on year)
+is in AAP's report too. BEV share of new cars 0.01% (2019) → 0.14% (2023) →
+0.47% (2025); PHEV 0.35% (2025) → 0.8% (Jan–Jul 2026); HEV incl. mild
+0.3% → 6.4% → 7.5%. Top BEVs in the year to July 2026: Volvo EX30, BYD
 Yuan Up, BYD Seagull, Changan Deepal; top PHEVs BYD Song Plus DM-i, Volvo
 XC60, Geely EX5 EM-i.
 
 ## 6a. Reading the fit
 
-Peru is at the very start of the curve: under 1 % BEV, with hybrids (mostly
+Peru is at the very start of the curve: under 1% BEV, with hybrids (mostly
 Toyota's Corolla Cross and Yaris Cross, plus Suzuki's mild hybrids) doing the
 electrification so far. A Weibull fit on shares this small is dominated by the
 last few months and will swing as each new month lands; read the level, not
@@ -426,15 +426,15 @@ the crossing years. Two things move the denominator: the COVID-19 gap
 (April 2020 no row, May 2020 ≈ 300 cars) and the 2026 market boom
 (≈ 15,000–17,000 new cars a month against ≈ 11,000 in 2025).
 
-**How Peru shows in the gallery (until BEV passes 1 %).** At 0.46 % BEV in
+**How Peru shows in the gallery (until BEV passes 1%).** At 0.46% BEV in
 the trailing twelve months, Peru falls under the gallery's *no transition*
-rule (`rowHasNoTransition`: under 1 % BEV), whatever the fitted curve says —
+rule (`rowHasNoTransition`: under 1% BEV), whatever the fitted curve says —
 and that is shown, not hidden: the *No transition* pill on its cards, *shows
 no transition* in Thresholds and Durations, dark grey on the World Map (Cars
 and Vans) listed with its observed share. Its fit is not collapsed, so it is
 not treated like Argentina (whose collapsed fit is kept out on purpose).
 Checked in a headless browser with the backtest fit of 2026-07. Once the
-trailing share passes 1 % (5 % at the latest) the label goes away by itself.
+trailing share passes 1% (5% at the latest) the label goes away by itself.
 
 ## 7. Outputs
 
@@ -513,6 +513,6 @@ sequenceDiagram
 | `No classified month found in BI-AAP` | no month in the last four is classified | check the report; AAP may have stopped filling `Elect` — then map `Comb` (the registry code) instead, with tests |
 | `Cross-check against AAP's printed report failed` | BI-AAP and the report disagree beyond 2 units | compare the named months by hand (report page "Evolución mensual"). A report built from an older extract → wait for the next one or `force`; a scope change in `Grupo` → document it here |
 | `AAP report unavailable` warning | the reports page or PDF layout changed | revisions are still written but **no new month** until it is fixed: fix `latest_report_url()` / `report_table_from_pdf()` and `test_report_table` (or dispatch with `force` for one month, after checking it by hand) |
-| `unknown powertrain values … schema drift` | a new `Elect` value (> 2 % of Whole) | map it in `FUEL_MAP` with a test |
+| `unknown powertrain values … schema drift` | a new `Elect` value (> 2% of Whole) | map it in `FUEL_MAP` with a test |
 | `light vehicles in a class/body no variant knows` | a new AAP class or body | decide M1 / N1 / excluded in `variant_for()` and the constants above it, with a test |
 | commit step `non-fast-forward` | a concurrent commit | already rebased by the action; re-run |

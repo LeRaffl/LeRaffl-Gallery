@@ -144,7 +144,7 @@ History:   2018-01 → today, record level.
 Fuel:      NOT in the records. Classified from the model designation by
            classification/argentina_rules.csv (§4); every designation's
            class + deciding rule in classification/argentina_models.csv.
-           Validated against ACARA: BEV exact, HEV/PHEV within 0.4 %.
+           Validated against ACARA: BEV exact, HEV/PHEV within 0.4%.
 Variants:  Whole (≈M1) · Private · Industry — rendered.
            Pickups — DATA ONLY (CSV kept current, never rendered).
 Not here:  Vans / HDV / Buses (no weight or seat count), quadricycles
@@ -198,7 +198,7 @@ Tita, Sero, XEV Yoyo) are EU L-category, not M1. Trailers and off-road buggies
 are out as well.
 
 **Scope vs ACARA.** ACARA's "Autos" is a slightly narrower passenger-car
-definition: June 2026 Whole = 31,069 vs ACARA Autos 30,106 (+3 %).
+definition: June 2026 Whole = 31,069 vs ACARA Autos 30,106 (+3%).
 
 ## 4. Powertrain classification — the method in full
 
@@ -265,10 +265,10 @@ At the 2026-08 snapshot: **59 rules** (27 BEV, 19 PHEV, 6 MHEV, 5 HEV, 1 EREV,
 
 | kind | what it is | share of electrified registrations decided (2018–2026-08) | risk |
 |---|---|---:|---|
-| `token` | a generic word any brand might use: `EV`, `BEV`, `ELECTRICO`, `PHEV`, `DM-I`, `REEV`, `MHEV`, `48V`, `HEV`, `HYBRID`, `HIBRIDO`, `E-POWER` … | **76.9 %** | a word that *means something else* for one brand — hence the exclusions and brand overrides placed **before** the token rules |
-| `brand-code` | a brand's own naming code: Volvo `T8`, BMW `330E`, Lexus `300H`/`450H+`, Mercedes `300 E`, Toyota `HV`, Suzuki/Stellantis/Renault `HYBRID` = mild | 13.9 % | brand changes its naming scheme |
-| `model` | one specific model: Changan `CS55 PLUS`, DFSK `E5`, BAIC `BJ30`, SWM `EDI`, Q5 gen-3 exact strings, BYD `SHARK` … | 8.8 % | the importer adds a different powertrain under the same name (e.g. a petrol CS55 Plus) |
-| `brand-all` | "every remaining model of this brand is a BEV" (BYD, Leapmotor, Deepal, JMEV, Arcfox, Xiaomi, Tesla …) | 0.3 % | **highest**: a new non-EV model of such a brand is silently a BEV. Found once already: `BYD SHARK GS` (a PHEV pickup without the DM marker) — fixed by `phev-byd-shark` above it. Every new designation of these brands is listed in the monthly report (§7.1) |
+| `token` | a generic word any brand might use: `EV`, `BEV`, `ELECTRICO`, `PHEV`, `DM-I`, `REEV`, `MHEV`, `48V`, `HEV`, `HYBRID`, `HIBRIDO`, `E-POWER` … | **76.9%** | a word that *means something else* for one brand — hence the exclusions and brand overrides placed **before** the token rules |
+| `brand-code` | a brand's own naming code: Volvo `T8`, BMW `330E`, Lexus `300H`/`450H+`, Mercedes `300 E`, Toyota `HV`, Suzuki/Stellantis/Renault `HYBRID` = mild | 13.9% | brand changes its naming scheme |
+| `model` | one specific model: Changan `CS55 PLUS`, DFSK `E5`, BAIC `BJ30`, SWM `EDI`, Q5 gen-3 exact strings, BYD `SHARK` … | 8.8% | the importer adds a different powertrain under the same name (e.g. a petrol CS55 Plus) |
+| `brand-all` | "every remaining model of this brand is a BEV" (BYD, Leapmotor, Deepal, JMEV, Arcfox, Xiaomi, Tesla …) | 0.3% | **highest**: a new non-EV model of such a brand is silently a BEV. Found once already: `BYD SHARK GS` (a PHEV pickup without the DM marker) — fixed by `phev-byd-shark` above it. Every new designation of these brands is listed in the monthly report (§7.1) |
 | `exclusion` | an explicit `ICE` rule for a known false positive (`PACK ELECTRICO`) | — | none; keeps a token honest |
 
 **Precedence is the design.** The file is grouped top to bottom as:
@@ -320,15 +320,15 @@ electrified vans/quadricycles ACARA also counts.
 | H1 2026 | this classifier | ACARA | Δ |
 |---|---:|---:|---:|
 | BEV | 3,877 | 3,877 | 0 |
-| HEV | 23,226 | 23,222 | +0.02 % |
-| PHEV (+EREV) | 9,019 | 8,979 | +0.4 % |
-| MHEV | 6,316 | 6,160 | +2.5 % |
+| HEV | 23,226 | 23,222 | +0.02% |
+| PHEV (+EREV) | 9,019 | 8,979 | +0.4% |
+| MHEV | 6,316 | 6,160 | +2.5% |
 
 Model-level: Ford Territory HEV 4,903, Corolla Cross HEV 4,098, BAIC BJ30
 3,702, BYD Atto 2 2,554, Song Pro 2,502, Yaris Cross HEV 2,237 — all equal to
 ACARA's published ranking. Monthly: July 2026 hybrids 6,275 vs 6,265; August
-6,964 vs 6,991. Full-year 2025: HEV 20,128 vs ≈20,240 (76 % of 26,632), BEV
-1,265 vs ≈1,330, PHEV 650 vs ≈530 (2 %, rounded) — **MHEV 3,600 vs ≈4,530**
+6,964 vs 6,991. Full-year 2025: HEV 20,128 vs ≈20,240 (76% of 26,632), BEV
+1,265 vs ≈1,330, PHEV 650 vs ≈530 (2%, rounded) — **MHEV 3,600 vs ≈4,530**
 (2025 mild hybrids that no designation marks are counted as ICE — the known
 limitation, ICE-side in every chart).
 
@@ -340,7 +340,7 @@ brands; MHEV −400 → gen-3 Audi Q5.
 **To re-validate** after ACARA publishes a new electrified report: sum
 `classification/argentina_models.csv` rows (Whole + Pickups) by class for the
 same months — or re-run the offline harness with `--from-agg` — and compare.
-Deviations beyond ~3 % on BEV/PHEV/HEV mean a missing rule.
+Deviations beyond ~3% on BEV/PHEV/HEV mean a missing rule.
 
 ### 4.7 Known limitations
 
@@ -349,16 +349,16 @@ Deviations beyond ~3 % on BEV/PHEV/HEV mean a missing rule.
 * **Designation-level ambiguity** — where one designation covers two
   powertrains (Porsche Macan across generations) the rule picks the safe
   side (ICE) and the case is listed in 4.5.
-* **Old model years** — 0.2–1.1 % of in-scope first registrations per year
+* **Old model years** — 0.2–1.1% of in-scope first registrations per year
   carry a model year ≥ 2 years older than the registration (mostly unsold
   stock registered late, e.g. HR-V 2021 registered in 2023; a few classics
   imported through the ordinary 0 km procedure). They are genuine first
   registrations and stay in.
 * **Reading the fitted curve.** Electrified registrations only took off with
   the 2025 zero-duty import quota (Decreto 49/2025: 50,000 electrified units a
-  year): BEV was ≈0.1 % of Whole until mid-2025 and 2–3 % by mid-2026, PHEV 0 →
-  ~6 %. The first render (2026-08) therefore fits about a year of steep,
-  policy-driven signal and extrapolates an ICE 80→20 % time of ~1 year, in the
+  year): BEV was ≈0.1% of Whole until mid-2025 and 2–3% by mid-2026, PHEV 0 →
+  ~6%. The first render (2026-08) therefore fits about a year of steep,
+  policy-driven signal and extrapolates an ICE 80→20% time of ~1 year, in the
   same aggressive range as the other early-stage markets (Uruguay 1.15 y,
   Indonesia 1.35 y). That is the model's documented early-stage volatility
   (README, "Uncertainty"), not a data defect, and it will settle as history
@@ -496,7 +496,7 @@ Effect: Pickups 2026-01 moved 2 units BEV → PHEV; nothing else changed.
   family name → verify.
 * An importer reuses an existing name for a new powertrain (CS55 Plus petrol,
   X55 hybrid, Arkana full hybrid) → the `model` rule needs narrowing.
-* ACARA's monthly electrified numbers drift more than ~3 % from the mapping
+* ACARA's monthly electrified numbers drift more than ~3% from the mapping
   totals for BEV, PHEV or HEV → a missing rule.
 * A rule's "Decides" count on the source page drops to 0 after having been
   > 0 → it is being shadowed (the tests catch this for rules with examples).
@@ -540,8 +540,8 @@ sequenceDiagram
   monthly CSV. Full re-derivation keeps the CSVs, the mapping and the rules
   consistent by construction; only changed lines are rewritten.
 - **Completeness guard:** a newly published month whose Whole TOTAL is below
-  40 % of the trailing-12 median is treated as a partial upload and not
-  written (`--force` overrides; backfills skip it — 2020-04 really was ~10 %).
+  40% of the trailing-12 median is treated as a partial upload and not
+  written (`--force` overrides; backfills skip it — 2020-04 really was ~10%).
 - **Tests gate the fetch:** `test_fetch_argentina.py` runs first (rule table
   well-formed, every example decided by its own rule, ~100 pinned real
   designations, scope filter, owner split, upsert, mapping/top/report).

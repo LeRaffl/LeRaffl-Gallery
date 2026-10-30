@@ -245,7 +245,7 @@ current):
   printed market share and % change must match the counts within 0.25 pp —
   a column inserted or swapped fails here (test `test_swapped_year_columns`).
 - **Year-to-date check:** the release's YTD TOTAL minus the CSV's January …
-  M−1 must equal this month's TOTAL; above 1 % a warning, above 5 % the run
+  M−1 must equal this month's TOTAL; above 1% a warning, above 5% the run
   aborts (wrong month, or a heavy SMMT revision — check by hand, then
   `force`). Over 2024-11 → 2026-09 the largest difference was 3 cars
   (per fuel, HEV/PETROL reclassifications of up to ~5,000 cars over the
@@ -266,13 +266,13 @@ where the hand entry had left it empty (most hand-entered rows say `0`).
 
 ## 6. Reading the fit
 
-The UK's BEV share of new cars: 1.6 % (2019), 6.6 % (2020), 11.6 % (2021),
-16.6 % (2022), 16.5 % (2023), 19.6 % (2024), 23.4 % (2025) and 26.2 % in
-January–September 2026 (September 28.3 %, a record 99,199 cars). The
-ZEV mandate (22 % of each maker's sales in 2024, 28 % in 2025, 33 % in 2026,
+The UK's BEV share of new cars: 1.6% (2019), 6.6% (2020), 11.6% (2021),
+16.6% (2022), 16.5% (2023), 19.6% (2024), 23.4% (2025) and 26.2% in
+January–September 2026 (September 28.3%, a record 99,199 cars). The
+ZEV mandate (22% of each maker's sales in 2024, 28% in 2025, 33% in 2026,
 with flexibilities) is why manufacturers discount BEVs; plug-in hybrids
-(14.1 % in 2026) count towards the mandate's flexibilities and grow fast.
-Full hybrids (13.8 %) count as ICE. The plate months make single months
+(14.1% in 2026) count towards the mandate's flexibilities and grow fast.
+Full hybrids (13.8%) count as ICE. The plate months make single months
 lumpy — September 2026 had 350,518 registrations, August 94,236.
 
 ## 7. Outputs
