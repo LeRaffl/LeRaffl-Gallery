@@ -178,8 +178,8 @@ Cross-checks performed at build time (2026-07): FY 2080/81 Whole BEV
 
 The series is a gapless **monthly** run from **2020-08** (FY 2077/78
 Shrawan) onward, spanning Nepal's whole BEV take-off (calendar-year Whole
-BEV share: 0.6 % in 2020 → 6 % in 2021 → 24 % in 2022 → 60 % in 2023 →
-~75 % from 2024). The floor is deliberate, not a parser limitation.
+BEV share: 0.6% in 2020 → 6% in 2021 → 24% in 2022 → 60% in 2023 →
+~75% from 2024). The floor is deliberate, not a parser limitation.
 
 ### Why the pre-2020 tail is *not* backfilled (investigated & rejected)
 
@@ -211,8 +211,8 @@ inflated FY 2076/77 `Whole` BEV of ~15,500 that dwarfs and contradicts the
 monthly era right next to it. Publishing that would make the headline
 `Whole` curve wrong, so the pre-2020 annual points are **deliberately
 omitted**. (The analytical loss is negligible: the model already assumes a
-0 % start, and the monthly series already captures the take-off from
-< 1 % share.) The rejected approach — an adaptive annual parser plus a
+0% start, and the monthly series already captures the take-off from
+< 1% share.) The rejected approach — an adaptive annual parser plus a
 consistency-validation harness against the monthly overlap — lived on this
 branch during the investigation and was removed once the tariff-code
 ambiguity was confirmed.

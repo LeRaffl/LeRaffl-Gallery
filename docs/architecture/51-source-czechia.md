@@ -41,7 +41,7 @@ scope_note: Vehicles in the road register RSV (not the historic-vehicle register
 caveats:
 - 'Register-written Whole rows (from 2026-09, until ACEA publishes the month — and for July, which ACEA never publishes on its own): BEV, PHEV, other fuels and TOTAL are register counts; HEV, PETROL and DIESEL are estimated in the previous ACEA month''s proportions, and the row says so in its notes.'
 - 'Until ACEA replaces a register row, the generated posts give no HEV share for that month (ICE includes HEV) — the estimate is not quoted.'
-- Vans count about 2–3 % fewer vehicles than SDA/ACEA, and up to a quarter fewer electric vans since 2025 — SDA also counts vans first registered abroad shortly before import, which the register files as used.
+- Vans count about 2–3% fewer vehicles than SDA/ACEA, and up to a quarter fewer electric vans since 2025 — SDA also counts vans first registered abroad shortly before import, which the register files as used.
 - Vans, HDV and Buses were quarterly ACEA figures before 2026-10 (BEV and PHEV merged into one "electrically chargeable" number); they are now monthly register counts with a BEV/PHEV split, back to 2016.
 processing:
 - title: Download
@@ -146,9 +146,9 @@ Timing:    the extract of 1 Oct holds September complete (and a few
 Variants:  Whole · Used · Vans · HDV · Buses
 Whole:     register row on the 1st–3rd (BEV/PHEV/OTHERS/TOTAL exact,
            HEV/PETROL/DIESEL estimated) → replaced by ACEA (always-list).
-Check:     TOTAL M1 2025-06..2026-08 within 0.0–0.9 % of SDA/ACEA (mostly
-           0.0–0.3 %), BEV within a few cars a month; Sept 2026: 19,078 vs
-           SDA's 19,095. PHEV 2022–2026 +0.8 % in sum (§4).
+Check:     TOTAL M1 2025-06..2026-08 within 0.0–0.9% of SDA/ACEA (mostly
+           0.0–0.3%), BEV within a few cars a month; Sept 2026: 19,078 vs
+           SDA's 19,095. PHEV 2022–2026 +0.8% in sum (§4).
 Run:       ~1–2 h streaming (101 min for the 2026-10-01 extract), once a month;
            nothing stored.
 ```
@@ -204,7 +204,7 @@ About 25 cars a month were first registered abroad in the same month as in Czech
 | `HDV` | new ∧ N2/N2G/N3/N3G | same |
 | `Buses` | new ∧ M2/M2G/M3/M3G | same |
 
-M1 + M1G together is what SDA counts (M1 alone is 4–7 % short). Campers and special
+M1 + M1G together is what SDA counts (M1 alone is 4–7% short). Campers and special
 vehicles of category M1 are included, as at SDA.
 
 **Fuel.** `EL` alone → BEV. Any gas/hydrogen/ethanol token → OTHERS (`BA + LPG` is SDA's
@@ -223,8 +223,8 @@ is filled for most of them. Step 3 settles ~70–100 cars a month.
 
 | register reading of "hybrid" | HEV vs SDA |
 |---|---|
-| the hybrid flag / class on the record | −77 % |
-| propagated to the type-approval variant | −40 % (and +10 % in 2026) |
+| the hybrid flag / class on the record | −77% |
+| propagated to the type-approval variant | −40% (and +10% in 2026) |
 
 SDA's December 2025 hybrid table lists 701 Toyota Corollas as hybrids; the register flags
 about 300 of them. Mild hybrids (Volvo B4, Škoda e-TEC, Suzuki) carry no flag at all. HEV
@@ -259,20 +259,20 @@ Register extract of 2026-10-01 against the CSV (SDA, via ACEA):
 
 | period | CSV | register | Δ |
 |---|---|---|---|
-| 2025-06 | 22,208 | 22,192 | −0.1 % |
-| 2025-09 | 21,370 | 21,361 | −0.0 % |
-| 2025-12 | 21,667 | 21,538 | −0.6 % |
-| 2026-03 | 23,916 | 23,704 | −0.9 % |
-| 2026-06 | 26,398 | 26,387 | −0.0 % |
-| 2026-08 | 17,718 | 17,714 | −0.0 % |
-| 2026-09 | 19,095 (SDA press release) | 19,078 | −0.1 % |
+| 2025-06 | 22,208 | 22,192 | −0.1% |
+| 2025-09 | 21,370 | 21,361 | −0.0% |
+| 2025-12 | 21,667 | 21,538 | −0.6% |
+| 2026-03 | 23,916 | 23,704 | −0.9% |
+| 2026-06 | 26,398 | 26,387 | −0.0% |
+| 2026-08 | 17,718 | 17,714 | −0.0% |
+| 2026-09 | 19,095 (SDA press release) | 19,078 | −0.1% |
 
-Year ends 2011–2024: within ±2.3 % (2021/2022 −2 %; most years under 1 %).
+Year ends 2011–2024: within ±2.3% (2021/2022 −2%; most years under 1%).
 
 **BEV** agrees within 0–4 cars in every month of 2025–2026. **OTHERS** likewise.
-**PHEV** with the test above, by year: 2019 −5.7 %, 2020 +0.9 %, 2021 −1.4 %, 2022 +1.0 %,
-2023 +7.1 %, 2024 +6.2 %, 2025 −1.1 %, 2026 (Jan–Aug) −3.0 %; single months 2025–2026
-between −4.4 % and +0.5 %. (Before 2018 SDA counted every petrol-electric car as PHEV —
+**PHEV** with the test above, by year: 2019 −5.7%, 2020 +0.9%, 2021 −1.4%, 2022 +1.0%,
+2023 +7.1%, 2024 +6.2%, 2025 −1.1%, 2026 (Jan–Aug) −3.0%; single months 2025–2026
+between −4.4% and +0.5%. (Before 2018 SDA counted every petrol-electric car as PHEV —
 the CSV's 2016–2017 PHEV are 7–10× the register's plug-ins; Whole's history is not
 rewritten.) September 2026: BEV 2,141 = SDA/ACEA exactly; PHEV 877 vs 920.
 
@@ -281,8 +281,8 @@ rewritten.) September 2026: BEV 2,141 = SDA/ACEA exactly; PHEV 877 vs 920.
 | variant | TOTAL | BEV |
 |---|---|---|
 | Buses | ±0–3 vehicles a quarter | equal |
-| HDV | −0.2 … −3.3 % (≈ −1 %) | equal ±2 |
-| Vans | −1.3 … −6.3 % (≈ −2.5 %) | 2025-H2: 701 vs 928 |
+| HDV | −0.2 … −3.3% (≈ −1%) | equal ±2 |
+| Vans | −1.3 … −6.3% (≈ −2.5%) | 2025-H2: 701 vs 928 |
 
 The van gap is near-new imports: 164 electric vans with a foreign first registration
 entered the register in 2025-H2 — SDA counts most of them as new, the register as used.
@@ -305,8 +305,8 @@ missing CSV is backfilled automatically.
 | a required column missing | abort (schema drift) |
 | fewer than 15 M rows read | treated as a truncated stream → restart (4 attempts) |
 | gzip stream ends early / connection drops | restart from the top after 1 / 3 / 10 min |
-| Whole month < 50 % of its trailing-12 median | not written (`--force` overrides) |
-| unknown fuel strings > 0.5 % of the month's Whole | abort; listed in the log |
+| Whole month < 50% of its trailing-12 median | not written (`--force` overrides) |
+| unknown fuel strings > 0.5% of the month's Whole | abort; listed in the log |
 | fuels ≠ TOTAL | assertion — never written |
 
 Step summary: the newest month of every variant. Top lists (`market/czechia_top.json`,
@@ -333,7 +333,7 @@ columns on the page).
 | run ends "nothing to do" on the 2nd | the extract was not regenerated yet (header date still last month) | the next poll catches it |
 | `looks incomplete` | a partial extract | check the extract date and the month's count; rerun with `force` only if real |
 | `unknown fuel strings` | a new token in `Palivo` | add it to `GAS_TOKENS` / `TOKEN_ALIASES` + a test case |
-| PHEV off vs ACEA by > 5 % | new hybrid-class spellings, or CO2 ≥ 60 plug-ins without class | `hybrid_class()` cases in the tests; check the class strings of that month |
+| PHEV off vs ACEA by > 5% | new hybrid-class spellings, or CO2 ≥ 60 plug-ins without class | `hybrid_class()` cases in the tests; check the class strings of that month |
 | ACEA did not run for the month | throttle saw an ACEA row ≥ target | `latest_period_across` must only count `source == ACEA` |
 
 ## 8. Sequence
