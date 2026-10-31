@@ -1,6 +1,6 @@
 /* Tag boxplots — one horizontal boxplot per reference group and metric
-   (Speed, Timing), with curly braces over the lower 25 %, middle 50 % and
-   upper 25 % in the tag colours, labelled with the tag and its cut-off.
+   (Speed, Timing), with curly braces over the lower 25%, middle 50% and
+   upper 25% in the tag colours, labelled with the tag and its cut-off.
 
    Used in two places, always with the live params.csv:
    • sources/tags.html ("How the tags work", built by build_source_pages.py):
@@ -13,13 +13,13 @@
 (function(){
   const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const METRICS = {
-    timing: { name: 'Timing', axis: 'fitted year at 10 % BEV share',
+    timing: { name: 'Timing', axis: 'fitted year at 10% BEV share',
       fmt: v => String(Math.round(v)), fmtCut: v => tagFmtYearMonth(v), fmtFine: v => tagFmtYearMonth(v),
       bands: [ { v: 'early', label: 'Early starter', short: 'Early', col: 'var(--accent,#1d4f91)', op: '≤' },
                { v: 'mid', label: 'no timing pill', short: '', col: 'var(--muted-2,#8a877e)' },
                { v: 'late_start', label: 'Late starter', short: 'Late', col: 'var(--thr-late-txt,#c0562b)', op: '≥' } ] },
-    speed: { name: 'Speed', axis: 'slope at inflection, %/yr',
-      fmt: v => (v * 100).toFixed(1), fmtCut: v => (v * 100).toFixed(1), fmtFine: v => (v * 100).toFixed(2) + ' %/yr',
+    speed: { name: 'Speed', axis: 'slope at inflection, pp/yr',
+      fmt: v => (v * 100).toFixed(1), fmtCut: v => (v * 100).toFixed(1), fmtFine: v => (v * 100).toFixed(2) + ' pp/yr',
       bands: [ { v: 'slow', label: 'Slow', col: 'var(--warn,#9a6a00)', op: '≤' },
                { v: 'avg', label: 'Avg speed', short: '', col: 'var(--muted-2,#8a877e)' },
                { v: 'fast', label: 'Fast', col: 'var(--thr-past-txt,#2e8a57)', op: '≥' } ] },
