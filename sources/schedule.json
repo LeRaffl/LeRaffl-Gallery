@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-29T11:04:24Z",
- "today": "2026-10-29",
+ "generated": "2026-10-31T10:34:35Z",
+ "today": "2026-10-31",
  "countries": [
   {
    "country": "Albania",
@@ -1705,11 +1705,11 @@
    "source_url": "https://data.gov.hk/en-data/dataset/hk-td-wcms_11-first-reg-vehicle",
    "cadence_text": "twice daily, 03:20 and 11:20 UTC — TD uploads month M between the 13th and the 28th of M+1",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1766,30 +1766,30 @@
     ],
     "workflow": ".github/workflows/fetch-hong-kong.yml"
    },
-   "last_render": "2026-10-12",
+   "last_render": "2026-10-30",
    "flag": "🇭🇰",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2019-11",
-     "rows": 82,
+     "rows": 83,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2019-11",
-     "rows": 82,
+     "rows": 83,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2019-11",
-     "rows": 82,
+     "rows": 83,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -4251,11 +4251,11 @@
    "source_url": "https://aiu.thaiauto.or.th/",
    "cadence_text": "daily 04:40 UTC, 1st–20th of the month",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4300,38 +4300,38 @@
     ],
     "workflow": ".github/workflows/fetch-thailand.yml"
    },
-   "last_render": "2026-09-27",
+   "last_render": "2026-10-31",
    "flag": "🇹🇭",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "3-Wheelers",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     }

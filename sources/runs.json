@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-29T11:04:24Z",
+ "generated": "2026-10-31T10:34:35Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7184,6 +7184,62 @@
    "slug": "sweden_vans",
    "period": "2026-09",
    "flag": "🇸🇪"
+  },
+  {
+   "date": "2026-10-30",
+   "label": "Hong (Kong Used)",
+   "base": "Hong",
+   "slug": "hong_kong_used",
+   "period": "2026-09",
+   "flag": ""
+  },
+  {
+   "date": "2026-10-30",
+   "label": "Hong (Kong Vans)",
+   "base": "Hong",
+   "slug": "hong_kong_vans",
+   "period": "2026-09",
+   "flag": ""
+  },
+  {
+   "date": "2026-10-30",
+   "label": "Hong Kong",
+   "base": "Hong Kong",
+   "slug": "hong_kong",
+   "period": "2026-09",
+   "flag": "🇭🇰"
+  },
+  {
+   "date": "2026-10-31",
+   "label": "Thailand",
+   "base": "Thailand",
+   "slug": "thailand",
+   "period": "2026-09",
+   "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-10-31",
+   "label": "Thailand (3-Wheelers)",
+   "base": "Thailand",
+   "slug": "thailand_3_wheelers",
+   "period": "2026-09",
+   "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-10-31",
+   "label": "Thailand (Buses)",
+   "base": "Thailand",
+   "slug": "thailand_buses",
+   "period": "2026-09",
+   "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-10-31",
+   "label": "Thailand (HDV)",
+   "base": "Thailand",
+   "slug": "thailand_hdv",
+   "period": "2026-09",
+   "flag": "🇹🇭"
   }
  ]
 }
