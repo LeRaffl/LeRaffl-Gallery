@@ -1,8 +1,6 @@
 🇹🇭 Thailand (HDV) - TTM Market Split
 
-Sep24–Aug25  vs  Sep25–Aug26
-−0.0pp  BEV     (1.5% → 1.5%)
+Oct24–Sep25  vs  Oct25–Sep26
++0.0pp  BEV     (1.6% → 1.6%)
 +0.0pp  Hybrid  (0.0% → 0.0%)
-+0.0pp  ICE     (98.5% → 98.5%)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+−0.0pp  ICE     (98.4% → 98.4%)
