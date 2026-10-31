@@ -31,12 +31,12 @@ backfill: from 2017-01, the first month of the HS 2017 nomenclature that splits 
 scope_note: Imports for consumption of new cars (Whole) into Paraguay — counted when they clear customs, not when they are registered. Pickups and goods vehicles (NCM 87.04), golf carts, cars entering a bonded warehouse or free zone (counted when they leave it), temporary imports and leasing are in no variant.
 caveats:
 - These are imports, not registrations. Paraguay has no car industry, so over a year imports and the market are the same thing, and the distributors' chamber CADAM measures the market this way too. A single month can still run ahead of sales when importers stock up.
-- The powertrain is the tariff line the importer declares and customs accepts. Validated against CADAM's published yearly electrified imports, 2021–2025, within 2–6 % every year.
-- BEV here is lower than CADAM's published figure (2025 — 698 vs 858, −19 %). The gap is one of definition and is reconciled to a single car (see "Check against CADAM" below): CADAM adds up every declaration on the electric-only tariff line, so it counts the Nissan X-Trail e-POWER (a hybrid without a plug) as electric, counts a car that goes through a bonded warehouse or free zone twice — on entry and again on release — and includes used imports. This series counts each new car once, on release, and the e-POWER as a hybrid. Quoting CADAM's BEV figure next to this chart will therefore always show a gap.
+- The powertrain is the tariff line the importer declares and customs accepts. Validated against CADAM's published yearly electrified imports, 2021–2025, within 2–6% every year.
+- BEV here is lower than CADAM's published figure (2025 — 698 vs 858, −19%). The gap is one of definition and is reconciled to a single car (see "Check against CADAM" below): CADAM adds up every declaration on the electric-only tariff line, so it counts the Nissan X-Trail e-POWER (a hybrid without a plug) as electric, counts a car that goes through a bonded warehouse or free zone twice — on entry and again on release — and includes used imports. This series counts each new car once, on release, and the e-POWER as a hybrid. Quoting CADAM's BEV figure next to this chart will therefore always show a gap.
 - HEV includes mild hybrids (they share tariff subheading 8703.40 with full hybrids) — except where an importer declares them on a petrol line (Fiat Pulse/Fastback and Mazda CX-60/CX-90 mild hybrids, about 500 cars 2025–26), where they stay in PETROL.
 - A few models are declared on the wrong electrified tariff line and are corrected from their description: the Nissan X-Trail e-POWER (a hybrid without a plug, declared as electric-only) is counted as HEV, range-extender models (Leapmotor C10 REEV, Deepal S05) as PHEV.
 - Pickups are not in Whole (they are NCM 87.04, goods vehicles) — in Paraguay a large segment (Hilux, Ranger, …), so CADAM's "vehicles" figure is larger than Whole.
-- Used-car imports (one and a half to three times the number of new cars every year since 2017, almost all combustion — BEV about 0.03 %) are kept as a data-only file (data/Paraguay_Used.csv): fetched every month, not charted. The new-car chart therefore describes well under half of the cars entering the Paraguayan fleet.
+- Used-car imports (one and a half to three times the number of new cars every year since 2017, almost all combustion — BEV about 0.03%) are kept as a data-only file (data/Paraguay_Used.csv): fetched every month, not charted. The new-car chart therefore describes well under half of the cars entering the Paraguayan fleet.
 - One declaration item is one car. The quantity column is unreliable for cars (thousands of single cars a month carry "7"); a larger quantity is believed only when the item weighs that many cars.
 processing:
 - title: Download
@@ -101,7 +101,7 @@ processing:
   - One declaration item is one car — the quantity column is unreliable for cars, so a quantity above one is believed only when the item's net weight is that of that many cars (at least 600 kg each). A chassis number (VIN) quoted twice in one month counts once.
 - title: Check against CADAM
   text:
-  - CADAM, the distributors' chamber, publishes yearly electrified imports. BEV + PHEV + HEV together match within 2–6 % every year 2021–2025, PHEV and HEV in 2025 within 0.5 %. BEV is lower here (2025 — 698 vs 858) because the two count differently; going through every 2025 declaration on the electric-only line reconciles the two to a single car (698 + 82 + 68 + 9 = 857 vs 858).
+  - CADAM, the distributors' chamber, publishes yearly electrified imports. BEV + PHEV + HEV together match within 2–6% every year 2021–2025, PHEV and HEV in 2025 within 0.5%. BEV is lower here (2025 — 698 vs 858) because the two count differently; going through every 2025 declaration on the electric-only line reconciles the two to a single car (698 + 82 + 68 + 9 = 857 vs 858).
   decision:
     ask: A declaration on the electric-only line (8703.80) that CADAM counts as a BEV — what does this series do with it?
     branches:
@@ -109,7 +109,7 @@ processing:
       then: BEV (698 in 2025)
     - when: Nissan X-Trail e-POWER
       then: HEV, not BEV (82 in 2025)
-      note: a hybrid without a plug — CADAM's own brand table has Nissan at 13 % of its BEVs
+      note: a hybrid without a plug — CADAM's own brand table has Nissan at 13% of its BEVs
     - when: entry into a bonded warehouse or free zone (IDA3, ZF01, IT04)
       then: not counted on entry (68 in 2025)
       note: counted once, when it is released; a gross count takes it twice (15 Xiaomi into the free zone in 2025 and the same 15 out)
@@ -221,7 +221,7 @@ a legal classification, not a model-name heuristic.
 | 8703.90 | other | OTHERS |
 | 8703.10 | snow vehicles, golf carts | in no variant |
 
-Any other 87.03 subheading is reported; above 2 % of Whole the run aborts
+Any other 87.03 subheading is reported; above 2% of Whole the run aborts
 (nomenclature change — HS 2022 kept these lines; HS 2027 should be checked).
 
 ### 3a. Corrections of the declared line (`RECLASS_RULES`)
@@ -238,7 +238,7 @@ contains "HEV"):
 | BEV, HEV | `REEV`, `PHEV`, `DM-i`, plug-in — Leapmotor C10 REEV, Deepal S05, GWM New H6 PHEV, BMW X5 PHEV | PHEV | 52 |
 | BEV | `HEV`, `HYBRID` | HEV | 0 (a single BMW) |
 
-Without the first rule the BEV series would be about 9 % too high in 2025–26
+Without the first rule the BEV series would be about 9% too high in 2025–26
 (166 e-POWER on 1,894 BEV; 290 in 2023–26).
 **Petrol and diesel lines are never moved.** A description there that names
 a hybrid or plug-in is listed in the run report ("Petrol/diesel lines whose
@@ -253,7 +253,7 @@ From DNIT's own list of regimes (`LISTADO_DE_DESTINACIONES.xlsx`):
 
 | Regime | Meaning | Counted? |
 |---|---|---|
-| `IC04` | import for consumption with transport document — **≈ 97 % of all cars** | yes |
+| `IC04` | import for consumption with transport document — **≈ 97% of all cars** | yes |
 | `IC09` | import for consumption **from a bonded warehouse** | yes |
 | `IC01/02/03/07/08/13/20…` | re-imports, regularisation (Law 608/95), temporary → definitive, advance OEA | yes (definitive) |
 | `ID04`, `ID09` | diplomatic imports | yes (definitive) |
@@ -262,9 +262,9 @@ From DNIT's own list of regimes (`LISTADO_DE_DESTINACIONES.xlsx`):
 | `ZF01` | **entry into** a free zone | no — counted on `ZF2I` |
 | `IT…` | temporary import (suspensive) | no |
 | `IML…` | leasing (suspensive) | no |
-| `IFC1` | "importación de fracciones complementarias" | **no** — DNIT lists it as neither definitive nor suspensive (`*`), and a fraction was seen to repeat a car of the main declaration (VIN `JY43GGA0XPA051489`, `IC04` + `IFC1`, 2025-03). At most 1.3 % of new cars a year (2026: 392, mostly GWM and Jetour) |
+| `IFC1` | "importación de fracciones complementarias" | **no** — DNIT lists it as neither definitive nor suspensive (`*`), and a fraction was seen to repeat a car of the main declaration (VIN `JY43GGA0XPA051489`, `IC04` + `IFC1`, 2025-03). At most 1.3% of new cars a year (2026: 392, mostly GWM and Jetour) |
 
-An unknown regime is reported and, above 2 % of Whole, aborts the run.
+An unknown regime is reported and, above 2% of Whole, aborts the run.
 
 ## 5. Units and double counts
 
@@ -273,7 +273,7 @@ An unknown regime is reported and, above 2 % of Whole, aborts the run.
   are those of one car (a used Ford Ranger of 1,700 kg, a new Corolla Cross of
   1,435 kg). A quantity ≥ 2 is believed only when the item's net weight is at
   least 600 kg per unit (genuine multi-car items carry the weight of all cars).
-- **VINs.** About 2 % of items quote the chassis number in the description.
+- **VINs.** About 2% of items quote the chassis number in the description.
   Across 2017-01..2026-09, about 6,200 counted cars quote one; 8 VINs
   appeared twice — 7 of them twice in the same month and declaration (now
   counted once), one an IFC1 fraction (§4, no longer counted). The only one
@@ -293,7 +293,7 @@ An unknown regime is reported and, above 2 % of Whole, aborts the run.
 | 2025 | 3,876 | 4,049 | 0.96 |
 
 2025 by class: BEV 698 vs 858, PHEV 1,100 vs 1,105, HEV 2,078 vs 2,086 —
-PHEV and HEV within 0.5 %. BEV is 19 % below CADAM — a difference of
+PHEV and HEV within 0.5%. BEV is 19% below CADAM — a difference of
 definition, fully accounted for by a probe over every 2025 declaration
 (2026-10-03):
 
@@ -307,8 +307,8 @@ definition, fully accounted for by a probe over every 2025 declaration
 | CADAM | 858 |
 
 So CADAM counts the tariff line gross and literally. Its own brand ranking
-confirms the e-POWER (Nissan 13.1 % of BEV January–November 2025; the
-declarations give 12.6 %). The gross count also takes a warehoused car twice —
+confirms the e-POWER (Nissan 13.1% of BEV January–November 2025; the
+declarations give 12.6%). The gross count also takes a warehoused car twice —
 once on entry and again on release: 15 Xiaomi entered the free zone (ZF01) and
 the same 15 left it for consumption (ZF2I); BMW 15 into a bonded warehouse
 (IDA3), 14 out (IC09). This fetcher counts each car once, on release, and
@@ -331,16 +331,16 @@ vans and trucks (NCM 87.04); Whole (cars only) was 28,987 in 2025.
 
 ## 6a. Reading the fit
 
-The electrified share of new cars rose from 2.6 % (2021) to 13.4 % (2025) and
-24 % in 2026 to September, with BEV 2.4 % (2025) → 4.0 % (2026). August 2026
-stands out (32 % electrified — GWM and Jetour PHEV shipments); September came
-in at 27 %. Single import months are lumpier than registrations would be.
+The electrified share of new cars rose from 2.6% (2021) to 13.4% (2025) and
+24% in 2026 to September, with BEV 2.4% (2025) → 4.0% (2026). August 2026
+stands out (32% electrified — GWM and Jetour PHEV shipments); September came
+in at 27%. Single import months are lumpier than registrations would be.
 
 ## 7. Outputs
 
 - `data/Paraguay.csv` (monthly, 2017-01 →), rendered.
 - `data/Paraguay_Used.csv` (monthly, 2017-01 →) — **data only** (owner decision
-  2026-10): BEV is about 0.03 % of used imports, so the fit is flat and the
+  2026-10): BEV is about 0.03% of used imports, so the fit is flat and the
   chart said nothing ("-Inf years"). Kept current by every run, never passed to
   `render-country.yml` (`RENDERED_VARIANTS`), no `params.csv` row, not in the
   backtest (`DATA_ONLY_SERIES` in `R/build_backtest.R` and
@@ -403,5 +403,5 @@ sequenceDiagram
 | `Schema drift: columns [...]` | DNIT renamed a column | map it in `REQUIRED` / `resolve_columns()`; add the header to the tests |
 | `Row for … in the file for …` | a file holds another month | check the portal by hand; report to DNIT |
 | `unknown subheading / regime / USO … not writing` | a new regime code, a nomenclature change (HS 2027), or a new USO value | look it up in `LISTADO_DE_DESTINACIONES.xlsx`; add it to `CONSUMPTION_REGIMES` / `EXCLUDED_REGIMES` / `POSITION_FUEL` with a test |
-| `below 25 % of the trailing median` | a partial file — or a real collapse | compare with CADAM's press release; `force` if genuine |
+| `below 25% of the trailing median` | a partial file — or a real collapse | compare with CADAM's press release; `force` if genuine |
 | commit step `non-fast-forward` | a concurrent commit | already rebased by the action; re-run |

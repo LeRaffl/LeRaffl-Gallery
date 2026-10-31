@@ -943,7 +943,7 @@ def build_checks_table(doc: dict) -> str:
         if c.get("gap_pct") is not None:
             g = float(c["gap_pct"])
             g_txt = f"{g:+.2f}" if 0 < abs(g) < 0.1 else f"{g:+.1f}"
-            gap_txt += f' <span class="dim">({g_txt} %)</span>'.replace("-", "−")
+            gap_txt += f' <span class="dim">({g_txt}%)</span>'.replace("-", "−")
         what = esc(c.get("check", ""))
         if c.get("url"):
             what = f'<a href="{esc(c["url"])}">{what}</a>'

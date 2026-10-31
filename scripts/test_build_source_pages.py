@@ -109,7 +109,7 @@ def test_checks_file_renders_and_missing_file_is_silent():
     assert "Checked through <code>2026-09</code>" in html
     assert '<a href="https://e.org/a">Media total (VnEconomy)</a>' in html
     assert '<td class="num">62,590</td>' in html
-    assert "−11" in html and "(−0.02 %)" in html
+    assert "−11" in html and "(−0.02%)" in html
     assert "chk--ok" in html and "chk--warn" in html and "chk--miss" in html
     assert "article used VinFast 11,490" in html
     assert '<td class="num">—</td>' in html  # missing reference figure
