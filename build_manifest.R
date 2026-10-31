@@ -37,6 +37,11 @@ to_title_keep_digits <- function(x) {
 
 label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = NULL){
   s <- tolower(slug)
+  # Legacy slug "india-wheelers" (images/2026-01, 2026-03-15 render): the vehicle
+  # class digit was lost and a hyphen joined country and variant, so the label
+  # came out as "India-Wheelers". Treat the hyphen like the usual separator:
+  # "India (Wheelers)". Only this exact shape is rewritten.
+  s <- sub("^([a-z]+)-wheelers$", "\\1_wheelers", s)
 
   # Länder-Overrides (Diakritika + Multi-Word-Slugs wie "south_korea").
   # Multi-Word-Einträge MÜSSEN hier registriert sein, sonst splittet die
@@ -77,9 +82,12 @@ label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = 
   # damit "south_korea_hdv" zu base="south_korea", rest="hdv" wird statt
   # base="south", rest="korea_hdv".
   multi <- names(country_map)[grepl("_", names(country_map))]
+  # NB: substr() is NOT vectorised over start/stop (it only reads the first
+  # element), which used to make this boundary test work for the first entry of
+  # `multi` only: "hong_kong_used" came out as "Hong (Kong Used)". Compare
+  # against paste0(multi, "_") instead.
   multi_match <- vapply(s, function(x){
-    hit <- multi[startsWith(x, multi) &
-                 (nchar(x) == nchar(multi) | substr(x, nchar(multi) + 1, nchar(multi) + 1) == "_")]
+    hit <- multi[x == multi | startsWith(x, paste0(multi, "_"))]
     if (length(hit)) hit[which.max(nchar(hit))] else NA_character_
   }, character(1))
 
