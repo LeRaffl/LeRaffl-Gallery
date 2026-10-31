@@ -116,7 +116,16 @@
 # Build the share triplet (BEV / second / ICE) for either monthly row or TTM
 # rolling 12 sums. `vals` is a named numeric vector with keys BEV, PHEV, EREV,
 # HEV, TOTAL. Missing keys → NA.
-.pt_triplet_lines <- function(vals, bev_label = "BEV") {
+#
+# `has_phev_split` says whether the source measures plug-in hybrids at all. TRUE
+# (default, old behaviour): an empty/zero PHEV is a measured zero and the PHEV
+# line stays. FALSE (e.g. ACEA commercial vehicles, where PHEV is folded into the
+# "EV" figure): there is no PHEV line at all, and a Hybrid line only appears
+# when the HEV column carries a real share (>= .pt_min_share, i.e. at least
+# 0.05%, which is what one decimal can still show).
+.pt_min_share <- 0.0005
+
+.pt_triplet_lines <- function(vals, bev_label = "BEV", has_phev_split = TRUE) {
   total <- vals[["TOTAL"]]
   bev   <- .pt_share(vals[["BEV"]],  total)
   phev  <- .pt_share(vals[["PHEV"]], total)
@@ -140,7 +149,8 @@
   phev_broad <- phev0 + erev0
 
   use_phev   <- phev_broad > 0
-  use_hybrid <- !use_phev && !is.na(hev) && is.finite(hev) && hev > 0
+  use_hybrid <- !use_phev && !is.na(hev) && is.finite(hev) &&
+    (if (has_phev_split) hev > 0 else hev >= .pt_min_share)
 
   bev_line <- sprintf("%s %s", .pt_pct(bev0), bev_label)
 
@@ -153,17 +163,22 @@
     second_line <- sprintf("%s Hybrid", .pt_pct(hev))
     ice <- max(0, 1 - (if (is.na(bev)) 0 else bev) - hev)
     ice_line <- sprintf("%s ICE", .pt_pct(ice))
-  } else {
+  } else if (has_phev_split) {
     second_line <- sprintf("%s PHEV", .pt_pct(0))
     ice <- max(0, 1 - (if (is.na(bev)) 0 else bev))
     ice_line <- .pt_pp_if("ICE", ice, "HEV", hev)
+  } else {
+    # No PHEV split and no real hybrid share: two lines, nothing invented.
+    ice <- max(0, 1 - (if (is.na(bev)) 0 else bev))
+    return(c(bev_line, sprintf("%s ICE", .pt_pct(ice))))
   }
   c(bev_line, second_line, ice_line)
 }
 
 # Public entry. Returns the post text as a single string with \n separators.
 # `last_period` is optional — if NULL/empty, it is derived from the data.
-build_post_text <- function(df, country_label, last_period = NULL, bev_label = "BEV") {
+build_post_text <- function(df, country_label, last_period = NULL, bev_label = "BEV",
+                            has_phev_split = TRUE) {
   df_ord <- df[order(df$year), , drop = FALSE]
   is_quarterly <- df_ord$time_interval[nrow(df_ord)] == "quarterly"
 
@@ -191,7 +206,8 @@ build_post_text <- function(df, country_label, last_period = NULL, bev_label = "
   period_vals <- c(BEV = pick("BEV"), PHEV = pick("PHEV"), EREV = pick("EREV"),
                    HEV = if (hev_estimated) NA_real_ else pick("HEV"),
                    TOTAL = pick("TOTAL"))
-  period_lines <- .pt_triplet_lines(period_vals, bev_label = bev_label)
+  period_lines <- .pt_triplet_lines(period_vals, bev_label = bev_label,
+                                    has_phev_split = has_phev_split)
 
   # TTM: 4-quarter rolling window for quarterly countries, 12-month for monthly.
   ttm_lines  <- NULL
@@ -210,7 +226,8 @@ build_post_text <- function(df, country_label, last_period = NULL, bev_label = "
                   HEV = if (hev_estimated) NA_real_ else sum_col("HEV"),
                   TOTAL = sum_col("TOTAL"))
     if (is.finite(ttm_vals[["TOTAL"]]) && ttm_vals[["TOTAL"]] > 0) {
-      ttm_lines <- .pt_triplet_lines(ttm_vals, bev_label = bev_label)
+      ttm_lines <- .pt_triplet_lines(ttm_vals, bev_label = bev_label,
+                                    has_phev_split = has_phev_split)
     }
   }
 
@@ -276,7 +293,8 @@ build_post_text <- function(df, country_label, last_period = NULL, bev_label = "
   sprintf("%04d-%02d", ny, nm)
 }
 
-build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_label = "BEV") {
+build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_label = "BEV",
+                                has_phev_split = TRUE) {
   df_ord <- df[order(df$year), , drop = FALSE]
   is_quarterly <- df_ord$time_interval[nrow(df_ord)] == "quarterly"
   window <- if (is_quarterly) 4L else 12L
@@ -320,12 +338,16 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
   cur <- N; pri <- N - window
   if (!isTRUE(is.finite(bev_s[cur])) || !isTRUE(is.finite(bev_s[pri]))) return("")
 
-  use_phev <- any(phev_m > 0)
+  use_phev <- has_phev_split && any(phev_m > 0)
 
   # Newest row's HEV only estimated (see .pt_hev_estimated): no HEV band, no
   # HEV peak or crossing — ICE absorbs HEV in both windows alike, so the
   # comparison stays like for like.
   hev_ok <- !.pt_hev_estimated(periodic)
+  # Same for a hybrid series that is absent in both windows (shares below one
+  # printable decimal): no "+0.0pp Hybrid (0.0% -> 0.0%)" band, no peak, no
+  # crossing. ICE absorbs the sliver, as in the main post.
+  if (hev_ok && !any(c(hev_s[cur], hev_s[pri]) >= .pt_min_share, na.rm = TRUE)) hev_ok <- FALSE
   if (!hev_ok) {
     hev_s <- rep(0, N)
     ice_s <- pmax(0, 1 - bev_s - phev_s)
@@ -379,6 +401,7 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
     since <- cur - pk_i
     if (since < peak_min_lag) return(NULL)
     if (!isTRUE(series[cur] < series[pk_i])) return(NULL)
+    if (!isTRUE(series[pk_i] >= .pt_min_share)) return(NULL)  # would print "peaked at 0.0%"
     pk_label  <- if (is_quarterly) .pt_short_quarter(periods[pk_i]) else periods[pk_i]
     lag_label <- if (is_quarterly) sprintf("%d quarters", since) else sprintf("%d months", since)
     sprintf("%s peaked at %s in %s (declining for %s).", label, fmt_pct(series[pk_i]), pk_label, lag_label)
