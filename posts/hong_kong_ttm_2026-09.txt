@@ -1,0 +1,7 @@
+🇭🇰 Hong Kong - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++5.4pp  BEV   (83.4% → 88.8%)
++0.5pp  PHEV  (0.8% → 1.3%)
++0.0pp  HEV   (0.0% → 0.0%)
+−6.0pp  ICE   (15.8% → 9.8%)
