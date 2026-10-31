@@ -578,7 +578,10 @@ th.sortable.desc::after{content:" ↓"}
   margin-bottom: 10px;
 }
 .tl-controls .field { margin: 0; }
-.tl-transport { display: flex; gap: 6px; }
+/* One row: prev | play | next. Needs the .field override because .field is a
+   column flexbox (labels over inputs) and this "field" only holds buttons. */
+.tl-controls .field.tl-transport { flex-direction: row; align-items: center; gap: 6px; }
+.tl-controls .tl-transport .btn { width: auto; white-space: nowrap; }
 .tl-scrub {
   display: flex;
   align-items: center;
@@ -612,7 +615,8 @@ th.sortable.desc::after{content:" ↓"}
 @media (max-width: 620px) {
   .tl-controls { gap: 10px; }
   .tl-controls .field { flex: 1 1 100%; }
-  .tl-transport { flex: 1 1 100%; }
+  .tl-controls .field.tl-transport { flex: 1 1 100%; }
+  .tl-controls .tl-transport #tlPlay { flex: 1 1 auto; }
 }
 #comparePlot {
   width: 100%;
@@ -2125,7 +2129,7 @@ a:focus-visible{
 .rd-legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 2px 10px;font-size:11.5px;color:var(--muted)}
 .rd-legend span{display:inline-flex;align-items:center;gap:6px}
 .rd-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
-.rd-plots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(460px,1fr))}
+.rd-plots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(460px,100%),1fr))}
 .rd-plot{background:var(--surface);border-radius:2px;min-width:0;position:relative}
 .rd-plot svg{display:block;width:100%;height:auto}
 .rd-foot{margin:12px 2px 0;color:var(--muted-2);font-size:12px;line-height:1.5}
@@ -2187,6 +2191,33 @@ a:focus-visible{
   padding:6px 9px;
   font-size:12px;
 }
+
+/* Region preset chips (Fleet / Builder pickers). Same look as the Raw Data
+   presets (.rd-presets button): 11.5px, 3px 8px, --line-3 hairline, 2px radius. */
+.region-presets{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.region-presets__label{
+  font-size:11.5px;
+  color:var(--muted-2);
+  margin-right:2px;
+}
+.region-presets button{
+  border:1px solid var(--line-3);
+  background:var(--surface-2);
+  color:var(--muted);
+  border-radius:2px;
+  padding:3px 8px;
+  font:inherit;
+  font-size:11.5px;
+  cursor:pointer;
+  width:auto;
+}
+.region-presets button:hover{ border-color:var(--accent); color:var(--text); }
+.region-presets button.pri{ color:var(--accent); border-color:var(--accent); }
 
 .country-picker select[multiple]{
   min-height:180px;
@@ -3305,6 +3336,17 @@ h2 .fb-ctx-btn{
   white-space:nowrap;
   align-self:flex-end;
 }
+.compare-fill__row{display:flex;gap:6px;align-items:stretch}   /* Fill button as tall as the .country-field selects */
+.compare-fill__row select{min-width:0}
+#compareFillN{width:6.5em;flex:0 0 auto}
+#compareFillNote{margin:6px 0 2px;color:var(--muted)}
+@media (max-width:600px){
+  #tab-compare .settings-strip .compare-fill{flex:1 1 100%;max-width:none;width:100%}
+  .compare-fill__row{flex-wrap:nowrap}
+  .compare-fill__row select#compareFillRegion{flex:1 1 0;width:auto;min-width:0}
+  .compare-fill__row select#compareFillN{flex:0 0 auto;width:5em;padding-left:8px;padding-right:20px}
+  .compare-fill__row .btn{flex:0 0 auto;width:auto;white-space:nowrap}
+}
 .compare-extras{
   display:flex;
   flex-wrap:wrap;
@@ -3383,6 +3425,12 @@ h2 .fb-ctx-btn{
   font:600 12px/1 inherit;color:var(--tc);background:var(--tb);border:1px solid var(--tl);border-radius:999px;cursor:pointer}
 .fx-achip span:last-child{font-size:15px;opacity:.8}
 .fx-clear{background:none;border:0;color:var(--accent);font:600 12px inherit;text-decoration:underline;cursor:pointer;min-height:30px;padding:0 6px}
+/* Look comes from the shared .country-field class (font, padding, border, arrow);
+   only the sidebar width is set here. */
+#regionGal{width:100%}
+@media (max-width:880px){
+  #tab-gallery .side #regionGal{min-height:0}   /* the sidebar's 44px select rule would make it taller than Country (36.25px) */
+}
 @media (min-width:881px){
   #tab-gallery aside.side{max-height:calc(100vh - var(--header-h) - 56px);overflow-y:auto;overscroll-behavior:contain}
 }
@@ -3394,6 +3442,66 @@ h2 .fb-ctx-btn{
   .fx-applied{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
   .fx-achip{flex:0 0 auto}
 }
+
+/* ── Shared country-selector look (.country-field) ───────────────────────────
+   One visual style for every country picker, taken from the Raw Data picker
+   (.rd-picksum): Public Sans 13.5px, padding 7px 11px / line-height 1.5 (= 36.25px
+   high on desktop and mobile), 1px --line-3 hairline, 2px radius, --surface-2 fill.
+   Visual only — no markup or behaviour changes.
+   Applied to the Gallery country field, Compare slots (incl. the ones added
+   later), Submit-data country, the Hero "change" select (#galHeroHomeSel) and
+   the search box + list of the Builder / Fleet multi-select pickers (those
+   are built by enhanceCountryMultiSelect, hence selector-based). */
+.country-field,
+.compare-slot,
+#countryPick,
+#sdCountry,
+#galHeroHomeSel,
+.country-picker__top input[type="search"],
+.country-picker select[multiple]{
+  font-family:var(--font-ui);
+  font-size:13.5px;
+  line-height:1.5;
+  color:var(--text);
+  background-color:var(--surface-2);
+  border:1px solid var(--line-3);
+  border-radius:2px;
+  box-sizing:border-box;
+}
+.country-field,
+.compare-slot,
+#countryPick,
+#sdCountry,
+#galHeroHomeSel,
+.country-picker__top input[type="search"]{
+  height:auto;
+  padding:7px 11px;      /* = .rd-picksum: 7+20.25+7+2 = 36.25px */
+}
+select.country-field,
+.compare-slot,
+#sdCountry,
+#galHeroHomeSel{
+  padding-right:34px;
+  background-image:var(--select-arrow);
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:12px 12px;
+}
+#countryPick{ padding-right:28px; }             /* room for the × button */
+/* The Hero select used to stretch over the whole card. */
+#galHeroHomeSel{ width:auto; min-width:270px; max-width:100%; }
+.country-picker select[multiple]{ padding:6px 8px; }
+.country-picker__count,
+.country-picker__hint{ font-family:var(--font-ui); }
+/* Mobile: Raw Data's picker is 36px on mobile too (it has no mobile rule), so
+   the country fields follow it instead of the gallery sidebar's 44px. */
+@media (max-width:880px){
+  #countryPick{ min-height:0; }
+}
+/* Compare: same minimum width as the Raw Data picker. */
+.compare-slot{ min-width:270px; max-width:100%; }
+/* Submit: three columns made the Country select ~111px wide on phones. */
+@media (max-width:600px){ .sd-grid{ grid-template-columns:1fr; } }
 </style>
 
 <script>
@@ -3649,7 +3757,7 @@ const VIEW_START_YEAR = 2015;
       </div>
       <div class="about-model-item">
         <div class="about-model-head">Weibull formulation</div>
-        <p>The model uses a generalized Weibull-style logistic curve with two free parameters — enough flexibility to capture asymmetric transitions (early-heavy vs. late-heavy) without overfitting. Market size is used as a weight so large-volume months aren't dominated by small-market outliers.</p>
+        <p>The model uses a generalized Weibull-style logistic curve with two free shape parameters (plus a time shift) — enough flexibility to capture asymmetric transitions (early-heavy vs. late-heavy) without overfitting. Market size is used as a weight so large-volume months aren't dominated by small-market outliers.</p>
       </div>
       <div class="about-model-item">
         <div class="about-model-head">Not a forecast</div>
@@ -3752,7 +3860,7 @@ const VIEW_START_YEAR = 2015;
     <div class="sd-grid">
       <div class="sd-field">
         <label for="sdCountry">Country</label>
-        <select id="sdCountry"></select>
+        <select id="sdCountry" class="country-field"></select>
       </div>
       <div class="sd-field">
         <label for="sdVariant">Variant</label>
@@ -3954,9 +4062,14 @@ const VIEW_START_YEAR = 2015;
         </div>
 
         <div class="fx-row">
+          <label class="fx-lab" for="regionGal">Region</label>
+          <select id="regionGal" class="rank-region country-field" aria-label="Filter charts by region" title="Show only charts of one continent or European group. Combines with Country, Types and Tags."><option value="">All regions</option></select>
+        </div>
+
+        <div class="fx-row">
           <label class="fx-lab" for="countryPick">Country</label>
           <div class="fx-country">
-            <input id="countryPick" list="countryList" autocomplete="off" placeholder="All countries" data-fb-skip/>
+            <input id="countryPick" class="country-field" list="countryList" autocomplete="off" placeholder="All countries" data-fb-skip/>
             <datalist id="countryList"></datalist>
             <button type="button" id="countryClear" class="fx-x" hidden aria-label="Clear country">×</button>
           </div>
@@ -3967,10 +4080,10 @@ const VIEW_START_YEAR = 2015;
         <div class="fx-row">
           <span class="fx-lab">Types</span>
           <div class="chips fx-pills" role="group" aria-label="Chart types" data-fb-group="types">
-            <label class="chip"><input type="checkbox" value="share" checked/> BEV</label>
-            <label class="chip"><input type="checkbox" value="ICE_BEV" checked/> ICE↔BEV</label>
-            <label class="chip"><input type="checkbox" value="ttm_shares" checked/> TTM split</label>
-            <label class="chip"><input type="checkbox" value="time" checked/> Transition time</label>
+            <label class="chip" title="BEV share trajectory: fitted S-curve of the battery-electric share of new registrations"><input type="checkbox" value="share" checked/> BEV</label>
+            <label class="chip" title="Internal-combustion-engine (ICE) share vs. BEV share of new registrations"><input type="checkbox" value="ICE_BEV" checked/> ICE↔BEV</label>
+            <label class="chip" title="Trailing 12 months (TTM) market split by powertrain"><input type="checkbox" value="ttm_shares" checked/> TTM split</label>
+            <label class="chip" title="How long the fitted curve takes to go from a low to a high BEV share"><input type="checkbox" value="time" checked/> Transition time</label>
           </div>
         </div>
 
@@ -4177,7 +4290,7 @@ const VIEW_START_YEAR = 2015;
         Smoothed model. How long the fitted S-curve takes to move between share levels — not raw monthly data.
       </p>
       <p class="rank-legend" aria-label="Notes">
-        <span>No-transition rows: TTM below 1%, or the fit never really takes off.</span>
+        <span>No-transition rows: BEV share (trailing 12 months, TTM) below 1%, or the fit never really takes off.</span>
       </p>
       <div class="toolbar">
         <div class="field rank-variant">
@@ -4404,8 +4517,8 @@ const VIEW_START_YEAR = 2015;
             </select>
           </div>
           <div class="field tl-transport">
-            <button type="button" class="btn" id="tlPlay" aria-label="Play">▶ Play</button>
             <button type="button" class="btn" id="tlPrev" aria-label="Previous frame">◀</button>
+            <button type="button" class="btn" id="tlPlay" aria-label="Play">▶ Play</button>
             <button type="button" class="btn" id="tlNext" aria-label="Next frame">▶</button>
           </div>
         </div>
@@ -4467,19 +4580,31 @@ const VIEW_START_YEAR = 2015;
       </div>
       <div class="field settings-block is-compact">
         <label>Pin 1</label>
-        <select id="compareSlot1" class="compare-slot"></select>
+        <select id="compareSlot1" class="compare-slot country-field"></select>
       </div>
       <div class="field settings-block is-compact">
         <label>Pin 2</label>
-        <select id="compareSlot2" class="compare-slot"></select>
+        <select id="compareSlot2" class="compare-slot country-field"></select>
       </div>
       <div class="field settings-block is-compact">
         <label>Pin 3</label>
-        <select id="compareSlot3" class="compare-slot"></select>
+        <select id="compareSlot3" class="compare-slot country-field"></select>
+      </div>
+      <div class="field settings-block is-compact compare-fill" id="compareFill">
+        <label for="compareFillRegion">Fill with region top-N</label>
+        <div class="compare-fill__row">
+          <select id="compareFillRegion" class="country-field" aria-label="Region to fill from"></select>
+          <select id="compareFillN" class="country-field" aria-label="How many countries">
+            <option>3</option><option selected>5</option><option>8</option><option>10</option><option>12</option>
+          </select>
+          <button type="button" id="compareFillBtn" class="btn"
+                  title="Fills the pins and extra series with the N countries of the chosen region that have the highest latest TTM BEV share (trailing 12 months, params.csv ttm_bev_share; only countries with a series for the chosen Variant). Replaces all current series and runs Compare.">Fill</button>
+        </div>
       </div>
       <button type="button" id="compareAddSlot" class="btn">Add series</button>
       <button type="button" id="compareBuild" class="btn primary">Compare</button>
     </div>
+    <div id="compareFillNote" class="small" aria-live="polite" hidden></div>
     <div id="compareExtras" class="compare-extras" hidden></div>
     <div class="card builder-card">
       <div data-theme="light" id="comparePlot"></div>
@@ -4495,7 +4620,7 @@ const VIEW_START_YEAR = 2015;
     <h2>Raw Data</h2>
     <p class="small" style="margin:-4px 0 14px;max-width:74ch">
       The country CSVs, drawn. One bar per period, each summing the trailing
-      <em>N</em> months ending there — rolling, the way the TTM charts roll.
+      <em>N</em> months ending there — rolling, the way the trailing-12-months (TTM) charts roll. “T12M” means 12 months, “T3M” three, and so on.
       Nothing here is modelled: every number is a number that is in
       <code>data/&lt;Country&gt;.csv</code>, or a sum of such numbers.
     </p>
@@ -5002,7 +5127,7 @@ const VIEW_START_YEAR = 2015;
         <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
       </span>
     </h2>
-    <p class="wm-lede">BEV transition geographically as per smoothed out model.</p>
+    <p class="wm-lede">BEV transition by country, based on the smoothed model.</p>
 
     <div class="wm-bar">
       <div class="wm-seg" role="radiogroup" aria-label="Metric">
@@ -5073,7 +5198,7 @@ const VIEW_START_YEAR = 2015;
         <span class="wm-sw wm-sw--x" data-wm-sw="stalled" style="background:#6e6258"></span><b data-wm-name="stalled">Dark grey</b> = no transition: the same markets the tables list as "shows no transition" (under 1&nbsp;% BEV, or a negligible adoption rate), plus fits that do not reach the threshold within a reasonable horizon.
         Both sit outside the scale and carry a heavier outline, so they never read as just another step.
         <span class="wm-sw" data-wm-sw="withheld" style="background:#cbc3b6"></span><b data-wm-name="withheld">Pale grey</b> = too volatile to show: we have data, but the curve can't give a year yet; listed under the map.
-        HDV, Buses and the other variants use the <b>Cars</b> colour scale, so the same colour means the same year on every variant.
+        HDV (heavy-duty vehicles), Buses and the other variants use the <b>Cars</b> colour scale, so the same colour means the same year on every variant.
         Exact values always live in the hover tooltip.
       </p>
     </div>
@@ -5729,6 +5854,80 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('select[multiple]').forEach(makeMultiSelectToggle);
 });
 
+/* Region presets for a multi-select country picker (Fleet, Builder).
+   Chips: EU (BUILDER_GROUPS.eu) + one chip per continent that has options in
+   this picker, labelled with the number of options, like the Raw Data presets.
+   Click = replace the selection with that region; Ctrl/Cmd/Shift+click = add it.
+   Regions come from window.COUNTRY_REGION (the single mapping the Speed, Fleet
+   and Raw Data tabs share); a country without a mapping simply gets no chip.
+   `nameOf(option)` returns the country name used for the lookup (default: the
+   option text; Fleet values are ISO codes but the text is the name). The chips
+   are re-derived whenever the option list is rebuilt. */
+function regionOfCountryName(name){
+  const map = window.COUNTRY_REGION || {};
+  if(!name) return null;
+  if(map[name]) return map[name];
+  const base = String(name).replace(/\s*\(.*\)\s*$/, '').trim();
+  if(map[base]) return map[base];
+  if(/^Hong Kong/.test(base)) return map['Hong Kong'] || null;
+  return null;
+}
+const REGION_PRESET_ORDER = ['Europe','North America','South America','Asia','Oceania','Africa'];
+function regionPresets(sel, container, opts = {}){
+  const nameOf = opts.nameOf || (o => o.dataset.search || o.textContent);
+  const onChange = opts.onChange || (() => {});
+  const bar = document.createElement('div');
+  bar.className = 'region-presets';
+  bar.setAttribute('role', 'group');
+  bar.setAttribute('aria-label', 'Region presets');
+  container.appendChild(bar);
+
+  const options = () => [...sel.options].filter(o => !o.disabled);
+  const apply = (names, add) => {
+    const want = new Set(names);
+    options().forEach(o => {
+      const hit = want.has(nameOf(o));
+      o.selected = add ? (o.selected || hit) : hit;
+    });
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    onChange();
+  };
+  const render = () => {
+    const byRegion = {};
+    options().forEach(o => {
+      const n = nameOf(o), r = regionOfCountryName(n);
+      if(r) (byRegion[r] = byRegion[r] || []).push(n);
+    });
+    const chips = [];
+    const eu = ((window.BUILDER_GROUPS && window.BUILDER_GROUPS.eu) ? window.BUILDER_GROUPS.eu([]) : []);
+    const euNames = options().map(nameOf).filter(n => eu.includes(n));
+    if(euNames.length) chips.push({ key:'EU', label:'EU', names:euNames });
+    REGION_PRESET_ORDER.forEach(r => {
+      if(byRegion[r] && byRegion[r].length)
+        chips.push({ key:r, label:r, names:byRegion[r] });
+    });
+    bar.innerHTML = '';
+    if(!chips.length) { bar.hidden = true; return; }
+    bar.hidden = false;
+    const lab = document.createElement('span');
+    lab.className = 'region-presets__label';
+    lab.textContent = 'Regions';
+    bar.appendChild(lab);
+    chips.forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.region = c.key;
+      b.textContent = `${c.label} (${c.names.length})`;
+      b.title = `Select ${c.label} (${c.names.length} here). Ctrl/Cmd/Shift+click adds to the selection.`;
+      b.addEventListener('click', e => apply(c.names, e.ctrlKey || e.metaKey || e.shiftKey));
+      bar.appendChild(b);
+    });
+  };
+  render();
+  if(window.MutationObserver) new MutationObserver(render).observe(sel, { childList:true });
+  return bar;
+}
+
 function enhanceCountryMultiSelect(selectOrId, opts = {}){
   const sel = typeof selectOrId === 'string'
     ? document.getElementById(selectOrId)
@@ -5821,6 +6020,10 @@ function enhanceCountryMultiSelect(selectOrId, opts = {}){
   if(window.MutationObserver)
     new MutationObserver(updateCount).observe(sel, {childList:true});
   if(!opts.compact) wrap.insertBefore(actions, sel);
+  if(opts.regions){
+    const bar = regionPresets(sel, wrap, { nameOf: opts.regionNameOf, onChange: updateCount });
+    wrap.insertBefore(bar, sel);
+  }
   wrap.insertBefore(top, sel);
   updateCount();
 }
@@ -6628,7 +6831,7 @@ const QR = (() => {
 
     const compact = VIEW.length > 6;
     plots.style.gridTemplateColumns = compact
-      ? 'repeat(auto-fit,minmax(300px,1fr))' : 'repeat(auto-fit,minmax(460px,1fr))';
+      ? 'repeat(auto-fit,minmax(min(300px,100%),1fr))' : 'repeat(auto-fit,minmax(min(460px,100%),1fr))';
 
     const all = VIEW.flatMap(v=>v.l);
     const doms = VIEW.map(v=>domOf(v.l, v.step));
@@ -7152,6 +7355,7 @@ lbImg.addEventListener('click', () => { if(lb.open) lb.close(); });
 const cols = document.getElementById('cols');
 const empty = document.getElementById('empty');
 const countrySelect = document.getElementById('countrySelect');
+const regionGal = document.getElementById('regionGal');
 const periodSelect  = document.getElementById('periodSelect');
 const searchInput   = document.getElementById('search');
 const stats         = document.getElementById('stats');
@@ -7165,7 +7369,7 @@ const showAllBtn    = document.getElementById('showAll');
 // INITIAL_ROWS cards per type section on first paint; each "Show more" adds
 // about GALLERY_STEP cards (one screenful).
 const INITIAL_ROWS = 6, GALLERY_STEP = 24; let rowsShown = {};
-const TYPE_LABEL = { share:'BEV trajectory', ICE_BEV:'ICE↔BEV trajectory', ttm_shares:'TTM market split graph', time:'Transition time curve' };
+const TYPE_LABEL = { share:'BEV trajectory', ICE_BEV:'ICE↔BEV trajectory', ttm_shares:'Trailing 12 months (TTM) market split', time:'Transition time curve' };
 const TYPE_ORDER = ['share','ICE_BEV','ttm_shares','time'];
 function prettyPeriod(p){ if(!/^[0-9]{4}-[0-9]{2}$/.test(p)) return p; const [y,m]=p.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'}); }
 async function loadManifest(){
@@ -7188,7 +7392,7 @@ function compareItems(a,b,field,dir){ const sgn=dir==='asc'?1:-1; if(field==='cr
 // inserted into the upper sections pushed everything down and the view
 // appeared to jump. Paging state is reset by every filter/sort change.
 function buildCard(it){
-  const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div>${scopeBadgeFor(it.country)}</div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy TTM market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; const baseCountry=(it.country||'').replace(/\s*\(.*\)\s*$/,'').trim(); const srcSlug=SOURCE_PAGES[baseCountry]; const srcLink=srcSlug?`<a class="btn btn--source" href="sources/${srcSlug}.html" target="_blank" rel="noopener" title="Where ${baseCountry}'s data comes from">ⓘ Source</a>`:''; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button>${srcLink}<span class="filename">${it.filename}</span>`; card.append(box,meta,footer); return card; }
+  const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div>${scopeBadgeFor(it.country)}</div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy trailing-12-months (TTM) market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; const baseCountry=(it.country||'').replace(/\s*\(.*\)\s*$/,'').trim(); const srcSlug=SOURCE_PAGES[baseCountry]; const srcLink=srcSlug?`<a class="btn btn--source" href="sources/${srcSlug}.html" target="_blank" rel="noopener" title="Where ${baseCountry}'s data comes from">ⓘ Source</a>`:''; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button>${srcLink}<span class="filename">${it.filename}</span>`; card.append(box,meta,footer); return card; }
 let galleryView = null;   // { byType, sections: {type: {col, more, list}} }
 function galleryStepRows(){
   // About one screenful (~GALLERY_STEP cards) per click, spread over the visible sections.
@@ -7279,7 +7483,18 @@ const SEARCH_ALIASES = {
   'South Korea':'korea',
   'Netherlands':'holland'
 };
-function applyFilters(all, tagOverride){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; const tagF=tagOverride||getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
+/* Manifest filenames occasionally split the variant suffix wrongly, which
+   leaves series under names like "Hong (Kong Used)" or "India-Wheelers" (for
+   "Hong Kong (Used)" / "India (2-Wheelers)"). The region filter reads the
+   country through this so those cards stay with Hong Kong and India; the
+   card titles and the Country picker keep the manifest spelling. */
+function galleryRegionName(country){
+  const c = String(country || '');
+  if (/^Hong \(Kong\b/.test(c)) return 'Hong Kong';
+  if (/^India-\w*Wheelers?$/i.test(c)) return 'India';
+  return c;
+}
+function applyFilters(all, tagOverride){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const inRegion=rankRegionMatcher(regionGal?regionGal.value:''); const period=periodSelect.value; const tagF=tagOverride||getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!inRegion(galleryRegionName(it.country))) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
 // Tag filters — logic in assets/tag_system.js (tagFilterValue/Passes/Counts);
 // these two read the chip state and look up a chart's tags.
 function getActiveTagFilters(){
@@ -7297,6 +7512,7 @@ function passesTagFilter(country, filters){
 loadManifest().then(({images})=>{
   const imgs = Array.isArray(images)?images:[]; if(!imgs.length){ empty.hidden=false; empty.textContent='No charts found. manifest.json loaded but contains no images.'; return; }
   uniq(imgs.map(x=>x.country)).sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; countrySelect.append(o);});
+  if(regionGal){ fillRankRegionSelect(regionGal, imgs); regionGal.options[0].textContent='All regions'; }
   const periods=uniq(imgs.map(x=>x.period).filter(Boolean)).sort(); if(periods.length){ periodSelect.hidden=false; periods.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=prettyPeriod(p); periodSelect.append(o);}); }
   const update=()=>{ const list=applyFilters(imgs); renderColumns(list); if(window.__fxTagUi) window.__fxTagUi(imgs, list.length);}; window.__fxRefresh=update; const reset=()=>{ rowsShown={}; update(); };
   // Search input is debounced by ~150 ms so rapid typing does not
@@ -7304,6 +7520,7 @@ loadManifest().then(({images})=>{
   // is immediate — users expect selects/checkboxes to react instantly.
   const resetDebounced = debounce(reset, 150);
   [countrySelect,periodSelect].forEach(el=>el.addEventListener('change',reset));
+  if(regionGal) regionGal.addEventListener('change',reset);
   typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',resetDebounced);  loadMoreBtn.addEventListener('click',()=>showMore(Object.keys(galleryView?galleryView.sections:{}), loadMoreBtn)); if(showAllBtn) showAllBtn.addEventListener('click',()=>{ const l=Object.keys(galleryView?galleryView.sections:{}); showMore(l, showAllBtn, true); });
   // Tag-filter chips — same reset() flow as the type chips.
   document.querySelectorAll('.tag-filter input[data-tag-value]').forEach(c => c.addEventListener('change', reset));
@@ -8243,7 +8460,7 @@ renderTable();
     return k*invLambda*Math.pow(u,k-1)*Math.exp(-Math.pow(u,k)); 
   }
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
-  function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
+  function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const totalM=Math.round(Math.abs(dYears)*12); const years=Math.floor(totalM/12); const months=totalM%12; const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
   function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); enhanceMultiSelect(sel); }
   function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.filter(r=>!rowIsUnreliableFit(r)).map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
@@ -9094,7 +9311,7 @@ function marketBucket(rows, vars, test){
       o.value=c; o.textContent=c;
       sel.appendChild(o);
     });
-    enhanceCountryMultiSelect(sel, { placeholder: 'Search countries' });
+    enhanceCountryMultiSelect(sel, { placeholder: 'Search countries', regions: true });
       // Default: World
     if (groupSel) {
       groupSel.value = 'world';
@@ -10113,6 +10330,12 @@ if (stepTraces.length){
       sel.appendChild(grpC);
     });
     COMPARE_SLOT_HTML = slots[0].innerHTML;
+    const fillRegion = document.getElementById('compareFillRegion');
+    if(fillRegion && !fillRegion.options.length){
+      fillRankRegionSelect(fillRegion, PARAM_ROWS);
+      fillRegion.options[0].textContent = 'All countries';
+      fillRegion.value = 'cont:Europe';
+    }
     // Sensible defaults so the first paint shows something.
     slots[0].value = 'group:eu';
     slots[1].value = 'group:asia';
@@ -10137,6 +10360,52 @@ if (stepTraces.length){
     });
     return out;
   }
+  // "Fill with region top-N": the N countries of a region with the highest
+  // LATEST TTM BEV share. "Top" = params.csv ttm_bev_share (trailing 12
+  // months up to the latest data period, see data_per), taken from the row of
+  // the chosen Variant; a country without a series for that Variant is left
+  // out. Aggregates are never picked, only countries.
+  function compareTopNForRegion(regionKey, n, variantCanon){
+    const inRegion = rankRegionMatcher(regionKey);
+    const best = new Map();
+    PARAM_ROWS.forEach(r => {
+      if(!r.country || normalizeBase(r.variant) !== variantCanon || !inRegion(r.country)) return;
+      const t = normNumber(r.ttm_bev_share);
+      if(!isFinite(t) || best.has(r.country)) return;
+      best.set(r.country, { country: r.country, variant: r.variant, ttm: t });
+    });
+    return [...best.values()]
+      .sort((a, b) => (b.ttm - a.ttm) || a.country.localeCompare(b.country))
+      .slice(0, n);
+  }
+  function fillCompareWithRegionTopN(){
+    const regionSel = document.getElementById('compareFillRegion');
+    const note = document.getElementById('compareFillNote');
+    if(!regionSel || !COMPARE_SLOT_HTML) return;
+    const n = parseInt(document.getElementById('compareFillN').value, 10) || 5;
+    const variant = document.getElementById('compareVariant').value || 'whole';
+    const vc = normalizeBase(variant);
+    const top = compareTopNForRegion(regionSel.value, n, vc);
+    const regionName = regionSel.selectedOptions[0]?.textContent || 'region';
+    note.hidden = false;
+    if(!top.length){
+      note.textContent = `No countries with a ${document.getElementById('compareVariant').selectedOptions[0]?.textContent || variant} series and a TTM BEV share in ${regionName}.`;
+      return;
+    }
+    const pinned = ['compareSlot1','compareSlot2','compareSlot3'].map(id => document.getElementById(id));
+    const mount = document.getElementById('compareExtras');
+    mount.replaceChildren(); mount.hidden = true;
+    for(let i = pinned.length; i < top.length; i++) addCompareExtra();
+    const targets = [...pinned, ...mount.querySelectorAll('.compare-slot')];
+    targets.forEach((sel, i) => {
+      const t = top[i];
+      sel.value = t ? `country:${t.country}:${t.variant}` : '';
+    });
+    note.textContent = `${regionName} · top ${top.length} by latest TTM BEV share: ` +
+      top.map(t => `${t.country} ${(t.ttm * 100).toFixed(1)}%`).join(', ');
+    document.getElementById('compareBuild')?.click();
+  }
+
   function addCompareExtra(){
     const mount = document.getElementById('compareExtras');
     if(!mount || !COMPARE_SLOT_HTML) return;
@@ -10486,6 +10755,10 @@ if (stepTraces.length){
     document.getElementById('compareBand')?.addEventListener('change', () => {
       const p = document.getElementById('comparePlot');
       if (p && p.data) trigger();
+    });
+    document.getElementById('compareFillBtn')?.addEventListener('click', () => {
+      if(!COMPARE_SLOT_HTML && PARAM_ROWS && PARAM_ROWS.length) initCompare();
+      fillCompareWithRegionTopN();
     });
     document.getElementById('compareAddSlot')?.addEventListener('click', () => {
       if(!COMPARE_SLOT_HTML && PARAM_ROWS && PARAM_ROWS.length) initCompare();
@@ -11386,7 +11659,7 @@ function populateFleetCountries() {
     sel.appendChild(opt);
   });
 
-  enhanceCountryMultiSelect(sel, { placeholder: 'Search fleet countries' });
+  enhanceCountryMultiSelect(sel, { placeholder: 'Search fleet countries', regions: true });
   sel.dispatchEvent(new Event('change', { bubbles: true }));
 
   // Build the category toggle row for whatever country is now selected
@@ -13006,8 +13279,10 @@ function wmYearFmt(yearFrac){
 
 function wmDurationFmt(years){
   if (!isFinite(years)) return '—';
-  const y = Math.floor(Math.abs(years) + 1e-9);
-  const m = Math.round((Math.abs(years) - y) * 12);
+  // Round to whole months first, then split — otherwise 2.98 years gave "2y 12m".
+  const totalM = Math.round(Math.abs(years) * 12);
+  const y = Math.floor(totalM / 12);
+  const m = totalM % 12;
   const sign = years < 0 ? '-' : '';
   if (y && m) return `${sign}${y}y ${m}m`;
   if (y)      return `${sign}${y}y`;
@@ -15650,7 +15925,8 @@ document.addEventListener('click', (e) => {
     const sel = $('countrySelect'), pick = $('countryPick'), list = $('countryList'), clr = $('countryClear');
     if (!sel || !pick) return;
     // mirror the country options (filled after manifest load)
-    const sync = () => { list.innerHTML = [...sel.options].filter(o => o.value).map(o => `<option value="${o.value.replace(/"/g,'&quot;')}">`).join(''); };
+    const regionSel = $('regionGal');
+    const sync = () => { const inR = rankRegionMatcher(regionSel ? regionSel.value : ''); list.innerHTML = [...sel.options].filter(o => o.value && inR(galleryRegionName(o.value))).map(o => `<option value="${o.value.replace(/"/g,'&quot;')}">`).join(''); };
     new MutationObserver(sync).observe(sel, { childList: true }); sync();
     const setCountry = v => { sel.value = v; sel.dispatchEvent(new Event('change')); pick.value = v; clr.hidden = !v; };
     const match = () => [...sel.options].find(o => o.value && o.value.toLowerCase() === pick.value.trim().toLowerCase());
@@ -15658,6 +15934,12 @@ document.addEventListener('click', (e) => {
     pick.addEventListener('input', () => { const o = match(); if (o && o.value !== sel.value) setCountry(o.value); });
     pick.addEventListener('change', () => { const o = match(); setCountry(o ? o.value : ''); });
     clr.addEventListener('click', () => setCountry(''));
+    // Region narrows the country suggestions; a country picked earlier that
+    // lies outside the new region is dropped (it could only show 0 charts).
+    if (regionSel) regionSel.addEventListener('change', () => {
+      sync();
+      if (sel.value && !rankRegionMatcher(regionSel.value)(galleryRegionName(sel.value))) setCountry('');
+    });
     // Tag chips (always visible): live counts + applied-filters bar.
     // "More filters" (Month, Latest only): badge + Clear. Called by the
     // gallery after every render.
@@ -15672,6 +15954,7 @@ document.addEventListener('click', (e) => {
       return PREFIXED.has(g.dataset.tagCat) ? `${g.dataset.groupLabel}: ${t}` : t; };
     const clearAll = () => {
       const ps = $('periodSelect'); if (ps.value) ps.value = '';
+      if (regionSel && regionSel.value) { regionSel.value = ''; sync(); }
       chips.forEach(c => { c.checked = false; });
       fire(ps);                          // one re-render for everything
       $('search').focus({ preventScroll: true });
@@ -15695,8 +15978,10 @@ document.addEventListener('click', (e) => {
       const hiddenN = (ps.value ? 1 : 0) + (lo.checked ? 0 : 1);
       badge.textContent = hiddenN; badge.hidden = !hiddenN; clearBtn.hidden = !hiddenN;
       badge.setAttribute('aria-label', `${hiddenN} changed`);
-      const n = on.length + (ps.value ? 1 : 0);
+      const rg = regionSel && regionSel.value;
+      const n = on.length + (ps.value ? 1 : 0) + (rg ? 1 : 0);
       bar.replaceChildren();
+      if (rg) bar.append(mk('Region: ' + regionSel.options[regionSel.selectedIndex].textContent, () => { regionSel.value = ''; fire(regionSel); }));
       if (ps.value) bar.append(mk('Month: ' + ps.options[ps.selectedIndex].textContent, () => { ps.value = ''; fire(ps); }));
       on.forEach(c => { const b = mk(labelOf(c), () => { c.checked = false; fire(c); c.focus({ preventScroll: true }); });
         b.dataset.tone = c.parentNode.dataset.tone; bar.append(b); });
