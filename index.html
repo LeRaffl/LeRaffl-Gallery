@@ -9140,21 +9140,22 @@ function loadWeights(){
    silently overstate pure-BEV uptake, so the affected countries get a * in the
    country list under the chart and the caveat is spelled out beneath it.
 
-   The set is DERIVED from footnotes.csv (the canonical place that caveat is
-   written down) rather than hardcoded here, so it stays correct as countries
-   join or leave that source. Load failure degrades to "no marks", never to a
+   The set comes from series_meta.csv (column ev_combined_any), written by the
+   renderer from the data itself (R/series_meta.R) -- the same metadata that
+   drives the chart labels and the post text. It used to be a string match on
+   the footnote wording in footnotes.csv, which broke the moment anyone
+   rephrased the footnote. Load failure degrades to "no marks", never to a
    broken chart. */
-const EV_LABEL_MARKER = 'Electrically Chargeable Vehicle';
 let EV_LABEL_KEYS = null;              // Set of "Country|variantCanon"
 let EV_LABEL_PROMISE = null;
 function loadEvLabelKeys(){
   if (EV_LABEL_PROMISE) return EV_LABEL_PROMISE;
-  EV_LABEL_PROMISE = fetch('footnotes.csv', { cache:'no-store' })
+  EV_LABEL_PROMISE = fetch('series_meta.csv', { cache:'no-store' })
     .then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP '+r.status)))
     .then(txt => {
       const set = new Set();
       parseCSV(txt).forEach(r => {
-        if (String(r.footnote || '').includes(EV_LABEL_MARKER) && r.country)
+        if (String(r.ev_combined_any || '').trim().toLowerCase() === 'true' && r.country)
           set.add(`${r.country}|${normalizeBase(r.variant || 'whole')}`);
       });
       EV_LABEL_KEYS = set;

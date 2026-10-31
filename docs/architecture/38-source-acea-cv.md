@@ -331,3 +331,28 @@ and gates the workflow.
 - `scripts/fetch_acea.py` — the passenger-car fetcher; its module docstring is the reference
   for the always-list/conditional-list distinction this fetcher does *not* use (every country
   here is conditional).
+
+## What the BEV column means: `series_meta.csv`
+
+The "is this BEV or BEV+PHEV (EV)?" question is answered in one place,
+`R/series_meta.R`, **per period** and from the data:
+
+- A row is "EV" (combined BEV+PHEV) when its `(source, variant)` is registered
+  in `EV_COMBINED_SOURCES` (ACEA, Vans/HDV/Buses) **and** the row has no PHEV /
+  EREV value of its own. Everything else is pure BEV. The registry is needed
+  only because "PHEV empty" alone can't distinguish ACEA's folded figure from a
+  pure-BEV source that just doesn't publish PHEV (Poland's PZPM).
+- A real split source (e.g. KBA for Germany, with PHEV filled) therefore reads
+  "BEV" for its periods without touching any code; a mixed series such as
+  Poland (ACEA quarters = EV, PZPM months = BEV) is labelled by its latest
+  period, and `ev_basis_change` records where the basis switched.
+- `render_country.R` feeds the result to the charts (`meta$bev_label`,
+  `meta$has_phev_split`), to the post text (`has_phev_split_latest`) and to the
+  TTM legend (hybrid bands without data are not listed), and upserts one row
+  per series into `series_meta.csv`. The frontend reads `ev_combined_any` from
+  that file for the `*` in Builder/Compare (no more footnote string matching).
+- `hev_in_ice` only documents today's behaviour; the ICE definition is
+  deliberately not unified.
+- `scripts/build_series_meta.R` seeds/repairs the file offline.
+
+To onboard a new combined-bucket source, add it to `EV_COMBINED_SOURCES`.

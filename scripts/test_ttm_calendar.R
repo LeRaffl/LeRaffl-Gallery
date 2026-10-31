@@ -27,7 +27,10 @@ ok(min(w$month) == "2022-01", "coarse rows count: TTM from the second year")
 ok(all(abs(w$value.BEV[w$month %in% c("2022-01", "2022-06")] - 0.10) < 1e-9), "BEV 10 % through the yearly months")
 ok(!any(w$month >= "2023-03" & w$month <= "2024-02"), "windows across the missing month are dropped")
 h <- w[w$month == "2022-12", ]
-ok(h$value.HEV == 0 && h$value.MHEV == 0 && abs(h$value.ICE - 0.90) < 1e-9, "partial HEV window folded into ICE")
+# A hybrid band held at 0 over the whole displayed range is omitted (no empty legend
+# entry; see compute_ttm_long), so "0" may also read as "column absent" here.
+zero_or_absent <- function(x) is.null(x) || all(x == 0)
+ok(zero_or_absent(h$value.HEV) && zero_or_absent(h$value.MHEV) && abs(h$value.ICE - 0.90) < 1e-9, "partial HEV window folded into ICE")
 ok(all(abs(rowSums(w[, -1]) - 1) < 1e-9), "shares add up to 100 %")
 # monthly_est: a month estimated from annual data counts as a month everywhere.
 tmp <- tempfile(fileext = ".csv")

@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
   library(ggplot2); library(scales); library(grid); library(png); library(ggtext)
 })
 
-source("R/data.R"); source("R/fit.R"); source("R/plots.R"); source("R/upsert.R"); source("R/post_text.R"); source("R/bands.R")
+source("R/data.R"); source("R/fit.R"); source("R/plots.R"); source("R/upsert.R"); source("R/post_text.R"); source("R/bands.R"); source("R/series_meta.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) < 1) stop("usage: Rscript R/render_country.R <Country> [<Variant>]")
@@ -39,22 +39,11 @@ if (nrow(df) == 0) stop("no rows for variant '", variant, "' in ", csv_path)
 
 source_str <- source_line(df)
 
-# The EV gate below keeps keying on the first row's label, exactly as before
-# source_line() existed — the caption change must not flip any chart's
-# BEV/EV wording.
-first_source <- df$source[!is.na(df$source) & nzchar(df$source)][1]
-if (is.na(first_source)) first_source <- ""
-
-# ACEA's Commercial Vehicle release (Vans/HDV/Buses only — NOT the
-# passenger-car "Whole" release scripts/fetch_acea.py feeds, which splits
-# BEV/PHEV properly) reports a combined "Electrically Chargeable Vehicle"
-# figure (BEV+PHEV together) into our BEV column — see
-# docs/architecture/38-source-acea-cv.md. Display it as "EV" for exactly
-# those variants instead of claiming a pure-BEV split this source doesn't
-# have. Both the source and the variant gate matter here: source == "ACEA"
-# alone would also catch the (properly split) passenger-car ACEA countries.
-bev_label_val <- if (identical(trimws(toupper(first_source)), "ACEA") &&
-                     variant %in% c("Vans", "HDV", "Buses")) "EV" else "BEV"
+# What the BEV column means ("EV" = ACEA's combined BEV+PHEV bucket for the
+# commercial-vehicle variants, "BEV" otherwise) is decided per period in
+# R/series_meta.R and used for charts, posts, TTM legend and series_meta.csv.
+series_meta <- derive_series_meta(df, variant)
+bev_label_val <- series_meta$bev_label
 
 # Does this source actually split plug-in hybrids out? Where it does not, the
 # pipeline parks the combined hybrid figure in HEV and leaves PHEV/EREV empty
@@ -68,14 +57,8 @@ bev_label_val <- if (identical(trimws(toupper(first_source)), "ACEA") &&
 # 2024), and a list would rot the first time one of them does. The moment a
 # real PHEV or EREV value lands in the CSV, the curve comes back on its own.
 #
-# NA-and-empty-safe: numeric columns read as all-NA, text columns as "".
-has_any_value <- function(col) {
-  if (!col %in% names(df)) return(FALSE)
-  v <- df[[col]]
-  if (is.character(v)) v <- suppressWarnings(as.numeric(trimws(v)))
-  any(!is.na(v))
-}
-has_phev_split_val <- has_any_value("PHEV") || has_any_value("EREV")
+# (NA-and-empty-safe: see .sm_has() in R/series_meta.R.)
+has_phev_split_val <- series_meta$has_phev_split
 
 # Period folder + post date use the "as of" period (data_per): for quarterly
 # data the CSV stores each quarter's MIDDLE month (so the regression dots sit in
@@ -404,6 +387,7 @@ upsert_params("params.csv", country, variant, fit, data_per, source_str, ttm_bev
 weight <- compute_weight(df)
 cat(sprintf("[upsert] weights.csv %s/%s  weight=%s\n", country, variant, format(weight, big.mark = ",")))
 upsert_weights("weights.csv", country, variant, weight, data_per)
+upsert_series_meta("series_meta.csv", country, variant, data_per, series_meta)
 
 # Uncertainty bands (CI / PI / TI) for the frontend — bands/<slug>.json. Read by
 # index.html only; the PNGs above never use them. A band failure must never
@@ -431,7 +415,7 @@ heal_v1_zero_rows("params.csv", "weights.csv")
 # the Gallery's Copy-post button + the Apple Shortcut fetch) plus a periodised
 # copy posts/<slug>_<period>.txt that stays around as a history record.
 post_text <- build_post_text(df, country_label, as_of_period, bev_label = bev_label_val,
-                            has_phev_split = has_phev_split_val)
+                            has_phev_split = series_meta$has_phev_split_latest)
 if (nzchar(post_text)) {
   dir.create("posts", showWarnings = FALSE)
   writeLines(post_text, file.path("posts", paste0(slug, ".txt")), useBytes = TRUE)
@@ -442,7 +426,7 @@ if (nzchar(post_text)) {
 # TTM companion post — shape mirrors the TTM chart bands. The Gallery's
 # Copy-post button on the ttm_shares card fetches posts/<slug>_ttm.txt.
 ttm_post_text <- build_ttm_post_text(df, country_label, as_of_period, bev_label = bev_label_val,
-                                    has_phev_split = has_phev_split_val)
+                                    has_phev_split = series_meta$has_phev_split_latest)
 if (nzchar(ttm_post_text)) {
   dir.create("posts", showWarnings = FALSE)
   writeLines(ttm_post_text, file.path("posts", paste0(slug, "_ttm.txt")), useBytes = TRUE)
