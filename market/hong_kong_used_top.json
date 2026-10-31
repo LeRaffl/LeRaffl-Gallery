@@ -3,18 +3,18 @@
  "country": "Hong Kong",
  "variant": "Used",
  "source": "Transport Department (data.gov.hk)",
- "as_of": "2026-08",
+ "as_of": "2026-09",
  "window": {
-  "from": "2025-09",
-  "to": "2026-08",
+  "from": "2025-10",
+  "to": "2026-09",
   "months": 12
  },
- "total_registrations": 8430,
+ "total_registrations": 8399,
  "unit": "first registrations (brand = TD 'Vehicle Make', aliases merged; model = TD 'Vehicle Model' with the brand prefix, chassis codes and trim words removed — see MODEL_TRIM in scripts/fetch_hong_kong.py)",
  "classes": {
   "BEV": {
    "units": 85,
-   "share_of_market": 0.01008,
+   "share_of_market": 0.01012,
    "brands": [
     {
      "brand": "MAXUS",
@@ -23,8 +23,8 @@
     },
     {
      "brand": "NISSAN",
-     "units": 20,
-     "share_of_class": 0.2353
+     "units": 18,
+     "share_of_class": 0.2118
     },
     {
      "brand": "GEELY",
@@ -47,17 +47,17 @@
      "share_of_class": 0.0471
     },
     {
+     "brand": "DENZA",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
      "brand": "FIAT",
      "units": 2,
      "share_of_class": 0.0235
     },
     {
      "brand": "MINI",
-     "units": 2,
-     "share_of_class": 0.0235
-    },
-    {
-     "brand": "MITSUBISHI",
      "units": 2,
      "share_of_class": 0.0235
     },
@@ -105,14 +105,14 @@
      "share_of_class": 0.0471
     },
     {
-     "brand": "NISSAN",
-     "model": "LEAF X",
-     "units": 3,
-     "share_of_class": 0.0353
-    },
-    {
      "brand": "BYD",
      "model": "M6",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "DENZA",
+     "model": "D9",
      "units": 2,
      "share_of_class": 0.0235
     },
@@ -161,269 +161,286 @@
    ]
   },
   "PHEV": {
-   "units": 17,
-   "share_of_market": 0.00202,
+   "units": 21,
+   "share_of_market": 0.0025,
    "brands": [
     {
      "brand": "FERRARI",
-     "units": 5,
-     "share_of_class": 0.2941
+     "units": 6,
+     "share_of_class": 0.2857
     },
     {
      "brand": "TOYOTA",
      "units": 5,
-     "share_of_class": 0.2941
+     "share_of_class": 0.2381
     },
     {
      "brand": "GAC",
-     "units": 2,
-     "share_of_class": 0.1176
+     "units": 4,
+     "share_of_class": 0.1905
     },
     {
      "brand": "LAND ROVER",
      "units": 2,
-     "share_of_class": 0.1176
+     "share_of_class": 0.0952
     },
     {
      "brand": "BENTLEY",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
     },
     {
      "brand": "BYD",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
     },
     {
      "brand": "LAMBORGHINI",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 1,
+     "share_of_class": 0.0476
     }
    ],
    "models": [
     {
+     "brand": "GAC",
+     "model": "E9",
+     "units": 4,
+     "share_of_class": 0.1905
+    },
+    {
      "brand": "FERRARI",
      "model": "296 GTS",
      "units": 2,
-     "share_of_class": 0.1176
+     "share_of_class": 0.0952
     },
     {
      "brand": "FERRARI",
      "model": "SF90 STRADALE",
      "units": 2,
-     "share_of_class": 0.1176
-    },
-    {
-     "brand": "GAC",
-     "model": "E9",
-     "units": 2,
-     "share_of_class": 0.1176
+     "share_of_class": 0.0952
     },
     {
      "brand": "TOYOTA",
      "model": "ALPHARD PLUG-IN",
      "units": 2,
-     "share_of_class": 0.1176
+     "share_of_class": 0.0952
     },
     {
      "brand": "BENTLEY",
      "model": "BENTAYGA HYBRID",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
     },
     {
      "brand": "BYD",
      "model": "SEALION 6",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
     },
     {
      "brand": "FERRARI",
      "model": "296GTB",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
+    },
+    {
+     "brand": "FERRARI",
+     "model": "SF90 SPIDER",
+     "units": 1,
+     "share_of_class": 0.0476
     },
     {
      "brand": "LAMBORGHINI",
      "model": "REVUELTO",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
     },
     {
      "brand": "LAND ROVER",
      "model": "RANGE ROVER AUTOBIOGRAPHY P510E WHEELBASE",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
     },
     {
      "brand": "LAND ROVER",
      "model": "RANGE ROVER P550E",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "model": "AMG C63 S E",
+     "units": 1,
+     "share_of_class": 0.0476
     },
     {
      "brand": "TOYOTA",
      "model": "ALPHARD",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
     },
     {
      "brand": "TOYOTA",
      "model": "CROWN RS",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
     },
     {
      "brand": "TOYOTA",
      "model": "PRIUS PHV S GR",
      "units": 1,
-     "share_of_class": 0.0588
+     "share_of_class": 0.0476
     }
    ]
   },
   "PETROL": {
-   "units": 8328,
-   "share_of_market": 0.9879,
+   "units": 8293,
+   "share_of_market": 0.98738,
    "brands": [
     {
      "brand": "TOYOTA",
-     "units": 6319,
-     "share_of_class": 0.7588
+     "units": 6250,
+     "share_of_class": 0.7536
     },
     {
      "brand": "HONDA",
-     "units": 988,
-     "share_of_class": 0.1186
+     "units": 979,
+     "share_of_class": 0.1181
     },
     {
      "brand": "LEXUS",
-     "units": 243,
-     "share_of_class": 0.0292
+     "units": 254,
+     "share_of_class": 0.0306
     },
     {
      "brand": "MAZDA",
-     "units": 158,
-     "share_of_class": 0.019
-    },
-    {
-     "brand": "SUZUKI",
-     "units": 110,
-     "share_of_class": 0.0132
+     "units": 155,
+     "share_of_class": 0.0187
     },
     {
      "brand": "MERCEDES-BENZ",
-     "units": 105,
-     "share_of_class": 0.0126
+     "units": 121,
+     "share_of_class": 0.0146
+    },
+    {
+     "brand": "SUZUKI",
+     "units": 100,
+     "share_of_class": 0.0121
     },
     {
      "brand": "ROLLS-ROYCE",
+     "units": 65,
+     "share_of_class": 0.0078
+    },
+    {
+     "brand": "NISSAN",
      "units": 63,
      "share_of_class": 0.0076
     },
     {
-     "brand": "NISSAN",
-     "units": 58,
-     "share_of_class": 0.007
+     "brand": "PORSCHE",
+     "units": 54,
+     "share_of_class": 0.0065
     },
     {
      "brand": "LAND ROVER",
-     "units": 52,
-     "share_of_class": 0.0062
-    },
-    {
-     "brand": "BENTLEY",
-     "units": 43,
-     "share_of_class": 0.0052
+     "units": 53,
+     "share_of_class": 0.0064
     }
    ],
    "models": [
     {
      "brand": "TOYOTA",
      "model": "ALPHARD",
-     "units": 2764,
-     "share_of_class": 0.3319
+     "units": 2759,
+     "share_of_class": 0.3327
     },
     {
      "brand": "TOYOTA",
      "model": "VELLFIRE",
-     "units": 815,
-     "share_of_class": 0.0979
+     "units": 801,
+     "share_of_class": 0.0966
     },
     {
      "brand": "TOYOTA",
      "model": "VOXY",
-     "units": 286,
-     "share_of_class": 0.0343
+     "units": 276,
+     "share_of_class": 0.0333
     },
     {
      "brand": "TOYOTA",
      "model": "VOXY HYBRID",
-     "units": 220,
-     "share_of_class": 0.0264
+     "units": 210,
+     "share_of_class": 0.0253
     },
     {
      "brand": "HONDA",
      "model": "FREED HYBRID G HONDA SENSING",
-     "units": 208,
-     "share_of_class": 0.025
+     "units": 205,
+     "share_of_class": 0.0247
     },
     {
      "brand": "TOYOTA",
      "model": "ALPHARD HYBRID",
-     "units": 184,
-     "share_of_class": 0.0221
+     "units": 203,
+     "share_of_class": 0.0245
     },
     {
      "brand": "TOYOTA",
      "model": "VOXY HYBRID ZS",
-     "units": 132,
-     "share_of_class": 0.0159
+     "units": 128,
+     "share_of_class": 0.0154
     },
     {
      "brand": "TOYOTA",
      "model": "VELLFIRE Z PREMIER",
-     "units": 129,
-     "share_of_class": 0.0155
-    },
-    {
-     "brand": "TOYOTA",
-     "model": "NOAH",
-     "units": 125,
-     "share_of_class": 0.015
+     "units": 127,
+     "share_of_class": 0.0153
     },
     {
      "brand": "HONDA",
      "model": "STEPWGN SPADA HYBRID G EX HONDA SENSING",
-     "units": 118,
-     "share_of_class": 0.0142
+     "units": 123,
+     "share_of_class": 0.0148
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "NOAH",
+     "units": 113,
+     "share_of_class": 0.0136
     },
     {
      "brand": "TOYOTA",
      "model": "ALPHARD SC",
-     "units": 101,
-     "share_of_class": 0.0121
+     "units": 94,
+     "share_of_class": 0.0113
     },
     {
      "brand": "HONDA",
      "model": "CIVIC TYPE R",
-     "units": 84,
-     "share_of_class": 0.0101
-    },
-    {
-     "brand": "TOYOTA",
-     "model": "ESQUIRE",
-     "units": 81,
-     "share_of_class": 0.0097
+     "units": 77,
+     "share_of_class": 0.0093
     },
     {
      "brand": "HONDA",
      "model": "STEPWGN E:HEV SPADA G EX HONDA SENSING",
-     "units": 76,
-     "share_of_class": 0.0091
+     "units": 75,
+     "share_of_class": 0.009
     },
     {
      "brand": "TOYOTA",
-     "model": "SIENTA HYBRID",
+     "model": "ESQUIRE",
+     "units": 72,
+     "share_of_class": 0.0087
+    },
+    {
+     "brand": "LEXUS",
+     "model": "LM500H",
      "units": 69,
      "share_of_class": 0.0083
     }
@@ -431,6 +448,201 @@
   }
  },
  "months": [
+  {
+   "period": "2026-09",
+   "total_registrations": 660,
+   "classes": {
+    "BEV": {
+     "units": 3,
+     "share_of_market": 0.00455,
+     "brands": [
+      {
+       "brand": "DENZA",
+       "units": 2,
+       "share_of_class": 0.6667
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 1,
+       "share_of_class": 0.3333
+      }
+     ],
+     "models": [
+      {
+       "brand": "DENZA",
+       "model": "D9",
+       "units": 2,
+       "share_of_class": 0.6667
+      },
+      {
+       "brand": "PORSCHE",
+       "model": "TAYCAN",
+       "units": 1,
+       "share_of_class": 0.3333
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 4,
+     "share_of_market": 0.00606,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 2,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "FERRARI",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 1,
+       "share_of_class": 0.25
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 2,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "FERRARI",
+       "model": "SF90 SPIDER",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG C63 S E",
+       "units": 1,
+       "share_of_class": 0.25
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 653,
+     "share_of_market": 0.98939,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 466,
+       "share_of_class": 0.7136
+      },
+      {
+       "brand": "HONDA",
+       "units": 75,
+       "share_of_class": 0.1149
+      },
+      {
+       "brand": "LEXUS",
+       "units": 22,
+       "share_of_class": 0.0337
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 17,
+       "share_of_class": 0.026
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 16,
+       "share_of_class": 0.0245
+      },
+      {
+       "brand": "MAZDA",
+       "units": 11,
+       "share_of_class": 0.0168
+      },
+      {
+       "brand": "NISSAN",
+       "units": 10,
+       "share_of_class": 0.0153
+      },
+      {
+       "brand": "BENTLEY",
+       "units": 8,
+       "share_of_class": 0.0123
+      },
+      {
+       "brand": "KIA",
+       "units": 5,
+       "share_of_class": 0.0077
+      },
+      {
+       "brand": "SUBARU",
+       "units": 5,
+       "share_of_class": 0.0077
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 208,
+       "share_of_class": 0.3185
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VELLFIRE",
+       "units": 59,
+       "share_of_class": 0.0904
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD HYBRID",
+       "units": 27,
+       "share_of_class": 0.0413
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VOXY",
+       "units": 20,
+       "share_of_class": 0.0306
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VOXY HYBRID",
+       "units": 17,
+       "share_of_class": 0.026
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED HYBRID G HONDA SENSING",
+       "units": 12,
+       "share_of_class": 0.0184
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN SPADA HYBRID G EX HONDA SENSING",
+       "units": 12,
+       "share_of_class": 0.0184
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 9,
+       "share_of_class": 0.0138
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN E:HEV SPADA G HONDA SENSING",
+       "units": 7,
+       "share_of_class": 0.0107
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VELLFIRE Z PREMIER",
+       "units": 7,
+       "share_of_class": 0.0107
+      }
+     ]
+    }
+   }
+  },
   {
    "period": "2026-08",
    "total_registrations": 576,
@@ -2428,160 +2640,6 @@
        "model": "ALPHARD HYBRID",
        "units": 9,
        "share_of_class": 0.0126
-      }
-     ]
-    }
-   }
-  },
-  {
-   "period": "2025-09",
-   "total_registrations": 691,
-   "classes": {
-    "BEV": {
-     "units": 3,
-     "share_of_market": 0.00434,
-     "brands": [
-      {
-       "brand": "NISSAN",
-       "units": 2,
-       "share_of_class": 0.6667
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 1,
-       "share_of_class": 0.3333
-      }
-     ],
-     "models": [
-      {
-       "brand": "NISSAN",
-       "model": "LEAF X",
-       "units": 2,
-       "share_of_class": 0.6667
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "EK CROSS G",
-       "units": 1,
-       "share_of_class": 0.3333
-      }
-     ]
-    },
-    "PETROL": {
-     "units": 688,
-     "share_of_market": 0.99566,
-     "brands": [
-      {
-       "brand": "TOYOTA",
-       "units": 535,
-       "share_of_class": 0.7776
-      },
-      {
-       "brand": "HONDA",
-       "units": 84,
-       "share_of_class": 0.1221
-      },
-      {
-       "brand": "SUZUKI",
-       "units": 15,
-       "share_of_class": 0.0218
-      },
-      {
-       "brand": "MAZDA",
-       "units": 14,
-       "share_of_class": 0.0203
-      },
-      {
-       "brand": "LEXUS",
-       "units": 11,
-       "share_of_class": 0.016
-      },
-      {
-       "brand": "SUBARU",
-       "units": 6,
-       "share_of_class": 0.0087
-      },
-      {
-       "brand": "NISSAN",
-       "units": 5,
-       "share_of_class": 0.0073
-      },
-      {
-       "brand": "BENTLEY",
-       "units": 2,
-       "share_of_class": 0.0029
-      },
-      {
-       "brand": "DAIHATSU",
-       "units": 2,
-       "share_of_class": 0.0029
-      },
-      {
-       "brand": "LAND ROVER",
-       "units": 2,
-       "share_of_class": 0.0029
-      }
-     ],
-     "models": [
-      {
-       "brand": "TOYOTA",
-       "model": "ALPHARD",
-       "units": 213,
-       "share_of_class": 0.3096
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "VELLFIRE",
-       "units": 73,
-       "share_of_class": 0.1061
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "VOXY",
-       "units": 30,
-       "share_of_class": 0.0436
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "VOXY HYBRID",
-       "units": 27,
-       "share_of_class": 0.0392
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "NOAH",
-       "units": 21,
-       "share_of_class": 0.0305
-      },
-      {
-       "brand": "HONDA",
-       "model": "FREED HYBRID G HONDA SENSING",
-       "units": 15,
-       "share_of_class": 0.0218
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "SIENTA HYBRID",
-       "units": 13,
-       "share_of_class": 0.0189
-      },
-      {
-       "brand": "HONDA",
-       "model": "CIVIC TYPE R",
-       "units": 12,
-       "share_of_class": 0.0174
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "ALPHARD SC",
-       "units": 11,
-       "share_of_class": 0.016
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "ESQUIRE",
-       "units": 11,
-       "share_of_class": 0.016
       }
      ]
     }

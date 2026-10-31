@@ -1,0 +1,100 @@
+name: Tests
+
+# Runs the repo's own unit/regression tests on every pull request that touches
+# the code, pages or scripts they cover:
+#   * python: every scripts/test_*.py (fetcher parsers, tag system, source-page
+#     generator, static checks on index.html / assets / sources, ...)
+#   * r:      every scripts/test_*.R, inside the same prebuilt image the render
+#     jobs use (docs/architecture/63-r-render-image.md), so R is the same R.
+# New tests are picked up by the glob; nothing has to be registered here.
+# Read-only: nothing is committed, pushed or dispatched.
+#
+# Until this existed none of the scripts/test_* files ran in CI, so a PR could
+# break them without any check turning red.
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'R/**'
+      - 'assets/**'
+      - 'index.html'
+      - 'sources/**'
+      - 'docs/architecture/**'
+      - 'params.csv'
+      - 'series_meta.csv'
+      - '.github/workflows/tests.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: python (scripts/test_*.py)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      # Union of what the tests import: pdfplumber (ACEA / Greece PDFs),
+      # openpyxl + xlrd (Excel fixtures), bs4 (HTML fixtures), pypdf, pyyaml.
+      # They are all small wheels, so the tests that need them run instead of
+      # being skipped.
+      - run: pip install requests pyyaml pdfplumber openpyxl xlrd beautifulsoup4 pypdf
+      - name: Run every scripts/test_*.py
+        run: |
+          shopt -s nullglob
+          failed=()
+          for t in scripts/test_*.py; do
+            echo "::group::$t"
+            if python "$t"; then echo "ok  $t"; else failed+=("$t"); echo "::error file=$t::$t failed"; fi
+            echo "::endgroup::"
+          done
+          echo
+          if [ ${#failed[@]} -gt 0 ]; then
+            echo "FAILED (${#failed[@]}): ${failed[*]}"
+            exit 1
+          fi
+          echo "all scripts/test_*.py passed"
+
+  r:
+    name: r (scripts/test_*.R)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read   # pull the R image from GHCR
+    container:
+      image: ghcr.io/leraffl/r-render:v1
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    # Container jobs default to `sh`; keep the runner's default `bash -e`.
+    defaults:
+      run:
+        shell: bash -e {0}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run every scripts/test_*.R
+        run: |
+          Rscript --version
+          shopt -s nullglob
+          failed=()
+          for t in scripts/test_*.R; do
+            echo "::group::$t"
+            if Rscript "$t"; then echo "ok  $t"; else failed+=("$t"); echo "::error file=$t::$t failed"; fi
+            echo "::endgroup::"
+          done
+          echo
+          if [ ${#failed[@]} -gt 0 ]; then
+            echo "FAILED (${#failed[@]}): ${failed[*]}"
+            exit 1
+          fi
+          echo "all scripts/test_*.R passed"

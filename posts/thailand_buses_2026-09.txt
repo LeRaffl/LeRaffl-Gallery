@@ -1,0 +1,9 @@
+🇹🇭 Thailand (Buses) - September 26 - BEV Trajectory
+1.3% BEV
+0.0% PHEV
+98.7% ICE
+
+Trailing 12 months are:
+5.6% BEV
+0.0% PHEV
+94.4% ICE
