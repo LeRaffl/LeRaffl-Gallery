@@ -42,10 +42,10 @@ scope_note: Vehicles first registered in Latvia in the month, new and used, as t
 caveats:
 - 'Whole equals ACEA''s Latvian figure: 2015-01 … 2024-12 the same TOTAL, BEV, PHEV, petrol and diesel in every month; 2025–2026 at most a few cars apart (CSDD books late registrations after ACEA has published). ACEA''s OTHERS was sometimes a few cars lower with the same TOTAL.'
 - 'HEV is not reported: full and mild hybrids are inside PETROL/DIESEL. PHEV is plug-in hybrids only, so the PHEV curve is real but the HEV share cannot be shown.'
-- 'Used imports are a market of their own: about 42,000 a year (twice the new market), mostly diesel; 10 % BEV and 5 % PHEV in January–September 2026.'
-- 'Vans run up to about 13 % and HDV up to about 17 % below ACEA''s quarterly reconstructions in 2024–2026 (their electric counts agree); ACEA''s CV quarters for Latvia also have known errors (HDV 2022-Q2, 2023-Q3). Buses are 0–40 a month, so single deliveries of electric city buses swing the shares.'
+- 'Used imports are a market of their own: about 42,000 a year (twice the new market), mostly diesel; 10% BEV and 5% PHEV in January–September 2026.'
+- 'Vans run up to about 13% and HDV up to about 17% below ACEA''s quarterly reconstructions in 2024–2026 (their electric counts agree); ACEA''s CV quarters for Latvia also have known errors (HDV 2022-Q2, 2023-Q3). Buses are 0–40 a month, so single deliveries of electric city buses swing the shares.'
 - 'CSDD''s website answers only European internet addresses. GitHub''s servers (which run the fetch) are in the US, so every request goes through a small relay of this project on Google Cloud Run in Finland, which fetches the files from CSDD and passes them back unchanged. If the relay is down, the fetch fails loudly; ACEA still fills the Whole series.'
-- 'The file is the register as it is today, not a snapshot of each month: more than a year back the record counts drift up to ~1.5 % below the headline table written at the time (records removed since), while new cars still equal ACEA''s figure. December 2023 is the exception the other way: the records hold 653 more first-registered cars than the headline table (new cars still equal ACEA).'
+- 'The file is the register as it is today, not a snapshot of each month: more than a year back the record counts drift up to ~1.5% below the headline table written at the time (records removed since), while new cars still equal ACEA''s figure. December 2023 is the exception the other way: the records hold 653 more first-registered cars than the headline table (new cars still equal ACEA).'
 processing:
 - title: Network path
   text:
@@ -117,7 +117,7 @@ processing:
       then: OTHERS
 - title: Checks before writing
   text:
-  - All passenger cars first registered in the month (every status) must equal the headline table's "Vieglie" — a difference above 0.5 % (and 3 cars) in any of the last 13 months stops the run. From 2022 the two match within 4 cars in every month but December 2023. The lorry and bus totals are compared and reported, not enforced (the headline "Kravas" counts more lorry types). Unknown fuel, status or keeper values may not exceed 2 % of a month, and a month below a quarter of the usual volume is not written.
+  - All passenger cars first registered in the month (every status) must equal the headline table's "Vieglie" — a difference above 0.5% (and 3 cars) in any of the last 13 months stops the run. From 2022 the two match within 4 cars in every month but December 2023. The lorry and bus totals are compared and reported, not enforced (the headline "Kravas" counts more lorry types). Unknown fuel, status or keeper values may not exceed 2% of a month, and a month below a quarter of the usual volume is not written.
 market_breakdown: market/latvia_top.json
 market_designation_note: brand and model as the register writes them (MARKA, MODELIS), upper-cased; VW is shown as VOLKSWAGEN, MERCEDES BENZ as MERCEDES-BENZ, BMW I as BMW. The model is the register's model name, which for some makes carries the engine (X5 XDRIVE45E, Q5 220KW TFSI E) — one model can appear in several rows.
 market_powertrain_note: the same classes as the Whole CSV — BEV, PHEV (plug-in hybrids), PETROL (incl. full and mild hybrids) and DIESEL — counted from the same records, so the tables add up to the chart's monthly figures exactly.
@@ -231,7 +231,7 @@ BMW X3 30e, Lexus RX450h+; its used imports BMW X5 xDrive45e, VW Passat GTE, Vol
 Mitsubishi Outlander. Toyota's full hybrids (Yaris Cross, Corolla, C-HR, RAV4, Prius) are
 `Benzīns`. So HEV is written empty — not published, not zero — and the chart draws its
 curves without an HEV share, as for ACEA's Latvian rows before. An unknown fuel value is
-counted as OTHERS and listed; above 2 % of a month the run stops.
+counted as OTHERS and listed; above 2% of a month the run stops.
 
 ## 4. Validation
 
@@ -244,9 +244,9 @@ against the headline "Vieglie":
 |---|---|
 | 2022-01 … 2026-09 (except 2023-12) | equal within 4 cars, most exactly |
 | 2023-12 | records 4,123 vs headline 3,470 (new cars still equal ACEA) |
-| 2015 … 2021 | records 0.4–1.6 % below the headline (the file is today's register) |
+| 2015 … 2021 | records 0.4–1.6% below the headline (the file is today's register) |
 
-Only the last 13 months are enforced. Lorries (N1–N3) are mostly 0–16 % below the headline
+Only the last 13 months are enforced. Lorries (N1–N3) are mostly 0–16% below the headline
 "Kravas", which counts more lorry types; buses within a few vehicles in recent months —
 both reported only.
 
@@ -267,8 +267,8 @@ replaced row's note says `= ACEA` or lists ACEA's differing values
 (`replaces ACEA (TOTAL 1831, +3; ACEA had BEV 126 / TOTAL 1831)`).
 
 Vans, HDV and Buses against ACEA's reconstructions (`data/Latvia_legacy.csv`): Vans equal in
-2023-Q1/Q2, 0–13 % below ACEA in 2024–2026, with the same electric count (ACEA's "BEV" =
-BEV + PHEV here); HDV equal in 2022–2023 where ACEA's quarters are sound, up to ~17 % below
+2023-Q1/Q2, 0–13% below ACEA in 2024–2026, with the same electric count (ACEA's "BEV" =
+BEV + PHEV here); HDV equal in 2022–2023 where ACEA's quarters are sound, up to ~17% below
 in 2025–2026; Buses within 0–6 vehicles a quarter since 2023.
 
 ## 5. Interplay with fetch-acea

@@ -1,10 +1,8 @@
 🇭🇰 Hong Kong (Vans) - TTM Market Split
 
-Sep24–Aug25  vs  Sep25–Aug26
-+12.2pp  BEV     (28.9% → 41.1%)
+Oct24–Sep25  vs  Oct25–Sep26
++13.7pp  BEV     (29.4% → 43.1%)
 +0.0pp  Hybrid  (0.0% → 0.0%)
-−12.2pp  ICE     (71.1% → 58.9%)
+−13.7pp  ICE     (70.6% → 56.9%)
 
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-07.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-05.

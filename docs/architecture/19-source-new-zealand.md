@@ -36,10 +36,10 @@ hev_note: PHEV and HEV come from the register's motive power. Range-extended EVs
 backfill: Whole, Vans, HDV and Used were counted from the register's 2026-10 snapshot (Whole from 2012-01, the others from 2015-01), with undercount notes on every row before 2026-07. The former data/New Zealand.csv (light vehicles, new and used) is archived in data/New Zealand_legacy.csv — Prof. Ray Willis's rows 2012-01 to 2026-03, the register from 2026-04 (the hand rows for 2026-04..09 were replaced, see §7); it is no longer fetched or rendered.
 scope_note: First registrations in New Zealand by the register's own vehicle class and import status, mapped onto the EU classes like every other country. Before 2026-10 the gallery's New Zealand series was all light vehicles, new and used imports together; that series is archived, not continued.
 caveats:
-- Whole, Vans, HDV and Used were counted from today's register back to 2012 / 2015. The register lists vehicles registered today, so older months miss the vehicles scrapped or exported since — little for recent years, more further back (for the former light-vehicle scope about 4 % for 2024, 15 % for 2019, 30 % for 2015; less for new cars, more for used imports). Shares are affected less than volumes. Each such row says "undercount" in its notes; from 2026-10 every month is written once, right after it ends.
-- NZTA leaves out vehicles whose owners have a confidential listing; with the deregistrations this puts the register about 1 % below the Ministry's published figures.
+- Whole, Vans, HDV and Used were counted from today's register back to 2012 / 2015. The register lists vehicles registered today, so older months miss the vehicles scrapped or exported since — little for recent years, more further back (for the former light-vehicle scope about 4% for 2024, 15% for 2019, 30% for 2015; less for new cars, more for used imports). Shares are affected less than volumes. Each such row says "undercount" in its notes; from 2026-10 every month is written once, right after it ends.
+- NZTA leaves out vehicles whose owners have a confidential listing; with the deregistrations this puts the register about 1% below the Ministry's published figures.
 - Some 48 V mild-hybrid utes are registered as diesel hybrids and count as HEV — most visibly in Vans.
-- The New Zealand series shown until 2026-10 included used imports (about 40 % of its volume) and light goods vehicles, so its BEV share was about half of today's Whole (8.5 % against 15 % in the year to September 2026). Whole is now new cars only — the jump in the chart's history is this change of scope, not a market event.
+- The New Zealand series shown until 2026-10 included used imports (about 40% of its volume) and light goods vehicles, so its BEV share was about half of today's Whole (8.5% against 15% in the year to September 2026). Whole is now new cars only — the jump in the chart's history is this change of scope, not a market event.
 processing:
 - title: Ask the register
   text:
@@ -86,7 +86,7 @@ processing:
       note: not a first registration
 - title: Powertrain
   text:
-  - The register's motive power is mapped one to one. A label the fetcher does not know is counted in OTHERS and listed in the run report; above 1 % of a month it stops the run until someone decides its column.
+  - The register's motive power is mapped one to one. A label the fetcher does not know is counted in OTHERS and listed in the run report; above 1% of a month it stops the run until someone decides its column.
   decision:
     ask: Motive power?
     branches:
@@ -108,7 +108,7 @@ processing:
       then: OTHERS
 - title: Check it
   text:
-  - The month's total must be within half to twice the same month a year earlier. Every run also recounts the three months before and compares them with the rows already in the chart; a difference above 5 % is flagged for review. Only then is the month written — as a new line, never by rewriting earlier ones.
+  - The month's total must be within half to twice the same month a year earlier. Every run also recounts the three months before and compares them with the rows already in the chart; a difference above 5% is flagged for review. Only then is the month written — as a new line, never by rewriting earlier ones.
 market_breakdown: market/new_zealand_top.json
 market_heading: Who sells the new electrified cars
 market_designation_note: Make and model as the entry certifier typed them on the register, upper-cased; a model typed with the brand in front is merged with the plain one. Some models are generic (BMW's electric cars are partly registered as model "I").
@@ -186,27 +186,27 @@ not rendered — the `_legacy` convention, like Czechia's or Spain's):
 `RE-REG` and `SCRATCH` are not first registrations and are in no variant. The
 month is `FIRST_NZ_REGISTRATION_YEAR` / `_MONTH`, the month the plates were
 issued. Buses (`MD*`, `ME`) are not built (§9). Year to 2026-09: Whole 109,477
-(BEV 14.7 %), Vans 32,964 (BEV 1.8 %, PHEV 7.4 % — mostly the BYD Shark 6
-ute), HDV 5,177 (BEV 1.7 %), Used 88,446 (BEV 3.9 %, HEV 49.7 %); the former
-light-vehicle scope would be 235,700 (BEV 8.5 %).
+(BEV 14.7%), Vans 32,964 (BEV 1.8%, PHEV 7.4% — mostly the BYD Shark 6
+ute), HDV 5,177 (BEV 1.7%), Used 88,446 (BEV 3.9%, HEV 49.7%); the former
+light-vehicle scope would be 235,700 (BEV 8.5%).
 
 The register settles what the legacy series was: with used imports in, it
-matches the legacy rows in every column; without them it is 40 % short and
+matches the legacy rows in every column; without them it is 40% short and
 has half the hybrids.
 
 Overlap with the legacy rows (register queried 2026-10-09, register − CSV):
 
 | Month | BEV | PHEV | HEV | PETROL | DIESEL | TOTAL |
 |---|---:|---:|---:|---:|---:|---:|
-| 2025-09 | −4 | −5 | −91 | −111 | −68 | −279 (−1.3 %) |
-| 2025-12 | −5 | −12 | −61 | −93 | −63 | −234 (−1.5 %) |
-| 2026-01 | −9 | −3 | −54 | −70 | −59 | −195 (−1.0 %) |
-| 2026-02 | −1 | −1 | −35 | −67 | −50 | −154 (−0.9 %) |
-| 2026-03 | −17 | +4 | −65 | −64 | −76 | −218 (−0.9 %) |
-| 2026-04 | −105 | −4 | −42 | −2,360 | −449 | −2,960 (−15.3 %) |
-| 2026-09 | −41 | −6 | −8 | −798 | −753 | −1,606 (−6.1 %) |
+| 2025-09 | −4 | −5 | −91 | −111 | −68 | −279 (−1.3%) |
+| 2025-12 | −5 | −12 | −61 | −93 | −63 | −234 (−1.5%) |
+| 2026-01 | −9 | −3 | −54 | −70 | −59 | −195 (−1.0%) |
+| 2026-02 | −1 | −1 | −35 | −67 | −50 | −154 (−0.9%) |
+| 2026-03 | −17 | +4 | −65 | −64 | −76 | −218 (−0.9%) |
+| 2026-04 | −105 | −4 | −42 | −2,360 | −449 | −2,960 (−15.3%) |
+| 2026-09 | −41 | −6 | −8 | −798 | −753 | −1,606 (−6.1%) |
 
-Through 2026-03 the register is about 1 % below in every column — vehicles
+Through 2026-03 the register is about 1% below in every column — vehicles
 deregistered since, and owners with a confidential listing whom NZTA leaves
 out. The six months entered by hand from 2026-04 are another matter: BEV, PHEV
 and HEV still agree, but petrol and diesel are several hundred to 2,360
@@ -216,8 +216,8 @@ known — possibly a view that also counts re-registrations, which are almost
 all petrol and diesel — but they are not the series the history is. See §7 for how they were handled.
 
 Earlier months undercount more, because the register only lists vehicles
-still registered: in the former light-vehicle scope 2024 is about 4 % short, 2019 about 15 %,
-2015 about 30 %. That is why the fetcher writes each month once, right after
+still registered: in the former light-vehicle scope 2024 is about 4% short, 2019 about 15%,
+2015 about 30%. That is why the fetcher writes each month once, right after
 it ends, and does not rebuild a history it already has (invariant 3).
 
 ### 2.1 The new variants' history
@@ -269,7 +269,7 @@ hybrid 21, diesel electric hybrid 6, other 4, CNG 2.
 **MHEV.** The register has no mild-hybrid label. Diesel hybrids are mostly
 48 V mild-hybrid utes (Hilux, from 2024), registered as "DIESEL HYBRID"; they
 count as HEV here, as they did in the Ministry's figures — mostly in Vans. A label the map does
-not know goes to OTHERS with a warning, and stops the run above 1 % of a month
+not know goes to OTHERS with a warning, and stops the run above 1% of a month
 (`UNKNOWN_ABORT`).
 
 ## 5. Governance and validation
@@ -281,9 +281,9 @@ not know goes to OTHERS with a warning, and stops the run above 1 % of a month
 - **Plausibility:** each variant's TOTAL within ×0.5–×2 of the same month a
   year earlier (`PLAUSIBLE`); outside stops the run (skip with `force`).
 - **Overlap:** every run recounts the three months before the target and lists
-  register − CSV per column in the step summary; above 5 % (`OVERLAP_WARN`) it
+  register − CSV per column in the step summary; above 5% (`OVERLAP_WARN`) it
   is a warning. Rows from another source are never replaced without `force`.
-- **Unknown labels:** listed; abort above 1 % of the month (all variants
+- **Unknown labels:** listed; abort above 1% of the month (all variants
   together).
 - **No independent total:** the Ministry's dashboard is the only other
   publication and it is behind Imperva — the overlap check against the

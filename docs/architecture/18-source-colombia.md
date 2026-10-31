@@ -224,7 +224,7 @@ values (28,633 / 4,870 / 9,410 and 27,124 / 4,542 / 9,195).
    "N unidades". Every hit for a figure must agree; none, or two different
    ones, fails the run ("wording not recognised").
 3. Cross-check: parse the **previous** month's post the same way and compare
-   with the CSV row for that month (from a boletín). Any figure more than 1 %
+   with the CSV row for that month (from a boletín). Any figure more than 1%
    off — or no previous row to compare with — fails the run.
 4. Upsert the **target month only**: `source` unchanged, `notes` =
    `fenalco press text - provisional until the ANDI/FENALCO PDF is reachable`,
@@ -334,7 +334,7 @@ Earlier versions of this page said "passenger cars (automóviles)"; that was
 wrong. FENALCO's press text calls the same number "vehículos nuevos".
 
 The narrower, M1-like reading (SUV + Automóviles + Camionetas + Taxis ≈
-24,380, ~90 %) is **not** cleanly available:
+24,380, ~90%) is **not** cleanly available:
 
 - the type table exists only for the bulletin's own month and the same month
   a year earlier (plus year-to-date), not as a monthly history;
@@ -443,7 +443,7 @@ a month. `merge_row` then decides per month:
 | Parsed | CSV has | Result |
 |---|---|---|
 | value | nothing | row added |
-| value | value | row updated (warning if a count moves by >50 %) |
+| value | value | row updated (warning if a count moves by >50%) |
 | `None` | value | CSV value kept, `ICE` recomputed |
 | `0` | non-zero value | CSV value kept, warning — a 0 over a real count is the parser gap in disguise |
 | `None` | nothing | month **skipped** with a warning — a gap in the chart is honest, BEV=0 is not |
@@ -511,7 +511,7 @@ Single variant ⇒ no parallel-render push race.
 | ANDI keeps an old file as the newest link (or stops linking new ones) | Green run, `::warning:: Colombia discovery may be stale` when the page's newest bulletin is ≥ 2 months behind the CSV | Check the Cámara page by hand; `pdf_url` override if the file exists but is not linked |
 | The PDF layout reorders the three charts | "Chart order looks off" — the first batch must have the largest peak | Eyeball one month's values vs the PDF narrative; if reorder is needed, detect sections by header text instead of position |
 | A bar value drifts further than 12 lines from its label, or lands left of the label column | Month reported as "no value found" and treated as unknown; the run fails if it is the newest month, otherwise the existing CSV value stands / the month is skipped | `dry_run` + read the dump around the label; adjust `VALUE_LOOKAHEAD_LINES` or the column rule; add the snippet to `test_fetch_colombia.py` |
-| A YTD total lands next to an orphan label without its `(Ene-…)` caption aligned under it | The caption rule misses it; the outlier guard drops it ("is >3x its neighbours … treated as unknown") and the month falls back to the CSV value / is skipped. Only if both fail would a wrong number reach the merge, where the >50 % change warning and the BEV+HEV ≤ TOTAL check are the last line | `dry_run`, read the dump, extend `_is_ytd_total`; add the snippet to the tests |
+| A YTD total lands next to an orphan label without its `(Ene-…)` caption aligned under it | The caption rule misses it; the outlier guard drops it ("is >3x its neighbours … treated as unknown") and the month falls back to the CSV value / is skipped. Only if both fail would a wrong number reach the merge, where the >50% change warning and the BEV+HEV ≤ TOTAL check are the last line | `dry_run`, read the dump, extend `_is_ytd_total`; add the snippet to the tests |
 | ANDI press note embeds the PDF under a name that does not classify, or the slug loses all hint words | Press-note leg prints "no <month> boletín in …" for each note; the guess leg and then the FENALCO fallback still run | `dry_run`, read the note; widen `NEWS_SLUG_HINT_RE` or `classify_pdf_name` |
 | FENALCO rewords its press text | `::error title=Colombia <month> published but not ingestible::` "expected one BEV … found none" — on any day once FENALCO lists the month | Read the post; adjust `parse_fenalco_post`, add the page to `scripts/fixtures/colombia/` and a test |
 | FENALCO's figures stop matching the boletín (e.g. a scope change) | Cross-check on the previous month fails, nothing is written | Compare the post with the PDF by hand; do not loosen the tolerance to make it pass |
