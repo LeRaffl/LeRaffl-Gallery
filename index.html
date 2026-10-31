@@ -7484,10 +7484,12 @@ const SEARCH_ALIASES = {
   'Netherlands':'holland'
 };
 /* Manifest filenames occasionally split the variant suffix wrongly, which
-   leaves series under names like "Hong (Kong Used)" or "India-Wheelers" (for
-   "Hong Kong (Used)" / "India (2-Wheelers)"). The region filter reads the
-   country through this so those cards stay with Hong Kong and India; the
-   card titles and the Country picker keep the manifest spelling. */
+   leaves series under names like "Hong (Kong Used)" or "India-Wheelers" (the
+   latter is really the India Whole run of 2026-03-15). The region filter reads
+   the country through this so those cards stay with Hong Kong and India; the
+   card titles and the Country picker keep the manifest spelling. Since the
+   manifest builder fixed these labels (label_from_slug), this is only a
+   safety net for manifests generated before that fix. */
 function galleryRegionName(country){
   const c = String(country || '');
   if (/^Hong \(Kong\b/.test(c)) return 'Hong Kong';

@@ -644,7 +644,7 @@ Parsed out of `R/post_text.R::.pt_flag` at build time rather than duplicated her
 
 ### Known upstream wrinkle (fixed in `build_manifest.R`)
 
-Until this was fixed, `manifest.json` carried malformed labels such as `India-Wheelers`, `Hong (Kong Used)` and `Hong (Kong Vans)` — slug→label round-trip artefacts of the same class as the `t_rkiye` → `T (Rkiye)` case documented in `R/render_country.R`. The multi-word-country match in `label_from_slug()` used a non-vectorised `substr()` and so only worked for the first registered country; it now compares against `paste0(multi, "_")` (`scripts/test_build_manifest.R`), and the legacy slug `india-wheelers` reads as `India (Wheelers)`. The labels in `manifest.json` and `sources/runs.json` correct themselves on the next manifest build.
+Until this was fixed, `manifest.json` carried malformed labels such as `India-Wheelers`, `Hong (Kong Used)` and `Hong (Kong Vans)` — slug→label round-trip artefacts of the same class as the `t_rkiye` → `T (Rkiye)` case documented in `R/render_country.R`. The multi-word-country match in `label_from_slug()` used a non-vectorised `substr()` and so only worked for the first registered country; it now compares against `paste0(multi, "_")` (`scripts/test_build_manifest.R`), and the legacy slug `india-wheelers` (the India *Whole* render of 2026-03-15 with a garbled file name; chart title "India", numbers identical to the 4-Wheelers series of that day) reads as plain `India`. The real `india_2-Wheelers` / `india_3-Wheelers` slugs keep their class in the label. The labels in `manifest.json` and `sources/runs.json` correct themselves on the next manifest build.
 
 ## 3.15 Powertrain Classification (`classification/`)
 

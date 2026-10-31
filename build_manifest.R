@@ -37,11 +37,15 @@ to_title_keep_digits <- function(x) {
 
 label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = NULL){
   s <- tolower(slug)
-  # Legacy slug "india-wheelers" (images/2026-01, 2026-03-15 render): the vehicle
-  # class digit was lost and a hyphen joined country and variant, so the label
-  # came out as "India-Wheelers". Treat the hyphen like the usual separator:
-  # "India (Wheelers)". Only this exact shape is rewritten.
-  s <- sub("^([a-z]+)-wheelers$", "\\1_wheelers", s)
+  # Legacy slug "india-wheelers" (images/2026-01, 2026-03-15 render). It is the
+  # India *Whole* run of that day, not a wheeler class: the chart title reads
+  # plain "India", params.csv/weights.csv got the row "India,Whole" in the same
+  # commit (c7ac97c8), and its numbers are identical to "India (4-Wheelers)" of
+  # the same day because Whole was then defined as the 4-wheeler (M1) series.
+  # The local renderer of that time wrote a garbled file name. Label it like
+  # every other India Whole run. Only this exact slug is rewritten; the real
+  # "india_2-Wheelers" / "india_3-Wheelers" slugs go through the normal path.
+  s <- sub("^india-wheelers$", "india", s)
 
   # Länder-Overrides (Diakritika + Multi-Word-Slugs wie "south_korea").
   # Multi-Word-Einträge MÜSSEN hier registriert sein, sonst splittet die
