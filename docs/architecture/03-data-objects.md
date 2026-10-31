@@ -642,9 +642,9 @@ The frontend loads them **independently**: `schedule.json` gates the tab, `runs.
 
 Parsed out of `R/post_text.R::.pt_flag` at build time rather than duplicated here. That R map is already the single place a country's flag is declared (step 4 of the add-a-country checklist, [08-deploy-ops.md §8.3](08-deploy-ops.md#83-add-a-new-country)), and parsing it means the two cannot drift. A country missing from the map simply gets no flag and the calendar falls back to its name — it degrades, it does not break.
 
-### Known upstream wrinkle
+### Known upstream wrinkle (fixed in `build_manifest.R`)
 
-`manifest.json` currently carries a malformed label `India-Wheelers` alongside `India (4 Wheelers)` — a slug→label round-trip artefact of the same class as the `t_rkiye` → `T (Rkiye)` case documented in `R/render_country.R`. It has no flag and shows under that name. Fixing it belongs in `build_manifest.R`, not here.
+Until this was fixed, `manifest.json` carried malformed labels such as `India-Wheelers`, `Hong (Kong Used)` and `Hong (Kong Vans)` — slug→label round-trip artefacts of the same class as the `t_rkiye` → `T (Rkiye)` case documented in `R/render_country.R`. The multi-word-country match in `label_from_slug()` used a non-vectorised `substr()` and so only worked for the first registered country; it now compares against `paste0(multi, "_")` (`scripts/test_build_manifest.R`), and the legacy slug `india-wheelers` reads as `India (Wheelers)`. The labels in `manifest.json` and `sources/runs.json` correct themselves on the next manifest build.
 
 ## 3.15 Powertrain Classification (`classification/`)
 
