@@ -1,0 +1,9 @@
+🇭🇰 Hong Kong (Vans) - September 26 - BEV Trajectory
+50.0% BEV
+0.0% PHEV
+50.0% ICE
+
+Trailing 12 months are:
+43.1% BEV
+0.0% PHEV
+56.9% ICE
