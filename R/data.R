@@ -62,6 +62,13 @@ load_country_csv <- function(path) {
 # with month gaps would lose a stretch) -- that is a separate decision.
 TTM_CALENDAR_COUNTRIES <- c("Vietnam")
 
+# Smallest share (0..1) of a hybrid-type band (HEV/MHEV/EREV/PHEV) that is still
+# shown anywhere: 0.05%, the least one printed decimal can express ("0.1%").
+# Below it the band is absent data / rounding dust, not a market share. Used by
+# the TTM legend (compute_ttm_long) and by the post texts (R/post_text.R, which
+# is always sourced after this file) -- one definition so they cannot drift.
+HYBRID_MIN_SHARE <- 0.0005
+
 compute_ttm_long <- function(df, bev_label = "BEV", calendar = FALSE) {
   df <- df[order(df$year), ]
   if (nrow(df) == 0) return(NULL)
@@ -240,7 +247,7 @@ compute_ttm_long <- function(df, bev_label = "BEV", calendar = FALSE) {
   # the legend with nothing behind it. Its sliver, if any, is already part of
   # the other bands' 100%, so nothing else moves.
   absent <- vapply(long_cols, function(c) {
-    c %in% c("HEV", "MHEV", "EREV", "PHEV") && !any(out[[c]] >= 0.0005, na.rm = TRUE)
+    c %in% c("HEV", "MHEV", "EREV", "PHEV") && !any(out[[c]] >= HYBRID_MIN_SHARE, na.rm = TRUE)
   }, logical(1))
   long_cols <- long_cols[!absent]
   long <- do.call(rbind, lapply(long_cols, function(c) {
