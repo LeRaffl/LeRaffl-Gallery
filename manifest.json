@@ -162,86 +162,6 @@
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Hong (Kong Used)",
-      "type": "ICE_BEV",
-      "period": "2026-09",
-      "date": "2026-10-30",
-      "filename": "hong_kong_used_ICE_BEV_20261030.png",
-      "url": "images/2026-09/hong_kong_used_ICE_BEV_20261030.png",
-      "alt": "Hong (Kong Used) ICE-BEV-Hybrid trajectory",
-      "country_slug": "hong_kong_used"
-    },
-    {
-      "country": "Hong (Kong Used)",
-      "type": "share",
-      "period": "2026-09",
-      "date": "2026-10-30",
-      "filename": "hong_kong_used_20261030.png",
-      "url": "images/2026-09/hong_kong_used_20261030.png",
-      "alt": "Hong (Kong Used) BEV trajectory",
-      "country_slug": "hong_kong_used"
-    },
-    {
-      "country": "Hong (Kong Used)",
-      "type": "time",
-      "period": "2026-09",
-      "date": "2026-10-30",
-      "filename": "hong_kong_used_time_20261030.png",
-      "url": "images/2026-09/hong_kong_used_time_20261030.png",
-      "alt": "Hong (Kong Used) Transition time curve",
-      "country_slug": "hong_kong_used"
-    },
-    {
-      "country": "Hong (Kong Used)",
-      "type": "ttm_shares",
-      "period": "2026-09",
-      "date": "2026-10-30",
-      "filename": "hong_kong_used_ttm_shares_20261030.png",
-      "url": "images/2026-09/hong_kong_used_ttm_shares_20261030.png",
-      "alt": "Hong (Kong Used) TTM market split graph",
-      "country_slug": "hong_kong_used"
-    },
-    {
-      "country": "Hong (Kong Vans)",
-      "type": "ICE_BEV",
-      "period": "2026-09",
-      "date": "2026-10-30",
-      "filename": "hong_kong_vans_ICE_BEV_20261030.png",
-      "url": "images/2026-09/hong_kong_vans_ICE_BEV_20261030.png",
-      "alt": "Hong (Kong Vans) ICE-BEV-Hybrid trajectory",
-      "country_slug": "hong_kong_vans"
-    },
-    {
-      "country": "Hong (Kong Vans)",
-      "type": "share",
-      "period": "2026-09",
-      "date": "2026-10-30",
-      "filename": "hong_kong_vans_20261030.png",
-      "url": "images/2026-09/hong_kong_vans_20261030.png",
-      "alt": "Hong (Kong Vans) BEV trajectory",
-      "country_slug": "hong_kong_vans"
-    },
-    {
-      "country": "Hong (Kong Vans)",
-      "type": "time",
-      "period": "2026-09",
-      "date": "2026-10-30",
-      "filename": "hong_kong_vans_time_20261030.png",
-      "url": "images/2026-09/hong_kong_vans_time_20261030.png",
-      "alt": "Hong (Kong Vans) Transition time curve",
-      "country_slug": "hong_kong_vans"
-    },
-    {
-      "country": "Hong (Kong Vans)",
-      "type": "ttm_shares",
-      "period": "2026-09",
-      "date": "2026-10-30",
-      "filename": "hong_kong_vans_ttm_shares_20261030.png",
-      "url": "images/2026-09/hong_kong_vans_ttm_shares_20261030.png",
-      "alt": "Hong (Kong Vans) TTM market split graph",
-      "country_slug": "hong_kong_vans"
-    },
-    {
       "country": "Hong Kong",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -280,6 +200,86 @@
       "url": "images/2026-09/hong_kong_ttm_shares_20261030.png",
       "alt": "Hong Kong TTM market split graph",
       "country_slug": "hong_kong"
+    },
+    {
+      "country": "Hong Kong (Used)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-30",
+      "filename": "hong_kong_used_ICE_BEV_20261030.png",
+      "url": "images/2026-09/hong_kong_used_ICE_BEV_20261030.png",
+      "alt": "Hong Kong (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "hong_kong_used"
+    },
+    {
+      "country": "Hong Kong (Used)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-30",
+      "filename": "hong_kong_used_20261030.png",
+      "url": "images/2026-09/hong_kong_used_20261030.png",
+      "alt": "Hong Kong (Used) BEV trajectory",
+      "country_slug": "hong_kong_used"
+    },
+    {
+      "country": "Hong Kong (Used)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-30",
+      "filename": "hong_kong_used_time_20261030.png",
+      "url": "images/2026-09/hong_kong_used_time_20261030.png",
+      "alt": "Hong Kong (Used) Transition time curve",
+      "country_slug": "hong_kong_used"
+    },
+    {
+      "country": "Hong Kong (Used)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-30",
+      "filename": "hong_kong_used_ttm_shares_20261030.png",
+      "url": "images/2026-09/hong_kong_used_ttm_shares_20261030.png",
+      "alt": "Hong Kong (Used) TTM market split graph",
+      "country_slug": "hong_kong_used"
+    },
+    {
+      "country": "Hong Kong (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-30",
+      "filename": "hong_kong_vans_ICE_BEV_20261030.png",
+      "url": "images/2026-09/hong_kong_vans_ICE_BEV_20261030.png",
+      "alt": "Hong Kong (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "hong_kong_vans"
+    },
+    {
+      "country": "Hong Kong (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-30",
+      "filename": "hong_kong_vans_20261030.png",
+      "url": "images/2026-09/hong_kong_vans_20261030.png",
+      "alt": "Hong Kong (Vans) BEV trajectory",
+      "country_slug": "hong_kong_vans"
+    },
+    {
+      "country": "Hong Kong (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-30",
+      "filename": "hong_kong_vans_time_20261030.png",
+      "url": "images/2026-09/hong_kong_vans_time_20261030.png",
+      "alt": "Hong Kong (Vans) Transition time curve",
+      "country_slug": "hong_kong_vans"
+    },
+    {
+      "country": "Hong Kong (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-30",
+      "filename": "hong_kong_vans_ttm_shares_20261030.png",
+      "url": "images/2026-09/hong_kong_vans_ttm_shares_20261030.png",
+      "alt": "Hong Kong (Vans) TTM market split graph",
+      "country_slug": "hong_kong_vans"
     },
     {
       "country": "Bulgaria (Buses)",
@@ -9212,86 +9212,6 @@
       "country_slug": "finland_vans"
     },
     {
-      "country": "Hong (Kong Used)",
-      "type": "ICE_BEV",
-      "period": "2026-08",
-      "date": "2026-10-06",
-      "filename": "hong_kong_used_ICE_BEV_20261006.png",
-      "url": "images/2026-08/hong_kong_used_ICE_BEV_20261006.png",
-      "alt": "Hong (Kong Used) ICE-BEV-Hybrid trajectory",
-      "country_slug": "hong_kong_used"
-    },
-    {
-      "country": "Hong (Kong Used)",
-      "type": "share",
-      "period": "2026-08",
-      "date": "2026-10-06",
-      "filename": "hong_kong_used_20261006.png",
-      "url": "images/2026-08/hong_kong_used_20261006.png",
-      "alt": "Hong (Kong Used) BEV trajectory",
-      "country_slug": "hong_kong_used"
-    },
-    {
-      "country": "Hong (Kong Used)",
-      "type": "time",
-      "period": "2026-08",
-      "date": "2026-10-06",
-      "filename": "hong_kong_used_time_20261006.png",
-      "url": "images/2026-08/hong_kong_used_time_20261006.png",
-      "alt": "Hong (Kong Used) Transition time curve",
-      "country_slug": "hong_kong_used"
-    },
-    {
-      "country": "Hong (Kong Used)",
-      "type": "ttm_shares",
-      "period": "2026-08",
-      "date": "2026-10-06",
-      "filename": "hong_kong_used_ttm_shares_20261006.png",
-      "url": "images/2026-08/hong_kong_used_ttm_shares_20261006.png",
-      "alt": "Hong (Kong Used) TTM market split graph",
-      "country_slug": "hong_kong_used"
-    },
-    {
-      "country": "Hong (Kong Vans)",
-      "type": "ICE_BEV",
-      "period": "2026-08",
-      "date": "2026-10-06",
-      "filename": "hong_kong_vans_ICE_BEV_20261006.png",
-      "url": "images/2026-08/hong_kong_vans_ICE_BEV_20261006.png",
-      "alt": "Hong (Kong Vans) ICE-BEV-Hybrid trajectory",
-      "country_slug": "hong_kong_vans"
-    },
-    {
-      "country": "Hong (Kong Vans)",
-      "type": "share",
-      "period": "2026-08",
-      "date": "2026-10-06",
-      "filename": "hong_kong_vans_20261006.png",
-      "url": "images/2026-08/hong_kong_vans_20261006.png",
-      "alt": "Hong (Kong Vans) BEV trajectory",
-      "country_slug": "hong_kong_vans"
-    },
-    {
-      "country": "Hong (Kong Vans)",
-      "type": "time",
-      "period": "2026-08",
-      "date": "2026-10-06",
-      "filename": "hong_kong_vans_time_20261006.png",
-      "url": "images/2026-08/hong_kong_vans_time_20261006.png",
-      "alt": "Hong (Kong Vans) Transition time curve",
-      "country_slug": "hong_kong_vans"
-    },
-    {
-      "country": "Hong (Kong Vans)",
-      "type": "ttm_shares",
-      "period": "2026-08",
-      "date": "2026-10-06",
-      "filename": "hong_kong_vans_ttm_shares_20261006.png",
-      "url": "images/2026-08/hong_kong_vans_ttm_shares_20261006.png",
-      "alt": "Hong (Kong Vans) TTM market split graph",
-      "country_slug": "hong_kong_vans"
-    },
-    {
       "country": "Hong Kong",
       "type": "ICE_BEV",
       "period": "2026-08",
@@ -9330,6 +9250,86 @@
       "url": "images/2026-08/hong_kong_ttm_shares_20261006.png",
       "alt": "Hong Kong TTM market split graph",
       "country_slug": "hong_kong"
+    },
+    {
+      "country": "Hong Kong (Used)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-06",
+      "filename": "hong_kong_used_ICE_BEV_20261006.png",
+      "url": "images/2026-08/hong_kong_used_ICE_BEV_20261006.png",
+      "alt": "Hong Kong (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "hong_kong_used"
+    },
+    {
+      "country": "Hong Kong (Used)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-06",
+      "filename": "hong_kong_used_20261006.png",
+      "url": "images/2026-08/hong_kong_used_20261006.png",
+      "alt": "Hong Kong (Used) BEV trajectory",
+      "country_slug": "hong_kong_used"
+    },
+    {
+      "country": "Hong Kong (Used)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-06",
+      "filename": "hong_kong_used_time_20261006.png",
+      "url": "images/2026-08/hong_kong_used_time_20261006.png",
+      "alt": "Hong Kong (Used) Transition time curve",
+      "country_slug": "hong_kong_used"
+    },
+    {
+      "country": "Hong Kong (Used)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-06",
+      "filename": "hong_kong_used_ttm_shares_20261006.png",
+      "url": "images/2026-08/hong_kong_used_ttm_shares_20261006.png",
+      "alt": "Hong Kong (Used) TTM market split graph",
+      "country_slug": "hong_kong_used"
+    },
+    {
+      "country": "Hong Kong (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-06",
+      "filename": "hong_kong_vans_ICE_BEV_20261006.png",
+      "url": "images/2026-08/hong_kong_vans_ICE_BEV_20261006.png",
+      "alt": "Hong Kong (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "hong_kong_vans"
+    },
+    {
+      "country": "Hong Kong (Vans)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-06",
+      "filename": "hong_kong_vans_20261006.png",
+      "url": "images/2026-08/hong_kong_vans_20261006.png",
+      "alt": "Hong Kong (Vans) BEV trajectory",
+      "country_slug": "hong_kong_vans"
+    },
+    {
+      "country": "Hong Kong (Vans)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-06",
+      "filename": "hong_kong_vans_time_20261006.png",
+      "url": "images/2026-08/hong_kong_vans_time_20261006.png",
+      "alt": "Hong Kong (Vans) Transition time curve",
+      "country_slug": "hong_kong_vans"
+    },
+    {
+      "country": "Hong Kong (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-06",
+      "filename": "hong_kong_vans_ttm_shares_20261006.png",
+      "url": "images/2026-08/hong_kong_vans_ttm_shares_20261006.png",
+      "alt": "Hong Kong (Vans) TTM market split graph",
+      "country_slug": "hong_kong_vans"
     },
     {
       "country": "Japan",
@@ -35112,43 +35112,43 @@
       "country_slug": "india_4-wheelers"
     },
     {
-      "country": "India-Wheelers",
+      "country": "India (Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-01",
       "date": "2026-03-15",
       "filename": "india-wheelers_ICE_BEV_20260315.png",
       "url": "images/2026-01/india-wheelers_ICE_BEV_20260315.png",
-      "alt": "India-Wheelers ICE-BEV-Hybrid trajectory",
+      "alt": "India (Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "india-wheelers"
     },
     {
-      "country": "India-Wheelers",
+      "country": "India (Wheelers)",
       "type": "share",
       "period": "2026-01",
       "date": "2026-03-15",
       "filename": "india-wheelers_20260315.png",
       "url": "images/2026-01/india-wheelers_20260315.png",
-      "alt": "India-Wheelers BEV trajectory",
+      "alt": "India (Wheelers) BEV trajectory",
       "country_slug": "india-wheelers"
     },
     {
-      "country": "India-Wheelers",
+      "country": "India (Wheelers)",
       "type": "time",
       "period": "2026-01",
       "date": "2026-03-15",
       "filename": "india-wheelers_time_20260315.png",
       "url": "images/2026-01/india-wheelers_time_20260315.png",
-      "alt": "India-Wheelers Transition time curve",
+      "alt": "India (Wheelers) Transition time curve",
       "country_slug": "india-wheelers"
     },
     {
-      "country": "India-Wheelers",
+      "country": "India (Wheelers)",
       "type": "ttm_shares",
       "period": "2026-01",
       "date": "2026-03-15",
       "filename": "india-wheelers_ttm_shares_20260315.png",
       "url": "images/2026-01/india-wheelers_ttm_shares_20260315.png",
-      "alt": "India-Wheelers TTM market split graph",
+      "alt": "India (Wheelers) TTM market split graph",
       "country_slug": "india-wheelers"
     },
     {
