@@ -2875,6 +2875,17 @@ select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{
   font-size:13px;
   color:var(--muted);
 }
+/* Hinweis, woher das markierte Land kommt, plus "change" (2026-10). */
+.gal-hero-home{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.gal-hero-home button{
+  font:inherit;color:var(--text);background:none;border:0;padding:0;margin:0;
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer;
+}
+.gal-hero-home button:hover,.gal-hero-home button:focus-visible{color:var(--accent,var(--text))}
+.gal-hero-home select{
+  font:inherit;color:var(--text);background:var(--bg,transparent);
+  border:1px solid var(--line);border-radius:6px;padding:2px 6px;max-width:100%;
+}
 /* Bis params.csv aufgeloest ist, ist der Plot 0px hoch und alles darunter
    springt beim Erscheinen des Charts um ~346px nach unten. Der reservierte
    Mindestplatz entspricht der Hoehe, die draw() bei ueblicher Breite setzt
@@ -2907,7 +2918,8 @@ select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{
   font-size:13px;
   color:var(--muted);
 }
-.gal-hero-legend li{display:flex;align-items:center;gap:7px}
+.gal-hero-legend li{display:flex;align-items:center;flex-wrap:wrap;gap:2px 7px}
+.gal-hero-legend .gal-hero-you{white-space:nowrap;font-size:12px}
 .gal-hero-legend b{font-weight:600;color:var(--text)}
 .gal-hero-legend b.is-home{font-weight:700}
 .gal-hero-you{color:var(--muted)}
@@ -3673,8 +3685,8 @@ const VIEW_START_YEAR = 2015;
       <div class="about-hero-main">
         <h2 class="about-title">How fast is each country replacing combustion cars?</h2>
       </div>
-      <p class="about-hero-lede">Monthly new-car registrations, fitted to an S-curve. A snapshot of each market’s transition — not a forecast.
-        <span class="about-hero-note">Open data. 40+ markets, updated as new registrations land.</span>
+      <p class="about-hero-lede">Battery-electric (BEV) share of monthly new-car registrations, fitted to an S-curve. A snapshot of each market’s transition — not a forecast.
+        <span class="about-hero-note">Open data. ~60 markets, updated as new registrations land.</span>
       </p>
     </div>
 
@@ -3691,6 +3703,7 @@ const VIEW_START_YEAR = 2015;
         <figcaption class="gal-hero-head">
           <h2 class="gal-hero-title" id="galHeroTitle"></h2>
           <p class="gal-hero-sub" id="galHeroSub"></p>
+          <p class="gal-hero-home" id="galHeroHome"></p>
         </figcaption>
         <div data-theme="light" class="gal-hero-plot" id="galHeroPlot"></div>
         <figcaption class="gal-hero-foot" id="galHeroFoot"></figcaption>
@@ -6399,8 +6412,8 @@ const QR = (() => {
     return c || null;
   }
   function homeCountry(){
-    const c = tzCountry();
-    return (c && NAMES.includes(c)) ? c : (NAMES.includes('Germany') ? 'Germany' : NAMES[0]);
+    const c = homeInfo(NAMES).country;     // eigene Wahl vor Zeitzone; "aus" -> Fallback
+    return c || (NAMES.includes('Germany') ? 'Germany' : NAMES[0]);
   }
   /* KORREKTUR 2026-09-27: der Hero bekam hier frueher homeCountry(), das
      gegen NAMES prueft. NAMES kommt aus series/index.json, der Hero zeichnet
@@ -6408,7 +6421,34 @@ const QR = (() => {
      und jeder Besucher landete bei Deutschland (gemeldet aus Devon mit
      Europe/London). Der Hero prueft ohnehin gegen seine eigenen Zeilen,
      braucht also nur die reine Zeitzonen-Zuordnung. */
+  /* 2026-10 (Leserfeedback, Bluesky): Die Zeitzone ist nur ein Hinweis, kein
+     Wohnort. "UTC+1 Belgrade Bratislava Budapest Ljubljana Prague" wird vom
+     Browser zu Europe/Budapest, und die Seite nannte dann Ungarn "you". Jetzt:
+     (1) das Etikett sagt woher der Tipp kommt ("your time zone"),
+     (2) der Besucher kann das Land aendern oder die Markierung ausblenden,
+     (3) die Wahl liegt in localStorage ('bevHomeCountry'; '__none__' = aus).
+     Weiterhin keine IP-Abfrage, kein Request. */
+  const HOME_KEY = 'bevHomeCountry', HOME_NONE = '__none__';
+  function homePref(){
+    try { return localStorage.getItem(HOME_KEY) || ''; } catch(e){ return ''; }
+  }
+  function setHomePref(v){
+    try { if (v) localStorage.setItem(HOME_KEY, v); else localStorage.removeItem(HOME_KEY); } catch(e){}
+  }
+  /* -> {country, source} ; source: 'user' | 'tz' | 'fallback' | 'none'.
+     'fallback' = Zeitzone unbekannt, Deutschland nur als Vergleich, nie als "you". */
+  function homeInfo(names){
+    const pref = homePref();
+    if (pref === HOME_NONE) return { country:null, source:'none' };
+    if (pref && (!names || names.includes(pref))) return { country:pref, source:'user' };
+    const c = tzCountry();
+    if (c && (!names || names.includes(c))) return { country:c, source:'tz' };
+    return { country:null, source:'fallback' };
+  }
   window.__bevHomeCountry = tzCountry;   // Phase 5, siehe Kommentar oben
+  window.__bevHomeInfo = homeInfo;
+  window.__bevSetHomePref = setHomePref;
+  window.__bevHomeNone = HOME_NONE;
 
   /* ---- fetching ---------------------------------------------------------- */
   // Per-country files (§ 4.8), so picking one country costs one request and a
@@ -15329,11 +15369,56 @@ document.addEventListener('click', (e) => {
     return (isFinite(y)&&y>=0&&y<=1) ? y : NaN;
   }
 
+  /* -> {country, source, shown}. country = nur gesetzt, wenn der Besucher (oder
+     seine Zeitzone) ein Land nahelegt; das bekommt die Markierung. shown = das
+     Land, das in jedem Fall gezeichnet wird (Deutschland als stiller Vergleich,
+     wenn nichts bekannt ist; bei "ausblenden" nichts Zusaetzliches). */
   function home(rows){
-    var c=null;
-    try { if(typeof window.__bevHomeCountry==='function') c=window.__bevHomeCountry(); } catch(e){}
-    if(c && rows.some(function(r){return r.country===c;})) return c;
-    return rows.some(function(r){return r.country==='Germany';}) ? 'Germany' : null;
+    var info={country:null,source:'fallback'};
+    var names=rows.map(function(r){return r.country;});
+    try { if(typeof window.__bevHomeInfo==='function') info=window.__bevHomeInfo(names); } catch(e){}
+    var shown=info.country;
+    if(!shown && info.source==='fallback' && names.indexOf('Germany')>=0) shown='Germany';
+    return {country:info.country, source:info.source, shown:shown};
+  }
+
+  /* "Your market" — kleine Zeile unter dem Titel. Zeigt, woher die Markierung
+     kommt, und laesst den Besucher das Land aendern oder die Markierung
+     ausschalten. Die Wahl landet in localStorage (siehe __bevSetHomePref). */
+  var homeEditing=false;
+  function paintHomeControl(rows,info){
+    var el=document.getElementById('galHeroHome');
+    if(!el) return;
+    var NONE=window.__bevHomeNone||'__none__';
+    function commit(v){
+      try { if(window.__bevSetHomePref) window.__bevSetHomePref(v); } catch(e){}
+      homeEditing=false; draw(null);
+      /* Messreihe des neu gewaehlten Landes nachladen, dann Treppe zeichnen. */
+      if(v && v!==NONE){ loadObs([v]).then(function(){ draw(null); }); }
+    }
+    if(homeEditing){
+      var names=rows.map(function(r){return r.country;})
+        .filter(function(c,i,a){return c && a.indexOf(c)===i;}).sort();
+      var cur = info.source==='none' ? NONE : (info.source==='user' ? info.country : '');
+      var opts='<option value="">Automatic (from my time zone)</option>'+
+               '<option value="'+NONE+'">No highlight</option>'+
+               names.map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join('');
+      el.innerHTML='<label>Highlight my market: <select id="galHeroHomeSel" aria-label="Choose the market to highlight">'+opts+'</select></label>';
+      var sel=document.getElementById('galHeroHomeSel');
+      sel.value=cur;
+      sel.addEventListener('change',function(){ commit(sel.value); });
+      sel.addEventListener('keydown',function(e){ if(e.key==='Escape'){ homeEditing=false; draw(null); } });
+      sel.addEventListener('blur',function(){ setTimeout(function(){ if(homeEditing && document.body.contains(sel)){ homeEditing=false; draw(null); } },150); });
+      sel.focus();
+      return;
+    }
+    var txt;
+    if(info.source==='tz') txt='Highlighted: '+esc(info.country)+' (guessed from your browser’s time zone).';
+    else if(info.source==='user') txt='Highlighted: '+esc(info.country)+' (your selection).';
+    else if(info.source==='none') txt='No market highlighted.';
+    else txt='Your country isn’t in the data; Germany is shown for comparison.';
+    el.innerHTML=txt+' <button type="button" id="galHeroHomeBtn">change</button>';
+    document.getElementById('galHeroHomeBtn').addEventListener('click',function(){ homeEditing=true; draw(null); });
   }
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(ch){
@@ -15462,8 +15547,9 @@ document.addEventListener('click', (e) => {
     var W=Math.round(plot.clientWidth||0);
     if(W<200) return;                 // Tab verborgen oder noch nicht im Layout
 
-    var hc=home(rows);
-    var order=[]; if(hc) order.push(hc);
+    var hinfo=home(rows), hc=hinfo.country;
+    var order=[]; if(hinfo.shown) order.push(hinfo.shown);
+    paintHomeControl(rows,hinfo);
     if(window.__bevEuMembers && window.__bevEuMembers.length) order.push('EU');
     POOL.forEach(function(c){ if(order.indexOf(c)<0) order.push(c); });
 
@@ -15494,6 +15580,7 @@ document.addEventListener('click', (e) => {
        mehr — 150px Rinne von 340px Gesamtbreite waere fast die halbe Grafik.
        Dort wandern die Namen unter den Chart in eine Legende. */
     var narrow = W < 620;
+    var homeTag = hinfo.source==='user' ? 'your selection' : 'your time zone';
     var FS_AXIS=12, FS_NAME=13, FS_VAL=12;
     /* MT traegt seit 2026-09-15 die Beschriftung der Datenrand-Linie. Sie
        steht ueber der 100%-Gitterlinie, weil dort garantiert keine Kurve
@@ -15641,8 +15728,11 @@ document.addEventListener('click', (e) => {
       var MIN=FS_NAME+FS_VAL+8;
       var yMin=MT+10, yMax=MT+ph-6;
       labels.sort(function(a,b){return a.y-b.y;});
-      for(var k=1;k<labels.length;k++)
-        if(labels[k].y-labels[k-1].y<MIN) labels[k].y=labels[k-1].y+MIN;
+      /* Die markierte Zeile hat eine dritte Zeile "(your time zone)" und braucht mehr Platz. */
+      for(var k=1;k<labels.length;k++){
+        var need=MIN+(labels[k-1].home?FS_VAL:0);
+        if(labels[k].y-labels[k-1].y<need) labels[k].y=labels[k-1].y+need;
+      }
       var over=labels[labels.length-1].y-yMax;
       if(over>0) labels.forEach(function(l){ l.y-=over; });
       if(labels[0].y<yMin){ var up=yMin-labels[0].y; labels.forEach(function(l){ l.y+=up; }); }
@@ -15652,10 +15742,13 @@ document.addEventListener('click', (e) => {
         s.push('<circle cx="'+(LX+4)+'" cy="'+(l.y).toFixed(1)+'" r="4.5" fill="'+l.col+'"/>');
         s.push('<text x="'+TX+'" y="'+(l.y+4).toFixed(1)+'" font-size="'+FS_NAME+'" '+
                'font-weight="'+(l.home?700:500)+'" fill="var(--text)" font-family="var(--font-ui)">'+
-               esc(l.name)+(l.home?' <tspan font-weight="400" fill="var(--muted)">· you</tspan>':'')+'</text>');
+               esc(l.name)+'</text>');
         if(isFinite(l.val))
           s.push('<text x="'+TX+'" y="'+(l.y+4+FS_VAL+3).toFixed(1)+'" font-size="'+FS_VAL+'" '+
                  'fill="var(--muted)" font-family="var(--font-ui)">'+(l.val*100).toFixed(1)+'% TTM</text>');
+        if(l.home)
+          s.push('<text x="'+TX+'" y="'+(l.y+4+2*(FS_VAL+3)).toFixed(1)+'" font-size="'+(FS_VAL-1)+'" '+
+                 'fill="var(--muted)" font-family="var(--font-ui)">('+homeTag+')</text>');
       });
     }
     s.push('</svg>');
@@ -15665,7 +15758,7 @@ document.addEventListener('click', (e) => {
       labels.forEach(function(l){
         s.push('<li><span class="gal-hero-swatch" style="background:'+l.col+'"></span>'+
                '<b'+(l.home?' class="is-home"':'')+'>'+esc(l.name)+'</b>'+
-               (l.home?' <span class="gal-hero-you">· you</span>':'')+
+               (l.home?' <span class="gal-hero-you">('+homeTag+')</span>':'')+
                (isFinite(l.val)?' <span>'+(l.val*100).toFixed(1)+'%</span>':'')+'</li>');
       });
       s.push('</ul>');
@@ -15680,13 +15773,13 @@ document.addEventListener('click', (e) => {
       if(t&&srcs.indexOf(t)<0) srcs.push(t);
     });
     if(foot) foot.innerHTML=
-      '<b>Steps</b> observed trailing-twelve-month BEV share for Norway, China and your market, each dated at the '+
+      '<b>Steps</b> observed trailing-12-month (TTM) BEV share — the share of new cars registered that are battery-electric — for Norway, China and the highlighted market, each dated at the '+
       '<b>centre</b> of its twelve-month window — which is why they end about half a year before the dotted '+
       '&ldquo;latest data&rdquo; line. <b>Solid</b> fitted trajectory, <b>dashed</b> projection. '+
       'Sources: '+(srcs.length===1?esc(srcs[0]):'national ministries')+
       (latest?' · Data through '+esc(monthName(latest)):'')+
       ' · Generalized S-curve fit.';
-    if(title) title.textContent = latest ? ('TTM as of '+monthName(latest)) : 'Latest TTM';
+    if(title) title.textContent = latest ? ('BEV share of new cars, trailing 12 months (TTM) as of '+monthName(latest)) : 'BEV share of new cars, trailing 12 months (TTM)';
     if(sub){
       var focus={ Norway:1, China:1, EU:1 };
       if(hc) focus[hc]=1;
@@ -15698,7 +15791,7 @@ document.addEventListener('click', (e) => {
         var pct = t<=1.5 ? t*100 : t;
         bits.push(r.country+' '+pct.toFixed(0)+'%');
       });
-      sub.textContent = bits.length ? bits.join(' · ') : '';
+      sub.textContent = bits.length ? ('Battery Electric Vehicles (BEV) as a share of new-car registrations: '+bits.join(' · ')) : '';
     }
   }
 
@@ -15731,7 +15824,7 @@ document.addEventListener('click', (e) => {
          NACH dem ersten Zeichnen geholt, damit der Fit sofort steht und ein
          langsamer oder fehlender Abruf den Chart nicht blockiert. */
       try {
-        var want=[], hc2=home(out);
+        var want=[], hc2=home(out).shown;
         if(hc2) want.push(hc2);
         POOL.forEach(function(c){ if(want.indexOf(c)<0) want.push(c); });
         loadObs(want).then(function(){ draw(null); });
