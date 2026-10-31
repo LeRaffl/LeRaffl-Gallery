@@ -1,9 +1,7 @@
 🇭🇰 Hong Kong (Used) - TTM Market Split
 
-Sep24–Aug25  vs  Sep25–Aug26
-+0.4pp  BEV   (0.6% → 1.0%)
-+0.1pp  PHEV  (0.1% → 0.2%)
+Oct24–Sep25  vs  Oct25–Sep26
++0.5pp  BEV   (0.6% → 1.0%)
++0.2pp  PHEV  (0.1% → 0.3%)
 +0.0pp  HEV   (0.0% → 0.0%)
-−0.5pp  ICE   (99.3% → 98.8%)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+−0.6pp  ICE   (99.4% → 98.7%)

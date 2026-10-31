@@ -2129,7 +2129,7 @@ a:focus-visible{
 .rd-legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 2px 10px;font-size:11.5px;color:var(--muted)}
 .rd-legend span{display:inline-flex;align-items:center;gap:6px}
 .rd-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
-.rd-plots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(460px,1fr))}
+.rd-plots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(460px,100%),1fr))}
 .rd-plot{background:var(--surface);border-radius:2px;min-width:0;position:relative}
 .rd-plot svg{display:block;width:100%;height:auto}
 .rd-foot{margin:12px 2px 0;color:var(--muted-2);font-size:12px;line-height:1.5}
@@ -3640,7 +3640,7 @@ const VIEW_START_YEAR = 2015;
       </div>
       <div class="about-model-item">
         <div class="about-model-head">Weibull formulation</div>
-        <p>The model uses a generalized Weibull-style logistic curve with two free parameters — enough flexibility to capture asymmetric transitions (early-heavy vs. late-heavy) without overfitting. Market size is used as a weight so large-volume months aren't dominated by small-market outliers.</p>
+        <p>The model uses a generalized Weibull-style logistic curve with two free shape parameters (plus a time shift) — enough flexibility to capture asymmetric transitions (early-heavy vs. late-heavy) without overfitting. Market size is used as a weight so large-volume months aren't dominated by small-market outliers.</p>
       </div>
       <div class="about-model-item">
         <div class="about-model-head">Not a forecast</div>
@@ -3958,10 +3958,10 @@ const VIEW_START_YEAR = 2015;
         <div class="fx-row">
           <span class="fx-lab">Types</span>
           <div class="chips fx-pills" role="group" aria-label="Chart types" data-fb-group="types">
-            <label class="chip"><input type="checkbox" value="share" checked/> BEV</label>
-            <label class="chip"><input type="checkbox" value="ICE_BEV" checked/> ICE↔BEV</label>
-            <label class="chip"><input type="checkbox" value="ttm_shares" checked/> TTM split</label>
-            <label class="chip"><input type="checkbox" value="time" checked/> Transition time</label>
+            <label class="chip" title="BEV share trajectory: fitted S-curve of the battery-electric share of new registrations"><input type="checkbox" value="share" checked/> BEV</label>
+            <label class="chip" title="Internal-combustion-engine (ICE) share vs. BEV share of new registrations"><input type="checkbox" value="ICE_BEV" checked/> ICE↔BEV</label>
+            <label class="chip" title="Trailing 12 months (TTM) market split by powertrain"><input type="checkbox" value="ttm_shares" checked/> TTM split</label>
+            <label class="chip" title="How long the fitted curve takes to go from a low to a high BEV share"><input type="checkbox" value="time" checked/> Transition time</label>
           </div>
         </div>
 
@@ -4168,7 +4168,7 @@ const VIEW_START_YEAR = 2015;
         Smoothed model. How long the fitted S-curve takes to move between share levels — not raw monthly data.
       </p>
       <p class="rank-legend" aria-label="Notes">
-        <span>No-transition rows: TTM below 1%, or the fit never really takes off.</span>
+        <span>No-transition rows: BEV share (trailing 12 months, TTM) below 1%, or the fit never really takes off.</span>
       </p>
       <div class="toolbar">
         <div class="field rank-variant">
@@ -4486,7 +4486,7 @@ const VIEW_START_YEAR = 2015;
     <h2>Raw Data</h2>
     <p class="small" style="margin:-4px 0 14px;max-width:74ch">
       The country CSVs, drawn. One bar per period, each summing the trailing
-      <em>N</em> months ending there — rolling, the way the TTM charts roll.
+      <em>N</em> months ending there — rolling, the way the trailing-12-months (TTM) charts roll. “T12M” means 12 months, “T3M” three, and so on.
       Nothing here is modelled: every number is a number that is in
       <code>data/&lt;Country&gt;.csv</code>, or a sum of such numbers.
     </p>
@@ -4993,7 +4993,7 @@ const VIEW_START_YEAR = 2015;
         <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
       </span>
     </h2>
-    <p class="wm-lede">BEV transition geographically as per smoothed out model.</p>
+    <p class="wm-lede">BEV transition by country, based on the smoothed model.</p>
 
     <div class="wm-bar">
       <div class="wm-seg" role="radiogroup" aria-label="Metric">
@@ -5064,7 +5064,7 @@ const VIEW_START_YEAR = 2015;
         <span class="wm-sw wm-sw--x" data-wm-sw="stalled" style="background:#6e6258"></span><b data-wm-name="stalled">Dark grey</b> = no transition: the same markets the tables list as "shows no transition" (under 1&nbsp;% BEV, or a negligible adoption rate), plus fits that do not reach the threshold within a reasonable horizon.
         Both sit outside the scale and carry a heavier outline, so they never read as just another step.
         <span class="wm-sw" data-wm-sw="withheld" style="background:#cbc3b6"></span><b data-wm-name="withheld">Pale grey</b> = too volatile to show: we have data, but the curve can't give a year yet; listed under the map.
-        HDV, Buses and the other variants use the <b>Cars</b> colour scale, so the same colour means the same year on every variant.
+        HDV (heavy-duty vehicles), Buses and the other variants use the <b>Cars</b> colour scale, so the same colour means the same year on every variant.
         Exact values always live in the hover tooltip.
       </p>
     </div>
@@ -6592,7 +6592,7 @@ const QR = (() => {
 
     const compact = VIEW.length > 6;
     plots.style.gridTemplateColumns = compact
-      ? 'repeat(auto-fit,minmax(300px,1fr))' : 'repeat(auto-fit,minmax(460px,1fr))';
+      ? 'repeat(auto-fit,minmax(min(300px,100%),1fr))' : 'repeat(auto-fit,minmax(min(460px,100%),1fr))';
 
     const all = VIEW.flatMap(v=>v.l);
     const doms = VIEW.map(v=>domOf(v.l, v.step));
@@ -7129,7 +7129,7 @@ const showAllBtn    = document.getElementById('showAll');
 // INITIAL_ROWS cards per type section on first paint; each "Show more" adds
 // about GALLERY_STEP cards (one screenful).
 const INITIAL_ROWS = 6, GALLERY_STEP = 24; let rowsShown = {};
-const TYPE_LABEL = { share:'BEV trajectory', ICE_BEV:'ICE↔BEV trajectory', ttm_shares:'TTM market split graph', time:'Transition time curve' };
+const TYPE_LABEL = { share:'BEV trajectory', ICE_BEV:'ICE↔BEV trajectory', ttm_shares:'Trailing 12 months (TTM) market split', time:'Transition time curve' };
 const TYPE_ORDER = ['share','ICE_BEV','ttm_shares','time'];
 function prettyPeriod(p){ if(!/^[0-9]{4}-[0-9]{2}$/.test(p)) return p; const [y,m]=p.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'}); }
 async function loadManifest(){
@@ -7152,7 +7152,7 @@ function compareItems(a,b,field,dir){ const sgn=dir==='asc'?1:-1; if(field==='cr
 // inserted into the upper sections pushed everything down and the view
 // appeared to jump. Paging state is reset by every filter/sort change.
 function buildCard(it){
-  const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div>${scopeBadgeFor(it.country)}</div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy TTM market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; const baseCountry=(it.country||'').replace(/\s*\(.*\)\s*$/,'').trim(); const srcSlug=SOURCE_PAGES[baseCountry]; const srcLink=srcSlug?`<a class="btn btn--source" href="sources/${srcSlug}.html" target="_blank" rel="noopener" title="Where ${baseCountry}'s data comes from">ⓘ Source</a>`:''; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button>${srcLink}<span class="filename">${it.filename}</span>`; card.append(box,meta,footer); return card; }
+  const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div>${scopeBadgeFor(it.country)}</div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy trailing-12-months (TTM) market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; const baseCountry=(it.country||'').replace(/\s*\(.*\)\s*$/,'').trim(); const srcSlug=SOURCE_PAGES[baseCountry]; const srcLink=srcSlug?`<a class="btn btn--source" href="sources/${srcSlug}.html" target="_blank" rel="noopener" title="Where ${baseCountry}'s data comes from">ⓘ Source</a>`:''; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button>${srcLink}<span class="filename">${it.filename}</span>`; card.append(box,meta,footer); return card; }
 let galleryView = null;   // { byType, sections: {type: {col, more, list}} }
 function galleryStepRows(){
   // About one screenful (~GALLERY_STEP cards) per click, spread over the visible sections.
@@ -8207,7 +8207,7 @@ renderTable();
     return k*invLambda*Math.pow(u,k-1)*Math.exp(-Math.pow(u,k)); 
   }
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
-  function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
+  function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const totalM=Math.round(Math.abs(dYears)*12); const years=Math.floor(totalM/12); const months=totalM%12; const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
   function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); enhanceMultiSelect(sel); }
   function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.filter(r=>!rowIsUnreliableFit(r)).map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
@@ -12970,8 +12970,10 @@ function wmYearFmt(yearFrac){
 
 function wmDurationFmt(years){
   if (!isFinite(years)) return '—';
-  const y = Math.floor(Math.abs(years) + 1e-9);
-  const m = Math.round((Math.abs(years) - y) * 12);
+  // Round to whole months first, then split — otherwise 2.98 years gave "2y 12m".
+  const totalM = Math.round(Math.abs(years) * 12);
+  const y = Math.floor(totalM / 12);
+  const m = totalM % 12;
   const sign = years < 0 ? '-' : '';
   if (y && m) return `${sign}${y}y ${m}m`;
   if (y)      return `${sign}${y}y`;
