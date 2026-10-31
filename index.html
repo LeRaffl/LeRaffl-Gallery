@@ -578,7 +578,10 @@ th.sortable.desc::after{content:" ↓"}
   margin-bottom: 10px;
 }
 .tl-controls .field { margin: 0; }
-.tl-transport { display: flex; gap: 6px; }
+/* One row: prev | play | next. Needs the .field override because .field is a
+   column flexbox (labels over inputs) and this "field" only holds buttons. */
+.tl-controls .field.tl-transport { flex-direction: row; align-items: center; gap: 6px; }
+.tl-controls .tl-transport .btn { width: auto; white-space: nowrap; }
 .tl-scrub {
   display: flex;
   align-items: center;
@@ -612,7 +615,8 @@ th.sortable.desc::after{content:" ↓"}
 @media (max-width: 620px) {
   .tl-controls { gap: 10px; }
   .tl-controls .field { flex: 1 1 100%; }
-  .tl-transport { flex: 1 1 100%; }
+  .tl-controls .field.tl-transport { flex: 1 1 100%; }
+  .tl-controls .tl-transport #tlPlay { flex: 1 1 auto; }
 }
 #comparePlot {
   width: 100%;
@@ -4391,8 +4395,8 @@ const VIEW_START_YEAR = 2015;
             </select>
           </div>
           <div class="field tl-transport">
-            <button type="button" class="btn" id="tlPlay" aria-label="Play">▶ Play</button>
             <button type="button" class="btn" id="tlPrev" aria-label="Previous frame">◀</button>
+            <button type="button" class="btn" id="tlPlay" aria-label="Play">▶ Play</button>
             <button type="button" class="btn" id="tlNext" aria-label="Next frame">▶</button>
           </div>
         </div>
