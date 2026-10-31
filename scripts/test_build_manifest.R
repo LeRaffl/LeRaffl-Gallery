@@ -31,8 +31,15 @@ eq("india_2wheelers",      "India (2-Wheelers)")
 # a country that merely starts like a multi-word one must not be swallowed
 eq("south_sudan",          "South (Sudan)")
 eq("hong_kongo",           "Hong (Kongo)")
-# legacy slug with a hyphen instead of the separator
-eq("india-wheelers",       "India (Wheelers)")
+# the real two-/three-wheeler series keep their class in the label
+eq("india_2-wheelers",     "India (2-Wheelers)")
+eq("india_3-wheelers",     "India (3-Wheelers)")
+eq("india_3wheelers",      "India (3-Wheelers)")
+# legacy slug "india-wheelers" is the India Whole render of 2026-03-15 (chart
+# title "India", params row "India,Whole"), so it must read as plain "India",
+# not as a wheeler class
+eq("india-wheelers",       "India")
+eq("india",                "India")
 
 if (fails > 0) { cat(fails, "failure(s)\n"); quit(status = 1) }
 cat("test_build_manifest: all checks passed\n")
