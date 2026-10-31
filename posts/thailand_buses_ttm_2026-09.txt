@@ -1,0 +1,6 @@
+🇹🇭 Thailand (Buses) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
+−0.3pp  BEV     (5.9% → 5.6%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++0.3pp  ICE     (94.1% → 94.4%)

@@ -1,11 +1,9 @@
-🇹🇭 Thailand (3-Wheelers) - August 26 - BEV Trajectory
-0.0% BEV
+🇹🇭 Thailand (3-Wheelers) - September 26 - BEV Trajectory
+20.0% BEV
 0.0% PHEV
-100.0% ICE
+80.0% ICE
 
 Trailing 12 months are:
-33.3% BEV
+31.8% BEV
 0.0% PHEV
-66.7% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+68.2% ICE
