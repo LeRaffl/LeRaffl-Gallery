@@ -37,14 +37,14 @@ fragility_doc: docs/architecture/10-source-netherlands.md
 data_file: data/Netherlands.csv
 market_breakdown: market/netherlands_top.json
 market_designation_note: a "designation" is RDW's trade name with the brand prefix and the engine, power and trim codes removed, so the versions of one model rank together (ID.4 PRO 210KW and ID.4 GTX → ID.4).
-market_powertrain_note: Powertrain from RDW's fuel table — BEV is electricity as the only fuel, PHEV an externally chargeable hybrid, petrol the only combustion fuel; full hybrids are not split, they are inside petrol, as in the charts. Diesel is not ranked — the register's diesel new cars are mostly motorhomes the chart's diesel does not count. Counted from the register record by record, so a month can differ from the chart's total by about 1–3 %.
+market_powertrain_note: Powertrain from RDW's fuel table — BEV is electricity as the only fuel, PHEV an externally chargeable hybrid, petrol the only combustion fuel; full hybrids are not split, they are inside petrol, as in the charts. Diesel is not ranked — the register's diesel new cars are mostly motorhomes the chart's diesel does not count. Counted from the register record by record, so a month can differ from the chart's total by about 1–3%.
 market_class_labels:
   PETROL: Petrol, full hybrids included (not split, as in the charts)
 market_breakdown_extra:
 - path: market/netherlands_used_top.json
   id: market-used
   heading: Who sells the imported used electrified cars
-  note: "Imported used passenger cars at their first Dutch registration (the Used variant): cars that were admitted, and usually driven, abroad before they were registered here. Counted from the register as first registration in the month with an earlier first admission; about 1–3 % above the Used chart's total."
+  note: "Imported used passenger cars at their first Dutch registration (the Used variant): cars that were admitted, and usually driven, abroad before they were registered here. Counted from the register as first registration in the month with an earlier first admission; about 1–3% above the Used chart's total."
 ---
 
 # 10 · Source: Netherlands (duurzamemobiliteit.databank.nl / RDW)
@@ -513,12 +513,12 @@ a second section on the page — see "Used" below).
 (`datum_eerste_tenaamstelling_in_nederland_dt`) **and** first admission in the
 same month (`datum_eerste_toelating_dt`; an earlier admission means a used
 import), `export_indicator = Nee`. Tested against the CSV on 2026-09-28: every
-month of 2025-07 → 2026-06 within −0.8 % … +1.9 % of `data/Netherlands.csv`
+month of 2025-07 → 2026-06 within −0.8% … +1.9% of `data/Netherlands.csv`
 (RDW is a live register, Swing a fetch-time snapshot), the window as a whole
-+0.3 % (BEV +0.1 %, PHEV +2.2 %). Looser scopes miss by 3–60 % (first
-admission alone: +6 %; first registration alone: +70 %, it contains every used
++0.3% (BEV +0.1%, PHEV +2.2%). Looser scopes miss by 3–60% (first
+admission alone: +6%; first registration alone: +70%, it contains every used
 import). `market_top.check_scope` logs every month and stops the refresh if the
-window drifts more than 10 % — a changed scope must not publish tables that no
+window drifts more than 10% — a changed scope must not publish tables that no
 longer describe the charts.
 
 **Class — the CSV's split.** BEV = electricity as the only fuel row; PHEV = a
@@ -557,18 +557,18 @@ the register's mirror image of Whole: first registration in NL inside the month
 **and** first admission *before* it (the car had been admitted, and driven,
 abroad first), `export_indicator = Nee` — `fetch_new_cars(..., "Used")`, the
 same class logic as Whole. Tested against `data/Netherlands_Used.csv` on
-2026-09-28: every month of 2025-07 → 2026-06 is +1.3 % … +2.4 % above the CSV
+2026-09-28: every month of 2025-07 → 2026-06 is +1.3% … +2.4% above the CSV
 (the same live-register-vs-snapshot gap as Whole, but one-sided: the register
 keeps a few plates Swing's instroom does not count). Per class, June 2026 BEV
 2,650 vs 2,645 and PHEV 9,280 vs 9,319; September 2025 BEV 953 vs 936, PHEV
 7,972 vs 8,037. Nothing in the register isolates the residual (`taxi_indicator`,
 a first admission cut-off year, `wam_verzekerd` and the body type were all
-tried and none explains it), so the scope note on the page says "about 1–3 %
+tried and none explains it), so the scope note on the page says "about 1–3%
 above". Used is a different market from Whole: a third of it is PHEV (leased
 plug-ins coming off foreign lease books — Volvo XC60/XC40, Lynk & Co 01, Ford
-Kuga), BEV only about 5 %, the brand ranking is led by Audi and Tesla. It costs
+Kuga), BEV only about 5%, the brand ranking is led by Audi and Tesla. It costs
 the same as a Whole month (~25 000 plates → ~2 minutes) and shares the check
-(`market_top.check_scope`, 10 % abort).
+(`market_top.check_scope`, 10% abort).
 
 **Also in the register:** motorhomes (`ADRIA`, `HYMER`, …) are `Personenauto`
 with a camper body and are in the total like in Swing; they are diesel, so

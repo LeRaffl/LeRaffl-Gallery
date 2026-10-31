@@ -39,7 +39,7 @@ hev_note: OFV publishes seven fuel rows. Elektrisitet is BEV; petrol and diesel 
 backfill: Whole is OFV's figures from 2005-01, transcribed by hand ("ofv.no & ACEA") to 2026-03, ACEA's republished OFV figures for 2026-04..08 (July derived from ACEA's year-to-date, as ACEA had no July release), and read automatically from OFV's release from 2026-09. Vans, HDV and Buses are ACEA's quarterly Commercial Vehicle figures.
 scope_note: First registrations of new passenger cars in Norway as OFV counts them from the Statens vegvesen register — all brands, private and company buyers together. Used imports are a separate OFV count and not included.
 caveats:
-- 'Norway is almost fully electric: 95.9 % of new cars were battery-electric in 2025 and 97.9 % in January–September 2026. The curve is at its ceiling; what still moves is the last few per cent of hybrids and diesels (mostly four-wheel-drive and towing cars).'
+- 'Norway is almost fully electric: 95.9% of new cars were battery-electric in 2025 and 97.9% in January–September 2026. The curve is at its ceiling; what still moves is the last few per cent of hybrids and diesels (mostly four-wheel-drive and towing cars).'
 - 'OFV refreshes earlier months a little as late registrations and corrections arrive. The chart keeps every month as first published (OFV''s figures today differ from the stored ones by 0–85 cars a month in 2025–2026; 11 of the 17 months January 2025–September 2026 are identical).'
 - 'April and July 2026 come from ACEA: its April figure is 8 cars below OFV''s, and July — which ACEA never published on its own — was derived from ACEA''s year-to-date, so it is 8 cars too high. The two errors cancel over the year; the fuel split of the two months cannot be corrected, because OFV''s month-by-month fuel tables for that period are images.'
 - 'Plug-in hybrids and hybrids are counted as OFV registers them. A December pull-forward ahead of a tax change (2022, 2025) makes single months spiky; read a month against the same month a year earlier.'
@@ -93,7 +93,7 @@ processing:
 market_breakdown: market/norway_top.json
 market_heading: Who sells the new cars
 market_designation_note: Brands and models as OFV names them in its monthly release (models are listed with the brand in front, which the page strips). Both are OFV's top 30 of the month; the rest of the market counts towards the total but is not ranked.
-market_powertrain_note: Every powertrain together — OFV publishes its brand table without a fuel split. With 98 % of new cars battery-electric, it is in effect the battery-electric ranking.
+market_powertrain_note: Every powertrain together — OFV publishes its brand table without a fuel split. With 98% of new cars battery-electric, it is in effect the battery-electric ranking.
 market_window_note: Single months as the fetcher sees each release, from September 2026 (the first release with HTML tables); the headline sums the months available so far and grows to twelve.
 fetcher: scripts/fetch_norway.py
 workflow: .github/workflows/fetch-norway.yml
@@ -197,7 +197,7 @@ fuel by fuel. The row is written with `notes` starting
 `derived: OFV year-to-date fuel mix …` (the repo's convention for estimated
 rows, invariant 6) and a `::warning`. It is only as good as the stored
 earlier months — OFV's small refreshes of them land in this month — and the
-derived TOTAL must match the export's own figure for the month within 1 %
+derived TOTAL must match the export's own figure for the month within 1%
 (or 30 cars), else the run fails. A derived row does not satisfy the
 self-throttle: as soon as an article for the month turns up, its figures
 replace the derived ones without `force`.
@@ -264,7 +264,7 @@ no typo to correct. The differences are revisions, kept as first published
 (invariant 3); the April/July pair is explained in the source page's caveats.
 September 2026, the first month the fetcher wrote, was run online on a GitHub
 runner: the article and the export agreed exactly, the year-to-date check was
-−0.01 % (one car), and the line was appended byte-clean.
+−0.01% (one car), and the line was appended byte-clean.
 
 ## 6. Governance
 
@@ -284,7 +284,7 @@ current):
   publications drifting apart stops the run. An unreadable export is a
   warning only.
 - **Year-to-date check:** YTD Total minus the CSV's January … M−1 must equal
-  the month: above 1 % a warning, above 5 % the run aborts (`force` after
+  the month: above 1% a warning, above 5% the run aborts (`force` after
   checking).
 - **Plausibility:** the Total must be 0.15–4× the same month a year earlier.
   Wide on purpose: Norway's tax changes on 1 January are violent — January
@@ -355,10 +355,10 @@ sequenceDiagram
 
 ## 8. Reading the fit
 
-Norway's BEV share of new cars: 5.2 % (2013), 16.7 % (2015), 30.3 % (2018),
-53.0 % (2020), 78.4 % (2022), 88.1 % (2024), 95.9 % (2025) and 97.9 % in
-January–September 2026 (September: 98.8 %, a record). Plug-in hybrids peaked
-at 21 % in 2021 and are at 0.5 % in 2026; hybrids peaked at 13 % in
+Norway's BEV share of new cars: 5.2% (2013), 16.7% (2015), 30.3% (2018),
+53.0% (2020), 78.4% (2022), 88.1% (2024), 95.9% (2025) and 97.9% in
+January–September 2026 (September: 98.8%, a record). Plug-in hybrids peaked
+at 21% in 2021 and are at 0.5% in 2026; hybrids peaked at 13% in
 2017–2019. December 2022 (39,518) and December 2025 (35,188) were
 pull-forwards ahead of tax changes on 1 January. The
 fitted S-curve is at its ceiling; Norway is the reference for what the end of
@@ -380,7 +380,7 @@ some fleet diesels) moves slowly.
 ## 10. Not built (yet)
 
 - **Vans from OFV (`Norway_Vans`):** OFV's van release has the same three
-  HTML tables (September 2026: 2,036 new vans, 74.6 % battery-electric, with a
+  HTML tables (September 2026: 2,036 new vans, 74.6% battery-electric, with a
   BEV / PHEV split). Today's `Norway_Vans` is ACEA's quarterly Commercial
   Vehicle figure with BEV and PHEV merged. Switching to OFV's monthly series
   changes the definition (monthly, split), so — following the gallery's rule —

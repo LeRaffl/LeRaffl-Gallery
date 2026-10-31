@@ -157,7 +157,7 @@ earlier data is available from this source. The backfill covers
   cars only. Vans, trucks, and buses are not in scope from this source.
 - **greendiesel merged into diesel.** A small number of registrations use
   biodiesel blends (`greendiesel`); these are merged into DIESEL as an
-  approximation. Volume is negligible (<0.1 % of DIESEL).
+  approximation. Volume is negligible (<0.1% of DIESEL).
 - **`import io` duplicated in script.** Cosmetic only — `import io` appears
   at module level and again inside `download_parquet()`; the inner import is
   a no-op but harmless.

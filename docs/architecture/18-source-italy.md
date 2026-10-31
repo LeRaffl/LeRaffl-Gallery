@@ -64,9 +64,9 @@ Variants:
   Vans       data/Italy_Vans.csv      LCV (autocarri ≤ 3,5 t), exact; pre-2025 YTD-derived
 
 NOTE: Italy exposes only Whole and "al netto del noleggio" fuel breakdowns.
-  Rental    = NLT + NBT + autoimm.uso.noleggio ≈ 30–35 % of new registrations.
+  Rental    = NLT + NBT + autoimm.uso.noleggio ≈ 30–35% of new registrations.
   NonRental ≠ "private persons": it is the full non-rental sector
-  (~78 % Privati + ~15 % Autoimm. uso privato + ~7 % Società, all mixed).
+  (~78% Privati + ~15% Autoimm. uso privato + ~7% Società, all mixed).
   No per-fuel breakdown for Privati alone is publicly available from MIT.
   See § 1 for full channel breakdown and cross-checks.
 
@@ -106,16 +106,16 @@ registrations into five channels. Typical shares (based on 2026 monthly data):
 
 | Channel | Italian term | Typical share | Notes |
 |---------|--------------|---------------|-------|
-| Private individuals | Privati | ~53 % | Natural persons buying outright |
-| Long-term rental | Noleggio a Lungo Termine (NLT) | ~19–25 % | Contracts > 30 days, typically 24–48 months; full-service fleet |
-| Short-term rental | Noleggio a Breve Termine (NBT) | ~8–12 % | Classic rent-a-car; seasonal, airport-driven |
-| Dealer self-reg. | Autoimmatricolazioni | ~10 % | Includes a ~1 % "uso noleggio" sub-slice |
-| Direct corporate | Società ed Enti | ~5 % | Firms/public bodies buying without a rental contract |
+| Private individuals | Privati | ~53% | Natural persons buying outright |
+| Long-term rental | Noleggio a Lungo Termine (NLT) | ~19–25% | Contracts > 30 days, typically 24–48 months; full-service fleet |
+| Short-term rental | Noleggio a Breve Termine (NBT) | ~8–12% | Classic rent-a-car; seasonal, airport-driven |
+| Dealer self-reg. | Autoimmatricolazioni | ~10% | Includes a ~1% "uso noleggio" sub-slice |
+| Direct corporate | Società ed Enti | ~5% | Firms/public bodies buying without a rental contract |
 
 **Our "Rental" metric = NLT + NBT + autoimmatricolazioni "uso noleggio".**
 The "al netto del noleggio" section of the PDF is the Totale **excluding all
 three rental sub-channels**, so the subtraction captures exactly this combined
-rental market (typically **30–35 %** of total new registrations).
+rental market (typically **30–35%** of total new registrations).
 
 Numerical cross-check (May 2026, verified against our CSV):
 
@@ -123,25 +123,25 @@ Numerical cross-check (May 2026, verified against our CSV):
 Whole TOTAL (our CSV):   151,659  ← matches UNRAE PDF "Totale mercato"
 Rental TOTAL (our CSV):   48,695  ← NLT+NBT reported by UNRAE: 47,056
                                      difference ≈ 1,639 = autoimm. uso noleggio
-                                     (~1.1 % of total) — included in our metric
+                                     (~1.1% of total) — included in our metric
 ```
 
 ### Common misconceptions
 
 **"Rental = juristic persons, non-rental = private persons" — NOT correct.**
 
-- Approximately **14–15 % of NLT contracts are with private individuals** who
+- Approximately **14–15% of NLT contracts are with private individuals** who
   rent long-term instead of buying; they show up in *our Rental metric*, not in
   the private-buyer segment.
 - Conversely, the non-rental sector (Whole − Rental = "al netto del noleggio")
   is not exclusively private persons. It contains:
-  - Privati ~78 % of the non-rental total (≈ 53 % of the whole market)
-  - Autoimmatricolazioni "uso privato" ~15 % of non-rental
-  - Società ed Enti ~7 % of non-rental (direct corporate, no rental contract)
+  - Privati ~78% of the non-rental total (≈ 53% of the whole market)
+  - Autoimmatricolazioni "uso privato" ~15% of non-rental
+  - Società ed Enti ~7% of non-rental (direct corporate, no rental contract)
 
 **"NonRental ≈ private persons" — APPROXIMATELY true but imprecise.**
-Private individuals (Privati) represent ~53 % of the whole market and ~78 % of
-the NonRental sector. The remaining ~22 % of NonRental are dealer
+Private individuals (Privati) represent ~53% of the whole market and ~78% of
+the NonRental sector. The remaining ~22% of NonRental are dealer
 self-registrations and direct-corporate purchases.
 
 ### Why Italy has no "Private" variant
@@ -183,8 +183,8 @@ resolution. Do not re-label them `monthly`.
 | 2015-01 → 2019-05 | **Estimated.** No rental block exists in pre-2019-06 UNRAE PDFs, so `Rental = round(Whole × per-fuel rental share)` using the 2019-H2 actual shares; `NonRental = Whole − Rental`. | `est: Whole x rental-share(2019-H2); …` |
 | 2020-04 | **Omitted** from Rental & NonRental — COVID-lockdown data-revision anomaly (PDF rental BEV > recorded Whole BEV). | — |
 
-The 2019-H2 reference shares (BEV 39.8 %, PHEV 42.4 %, HEV 18.5 %, PETROL
-11.8 %, DIESEL 33.4 %, OTHERS 8.4 %, TOTAL 20.3 %) are the earliest *real*
+The 2019-H2 reference shares (BEV 39.8%, PHEV 42.4%, HEV 18.5%, PETROL
+11.8%, DIESEL 33.4%, OTHERS 8.4%, TOTAL 20.3%) are the earliest *real*
 rental data, pre-COVID and closest in time to the estimated span. Estimated
 rows satisfy `Rental + NonRental == Whole` exactly. The 2015–2016 estimates
 inherit the lower resolution of the underlying quarterly Whole rows (only
@@ -303,13 +303,13 @@ The fetcher only reads the newest PDF. The backfill walks all ~190 index pages
 2. the comparison column of next year's table;
 3. a YTD difference — all pairings of own-year and next-year (consolidated)
    YTD tables are tried and the one whose `TOTAL` is closest to UNRAE's
-   published monthly total wins; > 2 % off, or any negative count, and the
+   published monthly total wins; > 2% off, or any negative count, and the
    month stays empty;
 4. a gap fill Jan–(M+1) − month M+1 − Jan–(M−1) when M has no table (2026-05).
 
 Differencing two bulletins puts late registrations of earlier months into
-month M; against UNRAE's monthly totals the median gap is < 0,01 % of
-`TOTAL`, the worst kept ≈ 1 % (2020-04, 1 590 vans in lockdown). Step 3 matters: UNRAE's own Jan–Oct 2024 table moved
+month M; against UNRAE's monthly totals the median gap is < 0,01% of
+`TOTAL`, the worst kept ≈ 1% (2020-04, 1 590 vans in lockdown). Step 3 matters: UNRAE's own Jan–Oct 2024 table moved
 1 500 vans from Diesel to Gpl; the consolidated copy in the 2025 PDF is right,
 and without the closest-total rule 2024-11 came out with negative Gpl.
 
@@ -373,7 +373,7 @@ Dispatch `fetch-italy.yml` with manual inputs to bypass discovery:
   class. HDV cannot be added without a new structured data source.
 - **Vans gaps.** No row for months before 2017-05, June/July 2017–2021, July/August
   2023 (UNRAE only gives the Jan–August sum for
-  those), 2020-09/10/11/12 and 2021-10 (no table, or every derivation > 2 %
+  those), 2020-09/10/11/12 and 2021-10 (no table, or every derivation > 2%
   off the monthly total), 2025-11/12 (pages without PDF; the fetcher fills
   them from the comparison columns of the 2026-11/12 tables).
 - **Vans pre-2025 rows are differences** of year-to-date tables (flagged in
@@ -402,9 +402,9 @@ and re-derives the whole history in a few minutes.
 
 | # | Finding | Evidence |
 |---|---|---|
-| F1 | UNRAE's **LCV press release** for July + August 2026 (2026-09-10) gives each month's total and BEV share, but every other fuel share **only for January–August**. The old percentage parser put August's BEV share (7,0 %) and the YTD shares on July's total; the shares added up to 103,4 % and the sanity check refused the row. Every `fetch-italy.yml` run from 2026-09-15 to 2026-10-01 failed this way. | run 36832351407: `sum=16461 vs TOTAL=15921 (diff=540)` |
+| F1 | UNRAE's **LCV press release** for July + August 2026 (2026-09-10) gives each month's total and BEV share, but every other fuel share **only for January–August**. The old percentage parser put August's BEV share (7,0%) and the YTD shares on July's total; the shares added up to 103,4% and the sanity check refused the row. Every `fetch-italy.yml` run from 2026-09-15 to 2026-10-01 failed this way. | run 36832351407: `sum=16461 vs TOTAL=15921 (diff=540)` |
 | F2 | The script fetched PKW first and Vans second, and the commit step ran only on success, so a Vans exception also **discarded a PKW month** written seconds earlier. It would have hit the September 2026 PKW data on 2026-10-01. | `fetch-italy.yml` before #271 |
-| F3 | The press-release regex `all['’]` also matched inside "**dall’**1,0% di un anno fa" — the year-ago share. 2026-06 Vans was stored with PHEV 171 (1,0 %) instead of 357. The lenient tolerance (2 %) hid it. | June 2026 release, §5 |
+| F3 | The press-release regex `all['’]` also matched inside "**dall’**1,0% di un anno fa" — the year-ago share. 2026-06 Vans was stored with PHEV 171 (1,0%) instead of 357. The lenient tolerance (2%) hid it. | June 2026 release, §5 |
 | F4 | A **structured LCV table exists**: "Struttura del mercato" for autocarri ≤ 3,5 t on the passenger-car index (`immatricolazioni-veicoli-commerciali-<mese>-<anno>`), with exact counts per fuel. Pages exist from 2016-06. Fuel tables start in the 2018-05 page. Monthly fuel columns start in 2025-02; before that the table is January-to-date only. | 112 pages found walking all ~190 index pages |
 | F5 | **Slug month ≠ data month** until 2023: the `aprile-2021` page holds "Gennaio/Marzo 2021". From 2023 the slug names the data month. | table titles vs. slugs |
 | F6 | **The comparison year is not always year − 1**: the 2021 tables compare with **2019** (COVID). The first draft assumed year − 1 and filed 2019 values under 2020. | header row `2021 (°)  2019`, `aprile-2021` |
@@ -412,7 +412,7 @@ and re-derives the whole history in a few minutes.
 | F8 | **Pages without a PDF** (empty page body): 2016-11, 2020-11, 2020-12, 2025-01, 2025-11, 2025-12, 2026-05. **PDFs without a fuel table** (totals only): all up to the 2018-04 page, 2022-01, 2022-11. | `find_lcv_pdf_url` → None; no 'Per alimentazione' |
 | F9 | July + August always share one page. Which tables it holds varies: Jan–July only (2018–2022), Jan–August only (2023), none for July (2024: only an `agosto-2024` page), both monthly (2025, 2026). So 2017–2021 June/July and 2023 July/August can only be split as a sum. | per-page table titles |
 | F10 | **UNRAE's own Jan–Oct 2024 table is misprinted**: Gpl 5 943 and Diesel 138 967, where the consolidated copy in the Jan–Oct 2025 table's comparison column has 4 443 / 140 499. That means 1 500 vans booked under the wrong fuel; the total is unchanged. Taking the difference against it made 2024-11 Gpl negative (−1 070). | `novembre-2024` page vs `ottobre-2025` page |
-| F11 | **Bulletins get revised.** A later table restates earlier YTD figures with late registrations. Own (provisional) vs. next-year (consolidated) YTD values differ by up to ≈ 1 %, mostly in Diesel. Where a direct monthly value and a YTD difference both exist (2025-02 … 2026-08), they agree to within 0,6 % of TOTAL, except 2025-09 (Diesel +319, ≈ 2 %). | comparison run during #272 |
+| F11 | **Bulletins get revised.** A later table restates earlier YTD figures with late registrations. Own (provisional) vs. next-year (consolidated) YTD values differ by up to ≈ 1%, mostly in Diesel. Where a direct monthly value and a YTD difference both exist (2025-02 … 2026-08), they agree to within 0,6% of TOTAL, except 2025-09 (Diesel +319, ≈ 2%). | comparison run during #272 |
 | F12 | **Mixing a provisional with a consolidated endpoint amplifies the revision**: 2021-11 came out 936 too high when computed as consolidated Jan–Nov minus provisional Jan–Oct, because the revisions of ten months landed in one. | vs. UNRAE monthly total 15 472 |
 | F13 | The table `totale` can differ from the headline monthly total on page 1. In August 2026 it was 8 376 vs. 8 390: the headline is a projection ("In corsivo proiezioni"), the table is registrations to date. | `luglioagosto-2026` PDF |
 | F14 | **No PHEV line before 2020-07.** The hybrid line is `Ibride` (2018) / `Ibrido` (2019–2020-06); PHEV volumes then were single digits. | table rows |
@@ -429,7 +429,7 @@ and re-derives the whole history in a few minutes.
 | D2 | Vans source = the LCV **struttura table**, not the press release. (#272) | F1, F3, F4: exact counts, no prose regex, history back to 2017. | Repairing the regexes: a combined release still has no monthly split (F1), so it cannot be repaired. |
 | D3 | The Vans history was **rewritten**, including the two existing press-release rows (2026-04, 2026-06). This is a deliberate exception to "don't rewrite the past", agreed with the owner on 2026-10-01. | Source switch; the old rows were percentage-derived and 2026-06 was wrong (F3). | Keep old rows and converge forward: it would have left a known-wrong PHEV and two methods in one series. |
 | D4 | Precedence per month: **(1) own table's month column → (2) next year's comparison column → (3) YTD difference → (4) YTD gap fill**. | (1) is what the live fetcher writes, so backfilled and fetched months are the same kind of number. (2) is a real published monthly figure. (3)/(4) are derived and flagged. | Preferring the consolidated (2) over the provisional (1) everywhere would be slightly more accurate, but would make old months a different vintage than new ones. Revisit if consistency matters less than accuracy. |
-| D5 | For (3), try all four pairings of own / next-year YTD for M and M−1 and keep the one whose TOTAL is **closest to UNRAE's monthly total**. Reject the month if all are > 2 % off or any count is negative. | F10 and F12: a fixed preference ("consolidated first, then own") failed both ways — mixed endpoints in 2021-11, and the misprint in 2024-10/11. UNRAE's monthly totals (page 1 of every PDF, later PDFs win) are an independent check. The 2 % threshold separates the revision noise (all kept months ≤ 1,1 %) from broken pairings (2020-09: 2,4 %, 2021-10: 2,5 %), which stay empty. | Hand-patching the misprinted 2024-10 value: not reproducible, and the next misprint would need another patch. |
+| D5 | For (3), try all four pairings of own / next-year YTD for M and M−1 and keep the one whose TOTAL is **closest to UNRAE's monthly total**. Reject the month if all are > 2% off or any count is negative. | F10 and F12: a fixed preference ("consolidated first, then own") failed both ways — mixed endpoints in 2021-11, and the misprint in 2024-10/11. UNRAE's monthly totals (page 1 of every PDF, later PDFs win) are an independent check. The 2% threshold separates the revision noise (all kept months ≤ 1,1%) from broken pairings (2020-09: 2,4%, 2021-10: 2,5%), which stay empty. | Hand-patching the misprinted 2024-10 value: not reproducible, and the next misprint would need another patch. |
 | D6 | Before 2020-07 **`PHEV` stays empty**, not 0, and `notes` says HEV covers all hybrids. | F14, invariant 4 (empty ≠ 0). | 0: would assert "no plug-in vans", which the source does not say. |
 | D7 | `OTHERS` = Gpl + Metano (+ Idrogeno if it ever appears). Before, it was Gpl only. | Explicit rows in the table; matches the PKW mapping. | — |
 | D8 | `TOTAL` = the table's `totale`, not the headline total. | F13: consistent with the fuel columns, and every row adds up exactly. | Headline: it is a projection and does not match the fuel split. |
@@ -474,13 +474,13 @@ by one month's distortion.
 | M2 | **HEV has no full list**: only `top-10-per-alimentazione` (top 10 models + `altre`, month and YTD). A brand ranking cannot be derived from it. HEV here also includes mild hybrids (§3). | that PDF |
 | M3 | **No January 2026 lists** were published (neither BEV nor PHEV, nor the "per marca" tables). So 2026-01 and 2026-02 cannot be split; the month picker skips them. | index walk, 2026-10 |
 | M4 | The **"per marca" tables** (BEV/PHEV by brand, XLSX) only exist from 2026-05. The brand ranking is therefore summed from the model lists. | index walk |
-| M5 | From the 2026-05 list on, UNRAE **truncates to the top 100** models. `altre` then grows from ~0,2 % to 2,7 % (BEV). A model crossing rank 100 between two months shows up in the difference with all its earlier units at once. It only affects models with a few dozen units. | `altre` per list |
+| M5 | From the 2026-05 list on, UNRAE **truncates to the top 100** models. `altre` then grows from ~0,2% to 2,7% (BEV). A model crossing rank 100 between two months shows up in the difference with all its earlier units at once. It only affects models with a few dozen units. | `altre` per list |
 | M6 | **Model names change between lists**: `ATTO2` / `ATTO 2`, `N? 4` / `N4` (DS: pdftotext turns the `°` of "N° 4" into `?`), and from the 2026-09 PHEV list `ATTO 2` → `ATTO 2 DM-I`, `SEAL U` → `SEAL U DM-I` (BYD's plug-in drive name appended). Matching is on letters and digits only, after dropping a trailing drive name (`DM-I` / `DM-P` / `DM-O` / `EM-I`); display is the newest spelling without that suffix, `?` → `°`. | Jul/Aug 2026, Apr–Jun 2026, Aug/Sep 2026 lists |
 | M7 | UNRAE's lists contain a ranked **catch-all row** `ALTRE ESTERE  ALTRI TIPI`. It is counted as unranked rest. | e.g. rank 81, BEV 2026 |
-| M8 | **Kia Sportage left the 2026 PHEV lists in May 2026**, retroactively for January to April too (−3 049 between the April and May lists). The struttura months January–April were not restated. So the list-based PHEV twelve months are 2,0 % below `data/Italy.csv`. BEV is within 0,03 %. Single-month PHEV for 2026-05 (difference) is +1,1 % against the CSV. | refresh log; April vs May 2026 lists |
+| M8 | **Kia Sportage left the 2026 PHEV lists in May 2026**, retroactively for January to April too (−3 049 between the April and May lists). The struttura months January–April were not restated. So the list-based PHEV twelve months are 2,0% below `data/Italy.csv`. BEV is within 0,03%. Single-month PHEV for 2026-05 (difference) is +1,1% against the CSV. | refresh log; April vs May 2026 lists |
 | M9 | **Cross-check of single months** against UNRAE's own monthly `top-10-per-alimentazione` (real monthly figures, not differences): 2025-11, 2026-05, 2026-07, BEV and PHEV top 10. 54 of 60 models match exactly. The rest differ by 1–8 units, except one BEV model in 2026-05 at −43. The class totals of the differences are within a few units of `data/Italy.csv`, except PHEV 2026-05 (M8). | session 2026-10-01 |
 | M10 | All 66 lists from 2023-11 to 2026-08 parse, with models + `altre` = `Totale` exactly. Brand and model columns are separated by two or more spaces. The column offsets shift from line to line, so a fixed-position split does not work. | backfill run |
-| M11 | **The `DM-I` rename (M6) first slipped through** (published 2026-10): 2026-09 showed BYD ATTO 2 DM-I 16 089 and SEAL U DM-I 12 321 — their whole January–September — and a PHEV month of 40 664 (28,8 %) instead of 15 771 (`data/Italy.csv`: 15 669). The twelve-month headline had the class total right, but split SEAL U into two names (12 321 shown instead of 16 008). Fixed by the suffix rule in M6; `_check_renames` now aborts the refresh when a model of ≥ 500 units vanishes while a new model of the same brand appears with at least as many, so a future rename is not published. | user report 2026-10-10; rebuild of the store |
+| M11 | **The `DM-I` rename (M6) first slipped through** (published 2026-10): 2026-09 showed BYD ATTO 2 DM-I 16 089 and SEAL U DM-I 12 321 — their whole January–September — and a PHEV month of 40 664 (28,8%) instead of 15 771 (`data/Italy.csv`: 15 669). The twelve-month headline had the class total right, but split SEAL U into two names (12 321 shown instead of 16 008). Fixed by the suffix rule in M6; `_check_renames` now aborts the refresh when a model of ≥ 500 units vanishes while a new model of the same brand appears with at least as many, so a future rename is not published. | user report 2026-10-10; rebuild of the store |
 
 ### 10.3 Decisions
 

@@ -41,7 +41,7 @@ backfill: Whole is BFS from 2010 to 2021, rebuilt from ASTRA's year files from 2
 scope_note: First registrations in Switzerland and Liechtenstein (one register, one market — ACEA's Swiss figure includes Liechtenstein). Vehicles taken off the road since are still counted in the month they were registered new.
 caveats:
 - 'A month is attributed the way ACEA attributes it: a car keyed into the register after the month closed (late registrations, typically after a quarter-end push) counts in the next month written. Every row is written once and never revised, so monthly figures can differ from a later look at the register by a few hundred cars while the year totals agree.'
-- 'The Whole history before 2022 is BFS (the Federal Statistical Office). BFS also counts used imports, in the month of their first registration abroad, so its months kept growing after publication — by up to 6 % in 2025 as near-new imports from the EU rose. From 2022 the history is rebuilt from ASTRA''s register and matches auto-schweiz/ACEA (2022: 40,168 BEV against 40,173); 2026-04..08 are ACEA''s figures. The step at 2022 is small (volume −1.6 %, BEV share +0.1 points).'
+- 'The Whole history before 2022 is BFS (the Federal Statistical Office). BFS also counts used imports, in the month of their first registration abroad, so its months kept growing after publication — by up to 6% in 2025 as near-new imports from the EU rose. From 2022 the history is rebuilt from ASTRA''s register and matches auto-schweiz/ACEA (2022: 40,168 BEV against 40,173); 2026-04..08 are ACEA''s figures. The step at 2022 is small (volume −1.6%, BEV share +0.1 points).'
 - Vans, HDV and Buses were quarterly ACEA figures before (with BEV and PHEV merged into one "electrically chargeable" number); they are now monthly register counts with a real BEV/PHEV split, back to 2016. The old ACEA series is kept as an archive (data/Switzerland_legacy.csv).
 - Before 2022 the register has no hybrid code; plug-ins of that period are recognised by CO2 alone, which under-counts some 2019 PHEVs by up to a third (a small series then).
 processing:
@@ -161,7 +161,7 @@ processing:
           then: the month's registrations, by registration date
 - title: Check against ACEA
   text:
-  - ACEA is the reference. When ACEA publishes the month (third to fourth week), the newest months are compared with ACEA's Swiss figure; a gap above 1 % in the total, or 3 % in one fuel with at least 200 cars, raises a warning. Over 2025-01 to 2026-08 (19 releases, 366,000 cars) the register reproduces ACEA to −0.02 % in total and +0.1 % in BEV.
+  - ACEA is the reference. When ACEA publishes the month (third to fourth week), the newest months are compared with ACEA's Swiss figure; a gap above 1% in the total, or 3% in one fuel with at least 200 cars, raises a warning. Over 2025-01 to 2026-08 (19 releases, 366,000 cars) the register reproduces ACEA to −0.02% in total and +0.1% in BEV.
 market_breakdown: market/switzerland_top.json
 market_designation_note: the model is the register's type designation Typ2 (ENYAQ, EX30, GLC — trims and power codes in Typ3 such as 85X or xDrive30e are dropped, so the versions of one model rank together). For the families whose Typ3 is the model itself it is Typ2 + Typ3 — MODEL Y, SEAL U, IONIQ 5, RR EVOQUE, AMG GLC, ATTO 2. A model typed with the brand glued on is merged with the plain one (MG "MG4" and "4" both rank as 4). Upper-cased.
 market_powertrain_note: BEV / PHEV / HEV / petrol / diesel exactly as in the CSV (register fuel + hybrid code); HEV includes mild hybrids. Counted by registration month from ASTRA's snapshot, so a month can differ from the chart's row by the few late registrations the chart moves into the next month.
@@ -169,7 +169,7 @@ market_breakdown_extra:
 - path: market/switzerland_used_top.json
   id: market-used
   heading: Who sells the imported used electrified cars
-  note: "Used imports (the Used variant): passenger cars first registered abroad, counted in the month they entered the Swiss register (ASTRA's GEBR file). Many are near-new: in 2026, 43 % had been registered abroad for less than a year. The BYD Seal U plug-in — about a third of the imported used plug-ins in the year to September 2026 — came almost always within a year of its first registration, mostly from Germany and Italy."
+  note: "Used imports (the Used variant): passenger cars first registered abroad, counted in the month they entered the Swiss register (ASTRA's GEBR file). Many are near-new: in 2026, 43% had been registered abroad for less than a year. The BYD Seal U plug-in — about a third of the imported used plug-ins in the year to September 2026 — came almost always within a year of its first registration, mostly from Germany and Italy."
 fetcher: scripts/fetch_switzerland.py
 workflow: .github/workflows/fetch-switzerland.yml
 fragility_doc: docs/architecture/46-source-switzerland.md
@@ -200,9 +200,9 @@ Variants:  Whole · Vans · HDV · Buses · 2-Wheelers (NEUZU) · Used (GEBR)
 Month:     the ACEA rule — written once from the first snapshot after the
            month; late registrations of earlier written months of the year
            flow into it (§5). History by registration month (§5b).
-Check:     ACEA. 2025-01..2026-08 (19 releases, 366k cars): total −0.02 %,
-           BEV +0.11 %, PHEV −0.20 %, HEV +0.11 %, petrol +0.13 %,
-           diesel −1.5 % (§4).
+Check:     ACEA. 2025-01..2026-08 (19 releases, 366k cars): total −0.02%,
+           BEV +0.11%, PHEV −0.20%, HEV +0.11%, petrol +0.13%,
+           diesel −1.5% (§4).
 ```
 
 ## 1. Why this source clears the bar
@@ -252,7 +252,7 @@ machines and small tractor units, N2/N3 work machines, M2 minibuses ≤ 3.5 t, L
 trailers, agricultural and industrial vehicles.
 
 Each filter was chosen among the plausible readings of the EU class by its distance to
-ACEA (§4) — the EU class alone (all N1, all N2/N3, all M2/M3) is 1–4 % off in every case.
+ACEA (§4) — the EU class alone (all N1, all N2/N3, all M2/M3) is 1–4% off in every case.
 
 ## 4. Calibration against ACEA
 
@@ -260,9 +260,9 @@ ACEA is the maintainer's reference. Comparisons below use the ASTRA snapshot of
 2026-10-01 (and the 2025 year file) against every ACEA release of 2025–2026 (monthly car
 PDFs; commercial-vehicle checkpoints Q1/H1/Q1-Q3/FY).
 
-**Whole, 19 months 2025-01 … 2026-08 (no ACEA July):** −89 cars on 366,335 (−0.02 %);
-by fuel BEV +95 (+0.11 %), PHEV −86 (−0.20 %), HEV +141 (+0.11 %), petrol +111 (+0.13 %),
-diesel −347 (−1.5 %). Most months are within ±0.5 %. The exceptions are month boundaries, not definitions —
+**Whole, 19 months 2025-01 … 2026-08 (no ACEA July):** −89 cars on 366,335 (−0.02%);
+by fuel BEV +95 (+0.11%), PHEV −86 (−0.20%), HEV +141 (+0.11%), petrol +111 (+0.13%),
+diesel −347 (−1.5%). Most months are within ±0.5%. The exceptions are month boundaries, not definitions —
 2025-06 +822 / 2025-07 −1,207 (30 June 2025 was a quarter-end Monday with 2,321 cars),
 2025-12 −500, 2026-06 +265. ACEA prints last year's months unchanged a year later, so it
 never revises them.
@@ -271,9 +271,9 @@ never revises them.
 
 | through | BEV | PHEV | HEV | Petrol | Diesel | Total |
 |---|---|---|---|---|---|---|
-| Mar | +7 | +22 | +27 | +73 | −2 | +127 (+0.24 %) |
-| Jun | +125 | −18 | +187 | +79 | 0 | +373 (+0.32 %) |
-| Aug | +86 | +216 | −102 | +43 | −27 | +216 (+0.14 %) |
+| Mar | +7 | +22 | +27 | +73 | −2 | +127 (+0.24%) |
+| Jun | +125 | −18 | +187 | +79 | 0 | +373 (+0.32%) |
+| Aug | +86 | +216 | −102 | +43 | −27 | +216 (+0.14%) |
 
 The positive remainder is late registrations keyed in after ACEA's cut-off. The PHEV/HEV
 swing in July–August (about 200 cars) is classification: ACEA counts some July 2026
@@ -294,8 +294,8 @@ The 2025 second-half gap of Vans and HDV is all diesel (ACEA higher); 2026 is cl
 plates, vehicles taken off the road, or used-code A; including M1 campers.
 
 The cross-check runs every month (`check-switzerland-acea.yml`, 23rd–28th): it compares the
-newest ASTRA months of `Switzerland.csv` with ACEA's release and annotates a gap beyond 1 %
-(total) or 3 % (a fuel with ≥ 200 cars) as a warning. Nothing is written.
+newest ASTRA months of `Switzerland.csv` with ACEA's release and annotates a gap beyond 1%
+(total) or 3% (a fuel with ≥ 200 cars) as a warning. Nothing is written.
 
 ## 5. Month attribution
 
@@ -313,7 +313,7 @@ Late registrations flow forward into the next written month; no written row is r
 (invariant 3). Rows from another source (Whole's ACEA months 2026-04..08) are not
 differenced: their gap to the register is classification, not late registrations. The rebuilt
 months 2026-01..03 are ASTRA rows like any other. January starts every year fresh — as
-ACEA's January does. A carry-over above 3 % of the month is written but
+ACEA's January does. A carry-over above 3% of the month is written but
 raised as a workflow warning.
 
 ### 5b. History — by registration month
@@ -350,16 +350,16 @@ January–April 2025 is 435 below ACEA's (with it: −36).
   registered in Germany in January and imported in April is a German new registration in
   January (KBA) and a Swiss used import in April (ASTRA, our `Used`) — BFS added it to the Swiss
   January as well. Its months therefore grew after publication: January 2021 from 15,248 at
-  first publication to 16,016 a year later; the 2025 rows ran 3.6 % (January up to 6 %) above
+  first publication to 16,016 a year later; the 2025 rows ran 3.6% (January up to 6%) above
   ACEA. The added cars are almost all such imports: 4,848 of BFS's 5,402 later additions in
   2021 (the rest late registrations), 9,500 of 9,554 surplus cars in January–October 2025.
   The register count matches auto-schweiz instead (2022: 225,648 cars, 40,168 BEV against
-  40,173). Effect on the curve: 80 % share in
+  40,173). Effect on the curve: 80% share in
   2036.57 instead of 2036.60.
 - **Why not before 2022.** The year files before 2022 have no hybrid code and no electric
   consumption — only one CO2 field, empty for about 24,000 hybrids in 2021 and overlapping
   between plug-in SUVs and full hybrids (60–80 g/km). Rebuilt from them, 2021's PHEV share
-  would drop from 9.0 % to 5.1 %. BFS's surplus there is small (volume ≤ 1.5 %, BEV share
+  would drop from 9.0% to 5.1%. BFS's surplus there is small (volume ≤ 1.5%, BEV share
   ± 0.1 points), so 2010–2021 stays BFS.
 - **`data/Switzerland_legacy.csv`** — the quarterly ACEA commercial-vehicle rows that were
   `Switzerland_Vans/HDV/Buses.csv` until 2026-10, parked byte for byte. Never rendered
