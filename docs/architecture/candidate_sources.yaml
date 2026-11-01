@@ -187,3 +187,24 @@ candidates:
       - "Paywalled."
     would_change: "A free release with an electrified split."
     doc: "docs/architecture/33-expansion-candidates.md#shelved--investigated-2026-07-no-viable-source"
+
+  - country: Tajikistan
+    slug: tajikistan
+    verdict: no-source
+    checked: "2026-11"
+    probed: false
+    summary: "Electric cars are about a fifth of passenger-car imports — but the only figures are customs import counts quoted by the press, in a market with many used imports."
+    source_name: "Customs Service of Tajikistan (figures relayed by Asia-Plus / Avesta)"
+    source_url: "https://customs.tj/"
+    findings:
+      - "H1 2026: about 31,900 passenger cars imported, at least 7,069 of them electric (22.2%), 6,875 from China — a press relay of customs data."
+      - "FY 2025: 63,961 passenger cars; the customs chief gave no electric count. Electric counts exist for 2024 (17,695) and Jan–May 2025 (12,821) only."
+      - "The statistics agency (stat.tj) publishes imports by product yearly; UN Comtrade has no monthly Tajikistan data; no registry or traffic-police statistics were found."
+      - "No new/used split (pre-2013 cars were only banned from October 2023), no hybrid figure, no brand or model data."
+      - "The figures do not line up: 12,821 electric imports in Jan–May 2025 against 7,069 in H1 2026, and very different origin mixes for 2025 and H1 2026."
+    blockers:
+      - "No monthly series by fuel; the customs site lists no machine-readable passenger-car table."
+      - "Import flow, not new registrations; used cars are included and not flagged."
+      - "HEV and PHEV are not published, so petrol and diesel cannot be derived."
+    would_change: "A monthly table of passenger-car imports by fuel with a new/used flag from the Customs Service or Ministry of Transport — or traffic-police first-registration data by fuel."
+    doc: "docs/architecture/14-data-source-gaps.md#-tajikistan--customs-import-counts-only-from-the-press-checked-2026-11"
