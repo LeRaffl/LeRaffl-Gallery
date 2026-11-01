@@ -154,7 +154,7 @@ A row is **excluded** when any one of three tests fails:
 | Test | Rule | Why a separate test |
 |---|---|---|
 | unsettled | `refit_swing > FIT_UNSETTLED_SWING` (25 y), or `Inf` | The 80 % date still jumps with each new month. |
-| collapsed | shape `v2 ≤ 0`, or 10 %→80 % in `< FIT_COLLAPSE_SPAN` (3 y) while `ttm_bev_share < FIT_COLLAPSE_OBS` (10 %) | A near-vertical step the data has not reached. It can repeat identically on every refit (Argentina), so `refit_swing` alone does not catch it. The fastest *observed* transitions take 5–8 years. |
+| collapsed | no valid shape (`v2 ≤ 0`, `v1 ≥ 0` or non-finite), or 10 %→80 % in `< FIT_COLLAPSE_SPAN` (3 y) while `ttm_bev_share < FIT_COLLAPSE_OBS` (80 %) | A near-vertical step the data has not reached. It can repeat identically on every refit (Argentina), so `refit_swing` alone does not catch it. The fastest *observed* transitions take 5–8 years. |
 | stale | `data_per` more than `FIT_STALE_MONTHS` (12) before today | The curve describes a market no longer observed (Belgium Vans ended 2023-03). |
 
 `provisional` = swing between `FIT_PROVISIONAL_SWING` (5 y) and the unsettled
