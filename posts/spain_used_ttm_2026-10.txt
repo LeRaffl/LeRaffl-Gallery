@@ -1,0 +1,9 @@
+🇪🇸 Spain (Used) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
+−0.6pp  BEV   (3.4% → 2.8%)
+−0.0pp  PHEV  (6.3% → 6.3%)
++0.8pp  HEV   (7.1% → 7.9%)
+−0.2pp  ICE   (83.3% → 83.0%)
+
+PHEV peaked at 6.5% in 2026-03 (declining for 7 months).

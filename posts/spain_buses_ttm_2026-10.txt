@@ -1,0 +1,9 @@
+🇪🇸 Spain (Buses) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
+−0.7pp  BEV   (11.3% → 10.6%)
++0.0pp  PHEV  (0.0% → 0.0%)
+−0.8pp  HEV   (17.8% → 17.0%)
++1.5pp  ICE   (70.9% → 72.4%)
+
+HEV peaked at 19.6% in 2024-11 (declining for 23 months).

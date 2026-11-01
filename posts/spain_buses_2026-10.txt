@@ -1,0 +1,9 @@
+🇪🇸 Spain (Buses) - October 26 - BEV Trajectory
+15.4% BEV
+17.6% Hybrid
+67.0% ICE
+
+Trailing 12 months are:
+10.6% BEV
+17.0% Hybrid
+72.4% ICE

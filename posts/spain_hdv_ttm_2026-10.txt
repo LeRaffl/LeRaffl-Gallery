@@ -1,0 +1,6 @@
+🇪🇸 Spain (HDV) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
+−0.0pp  BEV   (1.4% → 1.4%)
++0.0pp  PHEV  (0.0% → 0.0%)
++0.0pp  ICE   (98.6% → 98.6%)

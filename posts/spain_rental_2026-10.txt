@@ -1,0 +1,9 @@
+🇪🇸 Spain (Rental) - October 26 - BEV Trajectory
+4.5% BEV
+13.7% PHEV (of which 0.1%p were EREV)
+81.8% ICE (of which 50.9%p were HEV)
+
+Trailing 12 months are:
+4.0% BEV
+11.2% PHEV (of which 0.1%p were EREV)
+84.8% ICE (of which 47.1%p were HEV)

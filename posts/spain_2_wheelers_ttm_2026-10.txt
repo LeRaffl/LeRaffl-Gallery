@@ -1,0 +1,6 @@
+🇪🇸 Spain (2-Wheelers) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
+−0.2pp  BEV   (3.5% → 3.2%)
++0.0pp  PHEV  (0.0% → 0.0%)
++0.2pp  ICE   (96.5% → 96.8%)

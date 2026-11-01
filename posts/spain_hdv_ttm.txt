@@ -1,11 +1,6 @@
 🇪🇸 Spain (HDV) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-−0.1pp  BEV   (1.4% → 1.3%)
-−0.0pp  PHEV  (0.0% → 0.0%)
-+0.0pp  HEV   (0.0% → 0.0%)
-+0.1pp  ICE   (98.6% → 98.7%)
-
-PHEV peaked at 0.0% in 2024-10 (declining for 23 months).
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+Nov24–Oct25  vs  Nov25–Oct26
+−0.0pp  BEV   (1.4% → 1.4%)
++0.0pp  PHEV  (0.0% → 0.0%)
++0.0pp  ICE   (98.6% → 98.6%)
