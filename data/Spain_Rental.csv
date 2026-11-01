@@ -131,3 +131,4 @@ period,time_interval,variant,source,BEV,PHEV,EREV,HEV,PETROL,DIESEL,OTHERS,TOTAL
 2026-07,monthly,Rental,DGT,1136.0,3880.0,13.0,16492.0,10395.0,2126.0,170.0,34212.0,https://www.dgt.es/microdatos/salida/2026/7/vehiculos/matriculaciones/export_mensual_mat_202607.zip
 2026-08,monthly,Rental,DGT,904.0,1937.0,2.0,9087.0,3808.0,1221.0,119.0,17078.0,https://www.dgt.es/microdatos/salida/2026/8/vehiculos/matriculaciones/export_mensual_mat_202608.zip
 2026-09,monthly,Rental,DGT,1335.0,3093.0,27.0,12112.0,4808.0,1948.0,192.0,23515.0,https://www.dgt.es/microdatos/salida/2026/9/vehiculos/matriculaciones/export_mensual_mat_202609.zip
+2026-10,monthly,Rental,DGT (daily),1298.0,3933.0,34.0,14721.0,6894.0,1853.0,204.0,28937.0,provisional: sum of 24 DGT daily files export_mat_20261001..20261030; replaced by the monthly file (published around the 15th)
