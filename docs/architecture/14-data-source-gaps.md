@@ -343,6 +343,63 @@ licenses it, and resellers of Autostat's tables such as **Autostat Info**
   to pay for the monthly Autostat table, which would also need a licence that
   allows republishing the derived series.
 
+## 🇹🇯 Tajikistan — customs import counts only, from the press (checked 2026-11)
+
+Checked 2026-11-01 as desk research plus plain requests from the dev box (not
+from GitHub runners), after a follower suggested the country. The EV story is
+real — electric cars are about 22% of H1 2026 passenger-car imports and are
+exempt from customs duties — but everything published is an **import count
+relayed by the press**. There is no registry series, and nothing monthly by
+fuel.
+
+- **Only press relays of customs figures.** H1 2026: about 31,900 passenger
+  cars imported ($350.3M, +5.6%), at least 7,069 of them electric (22.2%),
+  6,875 from China ([Asia-Plus, 2026-07-31](https://asiaplus.news/en/2026/07/31/nearly-32-thousand-cars-in-half-a-year-where-does-tajikistan-import-them-from/);
+  the full text is subscriber-only, the figures are repeated by
+  [MOFCOM](https://www.mofcom.gov.cn/zwjg/jmxw/oy/art/2026/art_e50c95e967024dc8bd4d5cf944664815.html)
+  and in the [Russian original](https://asiaplus.news/2026/08/02/pochti-32-tysyachi-avtomobilej-za-polgoda-otkuda-tadzhikistan-ih-vvozit/)).
+  FY 2025: 63,961 passenger cars ($684.9M) against 47,294 in 2024, but the
+  customs chief did not give the number of electric cars
+  ([Asia-Plus, 2026-03-06](https://asiaplus.news/en/2026/03/06/from-which-countries-cars-are-imported-into-to-tajikistan/)).
+  The only electric counts are 17,695 (2024) and 12,821 (Jan–May 2025), via
+  [Avesta, 2025-07-17](https://en.avesta.tj/2025/07/17/tajikistan-is-actively-implementing-a-program-for-the-development-of-electric-transport/),
+  and the climate-adaptation dashboard's indicator
+  [VI.9](https://climate.stat.tj/indicator/VI.9) (20,489 for 2025, from a
+  Transport Ministry / Customs form; its 2021–2023 values are flagged "test"
+  and the page says "unofficial — test data").
+- **No registry data, no monthly series.** The Customs Service's statistics
+  page ([customs.tj](https://customs.tj/index.php/2020-10-11-20-11-15/2018-06-14-07-44-16)) lists
+  "Statistics of foreign trade" and "Express information on export and import
+  of essential goods", but no machine-readable passenger-car table by fuel
+  was found, and the site is slow enough to time out. The Agency on
+  Statistics' [analytical tables](https://www.stat.tj/en/analytical-tables/)
+  carry imports by product **yearly** (1993–2025). UN Comtrade has no
+  Tajikistan data by month (empty for 2023-01 … 2025-02, checked
+  2026-11-01). No traffic-police first-registration statistics were found.
+- **No new/used split.** The flow includes used cars: Tajikistan imported
+  more than 36,000 pre-2013 cars in H1 2023 alone, and only banned imports of
+  cars built before 2013 from 2023-10-02 ([Asia-Plus, 2023-08-11](https://asiaplus.news/en/2023/08/11/customs-service-the-ban-on-the-import-of-old-cars-will-take-effect-in-tajikistan-from-october-2/)).
+  In H1 2026 South Korea, Japan, Germany and the US — typical used-car
+  suppliers — still account for 22,000 of 31,900 units. No official used share
+  exists, so the series would fall under principle 4 below (and the Africa
+  notes above): a mostly import-driven flow, not a new-registration S-curve.
+- **No hybrid figure.** Only electric vehicles are broken out. HEV and PHEV
+  imports (likely large, given the Japanese and Korean origin) are not
+  published, so petrol and diesel could not be derived either.
+- **The figures don't line up.** Jan–May 2025 had 12,821 electric imports,
+  yet H1 2026 shows 7,069 — a real drop (tax relief now covers only vehicles
+  under a year old) or a different definition: the ministry's "electric
+  vehicles" include buses and trolleybuses, and the customs number is for
+  passenger cars. The origin mix differs too: FY 2025 is quoted as China 28%,
+  Russia 26.7%, Kazakhstan 13.3% (South Korea 2.4%), H1 2026 as South Korea
+  35%, China 29%. No brand or model data was found.
+
+**What would change it:** the Customs Service or the Ministry of Transport
+publishing a monthly table of passenger-car imports by fuel (BEV, PHEV, HEV,
+petrol, diesel) *with a new/used flag* — or traffic-police first-registration
+data by fuel — in a downloadable form. Until then the yearly import count is a
+cross-check, not a series.
+
 ## 🇦🇺 Australia — on the gallery, but no free source to automate it
 
 Checked 2026-10-09, looking for a fetcher to replace the hand-entered

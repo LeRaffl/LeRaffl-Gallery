@@ -25,7 +25,7 @@ for the market, (c) machine-accessible without paywalls or identity checks.**
 > | 🇷🇸 Serbia | **data model confirmed, build deferred** | § Serbia |
 > | 🇧🇦 Bosnia | lead, fuel granularity unverified | § Western Balkans |
 > | 🇲🇦 Morocco | shelved — energy split login-walled | § Morocco |
-> | 🇲🇽 🇷🇺 🇨🇷 🇵🇭 🇰🇿 🇪🇬 | shelved / no source | tables below, [14](14-data-source-gaps.md) |
+> | 🇲🇽 🇷🇺 🇨🇷 🇵🇭 🇰🇿 🇪🇬 🇹🇯 | shelved / no source | tables below, [14](14-data-source-gaps.md) |
 >
 > The original 2026-07 write-up was web research only; most entries have
 > since been probed from GitHub runners (each says which). Older text below
@@ -498,6 +498,7 @@ before settling; probes ran from GitHub runners, "desk" is web research only.
 | 🇵🇭 Philippines (~0.5M) | CAMPI + TMA | the electrified split (HEV / BEV / PHEV) is published monthly, but for member brands only — the press adds "including brands not affiliated with CAMPI" as an estimate (desk) | shelved — completeness |
 | 🇰🇿 Kazakhstan (~0.2M) | AKAB / KAU (dealer sales), stat.gov.kz | NEV counts from "official dealers" only, no full fuel split; `data.egov.kz`'s API answers 403 to runners | shelved |
 | 🇺🇿 Uzbekistan (~0.4M) | Statistics Agency (stat.uz) | quarterly EV **fleet** totals (122.7k on 2026-07-01), no new-registration flow by fuel (desk) | shelved |
+| 🇹🇯 Tajikistan (~64k imported cars in 2025, EV ≈ 22% of H1 2026 imports) | Customs Service (customs.tj), Ministry of Transport | added 2026-11-01 (desk, plus plain requests from the dev box): only press relays of customs import counts — H1 2026 31,900 passenger cars, ≥7,069 electric; no monthly series, no registrations, no new/used split (pre-2013 cars banned only since 2023-10), no hybrid figure, no brand or model data; UN Comtrade empty; figures inconsistent between sources. Details in [14](14-data-source-gaps.md#-tajikistan--customs-import-counts-only-from-the-press-checked-2026-11) | not viable — no monthly series, wrong population |
 | 🇬🇹 Guatemala / 🇩🇴 Dominican Republic | SAT / DGII | yearly fleet reports and ad-hoc import figures; no monthly first-registration series by fuel (desk) | shelved |
 | 🇲🇩 Moldova (small) | Public Services Agency open data | the portal's CKAN endpoints guessed (`date.gov.md`, `dataset.gov.md`) answer 404 — not pursued further (a small, used-import market) | not pursued |
 | 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | unchanged (above): quarterly, all-vehicle NEV table, no brand or model by drivetrain | **built 2026-10-14** ([60](60-source-south-africa.md)) |
