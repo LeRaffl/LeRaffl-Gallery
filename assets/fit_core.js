@@ -9,7 +9,7 @@
    rowHasNoTransition — the "shows no transition" rule every tab uses.
    fitReliability (+ FIT_* constants) — the one reliability gate: unsettled
    (refit_swing), collapsed (10→80 % in < FIT_COLLAPSE_SPAN years while
-   observed < FIT_COLLAPSE_OBS) or stale (> FIT_STALE_MONTHS old). */
+   observed < FIT_COLLAPSE_OBS, or no valid S-shape at all) or stale (> FIT_STALE_MONTHS old). */
 
 // "No transition" = curve never enters a meaningful adoption regime.
 //   • v2 > 1  → S-curve: use slope at the inflection point.
@@ -29,12 +29,17 @@
 //     FIT_UNSETTLED_SWING years across the recent re-fits (`refit_swing` in
 //     params.csv; Inf = re-fits stopped producing a crossing at all).
 //   • collapsed — the fit is a near-vertical step: it claims 10 %→80 % in
-//     under FIT_COLLAPSE_SPAN years while the observed share has not even
-//     reached FIT_COLLAPSE_OBS, so the whole claimed rise is extrapolation.
+//     under FIT_COLLAPSE_SPAN years while the observed share has not reached
+//     FIT_COLLAPSE_OBS (80 %, the top of the claimed step), so the claimed rise
+//     is not yet backed by the data. A step the data has fully passed
+//     (Romania Buses, 82 %) stays; one the data has only started (Greece HDV
+//     18 %, Croatia Buses 26 %, Malta Buses 60 % on a handful of vehicles)
+//     is a degenerate fit that must not hand out Done / Fast / Late starter.
 //     The fastest observed transitions (Norway ~8 y, Denmark ~5 y) are far
 //     slower. A collapse that repeats on every refit (Argentina) is *stable*,
-//     which is why refit_swing alone cannot catch it. A non-positive shape
-//     counts as collapsed too.
+//     which is why refit_swing alone cannot catch it. A curve without a valid
+//     S-shape counts as collapsed too: v2 <= 0, v1 >= 0 or a non-finite
+//     parameter (the span is NaN then, and NaN < 3 is false).
 //   • stale — the newest data point is more than FIT_STALE_MONTHS old, so the
 //     curve describes a market we no longer observe (Belgium Vans: 2023-03).
 // Excluded rows drop out of Thresholds, Durations, Time interval, the World
@@ -137,7 +142,7 @@ const FIT_PROVISIONAL_SWING = 5;    // years
 
 const FIT_COLLAPSE_SPAN     = 3;    // years from 10 % to 80 %
 
-const FIT_COLLAPSE_OBS      = 0.10; // observed (TTM) BEV share
+const FIT_COLLAPSE_OBS      = 0.80; // observed (TTM) BEV share a fast step must have reached
 
 const FIT_STALE_MONTHS      = 12;
 
@@ -166,7 +171,8 @@ function fitReliability(r, now){
   const span = fitSpan10to80(v1, v2);
   const reasons = [];
   if (swing > FIT_UNSETTLED_SWING) reasons.push('unsettled');
-  if (!(isFinite(v2) && v2 > 0) ||
+  const validShape = isFinite(v1) && v1 < 0 && isFinite(v2) && v2 > 0;
+  if (!validShape ||
       (span < FIT_COLLAPSE_SPAN && !(obs >= FIT_COLLAPSE_OBS))) reasons.push('collapsed');
   const dp = getDataPer(r).match(/^(\d{4})-(\d{2})$/);
   let ageMonths = NaN;

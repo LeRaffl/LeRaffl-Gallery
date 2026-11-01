@@ -61,6 +61,43 @@ const st = [api.statusTagFor(2020, new Date(Date.UTC(2026,9,1))), api.statusTagF
 console.log(JSON.stringify({ cuts, st, svg_ok: /<path d="M/.test(svg) && /tbp-hl/.test(svg) && /Early starter/.test(svg) }));
 """
 
+DEGENERATE_JS = r"""
+// Degenerate fits must not carry Status / Speed / Timing (Malta Buses, Greece HDV ...).
+const api = require(process.argv[1]).loadTagApi();
+const fs = require('fs');
+const now = new Date();
+const dp = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+const base = { t0: '2021', data_per: dp, refit_swing: '1' };
+const row = (country, v1, v2, obs, extra = {}) =>
+  ({ country, variant: 'Buses', v1: String(v1), v2: String(v2), ttm_bev_share: String(obs), ...base, ...extra });
+const rows = {
+  maltaLike:   row('Malta',   -1.756e-18, 24.57, 0.597),   // step in 7 months, data at 60 %
+  greeceLike:  row('Greece',  -2.53e-59,  71.23, 0.176),   // step in 3 months, data at 18 %
+  croatiaLike: row('Croatia', -5.85e-54,  64.87, 0.255),
+  romaniaLike: row('Romania', -1.53e-5,    7.73, 0.817),   // step the data has fully passed
+  healthy:     row('Healthy', -2.97e-8,    6.37, 0.075),   // ordinary S-curve
+  concave:     row('Concave', -0.1253,     0.806, 0.338),  // v2 <= 1: valid shape, no inflection
+  posV1:       row('PosV1',    0.5,        4.2,  0.30),    // no S-shape: span is NaN
+  negV2:       row('NegV2',   -6.17e79,   -131.5, 0.30),
+};
+const R = {};
+for (const [k, r] of Object.entries(rows)) {
+  const f = api.fitReliability(r, now);
+  R[k] = { status: f.status, reasons: f.reasons, span: f.span };
+}
+// the same rows through the whole pipeline: group of 5 Buses markets
+const all = ['maltaLike', 'greeceLike', 'croatiaLike', 'romaniaLike', 'healthy', 'concave', 'posV1']
+  .map(k => ({ ...rows[k], variant: k === 'concave' ? '' : 'Buses' }));
+const { enriched, cutoffs } = api.tagComputeAll(all, 0.8);
+R.eligible = Object.fromEntries(enriched.map(e => [e.country, e.eligible]));
+R.status = Object.fromEntries(enriched.map(e => [e.country, e.eligible && api.statusTagFor(e.t80) ? api.statusTagFor(e.t80).label : null]));
+R.pool = cutoffs.buses && cutoffs.buses.speed.n;
+// independence: Done + Slow is a legal pair on a healthy S-curve (docs/61)
+R.doneSlow = [api.statusTagFor(2020, new Date(Date.UTC(2026, 9, 1))).label,
+              api.speedTagFor(0.01, { ok: true, lo: 0.05, hi: 0.1 }).label];
+console.log(JSON.stringify(R));
+"""
+
 FILTER_JS = r"""
 // Sidebar tag filter (filter sidebar v2): assets/tag_system.js
 // tagFilterValue / tagFilterPasses / tagFilterCounts.
@@ -151,6 +188,22 @@ def main():
          "boxplot cut-offs == report cut-offs"),
         (bp["svg_ok"], "boxplot SVG renders with braces and highlight"),
         (bp["st"] == ["past", "ontrack", "late"], "status tag unchanged (80 % / 2035)"),
+    ]
+    dg = json.loads(node(["-e", DEGENERATE_JS, lib]))
+    collapsed = lambda k: dg[k]["status"] == "excluded" and "collapsed" in dg[k]["reasons"]
+    checks += [
+        (collapsed("maltaLike"), "degenerate: Malta-Buses-like step (obs 60 %) is collapsed"),
+        (collapsed("greeceLike") and collapsed("croatiaLike"), "degenerate: step at 18 % / 26 % observed is collapsed"),
+        (dg["romaniaLike"]["status"] == "ok", "degenerate: a step the data has fully passed (82 %) stays"),
+        (dg["healthy"]["status"] == "ok" and dg["concave"]["status"] == "ok", "degenerate: healthy and concave (v2 <= 1) fits stay"),
+        (collapsed("posV1") and dg["posV1"]["span"] is None, "degenerate: v1 >= 0 (span NaN) is collapsed"),
+        (collapsed("negV2"), "degenerate: v2 <= 0 is collapsed"),
+        (dg["eligible"] == {"Malta": False, "Greece": False, "Croatia": False, "Romania": True, "Healthy": True, "Concave": True, "PosV1": False},
+         "degenerate rows are not eligible for tags"),
+        (all(dg["status"][c] is None for c in ["Malta", "Greece", "Croatia", "PosV1"]) and dg["status"]["Romania"] == "Done",
+         "degenerate rows get no Done; Romania keeps it"),
+        (dg["pool"] == 2, "degenerate rows stay out of the speed pool (only Romania + Healthy count)"),
+        (dg["doneSlow"] == ["Done", "Slow"], "Status and Speed are independent: Done + Slow is a legal pair"),
     ]
     fl = json.loads(node(["-e", FILTER_JS, lib]))
     P, V = fl["pass"], fl["val"]

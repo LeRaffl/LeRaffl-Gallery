@@ -21,7 +21,7 @@ sections:
   - Status — where the fitted curve crosses 80% BEV share of new registrations. Done (already crossed), On track (by the end of 2035), Behind (after 2035). The same for every vehicle type.
   - Speed — the slope of the fitted curve at its steepest point. Fast = top quarter of the reference group, Slow = bottom quarter, Avg speed = the middle half.
   - Timing — the year the fitted curve crosses 10% BEV share. Markets still below 10% count with their projected year. Early starter = earliest quarter of the reference group, Late starter = latest quarter; the middle half carries no timing tag.
-  - Curves that show no transition get a single No transition tag, and fits that can't give a reliable year yet a single pill: Volatile curve when only the re-fit swing is too large (the curve keeps moving with every new month, nothing is wrong with it), Unreliable fit when it has collapsed or its data are stale. Neither counts towards any scale.
+  - Curves that show no transition get a single No transition tag, and fits that can't give a reliable year yet a single pill: Volatile curve when only the re-fit swing is too large (the curve keeps moving with every new month, nothing is wrong with it), Unreliable fit when it has collapsed (a near-vertical step the data has not reached, or no valid S-shape) or its data are stale. Neither counts towards any scale.
 processing:
 - title: Read every fitted curve
   text:
@@ -151,6 +151,35 @@ badge counts those two when changed from the default. The gallery has no sort
 control (removed 2026-10-17): always newest first (`GALLERY_SORT`). Feedback context records the chips as
 `tag_fit`, `tag_status`, `tag_speed`, `tag_timing` (`data-fb-group`); `sortField` / `sortDir` are no longer captured (older reports still carry them).
 
+## Independent tags and degenerate fits
+
+Status, Speed and Timing are three **independent** tags, each read from a
+different quantity (80% crossing / slope at the inflection / 10% crossing).
+Any combination can occur on a healthy S-curve, including *Done* + *Slow*
+(already crossed 80%, but with a gentle slope at the steepest point). That is
+by design and not a conflict. What can never coexist with them is a fit pill:
+*No transition*, *Volatile curve* and *Unreliable fit* replace all three.
+
+The tags are only as good as the curve, so a degenerate curve must not reach
+them. `fitReliability` (`assets/fit_core.js`) marks a fit *collapsed* (→
+*Unreliable fit*, no Status / Speed / Timing, left out of every scale) when
+
+1. it has no valid S-shape: `v2 ≤ 0`, `v1 ≥ 0` or a non-finite parameter (the
+   10→80% span is `NaN` then, which used to slip through the span test);
+2. it claims 10%→80% in under `FIT_COLLAPSE_SPAN` (3 years) while the observed
+   TTM share has not reached `FIT_COLLAPSE_OBS` (**80%**, was 10%, 2026-10-31).
+   A near-vertical step is only believable once the data has been through
+   it. With the old 10% limit, Greece HDV (17.6% observed, 3-month span),
+   Croatia Buses (25.5%, 3 months) and Malta Buses (59.7%, 7 months, a few
+   dozen vehicles) passed and were tagged *Done* + *Fast* although the
+   observed share was nowhere near 80%. Romania Buses (81.7%, 16 months)
+   stays tagged.
+
+Concave fits (`v2 ≤ 1`: Malta, Malta Vans, Nepal 3-Wheelers, Thailand
+3-Wheelers) have no inflection point, so they get no Speed tag
+(`tagSlopeAtInflection` is `NaN`) but keep Status and Timing: the curve is
+a valid, if unusual, shape and its 80% / 10% crossings are well-defined.
+
 ## Parent map (current)
 
 | Variant | Reference group |
@@ -187,4 +216,7 @@ line per variant, `--legacy` for the pre-v2 rules, `--json`).
   can load every function it names from index.html, the sidebar filter
   (OR within / AND across, facet counts, no transition, small groups,
   unselected start state) and the gallery *Show more* step.
+- The degenerate-fit guard has its own checks in `scripts/test_tag_system.py`
+  (synthetic rows shaped like Malta Buses, Greece HDV, Romania Buses and a
+  `v1 ≥ 0` row) so that a later `params.csv` refresh cannot break them.
 - `python scripts/build_source_pages.py --check` validates the front-matter.
