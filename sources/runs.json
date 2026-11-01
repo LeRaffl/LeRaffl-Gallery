@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-31T21:02:28Z",
+ "generated": "2026-11-01T11:28:45Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -411,17 +411,17 @@
   },
   {
    "date": "2026-03-15",
-   "label": "India (4-Wheelers)",
+   "label": "India",
    "base": "India",
-   "slug": "india_4-wheelers",
+   "slug": "india-wheelers",
    "period": "2026-01",
    "flag": "🇮🇳"
   },
   {
    "date": "2026-03-15",
-   "label": "India (Wheelers)",
+   "label": "India (4-Wheelers)",
    "base": "India",
-   "slug": "india-wheelers",
+   "slug": "india_4-wheelers",
    "period": "2026-01",
    "flag": "🇮🇳"
   },
@@ -7240,6 +7240,78 @@
    "slug": "thailand_hdv",
    "period": "2026-09",
    "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-11-01",
+   "label": "Portugal",
+   "base": "Portugal",
+   "slug": "portugal",
+   "period": "2026-10",
+   "flag": "🇵🇹"
+  },
+  {
+   "date": "2026-11-01",
+   "label": "Spain",
+   "base": "Spain",
+   "slug": "spain",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-01",
+   "label": "Spain (2-Wheelers)",
+   "base": "Spain",
+   "slug": "spain_2_wheelers",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-01",
+   "label": "Spain (Buses)",
+   "base": "Spain",
+   "slug": "spain_buses",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-01",
+   "label": "Spain (HDV)",
+   "base": "Spain",
+   "slug": "spain_hdv",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-01",
+   "label": "Spain (NonRental)",
+   "base": "Spain",
+   "slug": "spain_nonrental",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-01",
+   "label": "Spain (Rental)",
+   "base": "Spain",
+   "slug": "spain_rental",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-01",
+   "label": "Spain (Used)",
+   "base": "Spain",
+   "slug": "spain_used",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-01",
+   "label": "Spain (Vans)",
+   "base": "Spain",
+   "slug": "spain_vans",
+   "period": "2026-10",
+   "flag": "🇪🇸"
   }
  ]
 }
