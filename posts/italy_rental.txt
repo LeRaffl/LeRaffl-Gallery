@@ -1,11 +1,9 @@
-🇮🇹 Italy (Rental) - September 26 - BEV Trajectory
-8.1% BEV
-22.7% PHEV
-69.2% ICE (of which 48.6%p were HEV)
+🇮🇹 Italy (Rental) - October 26 - BEV Trajectory
+6.3% BEV
+30.2% PHEV
+63.5% ICE (of which 41.4%p were HEV)
 
 Trailing 12 months are:
 5.7% BEV
-18.6% PHEV
-75.7% ICE (of which 45.9%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+19.4% PHEV
+74.9% ICE (of which 45.8%p were HEV)

@@ -1,11 +1,9 @@
 🇮🇹 Italy (NonRental) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+4.6pp  BEV   (4.7% → 9.4%)
-+1.9pp  PHEV  (3.6% → 5.5%)
-+4.9pp  HEV   (44.1% → 48.9%)
-−11.4pp  ICE   (47.6% → 36.2%)
+Nov24–Oct25  vs  Nov25–Oct26
++4.6pp  BEV   (4.8% → 9.5%)
++2.0pp  PHEV  (3.8% → 5.8%)
++4.9pp  HEV   (44.5% → 49.4%)
+−11.5pp  ICE   (47.0% → 35.4%)
 
-If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2029-03.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2029-07.
