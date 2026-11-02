@@ -1,9 +1,9 @@
-🇵🇾 Paraguay - September 26 - BEV Trajectory
-6.5% BEV
-10.6% PHEV
-82.9% ICE (of which 9.8%p were HEV)
+🇵🇾 Paraguay - October 26 - BEV Trajectory
+5.2% BEV
+7.4% PHEV
+87.4% ICE (of which 12.9%p were HEV)
 
 Trailing 12 months are:
-3.7% BEV
-7.2% PHEV
-89.1% ICE (of which 11.0%p were HEV)
+3.9% BEV
+7.5% PHEV
+88.6% ICE (of which 11.8%p were HEV)
