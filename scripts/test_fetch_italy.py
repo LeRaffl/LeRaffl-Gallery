@@ -202,6 +202,24 @@ def test_latest_lcv_page_walks_index_pages() -> None:
         fi.http_get = real
 
 
+def test_unrae_urls_use_www_host() -> None:
+    # 2026-11: UNRAE's certificate only covers *.unrae.it, so https://unrae.it/...
+    # fails TLS verification.  Every URL we build or request must use www.
+    assert fi.STRUTTURA_INDEX.startswith("https://www.unrae.it/")
+    assert fi.to_www("https://unrae.it/files/a.pdf") == "https://www.unrae.it/files/a.pdf"
+    assert fi.to_www("https://www.unrae.it/files/a.pdf") == "https://www.unrae.it/files/a.pdf"
+    assert fi.to_www("https://example.com/unrae.it") == "https://example.com/unrae.it"
+    lcv = ('<a href="/dati-statistici/immatricolazioni/7775/'
+           'immatricolazioni-veicoli-commerciali-luglioagosto-2026">')
+    assert fi.find_lcv_pages(lcv) == ["https://www.unrae.it/dati-statistici/immatricolazioni/7775/"
+                                      "immatricolazioni-veicoli-commerciali-luglioagosto-2026"]
+    for host in ("unrae.it", "www.unrae.it"):
+        pdf = f'<a href="https://{host}/files/Struttura del mercato 2026.pdf">'
+        assert fi.find_struttura_pdf_url(pdf).endswith("/files/Struttura del mercato 2026.pdf")
+        assert fi.find_lcv_pdf_url(f'<a href="https://{host}/files/x.pdf">') is not None
+    assert fi.find_lcv_pdf_url('<a href="/files/x.pdf">') == "https://www.unrae.it/files/x.pdf"
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

@@ -78,8 +78,18 @@ import requests
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
 
-STRUTTURA_INDEX = "https://unrae.it/dati-statistici/immatricolazioni"
+STRUTTURA_INDEX = "https://www.unrae.it/dati-statistici/immatricolazioni"
 SOURCE          = "unrae.it"
+
+# UNRAE's TLS certificate only covers *.unrae.it, so the bare apex host
+# (https://unrae.it/...) fails certificate verification.  Always talk to www.
+UNRAE_BASE = "https://www.unrae.it"
+
+
+def to_www(url: str) -> str:
+    """Rewrite an apex unrae.it URL to www.unrae.it (cert covers *.unrae.it only)."""
+    return re.sub(r"^https?://unrae\.it(?=[/?#]|$)", UNRAE_BASE, url, flags=re.I)
+
 USER_AGENT      = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) BEV-Gallery-Bot"
 
 VARIANT_CONFIG: dict[str, dict] = {
@@ -119,13 +129,13 @@ def csv_has_period(csv_path: str, period: str, variant: str) -> bool:
 
 
 def http_get(url: str) -> str:
-    r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=30)
+    r = requests.get(to_www(url), headers={"User-Agent": USER_AGENT}, timeout=30)
     r.raise_for_status()
     return r.text
 
 
 def download_pdf(url: str, dest: Path) -> None:
-    r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=60)
+    r = requests.get(to_www(url), headers={"User-Agent": USER_AGENT}, timeout=60)
     r.raise_for_status()
     dest.write_bytes(r.content)
 
@@ -146,7 +156,7 @@ def pdf_to_text(pdf_path: Path) -> str:
 def find_latest_struttura(index_html: str) -> tuple[str, int, int]:
     """Return (detail_url, year, month) of the newest struttura bulletin."""
     pat = re.compile(
-        r'href="(https://unrae\.it/dati-statistici/immatricolazioni/\d+/'
+        r'href="(https?://(?:www\.)?unrae\.it/dati-statistici/immatricolazioni/\d+/'
         r'struttura-del-mercato-([a-z]+)-(\d{4}))"',
         re.IGNORECASE,
     )
@@ -165,7 +175,7 @@ def find_latest_struttura(index_html: str) -> tuple[str, int, int]:
 
 def find_struttura_pdf_url(detail_html: str) -> str:
     pat = re.compile(
-        r'href="(https://unrae\.it/files/[^"]*Struttura del mercato[^"]+\.pdf)"',
+        r'href="(https?://(?:www\.)?unrae\.it/files/[^"]*Struttura del mercato[^"]+\.pdf)"',
         re.IGNORECASE,
     )
     m = pat.search(detail_html)
@@ -266,7 +276,7 @@ def parse_pkw(text: str) -> tuple[dict, dict, dict]:
 # from each table's own title, never from the slug.
 
 _LCV_LINK = re.compile(
-    r'href="((?:https?://unrae\.it)?/dati-statistici/immatricolazioni/(\d+)/'
+    r'href="((?:https?://(?:www\.)?unrae\.it)?/dati-statistici/immatricolazioni/(\d+)/'
     r'immatricolazioni-veicoli-commerciali-[a-z-]*?\d{4})"',
     re.IGNORECASE,
 )
@@ -277,7 +287,7 @@ def find_lcv_pages(index_html: str) -> list[str]:
     found: dict[int, str] = {}
     for url, page_id in _LCV_LINK.findall(index_html):
         if url.startswith("/"):
-            url = "https://unrae.it" + url
+            url = UNRAE_BASE + url
         found[int(page_id)] = url
     return [found[k] for k in sorted(found, reverse=True)]
 
@@ -300,11 +310,11 @@ def find_latest_lcv_page() -> str | None:
 def find_lcv_pdf_url(detail_html: str) -> str | None:
     """The PDF attached to an LCV struttura page; None if the page has none
     (a handful of months were published without an attachment)."""
-    m = re.search(r'href="((?:https?://unrae\.it)?/files/[^"]+\.pdf)"', detail_html, re.I)
+    m = re.search(r'href="((?:https?://(?:www\.)?unrae\.it)?/files/[^"]+\.pdf)"', detail_html, re.I)
     if not m:
         return None
     url = m.group(1)
-    return "https://unrae.it" + url if url.startswith("/") else url
+    return UNRAE_BASE + url if url.startswith("/") else url
 
 
 # ── LCV parsing ────────────────────────────────────────────────────────────
@@ -466,7 +476,7 @@ TOP_MAX_INDEX_PAGES = 40
 TOP_RENAME_MIN = 500
 
 _MODEL_LIST_LINK = re.compile(
-    r'href="((?:https?://unrae\.it)?/dati-statistici/immatricolazioni/\d+/'
+    r'href="((?:https?://(?:www\.)?unrae\.it)?/dati-statistici/immatricolazioni/\d+/'
     r'immatricolazioni-(bev|phev)-per-modello-([a-z]+)-(\d{4}))"', re.IGNORECASE)
 _ML_TITLE = re.compile(
     r"FUORISTRADA\s+(BEV|PHEV)\s*-\s*(?:(\d+)\s*mesi|([a-z]+))\s+(\d{4})", re.IGNORECASE)
@@ -590,7 +600,7 @@ def find_model_lists(wanted: set[str] | None = None) -> dict[tuple[str, str], st
         for href, cls, mese, anno in _MODEL_LIST_LINK.findall(http_get(url)):
             if mese.lower() not in IT_MONTHS:
                 continue
-            href = "https://unrae.it" + href if href.startswith("/") else href
+            href = UNRAE_BASE + href if href.startswith("/") else href
             found.setdefault((cls.upper(), f"{anno}-{IT_MONTHS[mese.lower()]:02d}"), href)
         if wanted is None:
             if any(all((c, p) in found for c in TOP_CLASSES) for _, p in found):
