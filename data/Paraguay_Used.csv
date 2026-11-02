@@ -116,3 +116,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-07,monthly,Used,DNIT customs import declarations (datosabiertos.aduana.gov.py),0.0,0.0,33.0,4674.0,1043.0,1.0,5751.0,
 2026-08,monthly,Used,DNIT customs import declarations (datosabiertos.aduana.gov.py),8.0,2.0,13.0,2806.0,550.0,0.0,3379.0,
 2026-09,monthly,Used,DNIT customs import declarations (datosabiertos.aduana.gov.py),4.0,3.0,55.0,4101.0,912.0,0.0,5075.0,
+2026-10,monthly,Used,DNIT customs import declarations (datosabiertos.aduana.gov.py),2.0,4.0,64.0,5037.0,1030.0,0.0,6137.0,
