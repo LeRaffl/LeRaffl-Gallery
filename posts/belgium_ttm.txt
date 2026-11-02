@@ -2,8 +2,8 @@
 
 Oct24–Sep25  vs  Oct25–Sep26
 +5.5pp  BEV   (33.5% → 39.0%)
-−2.8pp  PHEV  (9.3% → 6.5%)
-+1.2pp  HEV   (29.4% → 30.5%)
-−3.9pp  ICE   (27.9% → 24.0%)
+−2.9pp  PHEV  (9.3% → 6.4%)
++2.5pp  HEV   (29.4% → 31.9%)
+−5.1pp  ICE   (27.9% → 22.7%)
 
 PHEV peaked at 16.4% in 2024-10 (declining for 23 months).

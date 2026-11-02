@@ -1,0 +1,6 @@
+🇧🇪 Belgium (HDV) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++0.3pp  BEV   (3.2% → 3.5%)
+−0.0pp  PHEV  (0.0% → 0.0%)
+−0.3pp  ICE   (96.8% → 96.5%)

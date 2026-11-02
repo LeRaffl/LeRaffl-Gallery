@@ -93,9 +93,9 @@ Uruguay,HDV,2026-09,BEV,false,false,,true,true
 Uruguay,Vans,2026-09,BEV,false,false,,true,true
 Uruguay,Whole,2026-09,BEV,false,false,,true,true
 Austria,HDV,2026-09,BEV,false,false,,false,false
-Belgium,Vans,2026-08,BEV,false,false,,true,true
-Belgium,HDV,2026-08,BEV,false,false,,true,true
-Belgium,Buses,2026-08,BEV,false,false,,true,true
+Belgium,Vans,2026-09,BEV,false,false,,true,true
+Belgium,HDV,2026-09,BEV,false,false,,true,true
+Belgium,Buses,2026-09,BEV,false,false,,true,true
 Bulgaria,Vans,2026-09,EV,true,true,,false,false
 Romania,Vans,2026-09,EV,true,true,,false,false
 Slovakia,Vans,2026-09,EV,true,true,,false,false
@@ -166,8 +166,8 @@ Latvia,Buses,2026-09,BEV,false,false,,true,true
 Estonia,Private,2026-09,BEV,false,false,,true,true
 Estonia,Industry,2026-09,BEV,false,false,,true,true
 Estonia,Used,2026-09,BEV,false,false,,false,false
-Belgium,Private,2026-08,BEV,false,false,,true,true
-Belgium,Industry,2026-08,BEV,false,false,,true,true
+Belgium,Private,2026-09,BEV,false,false,,true,true
+Belgium,Industry,2026-09,BEV,false,false,,true,true
 Austria,Resale,2026-09,BEV,false,false,,true,true
 Vietnam,Whole,2026-09,BEV,false,false,,false,false
 Malta,HDV,2026-09,EV,true,true,,false,false

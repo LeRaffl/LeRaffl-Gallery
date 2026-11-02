@@ -1,0 +1,9 @@
+🇧🇪 Belgium (Vans) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++2.0pp  BEV   (5.4% → 7.4%)
++1.9pp  PHEV  (0.5% → 2.4%)
++0.4pp  HEV   (4.6% → 5.0%)
+−4.3pp  ICE   (89.5% → 85.3%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2035-03.
