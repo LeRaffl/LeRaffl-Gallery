@@ -42,8 +42,18 @@ from pathlib import Path
 
 import requests
 
-STRUTTURA_INDEX = "https://unrae.it/dati-statistici/immatricolazioni"
+STRUTTURA_INDEX = "https://www.unrae.it/dati-statistici/immatricolazioni"
 SOURCE          = "unrae.it"
+
+# UNRAE's TLS certificate only covers *.unrae.it, so the bare apex host
+# (https://unrae.it/...) fails certificate verification.  Always talk to www.
+UNRAE_BASE = "https://www.unrae.it"
+
+
+def to_www(url: str) -> str:
+    """Rewrite an apex unrae.it URL to www.unrae.it (cert covers *.unrae.it only)."""
+    return re.sub(r"^https?://unrae\.it(?=[/?#]|$)", UNRAE_BASE, url, flags=re.I)
+
 USER_AGENT      = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) BEV-Gallery-Bot"
 RENTAL_CSV      = "data/Italy_Rental.csv"
 WHOLE_CSV       = "data/Italy.csv"
@@ -64,13 +74,13 @@ CSV_COLUMNS = [
 # ── HTTP helpers ──────────────────────────────────────────────────────────────
 
 def http_get(url: str) -> str:
-    r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=30)
+    r = requests.get(to_www(url), headers={"User-Agent": USER_AGENT}, timeout=30)
     r.raise_for_status()
     return r.text
 
 
 def download_pdf(url: str, dest: Path) -> None:
-    r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=60)
+    r = requests.get(to_www(url), headers={"User-Agent": USER_AGENT}, timeout=60)
     r.raise_for_status()
     dest.write_bytes(r.content)
 
@@ -88,10 +98,10 @@ def pdf_to_text(pdf_path: Path) -> str:
 
 # ── Discovery ─────────────────────────────────────────────────────────────────
 
-# Match both absolute (https://unrae.it/...) and relative (/dati-statistici/...)
+# Match both absolute (https://www.unrae.it/...) and relative (/dati-statistici/...)
 # URLs — historical pages returned by ?anno= filters use relative hrefs.
 _STRUTTURA_LINK = re.compile(
-    r'href="((?:https?://unrae\.it)?/dati-statistici/immatricolazioni/\d+/'
+    r'href="((?:https?://(?:www\.)?unrae\.it)?/dati-statistici/immatricolazioni/\d+/'
     r'struttura-del-mercato-([a-z]+)-(\d{4}))"',
     re.IGNORECASE,
 )
@@ -104,14 +114,14 @@ _MAX_PAGE = re.compile(
 
 def _parse_struttura_links(html: str) -> list[tuple[str, int, int]]:
     """Return [(detail_url, year, month), ...] for all struttura links in html.
-    Relative URLs are normalized to absolute https://unrae.it/... form.
+    Relative URLs are normalized to absolute https://www.unrae.it/... form.
     """
     results = []
     for url, mese, anno in _STRUTTURA_LINK.findall(html):
         m = IT_MONTHS.get(mese.lower())
         if m:
             if url.startswith("/"):
-                url = "https://unrae.it" + url
+                url = UNRAE_BASE + url
             results.append((url, int(anno), m))
     return results
 
@@ -143,7 +153,7 @@ def discover_all_bulletins(from_year: int) -> list[tuple[str, int, int]]:
     print(f"  Pagination: {max_page} page(s) total.")
 
     for page in range(2, max_page + 1):
-        url = f"https://unrae.it/dati-statistici/immatricolazioni?page={page}"
+        url = f"{STRUTTURA_INDEX}?page={page}"
         print(f"  Fetching page {page}/{max_page} …", end="\r", flush=True)
         _scrape(url)
         time.sleep(0.5)
@@ -232,7 +242,7 @@ def _parse_pkw(text: str) -> tuple[dict, dict] | None:
 
 def _find_struttura_pdf_url(detail_html: str) -> str:
     pat = re.compile(
-        r'href="(https://unrae\.it/files/[^"]*Struttura del mercato[^"]+\.pdf)"',
+        r'href="(https?://(?:www\.)?unrae\.it/files/[^"]*Struttura del mercato[^"]+\.pdf)"',
         re.IGNORECASE,
     )
     m = pat.search(detail_html)
