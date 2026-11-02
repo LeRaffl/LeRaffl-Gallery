@@ -1,0 +1,7 @@
+🇮🇱 Israel - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
+−7.5pp  BEV   (21.1% → 13.6%)
++13.9pp  PHEV  (10.5% → 24.3%)
++5.2pp  HEV   (28.4% → 33.6%)
+−11.5pp  ICE   (40.0% → 28.5%)

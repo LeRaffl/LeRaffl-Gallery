@@ -1,11 +1,9 @@
-🇮🇱 Israel - September 26 - BEV Trajectory
-19.8% BEV
-27.4% PHEV
-52.9% ICE (of which 32.9%p were HEV)
+🇮🇱 Israel - October 26 - BEV Trajectory
+18.2% BEV
+24.2% PHEV
+57.6% ICE (of which 33.5%p were HEV)
 
 Trailing 12 months are:
-13.4% BEV
-23.7% PHEV
-63.0% ICE (of which 33.5%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+13.6% BEV
+24.3% PHEV
+62.1% ICE (of which 33.6%p were HEV)
