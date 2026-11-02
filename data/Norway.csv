@@ -260,3 +260,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-07,monthly,Whole,ACEA,9387.0,56.0,96.0,15.0,63.0,0.0,9617.0,derived: ACEA Jan-Aug 2026 YTD minus Jan-Jun 2026 CSV rows minus Aug 2026 monthly (ACEA has no July release); Jan-Mar 2026 rows partly from ofv.no so fuel split may carry definition differences; https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
 2026-08,monthly,Whole,ACEA,13274.0,51.0,31.0,30.0,65.0,0.0,13451.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
 2026-09,monthly,Whole,OFV,18511,32,99,14,77,0,18733,https://ofv.no/aktuelt/sterk-vekst-i-nybilregistreringene-i-september-opp-30-prosent
+2026-10,monthly,Whole,OFV,15536,33,53,14,89,0,15725,https://ofv.no/aktuelt/flest-nye-biler-i-en-oktober-pa-over-30-ar-mer-enn-en-av-fem-er-kinesisk
