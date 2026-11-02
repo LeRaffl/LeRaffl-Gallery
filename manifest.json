@@ -82,6 +82,126 @@
       "country_slug": "israel_vans"
     },
     {
+      "country": "Italy",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_ICE_BEV_20261102.png",
+      "url": "images/2026-10/italy_ICE_BEV_20261102.png",
+      "alt": "Italy ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_20261102.png",
+      "url": "images/2026-10/italy_20261102.png",
+      "alt": "Italy BEV trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_time_20261102.png",
+      "url": "images/2026-10/italy_time_20261102.png",
+      "alt": "Italy Transition time curve",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_ttm_shares_20261102.png",
+      "url": "images/2026-10/italy_ttm_shares_20261102.png",
+      "alt": "Italy TTM market split graph",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy (NonRental)",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_nonrental_ICE_BEV_20261102.png",
+      "url": "images/2026-10/italy_nonrental_ICE_BEV_20261102.png",
+      "alt": "Italy (NonRental) ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy_nonrental"
+    },
+    {
+      "country": "Italy (NonRental)",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_nonrental_20261102.png",
+      "url": "images/2026-10/italy_nonrental_20261102.png",
+      "alt": "Italy (NonRental) BEV trajectory",
+      "country_slug": "italy_nonrental"
+    },
+    {
+      "country": "Italy (NonRental)",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_nonrental_time_20261102.png",
+      "url": "images/2026-10/italy_nonrental_time_20261102.png",
+      "alt": "Italy (NonRental) Transition time curve",
+      "country_slug": "italy_nonrental"
+    },
+    {
+      "country": "Italy (NonRental)",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_nonrental_ttm_shares_20261102.png",
+      "url": "images/2026-10/italy_nonrental_ttm_shares_20261102.png",
+      "alt": "Italy (NonRental) TTM market split graph",
+      "country_slug": "italy_nonrental"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_rental_ICE_BEV_20261102.png",
+      "url": "images/2026-10/italy_rental_ICE_BEV_20261102.png",
+      "alt": "Italy (Rental) ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy_rental"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_rental_20261102.png",
+      "url": "images/2026-10/italy_rental_20261102.png",
+      "alt": "Italy (Rental) BEV trajectory",
+      "country_slug": "italy_rental"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_rental_time_20261102.png",
+      "url": "images/2026-10/italy_rental_time_20261102.png",
+      "alt": "Italy (Rental) Transition time curve",
+      "country_slug": "italy_rental"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "italy_rental_ttm_shares_20261102.png",
+      "url": "images/2026-10/italy_rental_ttm_shares_20261102.png",
+      "alt": "Italy (Rental) TTM market split graph",
+      "country_slug": "italy_rental"
+    },
+    {
       "country": "Norway",
       "type": "ICE_BEV",
       "period": "2026-10",
