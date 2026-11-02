@@ -2,6 +2,46 @@
   "updated": "2026-11-02",
   "images": [
     {
+      "country": "Norway",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "norway_ICE_BEV_20261102.png",
+      "url": "images/2026-10/norway_ICE_BEV_20261102.png",
+      "alt": "Norway ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "norway_20261102.png",
+      "url": "images/2026-10/norway_20261102.png",
+      "alt": "Norway BEV trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "norway_time_20261102.png",
+      "url": "images/2026-10/norway_time_20261102.png",
+      "alt": "Norway Transition time curve",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-02",
+      "filename": "norway_ttm_shares_20261102.png",
+      "url": "images/2026-10/norway_ttm_shares_20261102.png",
+      "alt": "Norway TTM market split graph",
+      "country_slug": "norway"
+    },
+    {
       "country": "Portugal",
       "type": "ICE_BEV",
       "period": "2026-10",
