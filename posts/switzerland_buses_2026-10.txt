@@ -1,0 +1,9 @@
+🇨🇭 Switzerland (Buses) - October 26 - BEV Trajectory
+75.4% BEV
+4.6% Hybrid
+20.0% ICE
+
+Trailing 12 months are:
+50.2% BEV
+14.3% Hybrid
+35.5% ICE

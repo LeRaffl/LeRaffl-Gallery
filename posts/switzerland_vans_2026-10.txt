@@ -1,0 +1,9 @@
+🇨🇭 Switzerland (Vans) - October 26 - BEV Trajectory
+19.2% BEV
+4.9% PHEV
+75.8% ICE (of which 0.8%p were HEV)
+
+Trailing 12 months are:
+17.7% BEV
+3.5% PHEV
+78.8% ICE (of which 0.8%p were HEV)

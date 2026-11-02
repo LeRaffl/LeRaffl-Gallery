@@ -1,11 +1,9 @@
 🇨🇭 Switzerland (Vans) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+4.8pp  BEV   (12.7% → 17.4%)
-+1.7pp  PHEV  (1.5% → 3.2%)
-+0.6pp  HEV   (0.1% → 0.8%)
-−7.1pp  ICE   (85.7% → 78.5%)
+Nov24–Oct25  vs  Nov25–Oct26
++4.4pp  BEV   (13.2% → 17.7%)
++1.9pp  PHEV  (1.5% → 3.5%)
++0.6pp  HEV   (0.2% → 0.8%)
+−7.0pp  ICE   (85.1% → 78.0%)
 
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2033-07.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2034-08.

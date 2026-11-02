@@ -1,12 +1,10 @@
 🇨🇭 Switzerland - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+5.3pp  BEV   (21.2% → 26.5%)
-+1.7pp  PHEV  (10.3% → 12.0%)
-−0.9pp  HEV   (36.2% → 35.3%)
-−6.2pp  ICE   (32.4% → 26.2%)
+Nov24–Oct25  vs  Nov25–Oct26
++6.0pp  BEV   (21.4% → 27.4%)
++1.4pp  PHEV  (10.6% → 12.0%)
+−1.0pp  HEV   (36.2% → 35.1%)
+−6.3pp  ICE   (31.8% → 25.5%)
 
-HEV peaked at 36.2% in 2025-08 (declining for 13 months).
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-01.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+HEV peaked at 36.4% in 2025-08 (declining for 14 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-10.

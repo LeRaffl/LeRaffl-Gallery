@@ -1,0 +1,10 @@
+🇨🇭 Switzerland (Buses) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++7.1pp  BEV   (43.1% → 50.2%)
+−0.4pp  PHEV  (0.4% → 0.0%)
++6.6pp  HEV   (7.7% → 14.3%)
+−13.3pp  ICE   (48.8% → 35.5%)
+
+PHEV peaked at 0.4% in 2025-06 (declining for 16 months).
+HEV peaked at 22.8% in 2024-11 (declining for 23 months).

@@ -1,11 +1,9 @@
-🇨🇭 Switzerland - September 26 - BEV Trajectory
-35.7% BEV
-10.8% PHEV
-53.5% ICE (of which 32.6%p were HEV)
+🇨🇭 Switzerland - October 26 - BEV Trajectory
+34.9% BEV
+12.3% PHEV
+52.9% ICE (of which 32.8%p were HEV)
 
 Trailing 12 months are:
-26.5% BEV
+27.4% BEV
 12.0% PHEV
-61.5% ICE (of which 35.3%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+60.6% ICE (of which 35.1%p were HEV)
