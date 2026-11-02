@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-01T20:11:28Z",
- "today": "2026-11-01",
+ "generated": "2026-11-02T12:50:44Z",
+ "today": "2026-11-02",
  "countries": [
   {
    "country": "Albania",
@@ -306,10 +306,10 @@
    "cadence_text": "daily at 17:10 UTC on the 2nd–20th; DIV writes a month's file on the 2nd of the following month (~16:00 UTC)",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3086,11 +3086,11 @@
    "source_url": "https://ofv.no/statistikk",
    "cadence_text": "twice daily on the 1st–12th, 07:10 and 15:10 UTC — OFV publishes month M early on the first working day of M+1 (September 2026 on 1 October, 05:37 UTC)",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3128,14 +3128,14 @@
     ],
     "workflow": ".github/workflows/fetch-norway.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-02",
    "flag": "🇳🇴",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2005-01",
-     "rows": 261,
+     "rows": 262,
      "cadence": "monthly",
      "in_repo": true
     },
