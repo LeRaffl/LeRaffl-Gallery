@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-02T12:50:44Z",
- "today": "2026-11-02",
+ "generated": "2026-11-03T12:18:39Z",
+ "today": "2026-11-03",
  "countries": [
   {
    "country": "Albania",
@@ -353,7 +353,7 @@
     ],
     "workflow": ".github/workflows/fetch-belgium.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-11-02",
    "flag": "🇧🇪",
    "variants": [
     {
@@ -366,41 +366,41 @@
     },
     {
      "name": "Private",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2013-01",
-     "rows": 164,
+     "rows": 165,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2013-01",
-     "rows": 164,
+     "rows": 165,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2013-01",
-     "rows": 164,
+     "rows": 165,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2013-01",
-     "rows": 164,
+     "rows": 165,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2013-01",
-     "rows": 164,
+     "rows": 165,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2139,10 +2139,10 @@
    "source_url": "https://data.gov.il/dataset/private-and-commercial-vehicles",
    "cadence_text": "daily 08:00 UTC, 10th–20th of the month; self-throttles once the previous month is in",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-09",
-   "behind": 0,
-   "behind_now": 1,
+   "behind": -1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -2179,22 +2179,22 @@
     ],
     "workflow": ".github/workflows/fetch-israel.yml"
    },
-   "last_render": "2026-10-05",
+   "last_render": "2026-11-02",
    "flag": "🇮🇱",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2017-01",
-     "rows": 117,
+     "rows": 118,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2017-01",
-     "rows": 117,
+     "rows": 118,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2208,11 +2208,11 @@
    "source_url": "https://unrae.it/dati-statistici",
    "cadence_text": "passenger 4×/day on the 1st–3rd; vans 3×/day on the 8th–16th",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2252,30 +2252,30 @@
     ],
     "workflow": ".github/workflows/fetch-italy.yml"
    },
-   "last_render": "2026-10-01",
+   "last_render": "2026-11-02",
    "flag": "🇮🇹",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
+     "first": "2015-01",
+     "rows": 142,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Rental",
+     "latest": "2026-10",
      "first": "2015-01",
      "rows": 141,
      "cadence": "monthly",
      "in_repo": true
     },
     {
-     "name": "Rental",
-     "latest": "2026-09",
-     "first": "2015-01",
-     "rows": 140,
-     "cadence": "monthly",
-     "in_repo": true
-    },
-    {
      "name": "NonRental",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 140,
+     "rows": 141,
      "cadence": "monthly",
      "in_repo": true
     },
@@ -2994,10 +2994,10 @@
    "cadence_text": "twice daily on the 3rd–20th, 04:55 and 18:55 UTC — NZTA reloads the register once a month, accurate to the end of the previous month (September 2026 was loaded on 6 October)",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3173,11 +3173,11 @@
    "source_url": "https://datosabiertos.aduana.gov.py/ddaa/app/#/inicio",
    "cadence_text": "twice daily on the 1st–7th — the portal regenerates month M's files on the 1st of M+1",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3210,14 +3210,14 @@
     ],
     "workflow": ".github/workflows/fetch-paraguay.yml"
    },
-   "last_render": "2026-10-26",
+   "last_render": "2026-11-02",
    "flag": "🇵🇾",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2017-01",
-     "rows": 117,
+     "rows": 118,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3920,7 +3920,7 @@
     ],
     "workflow": ".github/workflows/fetch-spain.yml"
    },
-   "last_render": "2026-11-01",
+   "last_render": "2026-11-02",
    "flag": "🇪🇸",
    "variants": [
     {
@@ -4062,11 +4062,11 @@
    "source_url": "https://www.astra.admin.ch/de/fahrzeugdaten",
    "cadence_text": "twice daily on the 1st–6th — ASTRA posts the new snapshot on the 1st; a month is written once, from the first snapshot after it ends",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4098,46 +4098,46 @@
     ],
     "workflow": ".github/workflows/fetch-switzerland.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-11-02",
    "flag": "🇨🇭",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2010-01",
-     "rows": 201,
+     "rows": 202,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "2-Wheelers",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },

@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-02T12:50:44Z",
+ "generated": "2026-11-03T12:18:39Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7315,11 +7315,211 @@
   },
   {
    "date": "2026-11-02",
+   "label": "Belgium",
+   "base": "Belgium",
+   "slug": "belgium",
+   "period": "2026-09",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Belgium (Buses)",
+   "base": "Belgium",
+   "slug": "belgium_buses",
+   "period": "2026-09",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Belgium (HDV)",
+   "base": "Belgium",
+   "slug": "belgium_hdv",
+   "period": "2026-09",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Belgium (Industry)",
+   "base": "Belgium",
+   "slug": "belgium_industry",
+   "period": "2026-09",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Belgium (Private)",
+   "base": "Belgium",
+   "slug": "belgium_private",
+   "period": "2026-09",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Belgium (Vans)",
+   "base": "Belgium",
+   "slug": "belgium_vans",
+   "period": "2026-09",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Israel",
+   "base": "Israel",
+   "slug": "israel",
+   "period": "2026-10",
+   "flag": "🇮🇱"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Israel (Vans)",
+   "base": "Israel",
+   "slug": "israel_vans",
+   "period": "2026-10",
+   "flag": "🇮🇱"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Italy",
+   "base": "Italy",
+   "slug": "italy",
+   "period": "2026-10",
+   "flag": "🇮🇹"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Italy (NonRental)",
+   "base": "Italy",
+   "slug": "italy_nonrental",
+   "period": "2026-10",
+   "flag": "🇮🇹"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Italy (Rental)",
+   "base": "Italy",
+   "slug": "italy_rental",
+   "period": "2026-10",
+   "flag": "🇮🇹"
+  },
+  {
+   "date": "2026-11-02",
    "label": "Norway",
    "base": "Norway",
    "slug": "norway",
    "period": "2026-10",
    "flag": "🇳🇴"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Paraguay",
+   "base": "Paraguay",
+   "slug": "paraguay",
+   "period": "2026-10",
+   "flag": "🇵🇾"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Spain",
+   "base": "Spain",
+   "slug": "spain",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Spain (2-Wheelers)",
+   "base": "Spain",
+   "slug": "spain_2_wheelers",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Spain (Buses)",
+   "base": "Spain",
+   "slug": "spain_buses",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Spain (HDV)",
+   "base": "Spain",
+   "slug": "spain_hdv",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Spain (NonRental)",
+   "base": "Spain",
+   "slug": "spain_nonrental",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Spain (Rental)",
+   "base": "Spain",
+   "slug": "spain_rental",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Spain (Used)",
+   "base": "Spain",
+   "slug": "spain_used",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Spain (Vans)",
+   "base": "Spain",
+   "slug": "spain_vans",
+   "period": "2026-10",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Switzerland",
+   "base": "Switzerland",
+   "slug": "switzerland",
+   "period": "2026-10",
+   "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Switzerland (2-Wheelers)",
+   "base": "Switzerland",
+   "slug": "switzerland_2_wheelers",
+   "period": "2026-10",
+   "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Switzerland (Buses)",
+   "base": "Switzerland",
+   "slug": "switzerland_buses",
+   "period": "2026-10",
+   "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Switzerland (HDV)",
+   "base": "Switzerland",
+   "slug": "switzerland_hdv",
+   "period": "2026-10",
+   "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-11-02",
+   "label": "Switzerland (Vans)",
+   "base": "Switzerland",
+   "slug": "switzerland_vans",
+   "period": "2026-10",
+   "flag": "🇨🇭"
   }
  ]
 }
