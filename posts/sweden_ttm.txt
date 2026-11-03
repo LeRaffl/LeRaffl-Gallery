@@ -1,12 +1,10 @@
 🇸🇪 Sweden - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+5.7pp  BEV   (35.0% → 40.7%)
-−1.6pp  PHEV  (25.4% → 23.9%)
-−0.0pp  HEV   (8.1% → 8.1%)
-−4.1pp  ICE   (31.5% → 27.4%)
+Nov24–Oct25  vs  Nov25–Oct26
++6.9pp  BEV   (35.0% → 41.9%)
+−2.4pp  PHEV  (25.6% → 23.2%)
+−0.2pp  HEV   (8.1% → 7.9%)
+−4.3pp  ICE   (31.2% → 26.9%)
 
-PHEV peaked at 25.9% in 2026-01 (declining for 8 months).
-HEV peaked at 9.4% in 2024-10 (declining for 23 months).
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+PHEV peaked at 25.9% in 2026-01 (declining for 9 months).
+HEV peaked at 9.2% in 2024-11 (declining for 23 months).

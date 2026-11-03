@@ -1,0 +1,9 @@
+🇸🇪 Sweden - October 26 - BEV Trajectory
+49.0% BEV
+21.0% PHEV
+30.0% ICE (of which 6.8%p were HEV)
+
+Trailing 12 months are:
+41.9% BEV
+23.2% PHEV
+34.8% ICE (of which 7.9%p were HEV)

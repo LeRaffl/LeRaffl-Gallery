@@ -1,11 +1,9 @@
-🇸🇪 Sweden - September 26 - BEV Trajectory
-47.2% BEV
-21.3% PHEV
-31.5% ICE (of which 6.9%p were HEV)
+🇸🇪 Sweden - October 26 - BEV Trajectory
+49.0% BEV
+21.0% PHEV
+30.0% ICE (of which 6.8%p were HEV)
 
 Trailing 12 months are:
-40.7% BEV
-23.9% PHEV
-35.4% ICE (of which 8.1%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+41.9% BEV
+23.2% PHEV
+34.8% ICE (of which 7.9%p were HEV)
