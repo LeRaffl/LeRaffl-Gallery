@@ -375,6 +375,15 @@ def decode(raw: bytes) -> str:
         return raw.decode("cp1252")
 
 
+def sniff_delimiter(text: str) -> str:
+    """SRI switched the 2026 file from ';' to ',' (re-upload 2026-11-04).
+    Pick whichever of the two occurs more often in the header line (outside
+    quotes); ties and headers with neither fall back to ';'."""
+    line = text.lstrip("\ufeff").split("\n", 1)[0]
+    bare = re.sub(r'"[^"]*"', "", line)
+    return "," if bare.count(",") > bare.count(";") else ";"
+
+
 class YearFile:
     """One yearly file reduced to what the counting needs: every vehicle code
     (for the lookback) and, per code, its first processing date and catalogue
@@ -392,7 +401,7 @@ class YearFile:
     @classmethod
     def parse(cls, text: str, year: int, need_date: bool = True) -> "YearFile":
         yf = cls(year)
-        reader = csv.reader(io.StringIO(text), delimiter=";")
+        reader = csv.reader(io.StringIO(text), delimiter=sniff_delimiter(text))
         header = next(reader)
         idx = resolve_columns(header, need_date)
         yf.dated = "date" in idx

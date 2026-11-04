@@ -98,6 +98,28 @@ def test_every_header_layout_and_encoding():
     assert fe.decode(gzip.compress(raw)) == fe.decode(raw)
 
 
+def test_comma_delimited_2026():
+    """SRI re-uploaded 2026 comma-separated, AVALÚO quoted (real rows)."""
+    hdr = H2026.replace(";", ",")
+    rows = ['1084868,11194409,COMPRA LOCAL,KIA,TASMAN LX AC 2.2 CD 4X4 TA DIESEL,ECUADOR,2027,'
+            'CAMIONETA,DOBLE CABINA,LIVIANO,"39999,00",31/10/2026,PAR,2200,DIESEL,31/10/2026,'
+            'QUITO,AZU,,JURÍDICA',
+            '1,22,COMPRA LOCAL,BYD,"SEAL, 5P",CHINA,2026,AUTOMOVIL,SEDAN,LIVIANO,"40000,00",'
+            '2/10/2026,PAR,0,ELECTRICO,1/10/2026,QUITO,BLA,,NATURAL']
+    raw = ("\ufeff" + "\n".join([hdr] + rows) + "\n").encode("utf-8")
+    text = fe.decode(raw)
+    assert fe.sniff_delimiter(text) == ","
+    yf = fe.YearFile.parse(text, 2026)
+    assert yf.first["11194409"] == (dt.date(2026, 10, 31), "KIA", "TASMAN LX AC 2.2 CD 4X4 TA DIESEL",
+                                    "CAMIONETA", "DIESEL")
+    assert yf.first["22"][2] == "SEAL, 5P" and yf.bad_dates == 0
+    # semicolon files (2017-2025, old 2026) still detected, accented headers resolve
+    assert fe.sniff_delimiter(year_text([row("1", "24/06/2026")])) == ";"
+    assert fe.sniff_delimiter(H2017) == ";"
+    idx = fe.resolve_columns(hdr.split(","), True)
+    assert idx["code"] == 1 and idx["fuel"] == 14 and idx["date"] == 11
+
+
 def test_2017_is_lookback_only():
     r17 = ("6225675;256790;CHEVROLET;D-MAX CRDI 3.0 CD 4X2 TM DIESEL;ECUADOR;2018;LIVIANO;CAMIONETA;"
            "DOBLE CABINA;2999;DIESEL;PAR;BLA;;COMPRA LOCAL;12;12401;SANTA ELENA;12;29990")
