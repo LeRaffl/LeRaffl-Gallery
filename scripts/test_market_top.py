@@ -4,6 +4,8 @@ and the Spain / Malaysia fetchers that feed it). No network.
 
     python scripts/test_market_top.py
 """
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -48,7 +50,11 @@ def test_clean_and_guarded():
 
     def boom():
         raise KeyError("maker")
-    mt.guarded(boom)                                          # must not raise
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):                     # intentional: no CI annotation
+        mt.guarded(boom)                                      # must not raise
+    assert out.getvalue() == ("::warning title=top brands/models not refreshed::"
+                              "KeyError: 'maker'\n"), out.getvalue()
 
 
 def test_build_top_monthly_windows_and_months():
@@ -451,7 +457,11 @@ def test_finland_traficom():
     # A model table that disagrees with the makes drops only the designations.
     bad = _FakeTraficom()
     bad.SERIES = {"2026-07": {("04", "Tesla Model Y"): 10}}
-    b2, m2 = ff.collect_top(bad, "2026-08")
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):                     # intentional: no CI annotation
+        b2, m2 = ff.collect_top(bad, "2026-08")
+    assert out.getvalue() == ("::warning title=Finland designations skipped::"
+                              "2026-07 BEV: model series sum 10 vs makes 150\n"), out.getvalue()
     assert m2 == {} and b2["2026-07"][1] == 730
     # Scope check against the CSV: a BEV mismatch publishes nothing.
     with tempfile.TemporaryDirectory() as d:
