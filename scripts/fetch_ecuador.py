@@ -567,7 +567,18 @@ SEGMENT_ROWS = {"SUV": "SUV", "CAMIONETA": "CAMIONETA", "AUTOMOVIL": "AUTOMOVIL"
                 "TOTAL": "TOTAL"}
 
 
-def _table(text: str, head: str, rows: dict[str, str]) -> dict[str, dict[str, int]]:
+def _header_keys(line: str, head_re) -> list[str] | None:
+    hm = head_re.match(norm(line))
+    if not hm:
+        return None
+    cols = re.findall(r"(ENE-)?([A-Z]{3}) (\d{2})(?![\d/])", hm.group(1).split(" VAR ")[0])
+    if not cols or any(mon not in MES for _, mon, _ in cols):
+        return None
+    return [("ytd:" if ytd else "") + f"20{yy}-{MES[mon]:02d}" for ytd, mon, yy in cols]
+
+
+def _table(text: str, head: str, rows: dict[str, str],
+           month: str | None = None) -> dict[str, dict[str, int]]:
     """Parse one of the bulletin's small month tables:
 
         Energía   Ago 25  Ago 26  Ene-Ago 25  Ene-Ago 26
@@ -576,49 +587,67 @@ def _table(text: str, head: str, rows: dict[str, str]) -> dict[str, dict[str, in
 
     → {"2025-08": {...}, "2026-08": {...}, "ytd:2025-08": {...}, ...}. Thousands
     separators are "." or ","; a row whose cells do not all parse keeps only its
-    leading clean cells (the single months come first)."""
+    leading clean cells (the single months come first).
+
+    AEADE builds each bulletin from the previous month's template, and the
+    September 2026 PDF still carries the old August headers as hidden text, so
+    a table can have several header lines in a row. Then the one whose newest
+    single month is the bulletin's own `month` wins, else the last one; when
+    `month` is known and no header matches it, the labels conflict and a
+    ValueError is raised (the caller skips the cross-check with a warning)."""
     lines = [unicodedata.normalize("NFC", ln) for ln in text.splitlines()]
     head_re = re.compile(rf"^\s*{head}\b(.*)$", re.I)
-    for i, line in enumerate(lines):
-        hm = head_re.match(norm(line))
-        if not hm:
+    i = 0
+    while i < len(lines):
+        keys = _header_keys(lines[i], head_re)
+        if keys is None:
+            i += 1
             continue
-        cols = re.findall(r"(ENE-)?([A-Z]{3}) (\d{2})(?![\d/])", hm.group(1).split(" VAR ")[0])
-        if not cols:
-            continue
-        keys = []
-        for ytd, mon, yy in cols:
-            if mon not in MES:
+        group = [keys]
+        j = i + 1
+        while j < len(lines):
+            k2 = _header_keys(lines[j], head_re)
+            if k2 is None:
                 break
-            keys.append(("ytd:" if ytd else "") + f"20{yy}-{MES[mon]:02d}")
-        else:
-            out: dict[str, dict[str, int]] = {k: {} for k in keys}
-            for row in lines[i + 1:i + 14]:
-                r = norm(row)
-                label = next((lab for lab in sorted(rows, key=len, reverse=True)
-                              if r == lab or r.startswith(lab + " ")), None)
-                if label is None:
-                    continue
-                toks = r[len(label):].split()
-                if not toks or toks[0].endswith("%"):
-                    continue                      # a share-of-market line, not the table
-                for k, t in zip(keys, toks):
-                    if not NUM_TOKEN.match(t):
-                        break
-                    out[k][rows[label]] = int(re.sub(r"[.,]", "", t))
-                if label == "TOTAL":
+            group.append(k2)
+            j += 1
+        keys = group[-1]
+        if len(group) > 1:
+            singles = [[k for k in g if not k.startswith("ytd:")] for g in group]
+            if month:
+                match = [g for g, sg in zip(group, singles) if sg and max(sg) == month]
+                if not match:
+                    raise ValueError(f"conflicting {head} month headers {group}, "
+                                     f"none for the bulletin month {month}")
+                keys = match[-1]
+        out: dict[str, dict[str, int]] = {k: {} for k in keys}
+        for row in lines[j:j + 14]:
+            r = norm(row)
+            label = next((lab for lab in sorted(rows, key=len, reverse=True)
+                          if r == lab or r.startswith(lab + " ")), None)
+            if label is None:
+                continue
+            toks = r[len(label):].split()
+            if not toks or toks[0].endswith("%"):
+                continue                      # a share-of-market line, not the table
+            for k, t in zip(keys, toks):
+                if not NUM_TOKEN.match(t):
                     break
-            if any(out.values()):
-                return out
+                out[k][rows[label]] = int(re.sub(r"[.,]", "", t))
+            if label == "TOTAL":
+                break
+        if any(out.values()):
+            return out
+        i = j
     return {}
 
 
-def parse_bulletin(text: str) -> dict[str, dict[str, int]]:
+def parse_bulletin(text: str, month: str | None = None) -> dict[str, dict[str, int]]:
     """{period: {PETROL, DIESEL, HEV, BEV, TOTAL, WHOLE}} for every single
     month the bulletin's energy table shows (WHOLE = automóvil + SUV from the
     light-vehicle segment table, where present), plus "ytd:<period>" entries."""
-    energy = _table(text, "ENERGIA", ENERGY_ROWS)
-    segments = _table(text, "SEGMENTO", SEGMENT_ROWS)
+    energy = _table(text, "ENERGIA", ENERGY_ROWS, month)
+    segments = _table(text, "SEGMENTO", SEGMENT_ROWS, month)
     out = {k: dict(v) for k, v in energy.items() if v}
     for k, v in segments.items():
         if "SUV" in v and "AUTOMOVIL" in v and k in out:
@@ -667,7 +696,7 @@ def load_bulletin(session: requests.Session | None, args, target: str,
             p = Path(args.bulletin)
             raw = p.read_bytes()
             text = bulletin_text_from_pdf(raw) if raw[:4] == b"%PDF" else raw.decode("utf-8")
-            return parse_bulletin(text), p.name
+            return parse_bulletin(text, bulletin_month(p.name)), p.name
         if session is None:
             return None, "offline run without --bulletin"
         found = find_bulletins(session)
@@ -678,7 +707,7 @@ def load_bulletin(session: requests.Session | None, args, target: str,
         pick = target if target in usable else max(usable)
         r = session.get(found[pick], timeout=180)
         r.raise_for_status()
-        table = parse_bulletin(bulletin_text_from_pdf(r.content))
+        table = parse_bulletin(bulletin_text_from_pdf(r.content), pick)
         if not table:
             return None, f"{found[pick].rsplit('/', 1)[-1]}: energy table not found"
         return table, found[pick].rsplit("/", 1)[-1]
