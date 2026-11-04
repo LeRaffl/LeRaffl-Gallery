@@ -336,6 +336,43 @@ Total 8.513 10.339 48.659 4455..332134
 """
 
 
+# Real text of Boletin-de-Prensa-Septiembre-2026.pdf (pdfplumber): AEADE reused
+# the August template and the old headers survive as hidden text above the new.
+SEP_2026_DOUBLE = """Energía Ago 25 Ago 26 Ene-Ago 25 Ene-Ago 26
+Energía Sep 25 Sep 26 Ene-Sep 25 Ene-Sep 26
+\ue116
+GASOLINA 5.561 6.985 47.181 57.754
+DIESEL 3.362 3.984 25.450 32.554
+HIBRIDO 1.815 3.008 13.010 23.546
+ELECTRICO BEV 481 1.672 2.694 10.073
+Total 11.219 15.649 88.335 123.927
+Segmento Ago 25 Ago 26 Ene-Ago 25 Ene-Ago 26 Var Ene-Ago 26/25 Var Ago 26/25
+Segmento Sep 25 Sep 26 Ene-Sep 25 Ene-Sep 26 Var Ene-Sep 26/25 Var Sep 26/25
+\ue116
+SUV 5.391 8.064 43.757 63.543 45.2% 🡱 49.6% 🡱
+CAMIONETA 1.963 2.653 15.938 21.359 34% 🡱 35.2% 🡱
+AUTOMOVIL 1.928 2.598 14.714 20.111 36.7% 🡱 34.8% 🡱
+🡱 🡱
+Total 9.282 13.315 74.409 105.013 41.1% 43.4%
+"""
+
+
+def test_bulletin_double_header():
+    for month in ("2026-09", None):                              # own month, else last header
+        t = fe.parse_bulletin(SEP_2026_DOUBLE, month)
+        assert sorted(t) == ["2025-09", "2026-09", "ytd:2025-09", "ytd:2026-09"], (month, t)
+        assert t["2026-09"] == {"PETROL": 6985, "DIESEL": 3984, "HEV": 3008, "BEV": 1672,
+                                "TOTAL": 15649, "WHOLE": 8064 + 2598}
+        assert t["ytd:2026-09"]["TOTAL"] == 123927
+    try:
+        fe.parse_bulletin(SEP_2026_DOUBLE, "2026-10")
+    except ValueError as e:
+        assert "conflicting" in str(e)
+    else:
+        raise AssertionError("conflicting headers must not yield a table")
+    assert fe.parse_bulletin(AUG_2026, "2026-08") == fe.parse_bulletin(AUG_2026)
+
+
 def test_bulletin_tables():
     t = fe.parse_bulletin(AUG_2026)
     assert t["2026-08"] == {"PETROL": 6407, "DIESEL": 3532, "HEV": 3308, "BEV": 2034,
