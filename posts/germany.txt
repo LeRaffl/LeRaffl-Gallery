@@ -1,11 +1,9 @@
-🇩🇪 Germany - September 26 - BEV Trajectory
-34.5% BEV
-10.8% PHEV
-54.7% ICE (of which 27.7%p were HEV)
+🇩🇪 Germany - October 26 - BEV Trajectory
+37.0% BEV
+11.2% PHEV
+51.8% ICE (of which 26.5%p were HEV)
 
 Trailing 12 months are:
-25.8% BEV
-11.5% PHEV
-62.7% ICE (of which 28.5%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+27.2% BEV
+11.4% PHEV
+61.4% ICE (of which 28.3%p were HEV)

@@ -1,0 +1,9 @@
+🇩🇪 Germany - October 26 - BEV Trajectory
+37.0% BEV
+11.2% PHEV
+51.8% ICE (of which 26.5%p were HEV)
+
+Trailing 12 months are:
+27.2% BEV
+11.4% PHEV
+61.4% ICE (of which 28.3%p were HEV)
