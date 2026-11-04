@@ -1,0 +1,9 @@
+🇪🇨 Ecuador (Vans) - October 26 - BEV Trajectory
+0.3% BEV
+2.6% PHEV (of which 0.3%p were EREV)
+97.0% ICE (of which 3.8%p were HEV)
+
+Trailing 12 months are:
+0.4% BEV
+1.6% PHEV (of which 0.3%p were EREV)
+98.0% ICE (of which 3.1%p were HEV)

@@ -1,0 +1,7 @@
+🇪🇨 Ecuador (Vans) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++0.1pp  BEV   (0.3% → 0.4%)
++1.0pp  PHEV  (0.6% → 1.6%)
++0.4pp  HEV   (2.7% → 3.1%)
+−1.5pp  ICE   (96.4% → 94.9%)
