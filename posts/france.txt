@@ -1,11 +1,9 @@
-🇫🇷 France - September 26 - BEV Trajectory
-41.1% BEV
-6.4% PHEV
-52.5% ICE (of which 36.2%p were HEV)
+🇫🇷 France - October 26 - BEV Trajectory
+40.7% BEV
+7.0% PHEV
+52.4% ICE (of which 36.7%p were HEV)
 
 Trailing 12 months are:
-29.4% BEV
+30.8% BEV
 6.4% PHEV
-64.3% ICE (of which 42.1%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+62.8% ICE (of which 41.6%p were HEV)

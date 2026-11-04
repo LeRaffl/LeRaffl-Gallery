@@ -1,0 +1,9 @@
+🇫🇷 France - October 26 - BEV Trajectory
+40.7% BEV
+7.0% PHEV
+52.4% ICE (of which 36.7%p were HEV)
+
+Trailing 12 months are:
+30.8% BEV
+6.4% PHEV
+62.8% ICE (of which 41.6%p were HEV)

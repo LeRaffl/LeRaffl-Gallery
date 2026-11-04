@@ -1,0 +1,11 @@
+🇫🇷 France - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++12.5pp  BEV   (18.4% → 30.8%)
+−0.7pp  PHEV  (7.1% → 6.4%)
+−1.3pp  HEV   (42.9% → 41.6%)
+−10.4pp  ICE   (31.6% → 21.1%)
+
+PHEV peaked at 8.4% in 2024-12 (declining for 22 months).
+HEV peaked at 43.9% in 2026-03 (declining for 7 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-04.
