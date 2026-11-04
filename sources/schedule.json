@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-03T19:43:50Z",
- "today": "2026-11-03",
+ "generated": "2026-11-04T12:28:54Z",
+ "today": "2026-11-04",
  "countries": [
   {
    "country": "Albania",
@@ -1150,11 +1150,11 @@
    "source_url": "https://www.datosabiertos.gob.ec/dataset/?organization=sri-servicio-de-rentas-internas&tags=Vehiculos+Nuevos",
    "cadence_text": "twice daily on the 1st–14th — SRI regenerates the current year's file early in the month (August 2026 on Sep 4)",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1194,22 +1194,22 @@
     ],
     "workflow": ".github/workflows/fetch-ecuador.yml"
    },
-   "last_render": "2026-10-26",
+   "last_render": "2026-11-04",
    "flag": "🇪🇨",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1442,10 +1442,10 @@
    "source_url": "https://www.statistiques.developpement-durable.gouv.fr/immatriculation-des-vehicules-routiers",
    "cadence_text": "monthly; SDES publishes the previous month ~3–4 weeks after month-end",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-09",
-   "behind": 0,
-   "behind_now": 1,
+   "behind": -1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -1485,14 +1485,14 @@
     ],
     "workflow": ".github/workflows/fetch-france.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-04",
    "flag": "🇫🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2011-01",
-     "rows": 189,
+     "rows": 190,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1575,10 +1575,10 @@
    "cadence_text": "fetched monthly, once KBA publishes the press release (typically the first week)",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,

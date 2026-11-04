@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-03T19:43:50Z",
+ "generated": "2026-11-04T12:28:54Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7536,6 +7536,30 @@
    "slug": "switzerland_used",
    "period": "2026-10",
    "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-11-04",
+   "label": "Ecuador",
+   "base": "Ecuador",
+   "slug": "ecuador",
+   "period": "2026-10",
+   "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-11-04",
+   "label": "Ecuador (Vans)",
+   "base": "Ecuador",
+   "slug": "ecuador_vans",
+   "period": "2026-10",
+   "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-11-04",
+   "label": "France",
+   "base": "France",
+   "slug": "france",
+   "period": "2026-10",
+   "flag": "🇫🇷"
   }
  ]
 }
