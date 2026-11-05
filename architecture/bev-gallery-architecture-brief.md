@@ -153,7 +153,7 @@
 | **Chart Images** | `images/<YYYY-MM>/<slug>_*.png` | PNG, 12.8×7.2 in @ 300 dpi (3840×2160 px für Trajektorie) | Render-Pipeline | Vier Plots pro Lauf: `<slug>.png`, `<slug>_ICE_BEV.png`, `<slug>_time.png`, `<slug>_ttm_shares.png`. `<slug>` = lower-case Country (+ Variant). Periode = neuester Datenpunkt. |
 | **Image Manifest** | `manifest.json` (Repo-Root) | JSON | Manifest Builder | Indexed array of all images: `{country, variant, period, date, filename, url, alt}`. Vom Frontend bei jedem Page-Load gefetcht. |
 | **Fleet Dataset** | `fleet/fleet_initial.csv`, `fleet_observed.csv`, `fleet_meta.json`, `hazard_defaults.csv` | CSV/JSON | Maintainer | Bestandsdaten + Hazard-Modell für Fleet-Tab. Eigener Datenkreis, separater Lifecycle. |
-| **Assets** | `assets/flags/<slug>.png`, `assets/fonts/fontawesome/otfs/*.otf`, `assets/variant/*.png` | Binary | Maintainer | Pro Land eine Flagge, FontAwesome OTF-Dateien für Caption-Icons (X, Bluesky, Buy-Me-a-Coffee). Werden zur Render-Zeit in die Plots eingebettet. |
+| **Assets** | `assets/flags/<slug>.png`, `assets/fonts/fontawesome/otfs/*.otf`, `assets/variant/*.png` | Binary | Maintainer | Pro Land eine Flagge, FontAwesome OTF-Dateien für Caption-Icons (X, Bluesky). Werden zur Render-Zeit in die Plots eingebettet. |
 | **Feedback Issues** | GitHub Issues mit Label `feedback` | GitHub Issues | öffentlich | Diskussions-Threads mit Labels für Kategorie (`question`/`bug`/`idea`/`data`/`comment`) und Status (`hidden`, `pinned`). |
 | **Submission PRs** | GitHub Pull Requests mit Branch `submit/<country>-<variant>-<timestamp>` | GitHub PRs | öffentlich vorgeschlagen, Maintainer entscheidet | Diff in genau einer `data/<Country>.csv` plus menschen-lesbarer Body mit Vorher/Nachher pro korrigierter Zeile. |
 | **Rate-Limit Counters** | Cloudflare KV Namespace `RATE_KV`, Keys `rl:<ip>` (Feedback) und `sub:<ip>` (Submit) | KV (TTL 1 h) | Worker | Counter pro IP zur Drosselung. |
@@ -250,7 +250,7 @@
 | Google Sheets | Legacy: Rohdaten-Quelle für Maintainer-lokalen R-Run | Maintainer | sinkt — wird durch `data/<Country>.csv` ersetzt |
 | ACEA (acea.auto) | Zukünftige primäre Multi-Land-Quelle (geplant) | ACEA | extern, wird gescraped |
 | Nationale Statistikquellen | Pro-Land-Rohdaten (KBA, ofv.no, statbank.dk, …) | jeweils national | extern, manuell ausgelesen |
-| X (twitter.com), Bluesky, Buy-Me-a-Coffee | Outbound-Promotion + Spenden | extern | nur als Caption-Links |
+| X (twitter.com), Bluesky | Outbound-Promotion + Spenden | extern | nur als Caption-Links |
 
 ---
 
