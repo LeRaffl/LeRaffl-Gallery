@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-04T12:28:54Z",
+ "generated": "2026-11-05T12:43:10Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7560,6 +7560,22 @@
    "slug": "france",
    "period": "2026-10",
    "flag": "🇫🇷"
+  },
+  {
+   "date": "2026-11-04",
+   "label": "Germany",
+   "base": "Germany",
+   "slug": "germany",
+   "period": "2026-10",
+   "flag": "🇩🇪"
+  },
+  {
+   "date": "2026-11-05",
+   "label": "Australia",
+   "base": "Australia",
+   "slug": "australia",
+   "period": "2026-10",
+   "flag": "🇦🇺"
   }
  ]
 }
