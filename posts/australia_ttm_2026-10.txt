@@ -1,0 +1,9 @@
+🇦🇺 Australia - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++10.2pp  BEV   (8.3% → 18.5%)
++4.8pp  PHEV  (4.0% → 8.8%)
++1.7pp  HEV   (15.9% → 17.6%)
+−16.7pp  ICE   (71.8% → 55.2%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-10.
