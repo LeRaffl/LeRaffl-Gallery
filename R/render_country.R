@@ -110,18 +110,15 @@ qr_img <- if (SHOW_QR) {
 # Caption: FA-icon caption requires showtext; if fonts missing we still produce
 # a readable plain caption so headless CI works.
 font_brands <- "assets/fonts/fontawesome/otfs/Font-Awesome-6-Brands-Regular-400.otf"
-font_custom <- "assets/fonts/fontawesome/otfs/icomoon.ttf"
-have_fonts <- file.exists(font_brands) && file.exists(font_custom)
+have_fonts <- file.exists(font_brands)
 social_caption <- if (have_fonts) {
   suppressPackageStartupMessages({ library(showtext); library(sysfonts) })
   try(font_add(family = "Font Awesome 6 Brands", regular = font_brands), silent = TRUE)
-  try(font_add(family = "CustomIcons", regular = font_custom), silent = TRUE)
   showtext_auto()
   # Match showtext's text-rendering DPI to ggsave's canvas DPI. Without this,
   # showtext renders at 96 dpi on a 300 dpi canvas → text comes out ~32% size.
   showtext_opts(dpi = 300)
   glue::glue(
-    "<span style='font-family:\"CustomIcons\";'>&#xe900;</span>",
     "<span style='font-family:\"Font Awesome 6 Brands\";'>&#xe61b;</span> <span style='color:#000000'>leraffl</span>",
     strrep(" ", 4),
     "<span style='font-family:\"Font Awesome 6 Brands\";'>&#xe671;</span> <span style='color:#000000'>leraffl.bsky.social </span>"
