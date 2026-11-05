@@ -1,11 +1,9 @@
-🇬🇧 UK - September 26 - BEV Trajectory
-28.3% BEV
-17.0% PHEV
-54.7% ICE (of which 13.1%p were HEV)
+🇬🇧 UK - October 26 - BEV Trajectory
+32.0% BEV
+15.0% PHEV
+53.0% ICE (of which 12.0%p were HEV)
 
 Trailing 12 months are:
-26.5% BEV
-13.6% PHEV
-59.8% ICE (of which 13.6%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+27.0% BEV
+13.8% PHEV
+59.2% ICE (of which 13.6%p were HEV)
