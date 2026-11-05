@@ -1,11 +1,8 @@
 🇫🇮 Finland (Private) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+14.0pp  BEV   (32.2% → 46.2%)
-−7.1pp  PHEV  (18.7% → 11.5%)
-+0.0pp  HEV   (0.0% → 0.0%)
-−6.9pp  ICE   (49.1% → 42.3%)
+Nov24–Oct25  vs  Nov25–Oct26
++16.4pp  BEV   (32.3% → 48.6%)
+−7.7pp  PHEV  (18.5% → 10.8%)
+−8.6pp  ICE   (49.2% → 40.6%)
 
-PHEV peaked at 19.0% in 2025-08 (declining for 13 months).
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+PHEV peaked at 19.0% in 2025-08 (declining for 14 months).

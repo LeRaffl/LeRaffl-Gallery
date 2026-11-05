@@ -1,0 +1,9 @@
+🇫🇮 Finland (Private) - October 26 - BEV Trajectory
+58.2% BEV
+8.4% PHEV
+33.4% ICE
+
+Trailing 12 months are:
+48.6% BEV
+10.8% PHEV
+40.6% ICE

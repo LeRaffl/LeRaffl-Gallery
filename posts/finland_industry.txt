@@ -1,11 +1,9 @@
-🇫🇮 Finland (Industry) - September 26 - BEV Trajectory
-65.3% BEV
-10.3% PHEV
-24.3% ICE
+🇫🇮 Finland (Industry) - October 26 - BEV Trajectory
+62.3% BEV
+11.6% PHEV
+26.1% ICE
 
 Trailing 12 months are:
-50.8% BEV
-15.7% PHEV
-33.5% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+52.2% BEV
+14.9% PHEV
+33.0% ICE
