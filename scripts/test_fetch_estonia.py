@@ -67,6 +67,18 @@ HDR_2026 = ["Kategooria", "Mark", "Mudel", "Tüüp", "Kere nimetus", "Keretüüp
             "Kütusekombinatsioon", "Mootori tüüp", "Mootori võimsus", "Mootori maht", "Heitmenorm",
             "Hübriidi tüüp", "CO2_NEDC", "CO2_WLTP", "Istekohti", "Maakond", "Linn",
             "Tüüp (isik)", "Arv"]
+# 2026-09: gearbox column added, owner still present before Arv.
+HDR_2026_GEARBOX = ["Kategooria", "Mark", "Mudel", "Tüüp", "Kere nimetus", "Keretüüp", "Esm reg aasta",
+                    "Kütusekombinatsioon", "Mootori tüüp", "Mootori võimsus", "Mootori maht",
+                    "Heitmenorm", "Hübriidi tüüp", "CO2_NEDC", "CO2_WLTP", "Istekohti",
+                    "Telgi kokku", "Registrimass", "Tühimass", "Täismass", "Värv",
+                    "Käigukasti tüüp", "Maakond", "Linn", "Tüüp (isik)", "Arv"]
+# 2026-10: owner / county columns dropped — Käigukasti tüüp sits just before Arv.
+HDR_2026_NO_OWNER = ["Kategooria", "Mark", "Mudel", "Tüüp", "Kere nimetus", "Keretüüp",
+                     "Esm reg aasta", "Kütusekombinatsioon", "Mootori tüüp", "Mootori võimsus",
+                     "Mootori maht", "Heitmenorm", "Hübriidi tüüp", "CO2_NEDC", "CO2_WLTP",
+                     "Istekohti", "Telgi kokku", "Registrimass", "Tühimass", "Täismass", "Värv",
+                     "Käigukasti tüüp", "Arv"]
 HDR_2024 = ["Kategooria", "Mark", "Mudel", "Kere nimetus", "Keretüüp", "Year of ESMANE_REG_KP",
             "Kütusekombinatsioon", "MOOTORI_TYYP", "MOOTORI_VOIMSUS", "HYBRIIDI_TYYP",
             "V.KAS/OM MAAKOND", "V.KAS/OM TYYP", "tk"]
@@ -80,11 +92,19 @@ def rec(hdr, **kw):
     for k, v in kw.items():
         if k in names:
             row[names[k]] = v
-    ie = next(i for i, c in enumerate(hdr) if c.lower().startswith("mootori") and
-              ("tüüp" in c.lower() or "tyyp" in c.lower()))
-    ih = next(i for i, c in enumerate(hdr) if c.lower().startswith(("hübriid", "hybriid")))
+    hn = [F.norm(c) for c in hdr]
+    ie = next(i for i, c in enumerate(hn) if c.startswith("mootori") and
+              ("tüüp" in c or "tyyp" in c))
+    ih = next(i for i, c in enumerate(hn) if c.startswith(("hübriid", "hybriid")))
+    ia = next(i for i, c in enumerate(hn) if c in ("arv", "tk"))
+    io = F.owner_col(hn, ia)
+    ig = next((i for i, c in enumerate(hn) if "käigukasti" in c or "kaigukasti" in c), None)
     row[ie], row[ih] = kw.get("engine"), kw.get("hybrid")
-    row[-2], row[-1] = kw.get("owner", "JURIIDILINE"), kw.get("n", 1)
+    if ig is not None:
+        row[ig] = kw.get("gearbox", "MANUAAL")
+    if io is not None:
+        row[io] = kw.get("owner", "JURIIDILINE")
+    row[ia] = kw.get("n", 1)
     return row
 
 
@@ -143,7 +163,8 @@ def workbook(hdr=HDR_2026, **kw):
 
 
 def test_layouts():
-    for label, hdr in (("2026", HDR_2026), ("2024", HDR_2024), ("2021", HDR_2021)):
+    for label, hdr in (("2026", HDR_2026), ("2026+gearbox", HDR_2026_GEARBOX),
+                       ("2024", HDR_2024), ("2021", HDR_2021)):
         m = F.build_month(F.read_sheets(workbook(hdr)))
         r = m["rows"]
         check(f"{label} Whole", {k: r["Whole"][k] for k in F.FUELS + ["TOTAL"]},
@@ -165,6 +186,42 @@ def test_layouts():
     u = m["rows"]["Used"]
     check("Used", u, {"BEV": 4, "HEV": 10, "PETROL": 7, "DIESEL": 19, "OTHERS": 0, "TOTAL": 40})
     check("Used has no PHEV column", "PHEV" in F.VARIANT_FUELS["Used"], False)
+
+
+def test_gearbox_not_owner():
+    """2026-10 dropped Tüüp (isik); Käigukasti tüüp must not be read as owner."""
+    # Header names alone: gearbox before count is not the owner column.
+    h = [F.norm(c) for c in HDR_2026_NO_OWNER]
+    ia = h.index("arv")
+    check("no-owner layout: owner_col is None", F.owner_col(h, ia), None)
+    check("gearbox+owner layout: owner is Tüüp (isik)",
+          F.owner_col([F.norm(c) for c in HDR_2026_GEARBOX],
+                      [F.norm(c) for c in HDR_2026_GEARBOX].index("arv")),
+          [F.norm(c) for c in HDR_2026_GEARBOX].index(F.norm("Tüüp (isik)")))
+
+    rows = [["Uued"], [], HDR_2026_NO_OWNER]
+    # One M1 row whose cell before Arv is AUTOMAAT — the 2026-11-06 failure mode.
+    row = rec(HDR_2026_NO_OWNER, cat="M1", brand="TESLA", model="MODEL Y", engine="ELEKTER",
+              n=10, gearbox="AUTOMAAT")
+    rows.append(row)
+    rows.append(rec(HDR_2026_NO_OWNER, cat="M1", brand="TOYOTA", model="COROLLA",
+                    engine="BENSIIN_HYBRIID", hybrid="NOVC_HEV", n=5, gearbox="MANUAAL"))
+    rows.append(rec(HDR_2026_NO_OWNER, cat="M1", brand="VW", model="GOLF", engine="DIISEL",
+                    n=3, gearbox="DCT"))
+    parsed = F.parse_new(rows)
+    check("gearbox not parsed as owner", {p["owner"] for p in parsed}, {None})
+    check("owners absent on every row", all(p["owner"] is None for p in parsed), True)
+
+    m = F.build_month(F.read_sheets(workbook(HDR_2026_NO_OWNER)))
+    r = m["rows"]
+    check("no-owner Whole still counted", r["Whole"]["TOTAL"], 15)
+    check("no-owner Private empty", r["Private"]["TOTAL"], 0)
+    check("no-owner Industry empty", r["Industry"]["TOTAL"], 0)
+    # Would have been ~96% unknown owner AUTOMAAT/MANUAAL/… before the fix.
+    check("no unknown owner gearbox labels",
+          any(str(lab).startswith("owner ") for _, labs in m["unknown"].values() for lab in labs),
+          False)
+    check("no-owner checks pass", F.check_failures(m["checks"]), [])
 
 
 def test_crosscheck():
