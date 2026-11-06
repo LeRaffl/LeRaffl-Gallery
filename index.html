@@ -3377,8 +3377,45 @@ h2 .fb-ctx-btn{
 .fx-row{margin:0 0 12px}
 .fx-lab{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
 .fx-country{position:relative}
-.fx-country input{width:100%;box-sizing:border-box;padding:8px 28px 8px 10px;border:1px solid var(--line-2);border-radius:3px;background:var(--surface-2,#fff);font-size:14px}
-.fx-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;font-size:18px;color:var(--muted);cursor:pointer}
+/* Gallery Country picker (single-select): Raw Data look — search + continent-
+   grouped list — with the same .country-field chrome as Region. The dropdown
+   is ported to document.body so the sidebar's overflow-y:auto cannot clip it. */
+.gal-cpick-sum{
+  display:block;width:100%;box-sizing:border-box;text-align:left;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  padding-right:34px; /* chevron, same as select.country-field */
+  background-image:var(--select-arrow);background-repeat:no-repeat;
+  background-position:right 12px center;background-size:12px 12px;
+  font:inherit; /* undo button UA styles; .country-field sets size/colour */
+}
+.fx-country.has-value .gal-cpick-sum{padding-right:52px} /* × sits left of chevron */
+.fx-country .fx-x{right:28px} /* left of the chevron */
+.fx-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;font-size:18px;color:var(--muted);cursor:pointer;line-height:1;padding:4px}
+.gal-cpick-box{
+  position:fixed;z-index:60;width:340px;max-height:330px;overflow:auto;
+  background:var(--surface-2);border:1px solid var(--line-3);border-radius:2px;padding:9px;
+  box-shadow:0 10px 28px rgba(0,0,0,.14);display:none
+}
+.gal-cpick-box.on{display:block}
+.gal-cpick-box input[type=search]{
+  width:100%;background:var(--surface-2);border:1px solid var(--line-3);color:var(--text);
+  border-radius:2px;padding:6px 9px;font:inherit;font-size:13px;margin-bottom:8px;box-sizing:border-box
+}
+.gal-cpick-h{
+  font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  padding:8px 6px 3px
+}
+.gal-cpick-h:first-child{padding-top:2px}
+.gal-cpick-opt{
+  display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--text);
+  padding:5px 8px;border-radius:2px;cursor:pointer;font:inherit;font-size:13.5px
+}
+.gal-cpick-opt:hover{background:rgba(255,255,255,.05)}
+.gal-cpick-opt.is-on{background:var(--accent-wash);color:var(--accent);font-weight:600}
+.gal-cpick-opt.is-variant{padding-left:16px;font-size:13px;color:var(--muted)}
+.gal-cpick-opt.is-variant.is-on{color:var(--accent)}
+.gal-cpick-empty{padding:10px 8px;color:var(--muted-2);font-size:12.5px}
+@media (max-width:760px){ .gal-cpick-box{width:min(340px,92vw)} }
 .side .chips.fx-pills{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px;margin:0}
 .side .fx-pills .chip, .side .fx-more .tag-filter .chip{padding:4px 9px;font-size:12.5px;border-radius:999px;gap:5px}
 .side .fx-pills .chip input{inline-size:.9rem;block-size:.9rem}
@@ -3438,7 +3475,7 @@ h2 .fb-ctx-btn{
   #tab-gallery .side .fx-tags .fx-tag,.fx-achip,.fx-clear{min-height:44px}
   #tab-gallery .side .fx-tags .fx-tag{font-size:11.5px;padding:0 12px}
   #tab-gallery .side .fx-tgroup{grid-template-columns:1fr}
-  #tab-gallery .side .fx-pills .chip,#tab-gallery .side .fx-toggle,#tab-gallery .side select,#tab-gallery .side input[type=search],#countryPick{min-height:44px}
+  #tab-gallery .side .fx-pills .chip,#tab-gallery .side .fx-toggle,#tab-gallery .side select,#tab-gallery .side input[type=search],#countryPickSum{min-height:44px}
   .fx-applied{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
   .fx-achip{flex:0 0 auto}
 }
@@ -3454,7 +3491,7 @@ h2 .fb-ctx-btn{
    are built by enhanceCountryMultiSelect, hence selector-based). */
 .country-field,
 .compare-slot,
-#countryPick,
+#countryPickSum,
 #sdCountry,
 #galHeroHomeSel,
 .country-picker__top input[type="search"],
@@ -3470,7 +3507,7 @@ h2 .fb-ctx-btn{
 }
 .country-field,
 .compare-slot,
-#countryPick,
+#countryPickSum,
 #sdCountry,
 #galHeroHomeSel,
 .country-picker__top input[type="search"]{
@@ -3487,7 +3524,17 @@ select.country-field,
   background-position:right 12px center;
   background-size:12px 12px;
 }
-#countryPick{ padding-right:28px; }             /* room for the × button */
+/* Gallery Country summary: chevron via .gal-cpick-sum; × via .fx-x when set.
+   Re-stated after the shared .country-field padding shorthand so the chevron
+   gutter is not collapsed back to 11px. */
+#countryPickSum.gal-cpick-sum{
+  padding-right:34px;
+  background-image:var(--select-arrow);
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:12px 12px;
+}
+.fx-country.has-value #countryPickSum.gal-cpick-sum{padding-right:52px}
 /* The Hero select used to stretch over the whole card. */
 #galHeroHomeSel{ width:auto; min-width:270px; max-width:100%; }
 .country-picker select[multiple]{ padding:6px 8px; }
@@ -3496,7 +3543,7 @@ select.country-field,
 /* Mobile: Raw Data's picker is 36px on mobile too (it has no mobile rule), so
    the country fields follow it instead of the gallery sidebar's 44px. */
 @media (max-width:880px){
-  #countryPick{ min-height:0; }
+  #countryPickSum{ min-height:0; }
 }
 /* Compare: same minimum width as the Raw Data picker. */
 .compare-slot{ min-width:270px; max-width:100%; }
@@ -4052,9 +4099,10 @@ const VIEW_START_YEAR = 2015;
              the tag chips visible by default; Month and Latest only folded
              under "More filters" (badge = active hidden settings).
              #countrySelect stays as the hidden source of truth that
-             applyFilters() reads; #countryPick drives it (data-fb-skip keeps
-             the proxy out of the feedback context). No sort control: the
-             gallery is always newest first (GALLERY_SORT). -->
+             applyFilters() reads; #countryPickSum opens a Raw-Data-style
+             search + continent-grouped list that drives it (data-fb-skip
+             keeps the proxy out of the feedback context). No sort control:
+             the gallery is always newest first (GALLERY_SORT). -->
         <div class="fx-search">
           <input id="search" type="search" autocomplete="off"
                  aria-label="Search charts by country, type or filename"
@@ -4067,11 +4115,19 @@ const VIEW_START_YEAR = 2015;
         </div>
 
         <div class="fx-row">
-          <label class="fx-lab" for="countryPick">Country</label>
-          <div class="fx-country">
-            <input id="countryPick" class="country-field" list="countryList" autocomplete="off" placeholder="All countries" data-fb-skip/>
-            <datalist id="countryList"></datalist>
+          <label class="fx-lab" for="countryPickSum">Country</label>
+          <div class="fx-country" id="galCountryPicker">
+            <button type="button" id="countryPickSum" class="country-field gal-cpick-sum"
+                    aria-haspopup="listbox" aria-expanded="false" aria-controls="countryPickBox"
+                    title="Filter charts to one country. Search and browse by continent; variants sit under their base country."
+                    data-fb-skip>All countries</button>
             <button type="button" id="countryClear" class="fx-x" hidden aria-label="Clear country">×</button>
+            <!-- Ported to document.body when opened so sidebar overflow cannot clip it. -->
+            <div id="countryPickBox" class="gal-cpick-box" hidden>
+              <input type="search" id="countryPickQ" placeholder="Search countries…"
+                     aria-label="Search countries" autocomplete="off" data-fb-skip/>
+              <div id="countryPickList" role="listbox" aria-label="Countries"></div>
+            </div>
           </div>
           <!-- original single-select, kept as the source of truth (hidden) -->
           <select id="countrySelect" hidden><option value="">All countries</option></select>
@@ -7513,7 +7569,11 @@ function passesTagFilter(country, filters){
 }
 loadManifest().then(({images})=>{
   const imgs = Array.isArray(images)?images:[]; if(!imgs.length){ empty.hidden=false; empty.textContent='No charts found. manifest.json loaded but contains no images.'; return; }
-  uniq(imgs.map(x=>x.country)).sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; countrySelect.append(o);});
+  uniq(imgs.map(x=>x.country)).sort().forEach(c=>{
+    // World (Interval …) images are leftover composite renders, not countries.
+    if(/^World\s*\(Interval\b/i.test(c)) return;
+    const o=document.createElement('option'); o.value=c; o.textContent=c; countrySelect.append(o);
+  });
   if(regionGal){ fillRankRegionSelect(regionGal, imgs); regionGal.options[0].textContent='All regions'; }
   const periods=uniq(imgs.map(x=>x.period).filter(Boolean)).sort(); if(periods.length){ periodSelect.hidden=false; periods.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=prettyPeriod(p); periodSelect.append(o);}); }
   const update=()=>{ const list=applyFilters(imgs); renderColumns(list); if(window.__fxTagUi) window.__fxTagUi(imgs, list.length);}; window.__fxRefresh=update; const reset=()=>{ rowsShown={}; update(); };
@@ -15923,31 +15983,180 @@ document.addEventListener('click', (e) => {
 </script>
 
 <script>
-/* Filter sidebar v2: the country picker and the sort dropdown drive the
-   hidden #countrySelect and fires its normal
-   'change' events; this block owns the tag-chip counts, the badge and
-   the applied-filters bar above the results. */
+/* Filter sidebar v2: the Gallery Country picker (search + continent-grouped
+   single-select, Raw Data look) drives the hidden #countrySelect and fires
+   its normal 'change' events; this block also owns the tag-chip counts, the
+   badge and the applied-filters bar above the results. */
 (function(){
   const $ = id => document.getElementById(id);
   document.addEventListener('DOMContentLoaded', () => {
-    const sel = $('countrySelect'), pick = $('countryPick'), list = $('countryList'), clr = $('countryClear');
-    if (!sel || !pick) return;
-    // mirror the country options (filled after manifest load)
+    const sel = $('countrySelect'), sum = $('countryPickSum'), box = $('countryPickBox');
+    const qIn = $('countryPickQ'), listEl = $('countryPickList'), clr = $('countryClear');
+    const wrap = $('galCountryPicker');
+    if (!sel || !sum || !box || !listEl) return;
     const regionSel = $('regionGal');
-    const sync = () => { const inR = rankRegionMatcher(regionSel ? regionSel.value : ''); list.innerHTML = [...sel.options].filter(o => o.value && inR(galleryRegionName(o.value))).map(o => `<option value="${o.value.replace(/"/g,'&quot;')}">`).join(''); };
-    new MutationObserver(sync).observe(sel, { childList: true }); sync();
-    const setCountry = v => { sel.value = v; sel.dispatchEvent(new Event('change')); pick.value = v; clr.hidden = !v; };
-    const match = () => [...sel.options].find(o => o.value && o.value.toLowerCase() === pick.value.trim().toLowerCase());
-    // A datalist pick fires 'input' with the full name: apply it at once.
-    pick.addEventListener('input', () => { const o = match(); if (o && o.value !== sel.value) setCountry(o.value); });
-    pick.addEventListener('change', () => { const o = match(); setCountry(o ? o.value : ''); });
-    clr.addEventListener('click', () => setCountry(''));
-    // Region narrows the country suggestions; a country picked earlier that
-    // lies outside the new region is dropped (it could only show 0 charts).
-    if (regionSel) regionSel.addEventListener('change', () => {
-      sync();
-      if (sel.value && !rankRegionMatcher(regionSel.value)(galleryRegionName(sel.value))) setCountry('');
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    const countryBase = c => String(c || '').replace(/\s*\(.*\)\s*$/, '').trim();
+    const isOpen = () => box.classList.contains('on');
+
+    const paintSum = () => {
+      const v = sel.value;
+      sum.textContent = v || 'All countries';
+      clr.hidden = !v;
+      wrap.classList.toggle('has-value', !!v);
+    };
+
+    const setCountry = v => {
+      const next = v || '';
+      if (sel.value !== next) {
+        sel.value = next;
+        sel.dispatchEvent(new Event('change'));
+      } else {
+        // Still refresh the chrome when re-picking the same value (e.g. clear).
+        sel.value = next;
+      }
+      paintSum();
+    };
+
+    const visibleCountries = () => {
+      const inR = rankRegionMatcher(regionSel ? regionSel.value : '');
+      return [...sel.options]
+        .map(o => o.value)
+        .filter(v => v && inR(galleryRegionName(v)));
+    };
+
+    // Continent order from RANK_REGION_CONTINENTS; within a continent, base
+    // name first then its "(Variant)" rows — not a flat alpha mash-up across
+    // continents, and not Albania / Albania (Buses) interleaved with others.
+    const groupCountries = (names) => {
+      const buckets = new Map();
+      (typeof RANK_REGION_CONTINENTS !== 'undefined' ? RANK_REGION_CONTINENTS
+        : ['Europe','North America','South America','Asia','Oceania','Africa','Other'])
+        .forEach(c => buckets.set(c, []));
+      names.forEach(n => {
+        const r = rankRegionOf(galleryRegionName(n));
+        if (!buckets.has(r)) buckets.set(r, []);
+        buckets.get(r).push(n);
+      });
+      const sortIn = arr => arr.slice().sort((a, b) => {
+        const ba = countryBase(a), bb = countryBase(b);
+        if (ba !== bb) return ba.localeCompare(bb);
+        const va = a !== ba, vb = b !== bb;
+        if (va !== vb) return va ? 1 : -1;
+        return a.localeCompare(b);
+      });
+      return [...buckets.entries()]
+        .filter(([, arr]) => arr.length)
+        .map(([r, arr]) => [r, sortIn(arr)]);
+    };
+
+    const paintList = () => {
+      const q = (qIn.value || '').trim().toLowerCase();
+      const names = visibleCountries().filter(n => {
+        if (!q) return true;
+        const alias = (typeof SEARCH_ALIASES !== 'undefined' && SEARCH_ALIASES[n]) || '';
+        return (n + ' ' + alias).toLowerCase().includes(q);
+      });
+      const groups = groupCountries(names);
+      let html = '';
+      // "All countries" stays available unless a search is narrowing the list
+      // to specific hits (then only matching rows show).
+      if (!q) {
+        html += `<button type="button" class="gal-cpick-opt${sel.value ? '' : ' is-on'}" role="option"`
+             + ` data-value="" aria-selected="${sel.value ? 'false' : 'true'}">All countries</button>`;
+      }
+      groups.forEach(([region, arr]) => {
+        html += `<div class="gal-cpick-h">${esc(region)}</div>`;
+        arr.forEach(n => {
+          const isVar = n !== countryBase(n);
+          const on = n === sel.value;
+          html += `<button type="button" class="gal-cpick-opt${on ? ' is-on' : ''}${isVar ? ' is-variant' : ''}"`
+               + ` role="option" data-value="${esc(n)}" aria-selected="${on ? 'true' : 'false'}">${esc(n)}</button>`;
+        });
+      });
+      if (!html) html = '<div class="gal-cpick-empty">No countries match.</div>';
+      listEl.innerHTML = html;
+    };
+
+    const placeBox = () => {
+      const r = sum.getBoundingClientRect();
+      const w = Math.max(r.width, 280);
+      let left = r.left;
+      if (left + w > window.innerWidth - 8) left = Math.max(8, window.innerWidth - w - 8);
+      let top = r.bottom + 6;
+      const maxH = 330;
+      if (top + Math.min(maxH, 200) > window.innerHeight && r.top > maxH + 20)
+        top = Math.max(8, r.top - 6 - Math.min(maxH, r.top - 8));
+      box.style.top = top + 'px';
+      box.style.left = left + 'px';
+      box.style.width = w + 'px';
+    };
+
+    const close = () => {
+      box.classList.remove('on');
+      box.hidden = true;
+      sum.setAttribute('aria-expanded', 'false');
+    };
+    const open = () => {
+      if (box.parentNode !== document.body) document.body.appendChild(box);
+      box.hidden = false;
+      box.classList.add('on');
+      sum.setAttribute('aria-expanded', 'true');
+      placeBox();
+      paintList();
+      // Focus search on open (desktop); keep the summary focused on touch? focus search.
+      try { qIn.focus({ preventScroll: true }); } catch (_) {}
+    };
+    const toggle = () => { if (isOpen()) close(); else open(); };
+
+    // Options arrive after manifest load — rebuild when #countrySelect fills.
+    new MutationObserver(() => { if (isOpen()) paintList(); paintSum(); })
+      .observe(sel, { childList: true });
+    paintSum();
+
+    sum.addEventListener('click', e => { e.preventDefault(); toggle(); });
+    sum.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      if (e.key === 'ArrowDown' && !isOpen()) { e.preventDefault(); open(); }
+      if (e.key === 'Escape' && isOpen()) { e.preventDefault(); close(); sum.focus(); }
     });
+    qIn.addEventListener('input', paintList);
+    qIn.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); close(); sum.focus(); }
+    });
+    listEl.addEventListener('click', e => {
+      const btn = e.target.closest('.gal-cpick-opt');
+      if (!btn) return;
+      setCountry(btn.getAttribute('data-value') || '');
+      close();
+      sum.focus({ preventScroll: true });
+    });
+    clr.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      setCountry('');
+      close();
+    });
+    // Capture phase: same reason as Raw Data — re-rendering the list would
+    // detach the click target before a bubble handler could keep the box open.
+    document.addEventListener('click', e => {
+      if (!isOpen()) return;
+      if (e.target.closest('#galCountryPicker') || e.target.closest('#countryPickBox')) return;
+      close();
+    }, true);
+    window.addEventListener('resize', () => { if (isOpen()) placeBox(); });
+    // Sidebar scroll would otherwise leave the fixed box behind.
+    const side = document.querySelector('#tab-gallery aside.side');
+    if (side) side.addEventListener('scroll', () => { if (isOpen()) placeBox(); }, { passive: true });
+    document.addEventListener('scroll', () => { if (isOpen()) placeBox(); }, true);
+
+    // Region narrows the country list; a country outside the new region is dropped.
+    const syncRegion = () => {
+      if (isOpen()) paintList();
+      if (sel.value && !rankRegionMatcher(regionSel.value)(galleryRegionName(sel.value)))
+        setCountry('');
+    };
+    if (regionSel) regionSel.addEventListener('change', syncRegion);
+
     // Tag chips (always visible): live counts + applied-filters bar.
     // "More filters" (Month, Latest only): badge + Clear. Called by the
     // gallery after every render.
@@ -15962,7 +16171,8 @@ document.addEventListener('click', (e) => {
       return PREFIXED.has(g.dataset.tagCat) ? `${g.dataset.groupLabel}: ${t}` : t; };
     const clearAll = () => {
       const ps = $('periodSelect'); if (ps.value) ps.value = '';
-      if (regionSel && regionSel.value) { regionSel.value = ''; sync(); }
+      if (regionSel && regionSel.value) { regionSel.value = ''; }
+      if (sel.value) setCountry('');
       chips.forEach(c => { c.checked = false; });
       fire(ps);                          // one re-render for everything
       $('search').focus({ preventScroll: true });
@@ -15987,9 +16197,11 @@ document.addEventListener('click', (e) => {
       badge.textContent = hiddenN; badge.hidden = !hiddenN; clearBtn.hidden = !hiddenN;
       badge.setAttribute('aria-label', `${hiddenN} changed`);
       const rg = regionSel && regionSel.value;
-      const n = on.length + (ps.value ? 1 : 0) + (rg ? 1 : 0);
+      const cv = sel.value;
+      const n = on.length + (ps.value ? 1 : 0) + (rg ? 1 : 0) + (cv ? 1 : 0);
       bar.replaceChildren();
       if (rg) bar.append(mk('Region: ' + regionSel.options[regionSel.selectedIndex].textContent, () => { regionSel.value = ''; fire(regionSel); }));
+      if (cv) bar.append(mk('Country: ' + cv, () => { setCountry(''); }));
       if (ps.value) bar.append(mk('Month: ' + ps.options[ps.selectedIndex].textContent, () => { ps.value = ''; fire(ps); }));
       on.forEach(c => { const b = mk(labelOf(c), () => { c.checked = false; fire(c); c.focus({ preventScroll: true }); });
         b.dataset.tone = c.parentNode.dataset.tone; bar.append(b); });
