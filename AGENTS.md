@@ -4,7 +4,7 @@ Guidance for any AI/LLM working with this repository.
 
 **What this repo is.** A public, fully client-side static site (GitHub Pages,
 <https://leraffl.github.io/LeRaffl-Gallery/>) that models and visualises the
-BEV / PHEV / ICE share of new-vehicle registrations across ~40+ countries:
+BEV / PHEV / ICE share of new-vehicle registrations across countries worldwide:
 per-country charts, a fitted generalized Weibull distribution ("S-curve") model,
 and interactive tools (Builder, Thresholds, Durations, World Map, Fleet).
 

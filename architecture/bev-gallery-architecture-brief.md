@@ -6,7 +6,7 @@
 
 ## 1. Zweck und Geschäftskontext
 
-**Was das System tut:** Veröffentlicht für ~30 Länder visuelle Extrapolationen zur Marktdurchdringung von Elektrofahrzeugen (BEV/PHEV/ICE) bei Neuzulassungen, basierend auf monatlichen Registrierungsdaten. Pro Land werden vier Charts erzeugt (BEV-Trajektorie, ICE/BEV/PHEV-Kombination, Transition-Time-Erwartung, 12-Monats-Trailing Marktanteile pro Antriebsart). Die Charts laufen auf einer öffentlichen GitHub-Pages-Seite, sind monatlich aktualisiert, und werden über soziale Medien (X, Bluesky) referenziert.
+**Was das System tut:** Veröffentlicht für ~61 Länder visuelle Extrapolationen zur Marktdurchdringung von Elektrofahrzeugen (BEV/PHEV/ICE) bei Neuzulassungen, basierend auf monatlichen Registrierungsdaten. Pro Land werden vier Charts erzeugt (BEV-Trajektorie, ICE/BEV/PHEV-Kombination, Transition-Time-Erwartung, 12-Monats-Trailing Marktanteile pro Antriebsart). Die Charts laufen auf einer öffentlichen GitHub-Pages-Seite, sind monatlich aktualisiert, und werden über soziale Medien (X, Bluesky) referenziert.
 
 **Wer es nutzt:**
 - **Öffentlichkeit / Datenjournalismus / Forschung:** Konsumiert Charts auf der Page, kann Threshold-Tabellen vergleichen, FAQs lesen, Feedback geben, Datenkorrekturen einreichen.
@@ -30,7 +30,7 @@
 | Maintainer (`LeRaffl`) | Human, autorisiert | Merge-Rechte, Action-Trigger, PAT-Inhaber |
 | GitHub Actions Runner | Automation | Führt Manifest-Build und Country-Render aus |
 | Cloudflare Worker | Automation, hosted | Vermittelt Page ↔ GitHub API |
-| ACEA (zukünftig) | Externe Datenquelle | Liefert Rohdaten für viele EU-Länder |
+| ACEA (live) | Externe Datenquelle | `fetch-acea.yml` (Whole) und `fetch-acea-cv.yml` (Vans/HDV/Buses) für viele EU-Länder |
 | Sonstige nationale Quellen | Externe Datenquelle | Pro-Land-spezifisch (KBA für DE, ofv.no für NO, JADA für JP, etc.) |
 
 ---
@@ -248,7 +248,7 @@
 | Cloudflare ↔ GitHub OAuth-App | Read-Access auf das Repo für Workers Builds (Code-Checkout zum Bauen). Kein Schreibzugriff. | Maintainer (granted), Cloudflare Inc. (Konsument) | medium — Revoke macht Auto-Deploy unmöglich, ohne den Worker selbst zu beeinflussen; lokaler `wrangler` bleibt nutzbar |
 | Posit Public Package Manager | R-Package-Quelle in CI | Posit | medium — Cache-fähig |
 | Google Sheets | Legacy: Rohdaten-Quelle für Maintainer-lokalen R-Run | Maintainer | sinkt — wird durch `data/<Country>.csv` ersetzt |
-| ACEA (acea.auto) | Zukünftige primäre Multi-Land-Quelle (geplant) | ACEA | extern, wird gescraped |
+| ACEA (acea.auto) | Multi-Land-Quelle für Whole (bedingt) und CV-Varianten | ACEA | extern; gescraped von `fetch-acea.yml` / `fetch-acea-cv.yml` |
 | Nationale Statistikquellen | Pro-Land-Rohdaten (KBA, ofv.no, statbank.dk, …) | jeweils national | extern, manuell ausgelesen |
 | X (twitter.com), Bluesky | Outbound-Promotion + Spenden | extern | nur als Caption-Links |
 
@@ -273,11 +273,10 @@
 
 ## 10. Was bewusst nicht (yet) im System ist
 
-- **Multi-Country-Submit:** Aktuell nur Germany hat eine `data/<Country>.csv`. Weitere Länder folgen sukzessive durch Export aus dem Maintainer-Sheet.
-- **ACEA-Scraper:** Geplant, noch nicht gebaut. Soll später als separater Worker oder GitHub Action wöchentlich ACEA-Press-Releases parsen und Submit-PRs vorschlagen.
 - **Auth/Login:** Nicht vorgesehen. Submitter sind anonym, Maintainer ist GitHub-User.
 - **Datenbank:** Nicht im Einsatz, alles file-basiert in Git. Audit-Trail = `git log data/<Country>.csv`.
-- **Per-Variant-CSV-Splits:** Aktuell ist `data/Germany.csv` nur für Variante "Whole". Worker-Code unterstützt schon `data/<Country>_<Variant>.csv` für Custom/HDV/Private/etc. — kommt sobald entsprechende CSVs entstehen.
+- **Ein Maintainer-Sheet als Primärquelle:** Die ~61 Country-CSVs unter `data/` (inkl. vieler `data/<Country>_<Variant>.csv` für Private/Industry/Rental/Used/Vans/HDV/Buses/…) kommen aus den Country-Fetch-Actions und Pflege-PRs — nicht mehr aus einem zentralen Sheet-Export.
+- **ACEA als einzige EU-Quelle:** `fetch-acea.yml` und `fetch-acea-cv.yml` laufen live, aber viele Länder haben inzwischen eigene Primärquellen; ACEA ist oft nur noch Fallback oder CV-Ergänzung.
 
 ---
 
