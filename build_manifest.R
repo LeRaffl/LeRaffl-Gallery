@@ -204,7 +204,17 @@ build_manifest <- function(root = "images",
   # deterministische Sortierung: neueste zuerst
   df <- df |>
     arrange(desc(date), country, type, filename)
-  
+
+  # Drop known leftover composite / misnamed series from the published
+  # manifest. PNGs stay on disk; India (4-Wheelers) is intentional and kept.
+  leftover <- grepl("^World \\(Interval\\b", df$country) |
+              grepl("^Germany \\(20260507 Git\\)$", df$country) |
+              grepl("^New Zealand \\(Legacy\\)$", df$country)
+  if (any(leftover)) {
+    message("Skipping ", sum(leftover), " leftover series from manifest")
+    df <- df[!leftover, , drop = FALSE]
+  }
+
   manifest <- list(updated = as.character(Sys.Date()), images = df)
   jsonlite::write_json(manifest, file.path(dirname(root), "manifest.json"),
                        auto_unbox = TRUE, pretty = TRUE)
