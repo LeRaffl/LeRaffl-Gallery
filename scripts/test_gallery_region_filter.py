@@ -3,6 +3,7 @@
 
     python scripts/test_gallery_region_filter.py
 """
+import re
 import sys
 from pathlib import Path
 
@@ -18,19 +19,22 @@ def check(name, cond):
 
 check("region select exists in the Gallery sidebar", 'id="regionGal"' in H)
 check("region row sits before the Country row",
-      0 < H.find('id="regionGal"') < H.find('for="countryPick"'))
+      0 < H.find('id="regionGal"') < H.find('for="countryPickSum"'))
 check("applyFilters uses the shared region matcher",
       "rankRegionMatcher(regionGal" in H and "if(!inRegion(galleryRegionName(it.country))) return false" in H)
 check("options filled with the shared helper", "fillRankRegionSelect(regionGal" in H)
 check("region change re-renders the gallery", "regionGal.addEventListener('change',reset)" in H)
-check("country suggestions follow the region", "inR(galleryRegionName(o.value))" in H)
+check("country list follows the region", "inR(galleryRegionName(v))" in H)
 check("applied bar shows a Region chip", "'Region: '" in H)
-check("Clear all resets the region", "regionSel.value = ''; sync();" in H)
+check("applied bar shows a Country chip", "'Country: '" in H)
+check("Clear all resets the region", "regionSel.value = '';" in H)
+check("Clear all resets the country", "if (sel.value) setCountry('');" in H)
 check("original country select still the source of truth", 'id="countrySelect" hidden' in H)
 check("split manifest names map to their base country",
       "function galleryRegionName(" in H and "inRegion(galleryRegionName(it.country))" in H
-      and "inR(galleryRegionName(o.value))" in H)
-import re
+      and "inR(galleryRegionName(v))" in H)
+check("World Interval leftovers excluded from country list",
+      "World (Interval" in H and "leftover composite" in H and "countrySelect.append" in H)
 _tag = re.search(r'<select[^>]*id="regionGal"[^>]*>', H)
 check("#regionGal uses the shared .country-field look (needs #377)", bool(_tag and "country-field" in _tag.group(0)))
 check("no separate .fx-region look left", "fx-region" not in H)

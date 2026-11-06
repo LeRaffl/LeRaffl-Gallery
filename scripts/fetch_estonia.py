@@ -16,7 +16,9 @@ the next month and never restated). Three sheets are read:
 1. **"Uued sõidukid"** — every *new* vehicle first registered in the month,
    aggregated to one row per identical vehicle (category, make, model, fuel
    combination, engine type, EU hybrid type OVC_HEV / NOVC_HEV, owner type
-   FÜÜSILINE / JURIIDILINE, …) with a count column ("Arv" / "tk"). Whole,
+   FÜÜSILINE / JURIIDILINE when present, …) with a count column ("Arv" / "tk").
+   Owner is matched by header name — never "column before count", because
+   "Käigukasti tüüp" (gearbox) can sit there. Whole,
    Private, Industry, Vans, HDV, Buses and the brand/model tables come from
    here. The hybrid-type column exists from the 2021-01 workbook on, so this
    source writes from 2021-01 (ACEA before).
@@ -238,12 +240,33 @@ def _header(rows: list[list], first: str, within: int = 10) -> int:
     raise ValueError(f"no header row starting with {first!r} — layout changed")
 
 
+def owner_col(headers: list[str], count_i: int) -> int | None:
+    """Index of the responsible-user / owner-type column, or None if absent.
+
+    Never the column immediately before the count: from 2026-09 the sheet also
+    carries "Käigukasti tüüp" (gearbox), and from 2026-10 Transpordiamet dropped
+    Maakond / Linn / Tüüp (isik), so that slot is the gearbox. Match by name:
+    "Tüüp (isik)", "V.KAS/OM TYYP", or the 2021 bare "Tüüp" only when it is
+    the cell just before the count (vehicle-type "Tüüp" sits earlier)."""
+    explicit = next((i for i, c in enumerate(headers)
+                     if c == "tüüpisik" or c.endswith("isik")
+                     or c == "vkastomtyyp"
+                     or (c.startswith("vkas") and "tyyp" in c)), None)
+    if explicit is not None:
+        return explicit
+    if count_i >= 1 and headers[count_i - 1] in ("tüüp", "tyyp"):
+        return count_i - 1
+    return None
+
+
 def parse_new(rows: list[list]) -> list[dict]:
     """"Uued sõidukid" → [{cat, brand, model, engine, hybrid, owner, n}].
 
     Header names moved over the years ("Mootori tüüp" / "MOOTORI_TYYP",
-    "Hübriidi tüüp" / "HYBRIIDI_TYYP", "Arv" / "tk"); the owner type is the
-    column just before the count ("Tüüp", "Tüüp (isik)", "V.KAS/OM TYYP")."""
+    "Hübriidi tüüp" / "HYBRIIDI_TYYP", "Arv" / "tk"). Owner type is found by
+    name ("Tüüp (isik)", "V.KAS/OM TYYP", 2021 bare "Tüüp"); when the column
+    is missing (2026-10 Infoleht), owner is None and Private/Industry stay
+    empty for that month — gearbox values must never be read as owner."""
     hi = _header(rows, "kategooria")
     h = [norm(c) for c in rows[hi]]
     counts = [i for i, c in enumerate(h) if c in ("arv", "tk")]
@@ -259,7 +282,7 @@ def parse_new(rows: list[list]) -> list[dict]:
     im = col(lambda c: c == "mudel")
     if ie is None or ih is None or ib is None or im is None:
         raise ValueError(f"'Uued sõidukid': missing engine/hybrid/make/model column in {h}")
-    io_ = ia - 1
+    io_ = owner_col(h, ia)
     out = []
     for r in rows[hi + 1:]:
         if not r or len(r) <= ia:
@@ -268,8 +291,9 @@ def parse_new(rows: list[list]) -> list[dict]:
         n = num(r[ia])
         if not cat or n is None or cat.startswith("KOKKU"):
             continue
+        owner = owner_code(r[io_]) if io_ is not None and io_ < len(r) else None
         out.append({"cat": cat, "brand": r[ib], "model": r[im], "engine": engine_code(r[ie]),
-                    "hybrid": up(r[ih]), "owner": owner_code(r[io_]), "n": n})
+                    "hybrid": up(r[ih]), "owner": owner, "n": n})
     if not out:
         raise ValueError("'Uued sõidukid': no vehicle rows")
     return out
@@ -346,10 +370,13 @@ def build_month(sheets: dict) -> dict:
             if "HYBRIID" in rec["engine"] and not rec["hybrid"]:
                 no_cat += n
             owner = rec["owner"]
-            if owner not in KNOWN_OWNER:
-                unknown["Private"][0] += n
-                unknown["Private"][1].add(f"owner {owner}")
-            rows["Private" if owner == PRIVATE_OWNER else "Industry"][cls] += n
+            if owner is None:
+                pass  # sheet has no owner column this month — skip Private/Industry
+            else:
+                if owner not in KNOWN_OWNER:
+                    unknown["Private"][0] += n
+                    unknown["Private"][1].add(f"owner {owner}")
+                rows["Private" if owner == PRIVATE_OWNER else "Industry"][cls] += n
             brand = display_brand(rec["brand"])
             units[(cls, brand, display_model(brand, rec["model"]))] += n
     used = zero()
@@ -635,6 +662,13 @@ def main() -> int:
         if m["no_category"]:
             print(f"  {p}: {m['no_category']} new car(s) with a hybrid engine but no EU "
                   "hybrid type → HEV")
+        if (m["rows"]["Whole"]["TOTAL"]
+                and not m["rows"]["Private"]["TOTAL"]
+                and not m["rows"]["Industry"]["TOTAL"]):
+            print(f"::warning title=Estonia {p} owner column missing::"
+                  "'Uued sõidukid' has no Tüüp (isik) / V.KAS/OM TYYP — "
+                  "Whole/Used/Vans/HDV/Buses will be written; Private and Industry skipped "
+                  "(gearbox column is not owner).")
     if problems:
         sys.exit("Governance check failed — not writing:\n  " + "\n  ".join(problems[:20]))
 
