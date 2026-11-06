@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-06T20:56:57Z",
+ "generated": "2026-11-06T21:57:30Z",
  "today": "2026-11-06",
  "countries": [
   {
@@ -2205,7 +2205,7 @@
    "slug": "italy",
    "method": "pdf",
    "source_name": "UNRAE — struttura del mercato PDF",
-   "source_url": "https://unrae.it/dati-statistici",
+   "source_url": "https://www.unrae.it/dati-statistici",
    "cadence_text": "passenger 4×/day on the 1st–3rd; vans 3×/day on the 8th–16th",
    "interval": "monthly",
    "latest_period": "2026-10",
