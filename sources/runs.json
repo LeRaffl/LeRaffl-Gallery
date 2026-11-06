@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-06T20:28:47Z",
+ "generated": "2026-11-06T20:35:28Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -96,14 +96,6 @@
    "slug": "finland",
    "period": "2026-01",
    "flag": "🇫🇮"
-  },
-  {
-   "date": "2026-02-09",
-   "label": "New Zealand (Legacy)",
-   "base": "New Zealand",
-   "slug": "newzealand_legacy",
-   "period": "2026-01",
-   "flag": "🇳🇿"
   },
   {
    "date": "2026-02-10",
@@ -360,14 +352,6 @@
    "slug": "australia",
    "period": "2026-02",
    "flag": "🇦🇺"
-  },
-  {
-   "date": "2026-03-09",
-   "label": "New Zealand (Legacy)",
-   "base": "New Zealand",
-   "slug": "newzealand_legacy",
-   "period": "2026-02",
-   "flag": "🇳🇿"
   },
   {
    "date": "2026-03-10",
@@ -798,14 +782,6 @@
    "label": "New Zealand",
    "base": "New Zealand",
    "slug": "newzealand",
-   "period": "2026-03",
-   "flag": "🇳🇿"
-  },
-  {
-   "date": "2026-04-06",
-   "label": "New Zealand (Legacy)",
-   "base": "New Zealand",
-   "slug": "newzealand_legacy",
    "period": "2026-03",
    "flag": "🇳🇿"
   },
@@ -1278,14 +1254,6 @@
    "label": "Germany",
    "base": "Germany",
    "slug": "germany",
-   "period": "2026-04",
-   "flag": "🇩🇪"
-  },
-  {
-   "date": "2026-05-07",
-   "label": "Germany (20260507 Git)",
-   "base": "Germany",
-   "slug": "germany_20260507_git",
    "period": "2026-04",
    "flag": "🇩🇪"
   },
