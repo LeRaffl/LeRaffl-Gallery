@@ -174,10 +174,15 @@ One workbook per month, never restated. The sheets keep their names; the columns
 |---|---|---|---|---|
 | 2021-01 … 2024-05, 2024-09 … 2025-11 (XLS) | `Mootori tüüp` | `Hübriidi tüüp` | `Tüüp` / `Tüüp (isik)` | `Arv` |
 | 2024-06 … 2024-08 (XLSX) | `MOOTORI_TYYP` | `HYBRIIDI_TYYP` | `V.KAS/OM TYYP` | `tk` |
-| 2025-12 … (XLSX) | `Mootori tüüp` | `Hübriidi tüüp` | `Tüüp (isik)` | `Arv` |
+| 2025-12 … (XLSX) | `Mootori tüüp` | `Hübriidi tüüp` | `Tüüp (isik)` when present (absent from 2026-10) | `Arv` |
 
-The owner type is always the column just before the count (the word "Tüüp" alone means the
-vehicle type in newer files, the owner type in 2021). Engine types are spelled
+Owner is matched by header name — never “column just before the count”:
+`Tüüp (isik)`, `V.KAS/OM TYYP`, or the 2021 bare `Tüüp` only when that cell is
+immediately before the count (vehicle-type `Tüüp` sits earlier). From 2026-10
+Transpordiamet dropped `Tüüp (isik)` from the Infoleht; the slot before the count
+is then `Käigukasti tüüp` (gearbox: `AUTOMAAT` / `MANUAAL`). If the owner column
+is missing, Private and Industry stay empty for that month; Whole, Used, Vans,
+HDV and Buses still write. Engine types are spelled
 `BENSIIN HÜBRIID` / `BENSIIN KAT` in 2021 and `BENSIIN_HYBRIID` /
 `BENSIIN_KATALYSAATOR` later; owner types `FÜÜSILINE` and (2024-06 … 08) `FYYSILINE` —
 `engine_code()` and `owner_code()` fold both. Workbooks before 2021 have no hybrid type
@@ -302,6 +307,7 @@ and model for used imports (only a top-10 of all first registrations).
 | `sheet 'uuedsõidukid' not found` / `no header row` / `missing engine/hybrid/make/model column` | a new workbook layout | open the workbook; extend `parse_new()` / `find_sheet()`; add the layout to `test_layouts` |
 | `cross-check failed — new passenger cars …` | a sheet cut off or a new category code | compare the sheet with the headline table by hand; a new category goes into `CATEGORY_VARIANT` / `PASSENGER` / `LORRY` / `BUS` |
 | `::warning New value … owner X` / `engine X` | a new owner or engine code | decide the mapping, add it to `KNOWN_OWNER` / `KNOWN_ENGINES` and a test case |
+| warning `'Uued sõidukid' has no Tüüp (isik) / V.KAS/OM TYYP` | Infoleht dropped the owner column (seen 2026-10; gearbox sits before count) | expected — Whole/Used/Vans/HDV/Buses still write; Private/Industry stay empty until the column returns |
 | `… N vehicles (x %) with unknown values` | many vehicles with a new code | as above — the run writes nothing until it is mapped |
 | `TOTAL … is x % of the trailing median` | a partial workbook, or a real shock (the 2025 car tax halved January) | check the headline table; `force` if genuine |
 | `kept (foreign source …)` | a row written by hand or another fetcher | inspect it; `force` only if Transpordiamet is right |
