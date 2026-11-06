@@ -11,7 +11,7 @@ source_url: https://www.datosabiertos.gob.ec/dataset/?organization=sri-servicio-
 source_links:
 - label: SRI yearly file (the URL pattern the fetcher reads; 2017 → current year)
   url: https://descargas.sri.gob.ec/download/datosAbiertos/SRI_Vehiculos_Nuevos_2026.csv
-  note: one ";"-separated CSV per calendar year, one row per processing of a vehicle (≈ 400–650k rows a year, motorcycles included); the current year is regenerated early each month with the month just ended
+  note: one CSV per calendar year (delimiter sniffed: ";" or ","; 2026 files often comma — PR #391), one row per processing of a vehicle (≈ 400–650k rows a year, motorcycles included); the current year is regenerated early each month with the month just ended
 - label: Ecuador's open-data portal — «Estadísticas Vehículos <YYYY>»
   url: https://www.datosabiertos.gob.ec/dataset/estadisticas-vehiculos-2025
   note: the catalogue entries that link the yearly files (the portal answers 403 to scripts, so the fetcher goes to the SRI download server directly)
@@ -162,8 +162,9 @@ offline one.
 ```
 Source:    SRI open data «Vehículos Nuevos», one CSV per calendar year:
            https://descargas.sri.gob.ec/download/datosAbiertos/SRI_Vehiculos_Nuevos_<YYYY>.csv
-           2017 → current year; ";"-separated; one row per PROCESSING of a
-           vehicle (1.4–3.7 rows per vehicle), motorcycles included.
+           2017 → current year; delimiter sniffed (";" or ","); 2026 files
+           often comma (PR #391); one row per PROCESSING of a vehicle
+           (1.4–3.7 rows per vehicle), motorcycles included.
 Auth:      None. No login, no key. (datosabiertos.gob.ec, the catalogue,
            answers 403 to scripts — the download server does not.)
 Timing:    the current year's file is regenerated early in the month with the
@@ -398,6 +399,10 @@ the file's year is counted, and above 0.5% of a file's vehicle rows the run
 aborts (zero in every file 2018–2026). Headers are matched after stripping
 accents, so `PAÍS`/`PAIS`, `AVALÚO`/`AVALUO` do not matter.
 
+Delimiter is sniffed per file (`sniff_delimiter()`): whichever of `;` and `,`
+appears more often in the header line outside quotes; ties fall back to `;`.
+SRI re-uploaded the 2026 file on 2026-11-04 with commas (PR #391).
+
 ## 6. Validation
 
 **AEADE yearbook, all segments (AEADE's scope: everything but motorcycles):**
@@ -440,6 +445,11 @@ it can find (§8): above 3% a month is flagged (warning annotation), above
 10% the run aborts. A missing bulletin is a warning, not a hold: AEADE's
 bulletins appear on its site irregularly (the April, May and June 2026
 bulletins were all uploaded in July).
+
+`_table()` picks the header line that matches the bulletin month from the
+filename (else the last header). September PDFs can still carry hidden
+"Ago" headers from the August template; if labels conflict and none match
+the bulletin month, the check is skipped with a warning (PR #392).
 
 ## 6a. Reading the fit
 
@@ -533,7 +543,7 @@ sequenceDiagram
 | `rows (x %) with an unreadable processing date` | a new date spelling | extend `parse_date()` / `MONTHS`; add it to `test_every_date_spelling` |
 | `unknown CLASE … / unknown fuel code … schema drift` | a new class or fuel code | classify it in `CLASS_VARIANT` / `OTHER_CLASSES` / `FUEL_CODE` with a test |
 | `AEADE cross-check failed` | an incomplete SRI file, a broken counting rule — or an AEADE slip (Oct 2025) | compare the step summary with the bulletin by hand; if the register is right, dispatch with `force` |
-| warning `AEADE cross-check not run` | bulletin not uploaded yet / page changed / table layout changed | nothing if the bulletin is just late; else adapt `find_bulletins()` / `_table()` (tests: `test_bulletin_*`) |
+| warning `AEADE cross-check not run` / conflicting month headers | bulletin not uploaded yet / page changed / table layout changed / hidden prior-month headers (e.g. Sep PDF still carrying "Ago") | nothing if the bulletin is just late; else adapt `find_bulletins()` / `_table()` (tests: `test_bulletin_*`, PR #392) |
 | `below 40% of the trailing median` | a partial file — or a real collapse (April 2020: 423 cars) | check AEADE; `force` if genuine |
 | `classification/ecuador_rules.csv: …` (rule id, example, header) | a rule edit broke the table's checks | fix the row as the message says; run `scripts/test_fetch_ecuador.py` |
 | a new plug-in counted as HEV (seen in "New hybrid designations" or a ZEMO gap) | its designation names no plug | add a rule with evidence (§3b), test, dispatch with `backfill` |

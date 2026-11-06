@@ -5,12 +5,12 @@ method: pdf
 summary: Passenger-car registrations for Italy from UNRAE, with rental / non-rental splits and a separate
   light-commercial variant.
 source_name: UNRAE — struttura del mercato PDF
-source_url: https://unrae.it/dati-statistici
+source_url: https://www.unrae.it/dati-statistici
 source_links:
 - label: UNRAE — immatricolazioni (passenger-car PDFs)
-  url: https://unrae.it/dati-statistici/immatricolazioni
+  url: https://www.unrae.it/dati-statistici/immatricolazioni
 - label: UNRAE — immatricolazioni veicoli commerciali (the LCV struttura PDFs, same index)
-  url: https://unrae.it/dati-statistici/immatricolazioni/tag/autocarri
+  url: https://www.unrae.it/dati-statistici/immatricolazioni/tag/autocarri
 underlying: UNRAE / Ministero delle Infrastrutture e dei Trasporti
 auth: none
 cadence: passenger 4×/day on the 1st–3rd; vans 3×/day on the 8th–16th
@@ -81,6 +81,9 @@ Schedule:    PKW  4×/day on the 1st–3rd   (06:00/10:00/14:00/18:00 UTC)
              Vans 3×/day on the 8th–16th  (10:00/14:00/18:00 UTC)
 Scripts:     scripts/fetch_italy.py
 Workflow:    .github/workflows/fetch-italy.yml
+Host:        fetches use https://www.unrae.it; the fetcher rewrites apex
+             unrae.it URLs via to_www() because the TLS cert covers only
+             *.unrae.it. Display SOURCE stays unrae.it.
 ```
 
 ## 1. Variant semantics and market-channel structure
@@ -213,7 +216,7 @@ Then — fleet-excluded section:
 Discovery:
 
 ```
-1. https://unrae.it/dati-statistici/immatricolazioni
+1. https://www.unrae.it/dati-statistici/immatricolazioni
    → find newest <a href="…/struttura-del-mercato-{mese}-{anno}">
 
 2. GET that detail page
@@ -263,7 +266,7 @@ that source broke on the combined July+August 2026 release, which only gave
 year-to-date shares — see the 2026-10 note below.)
 
 ```
-1. https://unrae.it/dati-statistici/immatricolazioni
+1. https://www.unrae.it/dati-statistici/immatricolazioni
    → newest (highest page id) <a href="…/immatricolazioni-veicoli-commerciali-…">
 
 2. GET that page → its PDF (a few pages have none, see § 8)

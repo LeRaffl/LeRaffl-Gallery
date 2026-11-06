@@ -512,7 +512,7 @@ Maintainer-curated, now partly automated. `fleet/fleet_initial.csv` uses the har
 ### Where
 
 - `assets/flags/<slug>.png` — one per country/variant, used as a watermark in the corner of charts
-- `assets/fonts/fontawesome/otfs/*.otf` + `icomoon.ttf` — used for the social-media icons in chart captions
+- `assets/fonts/fontawesome/otfs/*.otf` — Font Awesome 6 Brands OTFs used for the X and Bluesky icons in chart captions (`render_country.R`). `icomoon.ttf` may still sit under `assets/fonts/` but is no longer referenced for captions.
 - `assets/variant/{ldv,hdv,bus}.png` — symbol overlays for variant slices
 
 ### Lifecycle
