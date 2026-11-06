@@ -9288,12 +9288,79 @@ function marketBucket(rows, vars, test){
 
 
 
+    // Guard so a programmatic group apply does not clear builderGroups
+    // right after setting it (country change listener below).
+    let applyingBuilderGroup = false;
     function applyBuilderGroup(key){
       const sel = document.getElementById('builderCountries');
       if(!BUILDER_GROUPS[key]) return;
       const wanted = new Set(BUILDER_GROUPS[key](PARAM_ROWS));
-      [...sel.options].forEach(o => o.selected = wanted.has(o.value));
-      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      applyingBuilderGroup = true;
+      try {
+        [...sel.options].forEach(o => o.selected = wanted.has(o.value));
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+      } finally {
+        applyingBuilderGroup = false;
+      }
+    }
+
+    /* Exact match of the current country selection against a BUILDER_GROUPS
+       key, restricted to countries that actually appear in the picker. */
+    function builderGroupMatchesSelection(key, chosen){
+      if(!key || key === 'none' || !BUILDER_GROUPS[key]) return false;
+      const sel = document.getElementById('builderCountries');
+      if(!sel) return false;
+      const available = new Set([...sel.options].filter(o => !o.disabled).map(o => o.value));
+      const want = new Set((BUILDER_GROUPS[key](PARAM_ROWS) || []).filter(c => available.has(c)));
+      const cur = new Set(chosen);
+      if(want.size !== cur.size) return false;
+      for(const c of cur) if(!want.has(c)) return false;
+      return true;
+    }
+
+    /* Region-chip labels (EU / Europe / Asia / …) are not all Quick groups.
+       If the selection is exactly one of those presets, use that name so a
+       Europe chip does not keep the stale "World" title. */
+    function builderRegionPresetLabel(chosen){
+      const sel = document.getElementById('builderCountries');
+      if(!sel) return null;
+      const options = [...sel.options].filter(o => !o.disabled);
+      const cur = new Set(chosen);
+      const matches = names => names.length && names.length === cur.size && names.every(n => cur.has(n));
+      const eu = (BUILDER_GROUPS.eu ? BUILDER_GROUPS.eu(PARAM_ROWS || []) : []);
+      const euNames = options.map(o => o.value).filter(n => eu.includes(n));
+      if(matches(euNames)) return 'EU';
+      const byRegion = {};
+      options.forEach(o => {
+        const r = regionOfCountryName(o.value);
+        if(r) (byRegion[r] = byRegion[r] || []).push(o.value);
+      });
+      for(const r of REGION_PRESET_ORDER){
+        if(matches(byRegion[r] || [])) return r;
+      }
+      return null;
+    }
+
+    /* Chart title (and PNG) must describe the current selection, never a
+       stale Quick group left over from init (World) or a previous pick. */
+    function builderTitleWhere(chosen){
+      if(chosen.length <= 3) return chosen.join(', ');
+      const groupSel = document.getElementById('builderGroups');
+      const key = groupSel && groupSel.value;
+      if(key && key !== 'none' && builderGroupMatchesSelection(key, chosen)){
+        const opt = groupSel.selectedOptions[0];
+        return ((opt && opt.textContent) || key).replace(/\s+/g, ' ').trim();
+      }
+      const region = builderRegionPresetLabel(chosen);
+      if(region) return region;
+      if(groupSel){
+        for(const opt of [...groupSel.options]){
+          if(!opt.value || opt.value === 'none') continue;
+          if(builderGroupMatchesSelection(opt.value, chosen))
+            return opt.textContent.replace(/\s+/g, ' ').trim();
+        }
+      }
+      return chosen.length + ' countries';
     }
 
 
@@ -9315,6 +9382,16 @@ function marketBucket(rows, vars, test){
       sel.appendChild(o);
     });
     enhanceCountryMultiSelect(sel, { placeholder: 'Search countries', regions: true });
+    // Manual country / region-chip edits: drop a Quick group that no longer
+    // matches so the dropdown cannot keep advertising World/Europe falsely.
+    sel.addEventListener('change', () => {
+      if(applyingBuilderGroup || !groupSel) return;
+      const chosen = [...sel.selectedOptions].map(o => o.value);
+      if(groupSel.value && groupSel.value !== 'none' &&
+         !builderGroupMatchesSelection(groupSel.value, chosen)){
+        groupSel.value = '';
+      }
+    });
       // Default: World
     if (groupSel) {
       groupSel.value = 'world';
@@ -9660,11 +9737,7 @@ const traces = [{
   hovertemplate: '%{y:.1f}% fitted<extra></extra>'
 }];
 
-const groupSelNow = document.getElementById('builderGroups');
-const gOpt = groupSelNow && groupSelNow.selectedOptions[0];
-const where = chosen.length <= 3
-  ? chosen.join(', ')
-  : (gOpt && gOpt.value && gOpt.value !== 'none' ? gOpt.textContent.replace(/\s+/g,' ').trim() : chosen.length + ' countries');
+const where = builderTitleWhere(chosen);
 const vLab = (vSels||[]).map(v => displayVariantLabel(v === 'whole' ? 'Whole' : v.replace(/^\w/, c => c.toUpperCase()))).join(', ');
 const layout = publicationLayout(
   'BEV, ICE & PHEV share — ' + where + (vLab ? ' · ' + vLab : ''),
@@ -10074,7 +10147,7 @@ if (stepTraces.length){
         line:{ width:2.4, color: TL_THRESH_COLOR[k] || COLORS.BEV, simplify:false },
         connectgaps: false,
         name: `${t}% BEV`,
-        hovertemplate: `predicted ${t}%% in %{text}<extra>as of %{x|%Y-%m}</extra>`,
+        hovertemplate: `predicted ${t}% in %{text}<extra>as of %{x|%Y-%m}</extra>`,
       };
     });
 
@@ -12278,9 +12351,9 @@ function buildFleetPlot() {
       type: "bar",
       marker: { color: colorMap[cat.key] },
       legendgroup: cat.key,
-      hovertemplate:
-        '%{x}<br><b>%{y:,.1f}</b> ' + (mode === 'absolute' ? 'vehicles' : '%') +
-        '<br><extra></extra>'
+      hovertemplate: mode === 'absolute'
+        ? '%{x}<br><b>%{y:,.0f}</b> vehicles<br><extra></extra>'
+        : '%{x}<br><b>%{y:.1f}%</b><br><extra></extra>'
     });
 
     if (projRows.length) {
@@ -12301,9 +12374,9 @@ function buildFleetPlot() {
         },
         legendgroup: cat.key,
         showlegend: false,
-        hovertemplate:
-          '%{x} (projected)<br><b>%{y:,.1f}</b> ' + (mode === 'absolute' ? 'vehicles' : '%') +
-          '<br><extra></extra>'
+        hovertemplate: mode === 'absolute'
+          ? '%{x} (projected)<br><b>%{y:,.0f}</b> vehicles<br><extra></extra>'
+          : '%{x} (projected)<br><b>%{y:.1f}%</b><br><extra></extra>'
       });
     }
   });
@@ -12328,7 +12401,8 @@ function buildFleetPlot() {
     yaxis: {
       title: mode === 'absolute' ? "Vehicles" : "Share (%)",
       range: mode === 'absolute' ? [0, null] : [0, 100],
-      tickformat: mode === 'absolute' ? ',.0f' : '.1f',
+      tickformat: mode === 'absolute' ? ',.0f' : '.0f',
+      ticksuffix: mode === 'absolute' ? '' : '%',
       dtick: mode === 'absolute' ? null : 10,
       gridcolor: tok('--line-2','#e8e6e1'),
       zerolinecolor: tok('--line','#e4e2dd'),
