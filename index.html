@@ -1033,7 +1033,9 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
 .sd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
 .sd-grid .sd-field{display:flex;flex-direction:column;gap:6px}
 .sd-grid label{font-size:.85em;color:var(--muted)}
-.sd-grid input,.sd-grid select{background:var(--surface-2);color:var(--text);border:1px solid var(--line-2);border-radius:2px;padding:8px 10px;font-size:.95em}
+.sd-grid input,.sd-grid select{background-color:var(--surface-2);color:var(--text);border:1px solid var(--line-2);border-radius:2px;font-size:.95em}
+.sd-grid input{padding:8px 10px}
+.sd-grid select{padding:8px 36px 8px 10px}
 .sd-grid input:focus,.sd-grid select:focus{outline:none;border-color:var(--accent-2)}
 .sd-rows{margin-top:18px;border:1px solid var(--line-3);border-radius:2px;overflow:hidden}
 .sd-row{padding:14px;border-bottom:1px solid var(--line-3);background:var(--surface)}
@@ -1045,7 +1047,9 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
 .sd-row-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .sd-row-grid .sd-cell{display:flex;flex-direction:column;gap:4px}
 .sd-row-grid .sd-cell label{font-size:.75em;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.sd-row-grid .sd-cell input,.sd-row-grid .sd-cell select{background:var(--surface-2);color:var(--text);border:1px solid var(--line-2);border-radius:2px;padding:6px 8px;font-size:.9em}
+.sd-row-grid .sd-cell input,.sd-row-grid .sd-cell select{background-color:var(--surface-2);color:var(--text);border:1px solid var(--line-2);border-radius:2px;font-size:.9em}
+.sd-row-grid .sd-cell input{padding:6px 8px}
+.sd-row-grid .sd-cell select{padding:6px 36px 6px 8px}
 .sd-row-sumcheck{margin-top:8px;font-size:.8em;color:var(--muted)}
 .sd-row-sumcheck.bad{color:var(--danger)}
 .sd-row-sumcheck.good{color:var(--ok)}
@@ -1518,7 +1522,7 @@ textarea,
 .sd-row-grid .sd-cell select{
   border-color:var(--line);
   border-radius:var(--radius);
-  background:var(--surface-2);
+  background-color:var(--surface-2);
   color:var(--text);
   box-shadow:none;
 }
@@ -3911,7 +3915,7 @@ const VIEW_START_YEAR = 2015;
       </div>
       <div class="sd-field">
         <label for="sdVariant">Variant</label>
-        <select id="sdVariant"><option value="Whole">Whole (= "New Cars")</option></select>
+        <select id="sdVariant"></select>
       </div>
       <div class="sd-field">
         <label for="sdSource">Source (URL or short name)</label>
@@ -14652,10 +14656,35 @@ const SD_STATE = {
 
 function sdEl(id) { return document.getElementById(id); }
 
+// Label for a Submit variant option. Whole keeps the long form used in the
+// static HTML so the meaning stays clear; other variants use their registry name.
+function sdVariantLabel(v) {
+  return v === 'Whole' ? 'Whole (= "New Cars")' : v;
+}
+
+// Rebuild #sdVariant from the selected country's SD_COUNTRIES.variants entry.
+// Defaults to Whole when the country has it; otherwise the first listed variant.
+function sdFillVariants() {
+  const country = sdEl('sdCountry').value;
+  const entry = SD_COUNTRIES.find(c => c.country === country);
+  const variants = (entry && Array.isArray(entry.variants) && entry.variants.length)
+    ? entry.variants.slice()
+    : ['Whole'];
+  const preferred = variants.includes('Whole') ? 'Whole' : variants[0];
+  const vsel = sdEl('sdVariant');
+  vsel.innerHTML = variants.map(v =>
+    `<option value="${v}">${sdVariantLabel(v)}</option>`
+  ).join('');
+  vsel.value = preferred;
+}
+
 function sdInit() {
   const csel = sdEl('sdCountry');
   csel.innerHTML = SD_COUNTRIES.map(c => `<option value="${c.country}">${c.country}</option>`).join('');
-  csel.addEventListener('change', sdOnCountryChange);
+  // Country change: refill variants (Whole by default), then reload schema.
+  csel.addEventListener('change', () => { sdFillVariants(); sdOnCountryChange(); });
+  // Variant change: reload schema/CSV for the newly chosen file.
+  sdEl('sdVariant').addEventListener('change', sdOnCountryChange);
   sdEl('sdAddRow').addEventListener('click', () => sdAddRow());
   sdEl('sdSubmit').addEventListener('click', sdSubmit);
   // One-click "use this source" from the hint below the source input.
@@ -14666,6 +14695,7 @@ function sdInit() {
     sdEl('sdSource').value = SD_STATE.lastSource || '';
     sdEl('sdSource').focus();
   });
+  sdFillVariants();
   sdOnCountryChange();
 }
 
