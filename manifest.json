@@ -32382,16 +32382,6 @@
       "country_slug": "germany"
     },
     {
-      "country": "Germany (20260507 Git)",
-      "type": "share",
-      "period": "2026-04",
-      "date": "2026-05-07",
-      "filename": "germany_20260507_git.png",
-      "url": "images/2026-04/germany_20260507_git.png",
-      "alt": "Germany (20260507 Git) BEV trajectory",
-      "country_slug": "germany_20260507_git"
-    },
-    {
       "country": "Germany",
       "type": "ICE_BEV",
       "period": "2026-03",
@@ -34810,46 +34800,6 @@
       "url": "images/2026-03/newzealand_ttm_shares_20260406.png",
       "alt": "New Zealand TTM market split graph",
       "country_slug": "newzealand"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "ICE_BEV",
-      "period": "2026-03",
-      "date": "2026-04-06",
-      "filename": "newzealand_legacy_ICE_BEV_20260406.png",
-      "url": "images/2026-03/newzealand_legacy_ICE_BEV_20260406.png",
-      "alt": "New Zealand (Legacy) ICE-BEV-Hybrid trajectory",
-      "country_slug": "newzealand_legacy"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "share",
-      "period": "2026-03",
-      "date": "2026-04-06",
-      "filename": "newzealand_legacy_20260406.png",
-      "url": "images/2026-03/newzealand_legacy_20260406.png",
-      "alt": "New Zealand (Legacy) BEV trajectory",
-      "country_slug": "newzealand_legacy"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "time",
-      "period": "2026-03",
-      "date": "2026-04-06",
-      "filename": "newzealand_legacy_time_20260406.png",
-      "url": "images/2026-03/newzealand_legacy_time_20260406.png",
-      "alt": "New Zealand (Legacy) Transition time curve",
-      "country_slug": "newzealand_legacy"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "ttm_shares",
-      "period": "2026-03",
-      "date": "2026-04-06",
-      "filename": "newzealand_legacy_ttm_shares_20260406.png",
-      "url": "images/2026-03/newzealand_legacy_ttm_shares_20260406.png",
-      "alt": "New Zealand (Legacy) TTM market split graph",
-      "country_slug": "newzealand_legacy"
     },
     {
       "country": "Italy",
@@ -37312,46 +37262,6 @@
       "country_slug": "australia"
     },
     {
-      "country": "New Zealand (Legacy)",
-      "type": "ICE_BEV",
-      "period": "2026-02",
-      "date": "2026-03-09",
-      "filename": "newzealand_legacy_ICE_BEV_20260309.png",
-      "url": "images/2026-02/newzealand_legacy_ICE_BEV_20260309.png",
-      "alt": "New Zealand (Legacy) ICE-BEV-Hybrid trajectory",
-      "country_slug": "newzealand_legacy"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "share",
-      "period": "2026-02",
-      "date": "2026-03-09",
-      "filename": "newzealand_legacy_20260309.png",
-      "url": "images/2026-02/newzealand_legacy_20260309.png",
-      "alt": "New Zealand (Legacy) BEV trajectory",
-      "country_slug": "newzealand_legacy"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "time",
-      "period": "2026-02",
-      "date": "2026-03-09",
-      "filename": "newzealand_legacy_time_20260309.png",
-      "url": "images/2026-02/newzealand_legacy_time_20260309.png",
-      "alt": "New Zealand (Legacy) Transition time curve",
-      "country_slug": "newzealand_legacy"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "ttm_shares",
-      "period": "2026-02",
-      "date": "2026-03-09",
-      "filename": "newzealand_legacy_ttm_shares_20260309.png",
-      "url": "images/2026-02/newzealand_legacy_ttm_shares_20260309.png",
-      "alt": "New Zealand (Legacy) TTM market split graph",
-      "country_slug": "newzealand_legacy"
-    },
-    {
       "country": "Japan",
       "type": "ICE_BEV",
       "period": "2026-02",
@@ -38602,46 +38512,6 @@
       "country_slug": "finland"
     },
     {
-      "country": "New Zealand (Legacy)",
-      "type": "ICE_BEV",
-      "period": "2026-01",
-      "date": "2026-02-09",
-      "filename": "newzealand_legacy_ICE_BEV_20260209.png",
-      "url": "images/2026-01/newzealand_legacy_ICE_BEV_20260209.png",
-      "alt": "New Zealand (Legacy) ICE-BEV-Hybrid trajectory",
-      "country_slug": "newzealand_legacy"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "share",
-      "period": "2026-01",
-      "date": "2026-02-09",
-      "filename": "newzealand_legacy_20260209.png",
-      "url": "images/2026-01/newzealand_legacy_20260209.png",
-      "alt": "New Zealand (Legacy) BEV trajectory",
-      "country_slug": "newzealand_legacy"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "time",
-      "period": "2026-01",
-      "date": "2026-02-09",
-      "filename": "newzealand_legacy_time_20260209.png",
-      "url": "images/2026-01/newzealand_legacy_time_20260209.png",
-      "alt": "New Zealand (Legacy) Transition time curve",
-      "country_slug": "newzealand_legacy"
-    },
-    {
-      "country": "New Zealand (Legacy)",
-      "type": "ttm_shares",
-      "period": "2026-01",
-      "date": "2026-02-09",
-      "filename": "newzealand_legacy_ttm_shares_20260209.png",
-      "url": "images/2026-01/newzealand_legacy_ttm_shares_20260209.png",
-      "alt": "New Zealand (Legacy) TTM market split graph",
-      "country_slug": "newzealand_legacy"
-    },
-    {
       "country": "Brazil",
       "type": "ICE_BEV",
       "period": "2026-01",
@@ -39080,42 +38950,6 @@
       "url": "images/2026-01/portugal_ttm_shares_20260203.png",
       "alt": "Portugal TTM market split graph",
       "country_slug": "portugal"
-    },
-    {
-      "country": "World (Interval 2026 03 30 V20 Mobile)",
-      "type": "share",
-      "period": "2026-03",
-      "filename": "world_interval_2026-03-30_v20_mobile.png",
-      "url": "images/2026-03/world_interval_2026-03-30_v20_mobile.png",
-      "alt": "World (Interval 2026 03 30 V20 Mobile) BEV trajectory",
-      "country_slug": "world_interval_2026-03-30_v20_mobile"
-    },
-    {
-      "country": "World (Interval 2026 03 30 V20)",
-      "type": "share",
-      "period": "2026-03",
-      "filename": "world_interval_2026-03-30_v20.png",
-      "url": "images/2026-03/world_interval_2026-03-30_v20.png",
-      "alt": "World (Interval 2026 03 30 V20) BEV trajectory",
-      "country_slug": "world_interval_2026-03-30_v20"
-    },
-    {
-      "country": "World (Interval 2026 03 30 V80 Mobile)",
-      "type": "share",
-      "period": "2026-03",
-      "filename": "world_interval_2026-03-30_v80_mobile.png",
-      "url": "images/2026-03/world_interval_2026-03-30_v80_mobile.png",
-      "alt": "World (Interval 2026 03 30 V80 Mobile) BEV trajectory",
-      "country_slug": "world_interval_2026-03-30_v80_mobile"
-    },
-    {
-      "country": "World (Interval 2026 03 30 V80)",
-      "type": "share",
-      "period": "2026-03",
-      "filename": "world_interval_2026-03-30_v80.png",
-      "url": "images/2026-03/world_interval_2026-03-30_v80.png",
-      "alt": "World (Interval 2026 03 30 V80) BEV trajectory",
-      "country_slug": "world_interval_2026-03-30_v80"
     }
   ]
 }
