@@ -11,7 +11,10 @@ source_url: https://www.datosabiertos.gob.ec/dataset/?organization=sri-servicio-
 source_links:
 - label: SRI yearly file (the URL pattern the fetcher reads; 2017 → current year)
   url: https://descargas.sri.gob.ec/download/datosAbiertos/SRI_Vehiculos_Nuevos_2026.csv
-  note: one CSV per calendar year (delimiter sniffed: ";" or ","; 2026 files often comma — PR #391), one row per processing of a vehicle (≈ 400–650k rows a year, motorcycles included); the current year is regenerated early each month with the month just ended
+  note: >-
+    one CSV per calendar year (delimiter sniffed as ";" or ","; 2026 files often comma — PR #391),
+    one row per processing of a vehicle (≈ 400–650k rows a year, motorcycles included);
+    the current year is regenerated early each month with the month just ended
 - label: Ecuador's open-data portal — «Estadísticas Vehículos <YYYY>»
   url: https://www.datosabiertos.gob.ec/dataset/estadisticas-vehiculos-2025
   note: the catalogue entries that link the yearly files (the portal answers 403 to scripts, so the fetcher goes to the SRI download server directly)
