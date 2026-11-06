@@ -139,6 +139,7 @@ td.late {
 @media (max-width:880px){.page{grid-template-columns:1fr}}
 .card{background:var(--surface);border:1px solid var(--line-3);border-radius:2px;padding:16px}
 .empty{opacity:.7;text-align:center;padding:40px}
+.empty .fx-clear{margin-left:10px;vertical-align:baseline}
 
 /* Sidebar */
 .side{background:var(--surface);border:1px solid var(--line-3);border-radius:2px;padding:12px;position:sticky;top:var(--header-h);height:fit-content;z-index:10}
@@ -2007,7 +2008,7 @@ a:focus-visible{
 
 .footer{
   display:grid;
-  grid-template-columns:auto auto;
+  grid-template-columns:auto auto auto;
   padding:10px 12px;
   border-top-color:var(--line-soft);
 }
@@ -2103,8 +2104,12 @@ a:focus-visible{
 .rd-field>label{font-size:12px;letter-spacing:0;color:var(--muted)}
 .rd-picker{position:relative}
 .rd-picksum{display:flex;align-items:center;gap:8px;border:1px solid var(--line-3);background:var(--surface-2);
-  border-radius:2px;padding:7px 11px;cursor:pointer;font-size:13.5px;min-width:270px}
+  border-radius:2px;padding:7px 34px 7px 11px;cursor:pointer;font-size:13.5px;min-width:270px;
+  appearance:none;-webkit-appearance:none;font:inherit;color:inherit;text-align:left;width:100%;box-sizing:border-box;
+  background-image:var(--select-arrow);background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px}
 .rd-picksum .n{color:var(--muted-2);font-size:12px;margin-left:auto;font-family:var(--mono,ui-monospace,monospace)}
+.rd-pick-h{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 6px 3px}
+.rd-pick-h:first-child{padding-top:2px}
 .rd-pickbox{position:absolute;z-index:9;top:calc(100% + 6px);left:0;width:340px;max-height:330px;
   overflow:auto;background:var(--surface-2);border:1px solid var(--line-3);border-radius:2px;padding:9px;
   box-shadow:none;display:none}
@@ -2978,11 +2983,15 @@ select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{
    drei Funktionen bleiben unveraendert — nur JS-freie Optik.
    Hoehe bleibt bei 32px/44px mobil, damit die Ziele bedienbar sind. */
 .card.g .footer{
-  display:flex;
-  flex-wrap:wrap;
+  /* Three action slots (Download / Copy post / Source) stay one row even when
+     Source is absent — empty third cell keeps card height consistent. Filename
+     still wraps onto the next row via grid-column. */
+  display:grid;
+  grid-template-columns:auto auto auto;
   align-items:center;
-  gap:2px 13px;
-  grid-template-columns:none;
+  justify-content:start;
+  column-gap:13px;
+  row-gap:2px;
 }
 .card.g .footer .btn{
   border:0;
@@ -3041,7 +3050,7 @@ select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{
 /* Der Dateiname war vorher die leiseste Zeile der Kachel und bleibt es —
    er sitzt jetzt in derselben Zeile und bricht bei Bedarf um. */
 .card.g .footer .filename{
-  flex:1 1 100%;
+  grid-column:1 / -1;
   color:var(--muted-2);
 }
 @media (max-width:880px){
@@ -3362,6 +3371,8 @@ h2 .fb-ctx-btn{
   align-items:flex-end;
   gap:6px;
 }
+.compare-extra-row .field{display:flex;flex-direction:column;gap:5px;margin:0}
+.compare-extra-row .compare-extra-lab{font-size:12px;color:var(--muted)}
 .compare-extra-row select{
   min-width:12rem;
 }
@@ -4189,7 +4200,7 @@ const VIEW_START_YEAR = 2015;
       <main>
         <div id="appliedBar" class="fx-applied" role="region" aria-label="Applied filters" hidden></div>
         <div id="cols" class="cols"></div>
-        <div id="empty" class="empty" hidden>No matches. Relax filters.</div>
+        <div id="empty" class="empty" hidden>No matches. Relax filters. <button type="button" id="emptyClear" class="fx-clear">Clear all</button></div>
         <div id="pager" class="pager" hidden>
           <button id="loadMore" class="btn" type="button">Show more</button>
           <button id="showAll" class="btn btn--ghost" type="button">Show all</button>
@@ -4234,7 +4245,7 @@ const VIEW_START_YEAR = 2015;
         </div>
         <div class="field">
           <label for="regionThr">Region</label>
-          <select id="regionThr" class="rank-region"></select>
+          <select id="regionThr" class="rank-region country-field"></select>
         </div>
         <div class="field">
           <label for="customPct">Custom %</label>
@@ -4359,7 +4370,7 @@ const VIEW_START_YEAR = 2015;
         </div>
         <div class="field">
           <label for="regionDur">Region</label>
-          <select id="regionDur" class="rank-region"></select>
+          <select id="regionDur" class="rank-region country-field"></select>
         </div>
         <div class="field">
           <label for="customFrom">From %</label>
@@ -4414,7 +4425,7 @@ const VIEW_START_YEAR = 2015;
         </div>
         <div class="field">
           <label for="speedRegion">Region</label>
-          <select id="speedRegion" class="rank-region"></select>
+          <select id="speedRegion" class="rank-region country-field"></select>
         </div>
         <div class="field"><label for="speedFrom">From %</label><input id="speedFrom" class="rank-num" type="number" min="0.1" max="49.9" step="0.5" value="20"></div>
         <div class="field"><label for="speedMid">Mid %</label><input id="speedMid" class="rank-num" type="number" min="1" max="99" step="0.5" value="50"></div>
@@ -4493,9 +4504,9 @@ const VIEW_START_YEAR = 2015;
                 <option value="oceania">Oceania</option>
               </optgroup>
               <optgroup label="Analytical">
-                <option value="small_markets">Small Markets  (&lt;50k units/year)</option>
-                <option value="medium_markets">Medium Markets  (50k-1M units/year)</option>
-                <option value="big_markets">Big Markets  (&gt;1M units/year)</option>
+                <option value="small_markets">Small Markets (&lt;50k units/year)</option>
+                <option value="medium_markets">Medium Markets (50k-1M units/year)</option>
+                <option value="big_markets">Big Markets (&gt;1M units/year)</option>
               </optgroup>
             </select>
         </div>
@@ -4613,15 +4624,15 @@ const VIEW_START_YEAR = 2015;
     </p>
     <div class="toolbar settings-strip">
       <div class="field settings-block is-compact">
-        <label>Powertrain</label>
-        <div class="settings-actions">
+        <label id="comparePowertrainLabel">Powertrain</label>
+        <div class="settings-actions" role="group" aria-labelledby="comparePowertrainLabel">
           <label class="chip"><input type="radio" name="comparePowertrain" value="BEV" checked> BEV</label>
           <label class="chip"><input type="radio" name="comparePowertrain" value="ICE"> ICE</label>
           <label class="chip"><input type="radio" name="comparePowertrain" value="PHEV"> PHEV</label>
         </div>
       </div>
       <div class="field settings-block is-compact">
-        <label>Variant <span style="font-size:.85em">(groups)</span></label>
+        <label for="compareVariant">Variant <span style="font-size:.85em">(groups)</span></label>
         <select id="compareVariant">
           <option value="whole" selected>New Cars</option>
           <option value="hdv">HDV</option>
@@ -4639,15 +4650,15 @@ const VIEW_START_YEAR = 2015;
         </select>
       </div>
       <div class="field settings-block is-compact">
-        <label>Pin 1</label>
+        <label for="compareSlot1">Pin 1</label>
         <select id="compareSlot1" class="compare-slot country-field"></select>
       </div>
       <div class="field settings-block is-compact">
-        <label>Pin 2</label>
+        <label for="compareSlot2">Pin 2</label>
         <select id="compareSlot2" class="compare-slot country-field"></select>
       </div>
       <div class="field settings-block is-compact">
-        <label>Pin 3</label>
+        <label for="compareSlot3">Pin 3</label>
         <select id="compareSlot3" class="compare-slot country-field"></select>
       </div>
       <div class="field settings-block is-compact compare-fill" id="compareFill">
@@ -4686,13 +4697,14 @@ const VIEW_START_YEAR = 2015;
     </p>
 
     <div class="rd-toolbar">
-      <div class="rd-field"><label>Countries</label>
+      <div class="rd-field"><label for="rdPickSum">Countries</label>
         <div class="rd-picker">
-          <div class="rd-picksum" id="rdPickSum" tabindex="0" role="button" aria-expanded="false"></div>
+          <button type="button" class="rd-picksum" id="rdPickSum" aria-expanded="false"
+                  aria-haspopup="listbox" aria-controls="rdPickBox"></button>
           <div class="rd-pickbox" id="rdPickBox">
             <input type="search" id="rdPickQ" placeholder="Search countries…" aria-label="Search countries">
             <div class="rd-presets" id="rdPresets"></div>
-            <div id="rdPickList"></div>
+            <div id="rdPickList" role="listbox" aria-label="Countries"></div>
           </div>
         </div>
       </div>
@@ -4702,17 +4714,17 @@ const VIEW_START_YEAR = 2015;
           <span class="rd-winval" id="rdWinVal"></span>
         </div>
       </div>
-      <div class="rd-field"><label>Units</label>
-        <div class="rd-seg" id="rdUnits"><button data-u="rel" class="on">Share</button><button data-u="abs">Absolute</button></div>
+      <div class="rd-field"><label id="rdUnitsLab">Units</label>
+        <div class="rd-seg" id="rdUnits" role="group" aria-labelledby="rdUnitsLab"><button data-u="rel" class="on">Share</button><button data-u="abs">Absolute</button></div>
       </div>
-      <div class="rd-field"><label>Show</label>
-        <div class="rd-seg" id="rdTf"><button data-t="0" class="on">All</button><button data-t="60">5y</button><button data-t="24">2y</button></div>
+      <div class="rd-field"><label id="rdTfLab">Show</label>
+        <div class="rd-seg" id="rdTf" role="group" aria-labelledby="rdTfLab"><button data-t="0" class="on">All</button><button data-t="60">5y</button><button data-t="24">2y</button></div>
       </div>
-      <div class="rd-field"><label>Combined from</label>
-        <div class="rd-seg" id="rdQual"><button data-q="1" class="on">Complete data</button><button data-q="0">All selected</button></div>
+      <div class="rd-field"><label id="rdQualLab">Combined from</label>
+        <div class="rd-seg" id="rdQual" role="group" aria-labelledby="rdQualLab"><button data-q="1" class="on">Complete data</button><button data-q="0">All selected</button></div>
       </div>
-      <div class="rd-field"><label>Axes</label>
-        <div class="rd-seg" id="rdAx"><button data-a="0" class="on">Per chart</button><button data-a="1">Same everywhere</button></div>
+      <div class="rd-field"><label id="rdAxLab">Axes</label>
+        <div class="rd-seg" id="rdAx" role="group" aria-labelledby="rdAxLab"><button data-a="0" class="on">Per chart</button><button data-a="1">Same everywhere</button></div>
       </div>
     </div>
 
@@ -4767,7 +4779,7 @@ const VIEW_START_YEAR = 2015;
 <div class="toolbar settings-strip" style="gap: 20px; flex-wrap: wrap; align-items: flex-start;">
   <!-- Zeile 1: Countries – schmal & fix (max 340px) -->
   <div class="field settings-block is-primary" style="flex: 1 1 360px; max-width: 460px;">
-    <label>Countries (multi-select)</label>
+    <label for="fleetCountries">Countries (multi-select)</label>
     <select id="fleetCountries" multiple size="6"></select>
   </div>
 
@@ -4835,7 +4847,7 @@ const VIEW_START_YEAR = 2015;
         <label class="chip"><input type="checkbox" id="fleetShowBEV"    checked> BEV</label>
         <label class="chip"><input type="checkbox" id="fleetShowPHEV"   checked> PHEV</label>
         <label class="chip"><input type="checkbox" id="fleetShowHEV"    checked> HEV</label>
-        <label class="chip"><input type="checkbox" id="fleetShowOTHERS" checked> OTHERS/UNCATEGORIZED</label>
+        <label class="chip"><input type="checkbox" id="fleetShowOTHERS" checked> Other</label>
       </div>
     </div>
   </div>
@@ -6009,6 +6021,7 @@ function enhanceCountryMultiSelect(selectOrId, opts = {}){
   search.type = 'search';
   search.placeholder = opts.placeholder || 'Search countries';
   search.autocomplete = 'off';
+  search.setAttribute('aria-label', opts.searchLabel || opts.placeholder || 'Search countries');
 
   const count = document.createElement('span');
   count.className = 'country-picker__count';
@@ -6043,8 +6056,18 @@ function enhanceCountryMultiSelect(selectOrId, opts = {}){
     return btn;
   };
 
-  const visibleOptions = () => [...sel.options].filter(o => !o.disabled && !o.hidden);
-  const allOptions = () => [...sel.options].filter(o => !o.disabled);
+  // Option pool: Safari ignores option.hidden / display:none on <select
+  // multiple>, so search re-parents matching options instead of hiding them.
+  let optionPool = [...sel.options];
+  const syncOptionPool = () => { optionPool = [...sel.options]; };
+  const optionHay = o => {
+    const name = (o.textContent || '').trim();
+    const alias = (typeof SEARCH_ALIASES !== 'undefined'
+      && (SEARCH_ALIASES[name] || SEARCH_ALIASES[o.value])) || '';
+    return (name + ' ' + (o.dataset.search || '') + ' ' + alias).toLowerCase();
+  };
+  const visibleOptions = () => [...sel.options].filter(o => !o.disabled);
+  const allOptions = () => optionPool.filter(o => !o.disabled);
 
   const dispatch = () => {
     sel.dispatchEvent(new Event('change', { bubbles: true }));
@@ -6063,12 +6086,20 @@ function enhanceCountryMultiSelect(selectOrId, opts = {}){
     makeBtn('Invert', () => { visibleOptions().forEach(o => o.selected = !o.selected); dispatch(); })
   );
 
-  search.addEventListener('input', () => {
+  const applySearchFilter = () => {
     const q = search.value.trim().toLowerCase();
-    allOptions().forEach(o => {
-      o.hidden = q && !(o.textContent + ' ' + (o.dataset.search || '')).toLowerCase().includes(q);
+    if (!q) {
+      optionPool.forEach(o => sel.appendChild(o));
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    optionPool.forEach(o => {
+      if (o.disabled && !o.value) { frag.appendChild(o); return; }
+      if (optionHay(o).includes(q)) frag.appendChild(o);
     });
-  });
+    sel.replaceChildren(frag);
+  };
+  search.addEventListener('input', () => { applySearchFilter(); updateCount(); });
 
   sel.addEventListener('change', updateCount);
   /* Der Zaehler wurde bisher nur bei 'change' aktualisiert. Die Variantenfilter
@@ -6078,7 +6109,12 @@ function enhanceCountryMultiSelect(selectOrId, opts = {}){
      erzwungenes change-Ereignis: change wuerde die angehaengten Filter- und
      Neuzeichnen-Pfade mitausloesen, nur um eine Zahl zu aktualisieren. */
   if(window.MutationObserver)
-    new MutationObserver(updateCount).observe(sel, {childList:true});
+    new MutationObserver(() => {
+      // Outside search edits (e.g. makeVariantOptions) refresh the pool when
+      // the box is not mid-filter; otherwise keep the filtered view.
+      if (!search.value.trim()) syncOptionPool();
+      updateCount();
+    }).observe(sel, {childList:true});
   if(!opts.compact) wrap.insertBefore(actions, sel);
   if(opts.regions){
     const bar = regionPresets(sel, wrap, { nameOf: opts.regionNameOf, onChange: updateCount });
@@ -7086,14 +7122,35 @@ const QR = (() => {
       else if (k==='none') setSel([]);
       else setSel(NAMES.filter(n=>REGIONS[n]===k));
     });
-    const q = ($('rdPickQ').value||'').toLowerCase();
-    const shown = NAMES.filter(n=>n.toLowerCase().includes(q));
-    $('rdPickList').innerHTML = shown.map(n=>{
-      const row = INDEX.countries.find(x=>x.country===n) || {};
-      return `<label class="rd-opt"><input type="checkbox" value="${esc(n)}" `
-           + `${S.c.includes(n)?'checked':''}>${esc(n)}`
-           + `<small>${row.step===3?'quarterly':''}</small></label>`;
-    }).join('');
+    const q = ($('rdPickQ').value||'').trim().toLowerCase();
+    const match = n => {
+      if (!q) return true;
+      const alias = (typeof SEARCH_ALIASES !== 'undefined' && SEARCH_ALIASES[n]) || '';
+      return (n + ' ' + alias).toLowerCase().includes(q);
+    };
+    const shown = NAMES.filter(match);
+    const order = (typeof RANK_REGION_CONTINENTS !== 'undefined'
+      ? RANK_REGION_CONTINENTS
+      : ['Europe','North America','South America','Asia','Oceania','Africa','Other']);
+    const buckets = new Map(order.map(c => [c, []]));
+    shown.forEach(n => {
+      const r = REGIONS[n] || 'Other';
+      if (!buckets.has(r)) buckets.set(r, []);
+      buckets.get(r).push(n);
+    });
+    let html = '';
+    buckets.forEach((arr, region) => {
+      if (!arr.length) return;
+      html += `<div class="rd-pick-h">${esc(region)}</div>`;
+      arr.forEach(n => {
+        const row = INDEX.countries.find(x=>x.country===n) || {};
+        html += `<label class="rd-opt"><input type="checkbox" value="${esc(n)}" `
+             + `${S.c.includes(n)?'checked':''}>${esc(n)}`
+             + `<small>${row.step===3?'quarterly':''}</small></label>`;
+      });
+    });
+    if (!html) html = '<div class="rd-pick-h" style="text-transform:none;letter-spacing:0">No countries match.</div>';
+    $('rdPickList').innerHTML = html;
     $('rdPickList').querySelectorAll('input').forEach(i=>i.onchange = ()=>{
       const sel = [...$('rdPickList').querySelectorAll('input:checked')].map(x=>x.value);
       setSel([...new Set([...S.c.filter(c=>!shown.includes(c)), ...sel])]);
@@ -7168,18 +7225,35 @@ const QR = (() => {
   }
 
   function wire(){
-    const sum = $('rdPickSum'), box = $('rdPickBox');
-    sum.onclick = () => { box.classList.toggle('on');
-      sum.setAttribute('aria-expanded', box.classList.contains('on')); };
-    sum.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); sum.onclick(); } };
-    $('rdPickQ').oninput = paintPicker;
+    const sum = $('rdPickSum'), box = $('rdPickBox'), qIn = $('rdPickQ');
+    const isOpen = () => box.classList.contains('on');
+    const closePick = () => {
+      box.classList.remove('on');
+      sum.setAttribute('aria-expanded', 'false');
+    };
+    const openPick = () => {
+      box.classList.add('on');
+      sum.setAttribute('aria-expanded', 'true');
+      try { qIn.focus({ preventScroll: true }); } catch (_) {}
+    };
+    sum.onclick = () => { if (isOpen()) closePick(); else openPick(); };
+    sum.onkeydown = e => {
+      if (e.key==='Enter'||e.key===' '){ e.preventDefault(); sum.onclick(); }
+      if (e.key==='ArrowDown' && !isOpen()){ e.preventDefault(); openPick(); }
+      if (e.key==='Escape' && isOpen()){ e.preventDefault(); closePick(); sum.focus(); }
+    };
+    qIn.oninput = paintPicker;
+    qIn.onkeydown = e => {
+      if (e.key==='Escape'){ e.preventDefault(); closePick(); sum.focus(); }
+    };
     // Capture phase on purpose. Ticking a country or hitting a region preset
     // re-renders the list, so by the time a bubbling handler runs, the element
     // that was clicked is already detached and `closest()` returns null — the
     // picker would close on every single tick, which makes choosing a set of
     // countries impossible. In the capture phase the target is still attached.
     document.addEventListener('click', e => {
-      if (!e.target.closest('.rd-picker')) box.classList.remove('on');
+      if (!isOpen()) return;
+      if (!e.target.closest('.rd-picker')) closePick();
     }, true);
     $('rdWin').oninput = e => { S.n = +e.target.value; render(); };
     seg('rdUnits', 'u', 'u',  v=>v);
@@ -7978,7 +8052,7 @@ function fillRankRegionSelect(sel, rows){
   const keep = sel.value;
   const present = new Set((rows || []).filter(r => !isHiddenLeftoverSeries(r.country, r.variant)).map(r => rankRegionOf(r.country)));
   const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  let html = '<option value="">All countries</option><optgroup label="Continents">';
+  let html = '<option value="">All regions</option><optgroup label="Continents">';
   RANK_REGION_CONTINENTS.filter(c => present.has(c))
     .forEach(c => { html += `<option value="cont:${esc(c)}">${esc(c)}</option>`; });
   html += '</optgroup><optgroup label="Europe">';
@@ -8003,7 +8077,7 @@ function rankRegionMatcher(key){
   return () => true;
 }
 // Export labelling (#336): an exported table/chart must say which region it
-// was filtered to. '' (All countries) returns '' so the default export keeps
+// was filtered to. '' (All regions) returns '' so the default export keeps
 // its title and filename exactly as before.
 function rankRegionLabel(key){
   if (!key) return '';
@@ -9486,9 +9560,11 @@ function marketBucket(rows, vars, test){
     countries.forEach(c=>{
       const o=document.createElement('option');
       o.value=c; o.textContent=c;
+      if (typeof SEARCH_ALIASES !== 'undefined' && SEARCH_ALIASES[c])
+        o.dataset.search = SEARCH_ALIASES[c];
       sel.appendChild(o);
     });
-    enhanceCountryMultiSelect(sel, { placeholder: 'Search countries', regions: true });
+    enhanceCountryMultiSelect(sel, { placeholder: 'Search countries', searchLabel: 'Search countries', regions: true });
     // Manual country / region-chip edits: drop a Quick group that no longer
     // matches so the dropdown cannot keep advertising World/Europe falsely.
     sel.addEventListener('change', () => {
@@ -10427,7 +10503,7 @@ if (stepTraces.length){
   function fillCompareSelect(sel, i){
     sel.innerHTML = COMPARE_SLOT_HTML;
     const first = sel.querySelector('option');
-    if(first) first.textContent = i === 0 ? '— Choose region —' : '— None —';
+    if(first) first.textContent = i === 0 ? '— Choose —' : '— None —';
   }
 
   function initCompare(){
@@ -10476,15 +10552,15 @@ if (stepTraces.length){
       // Thresholds always read the passenger-car market (MARKET_SIZE_VARIANTS),
       // so the label says so — the bucket does not change with the Variant
       // dropdown next to it.
-      small_markets:'Small Markets (<50k new cars/yr)',
-      medium_markets:'Medium Markets (50k–1M new cars/yr)',
-      big_markets:'Big Markets (>1M new cars/yr)'
+      small_markets:'Small Markets (<50k units/year)',
+      medium_markets:'Medium Markets (50k–1M units/year)',
+      big_markets:'Big Markets (>1M units/year)'
     };
     slots.forEach((sel, i) => {
       sel.innerHTML = '';
       const noneOpt = document.createElement('option');
       noneOpt.value = '';
-      noneOpt.textContent = i === 0 ? '— Choose region —' : '— None —';
+      noneOpt.textContent = i === 0 ? '— Choose —' : '— None —';
       sel.appendChild(noneOpt);
 
       const grpAgg = document.createElement('optgroup');
@@ -10517,7 +10593,7 @@ if (stepTraces.length){
     const fillRegion = document.getElementById('compareFillRegion');
     if(fillRegion && !fillRegion.options.length){
       fillRankRegionSelect(fillRegion, PARAM_ROWS);
-      fillRegion.options[0].textContent = 'All countries';
+      fillRegion.options[0].textContent = 'All regions';
       fillRegion.value = 'cont:Europe';
     }
     // Sensible defaults so the first paint shows something.
@@ -10595,8 +10671,14 @@ if (stepTraces.length){
     if(!mount || !COMPARE_SLOT_HTML) return;
     const row = document.createElement('div');
     row.className = 'compare-extra-row';
+    const n = 3 + mount.children.length + 1;
+    const lab = document.createElement('label');
+    lab.className = 'compare-extra-lab';
+    lab.textContent = 'Series ' + n;
     const sel = document.createElement('select');
-    sel.className = 'compare-slot';
+    sel.className = 'compare-slot country-field';
+    sel.id = 'compareExtra' + n;
+    lab.htmlFor = sel.id;
     fillCompareSelect(sel, 1);
     const rm = document.createElement('button');
     rm.type = 'button';
@@ -10607,7 +10689,11 @@ if (stepTraces.length){
       row.remove();
       mount.hidden = !mount.children.length;
     });
-    row.appendChild(sel);
+    const field = document.createElement('div');
+    field.className = 'field';
+    field.appendChild(lab);
+    field.appendChild(sel);
+    row.appendChild(field);
     row.appendChild(rm);
     mount.appendChild(row);
     mount.hidden = false;
@@ -11838,8 +11924,13 @@ function populateFleetCountries() {
       try { label = regionNames.of(c) || c; } catch { label = c; }
     }
     opt.textContent = fleetDisplayName(label);
-    // Keep the full name searchable: typing "united" must still find the UK.
-    if (fleetDisplayName(label) !== label) opt.dataset.search = label;
+    // Keep the full name + Gallery aliases searchable (UK ← "United Kingdom").
+    const bits = [];
+    if (fleetDisplayName(label) !== label) bits.push(label);
+    const shown = fleetDisplayName(label);
+    if (typeof SEARCH_ALIASES !== 'undefined' && SEARCH_ALIASES[shown])
+      bits.push(SEARCH_ALIASES[shown]);
+    if (bits.length) opt.dataset.search = bits.join(' ');
     // Pre-select Norway by default: it has the richest historical data
     // and produces a meaningful first plot without any user action.
     if (c === "NO" || c === "Norway") {
@@ -11848,7 +11939,7 @@ function populateFleetCountries() {
     sel.appendChild(opt);
   });
 
-  enhanceCountryMultiSelect(sel, { placeholder: 'Search fleet countries', regions: true });
+  enhanceCountryMultiSelect(sel, { placeholder: 'Search fleet countries', searchLabel: 'Search fleet countries', regions: true });
   sel.dispatchEvent(new Event('change', { bubbles: true }));
 
   // Build the category toggle row for whatever country is now selected
@@ -11886,11 +11977,11 @@ const container = document.getElementById('fleetCategoryContainer');
 
   if (hasPhev) categories.push({ id: 'fleetShowPHEV', label: 'PHEV', checked: true });
   if (hasHev) categories.push({ id: 'fleetShowHEV', label: 'HEV', checked: true });
-  if (hasHybrid) categories.push({ id: 'fleetShowHYBRID', label: 'HYBRID (combined PHEV+HEV)', checked: true });
-  if (hasDiesel) categories.push({ id: 'fleetShowDIESEL', label: 'DIESEL', checked: true });
-  if (hasPetrol) categories.push({ id: 'fleetShowPETROL', label: 'PETROL', checked: true });
+  if (hasHybrid) categories.push({ id: 'fleetShowHYBRID', label: 'Hybrid (combined PHEV+HEV)', checked: true });
+  if (hasDiesel) categories.push({ id: 'fleetShowDIESEL', label: 'Diesel', checked: true });
+  if (hasPetrol) categories.push({ id: 'fleetShowPETROL', label: 'Petrol', checked: true });
 
-  categories.push({ id: 'fleetShowOTHERS', label: 'OTHERS/UNCATEGORIZED', checked: true });
+  categories.push({ id: 'fleetShowOTHERS', label: 'Other', checked: true });
 
   categories.forEach(cat => {
     const label = document.createElement('label');
@@ -12438,10 +12529,10 @@ function buildFleetPlot() {
     { key:'BEV',    label:'BEV', show:showBEV },
     { key:'PHEV',   label:'PHEV', show:showPHEV },
     { key:'HEV',    label:'HEV', show:showHEV },
-    { key:'HYBRID', label:'HYBRID', show:showHYBRID },
-    { key:'DIESEL', label:'DIESEL', show:showDIESEL },
-    { key:'PETROL', label:'PETROL', show:showPETROL },
-    { key:'OTHERS', label:'OTHERS/UNCATEGORIZED', show:showOTHERS }
+    { key:'HYBRID', label:'Hybrid', show:showHYBRID },
+    { key:'DIESEL', label:'Diesel', show:showDIESEL },
+    { key:'PETROL', label:'Petrol', show:showPETROL },
+    { key:'OTHERS', label:'Other', show:showOTHERS }
   ];
 
   const traces = [];
@@ -16330,6 +16421,9 @@ document.addEventListener('click', (e) => {
       fire(ps);                          // one re-render for everything
       $('search').focus({ preventScroll: true });
     };
+    window.__fxClearAll = clearAll;
+    const emptyClear = $('emptyClear');
+    if (emptyClear) emptyClear.addEventListener('click', clearAll);
     window.__fxTagUi = (imgs) => {
       const active = getActiveTagFilters();
       const tagsReady = !!window.__bevTagsByCountry;
