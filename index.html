@@ -6457,7 +6457,18 @@ const QR = (() => {
     ['America/Halifax','Canada'],['America/St_Johns','Canada'],['America/Sao_Paulo','Brazil'],
     ['America/Fortaleza','Brazil'],['America/Recife','Brazil'],['America/Manaus','Brazil'],
     ['America/Argentina/','Argentina'],
-    ['America/','USA'],['Pacific/Honolulu','USA']];
+    /* USA: list US zones explicitly. Do NOT use a catch-all America/ → USA —
+       that mislabels Latin America (Mexico City, Costa Rica, Panama, …) and
+       unlisted Canada/Brazil/Chile zones as USA. Unmatched zones fall through. */
+    ['America/New_York','USA'],['America/Detroit','USA'],
+    ['America/Kentucky/','USA'],['America/Indiana/','USA'],
+    ['America/Chicago','USA'],['America/Menominee','USA'],['America/North_Dakota/','USA'],
+    ['America/Denver','USA'],['America/Boise','USA'],['America/Phoenix','USA'],
+    ['America/Los_Angeles','USA'],
+    ['America/Anchorage','USA'],['America/Juneau','USA'],['America/Sitka','USA'],
+    ['America/Metlakatla','USA'],['America/Yakutat','USA'],['America/Nome','USA'],
+    ['America/Adak','USA'],
+    ['Pacific/Honolulu','USA']];
   /* VISUAL REDESIGN (2026-09), Phase 5.
      Der Hero-Chart auf der Startseite braucht dasselbe "Heimatland" wie der
      Compare-Tab. Statt die Zeitzonentabelle oben ein zweites Mal zu pflegen,
@@ -6495,14 +6506,17 @@ const QR = (() => {
   function setHomePref(v){
     try { if (v) localStorage.setItem(HOME_KEY, v); else localStorage.removeItem(HOME_KEY); } catch(e){}
   }
-  /* -> {country, source} ; source: 'user' | 'tz' | 'fallback' | 'none'.
-     'fallback' = Zeitzone unbekannt, Deutschland nur als Vergleich, nie als "you". */
+  /* -> {country, source} ; source: 'user' | 'tz' | 'missing' | 'fallback' | 'none'.
+     'missing'  = Zeitzone kennt das Land, aber es ist nicht in den Daten.
+     'fallback' = Zeitzone unbekannt/unmapped — Deutschland nur als Vergleich,
+                  nie als "you"; Text darf nicht behaupten, das Land fehle. */
   function homeInfo(names){
     const pref = homePref();
     if (pref === HOME_NONE) return { country:null, source:'none' };
     if (pref && (!names || names.includes(pref))) return { country:pref, source:'user' };
     const c = tzCountry();
     if (c && (!names || names.includes(c))) return { country:c, source:'tz' };
+    if (c) return { country:null, source:'missing' };
     return { country:null, source:'fallback' };
   }
   window.__bevHomeCountry = tzCountry;   // Phase 5, siehe Kommentar oben
@@ -15580,7 +15594,7 @@ document.addEventListener('click', (e) => {
     var names=rows.map(function(r){return r.country;});
     try { if(typeof window.__bevHomeInfo==='function') info=window.__bevHomeInfo(names); } catch(e){}
     var shown=info.country;
-    if(!shown && info.source==='fallback' && names.indexOf('Germany')>=0) shown='Germany';
+    if(!shown && (info.source==='fallback' || info.source==='missing') && names.indexOf('Germany')>=0) shown='Germany';
     return {country:info.country, source:info.source, shown:shown};
   }
 
@@ -15618,7 +15632,8 @@ document.addEventListener('click', (e) => {
     if(info.source==='tz') txt='Highlighted: '+esc(info.country)+' (guessed from your browser’s time zone).';
     else if(info.source==='user') txt='Highlighted: '+esc(info.country)+' (your selection).';
     else if(info.source==='none') txt='No market highlighted.';
-    else txt='Your country isn’t in the data; Germany is shown for comparison.';
+    else if(info.source==='missing') txt='Your country isn’t in the data; Germany is shown for comparison.';
+    else txt='We couldn’t guess your country from the time zone; Germany is shown for comparison.';
     el.innerHTML=txt+' <button type="button" id="galHeroHomeBtn">change</button>';
     document.getElementById('galHeroHomeBtn').addEventListener('click',function(){ homeEditing=true; draw(null); });
   }

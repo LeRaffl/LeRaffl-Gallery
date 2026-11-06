@@ -23,6 +23,11 @@ checks = [
     ("change control present", 'id="galHeroHome"' in HTML and "galHeroHomeBtn" in HTML),
     ("hide option present", "No highlight" in HTML),
     ("compare tab honours the choice", "homeInfo(NAMES).country" in HTML),
+    ("missing-country copy when TZ maps but market absent",
+     "Your country isn’t in the data; Germany is shown for comparison." in HTML
+     and "source:'missing'" in HTML),
+    ("unknown-TZ copy does not claim country isn't in the data",
+     "We couldn’t guess your country from the time zone; Germany is shown for comparison." in HTML),
 ]
 bad = [n for n, ok in checks if not ok]
 for n, ok in checks:
