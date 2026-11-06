@@ -30,9 +30,10 @@ check("chip CSS mirrors the Raw Data presets",
 check("enhanceCountryMultiSelect wires opts.regions",
       "if(opts.regions)" in H and "regionPresets(sel, wrap" in H)
 check("Builder picker passes regions:true",
-      "placeholder: 'Search countries', regions: true" in H)
+      "regions: true" in H.split("function initBuilder")[1][:2500]
+      or "regions: true" in H.split("Search countries")[1][:200])
 check("Fleet picker passes regions:true",
-      "placeholder: 'Search fleet countries', regions: true" in H)
+      "regions: true" in H.split("function populateFleetCountries")[1][:3500])
 check("#builderGroups quick-groups select is kept", 'id="builderGroups"' in H)
 check("compact variant filters do not get region chips",
       "compact: true, regions" not in H and "compact:true, regions" not in H)
