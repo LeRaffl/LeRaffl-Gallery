@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-05T12:43:10Z",
- "today": "2026-11-05",
+ "generated": "2026-11-06T12:25:38Z",
+ "today": "2026-11-06",
  "countries": [
   {
    "country": "Albania",
@@ -759,11 +759,11 @@
    "source_url": "https://www.andi.com.co/Home/Camara/4-automotriz",
    "cadence_text": "daily cron, 5th–25th, 07:30 UTC",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -809,14 +809,14 @@
     ],
     "workflow": ".github/workflows/fetch-colombia.yml"
    },
-   "last_render": "2026-10-25",
+   "last_render": "2026-11-05",
    "flag": "🇨🇴",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2019-01",
-     "rows": 93,
+     "rows": 94,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1337,11 +1337,11 @@
    "source_url": "https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__merek/statfin_merek_pxt_121d.px/",
    "cadence_text": "daily cron, 1st–15th, 04:40 UTC",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1381,54 +1381,54 @@
     ],
     "workflow": ".github/workflows/fetch-finland.yml"
    },
-   "last_render": "2026-10-06",
+   "last_render": "2026-11-05",
    "flag": "🇫🇮",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2014-01",
-     "rows": 153,
+     "rows": 154,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2014-01",
-     "rows": 153,
+     "rows": 154,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2014-01",
-     "rows": 153,
+     "rows": 154,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2014-01",
-     "rows": 153,
+     "rows": 154,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2014-01",
-     "rows": 153,
+     "rows": 154,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2014-01",
-     "rows": 153,
+     "rows": 154,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2297,11 +2297,11 @@
    "source_url": "https://www.jada.or.jp/pages/342/",
    "cadence_text": "daily cron, 08:00 UTC — no-op until JADA publishes, usually the first business week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2357,14 +2357,14 @@
     ],
     "workflow": ".github/workflows/fetch-japan.yml"
    },
-   "last_render": "2026-10-06",
+   "last_render": "2026-11-06",
    "flag": "🇯🇵",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2012-01",
-     "rows": 177,
+     "rows": 178,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3321,10 +3321,10 @@
    "cadence_text": "twice-daily cron, 6th–10th, 09:30 & 13:30 UTC",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4412,11 +4412,11 @@
    "source_url": "https://www.smmt.co.uk/vehicle-data/car-registrations/",
    "cadence_text": "twice daily on the 1st–15th, 10:25 and 16:25 UTC — SMMT publishes month M at 09:00 UK time in the first working days of M+1; an early release carries preliminary figures, and the final ones follow a few days later (September 2026 — preliminary on October 2, final on October 5)",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4457,14 +4457,14 @@
     ],
     "workflow": ".github/workflows/fetch-uk.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-11-05",
    "flag": "🇬🇧",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     }
