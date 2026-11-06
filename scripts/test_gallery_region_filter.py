@@ -34,7 +34,8 @@ check("split manifest names map to their base country",
       "function galleryRegionName(" in H and "inRegion(galleryRegionName(it.country))" in H
       and "inR(galleryRegionName(v))" in H)
 check("World Interval leftovers excluded from country list",
-      "World (Interval" in H and "leftover composite" in H and "countrySelect.append" in H)
+      "isHiddenLeftoverSeries(c)" in H and "World" in H and "Interval" in H
+      and "countrySelect.append" in H)
 _tag = re.search(r'<select[^>]*id="regionGal"[^>]*>', H)
 check("#regionGal uses the shared .country-field look (needs #377)", bool(_tag and "country-field" in _tag.group(0)))
 check("no separate .fx-region look left", "fx-region" not in H)

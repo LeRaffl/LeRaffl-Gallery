@@ -7546,13 +7546,40 @@ const SEARCH_ALIASES = {
    card titles and the Country picker keep the manifest spelling. Since the
    manifest builder fixed these labels (label_from_slug), this is only a
    safety net for manifests generated before that fix. */
+/* Leftover series kept out of the Gallery grid/picker/region fill, Compare
+   pin-selects, and Rankings variant filters. Matched by display label
+   ("Germany (20260507 Git)", "World (Interval …)", "New Zealand (Legacy)")
+   or by country+variant / "Country · Variant" ("Germany · Custom",
+   "Canada · Non-Passenger"). India (4-Wheelers) is an intentional legacy
+   entry (owner 2026-10-31) — never add it here. */
+function isHiddenLeftoverVariant(variant){
+  const v = String(variant || '').trim().toLowerCase().replace(/\s+/g, '-');
+  return v === 'custom' || v === 'non-passenger' || v === 'nonpassenger';
+}
+function isHiddenLeftoverSeries(countryOrLabel, variant){
+  const s = String(countryOrLabel || '').trim();
+  if (!s) return false;
+  if (/^World\s*\(Interval\b/i.test(s)) return true;
+  if (/^Germany\s*\(20260507\s+Git\)$/i.test(s)) return true;
+  if (/^New Zealand\s*\(Legacy\)$/i.test(s)) return true;
+  if (/^Germany\s*[·•]\s*Custom$/i.test(s)) return true;
+  if (/^Canada\s*[·•]\s*Non-Passenger$/i.test(s)) return true;
+  if (/^Germany\s*\(\s*Custom\s*\)$/i.test(s)) return true;
+  if (/^Canada\s*\(\s*Non-Passenger\s*\)$/i.test(s)) return true;
+  if (variant != null && String(variant).trim() !== '') {
+    const base = s.replace(/\s*\(.*\)\s*$/, '').trim();
+    if (/^Germany$/i.test(base) && isHiddenLeftoverVariant(variant)) return true;
+    if (/^Canada$/i.test(base) && isHiddenLeftoverVariant(variant)) return true;
+  }
+  return false;
+}
 function galleryRegionName(country){
   const c = String(country || '');
   if (/^Hong \(Kong\b/.test(c)) return 'Hong Kong';
   if (/^India-\w*Wheelers?$/i.test(c)) return 'India';
   return c;
 }
-function applyFilters(all, tagOverride){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const inRegion=rankRegionMatcher(regionGal?regionGal.value:''); const period=periodSelect.value; const tagF=tagOverride||getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!inRegion(galleryRegionName(it.country))) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
+function applyFilters(all, tagOverride){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const inRegion=rankRegionMatcher(regionGal?regionGal.value:''); const period=periodSelect.value; const tagF=tagOverride||getActiveTagFilters(); let out=all.filter(it=>{ if(isHiddenLeftoverSeries(it.country)) return false; if(country&&it.country!==country) return false; if(!inRegion(galleryRegionName(it.country))) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
 // Tag filters — logic in assets/tag_system.js (tagFilterValue/Passes/Counts);
 // these two read the chip state and look up a chart's tags.
 function getActiveTagFilters(){
@@ -7570,8 +7597,8 @@ function passesTagFilter(country, filters){
 loadManifest().then(({images})=>{
   const imgs = Array.isArray(images)?images:[]; if(!imgs.length){ empty.hidden=false; empty.textContent='No charts found. manifest.json loaded but contains no images.'; return; }
   uniq(imgs.map(x=>x.country)).sort().forEach(c=>{
-    // World (Interval …) images are leftover composite renders, not countries.
-    if(/^World\s*\(Interval\b/i.test(c)) return;
+    // World Interval / Germany Git / NZ Legacy / … — see isHiddenLeftoverSeries.
+    if(isHiddenLeftoverSeries(c)) return;
     const o=document.createElement('option'); o.value=c; o.textContent=c; countrySelect.append(o);
   });
   if(regionGal){ fillRankRegionSelect(regionGal, imgs); regionGal.options[0].textContent='All regions'; }
@@ -7931,7 +7958,7 @@ function rankRegionOf(country){
 function fillRankRegionSelect(sel, rows){
   if (!sel) return;
   const keep = sel.value;
-  const present = new Set((rows || []).map(r => rankRegionOf(r.country)));
+  const present = new Set((rows || []).filter(r => !isHiddenLeftoverSeries(r.country, r.variant)).map(r => rankRegionOf(r.country)));
   const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
   let html = '<option value="">All countries</option><optgroup label="Continents">';
   RANK_REGION_CONTINENTS.filter(c => present.has(c))
@@ -8229,6 +8256,7 @@ function renderThresholds(csvText){
       .forEach(base=>{
         const canonical = normalizeBase(base);
         if(!canonical || seen.has(canonical)) return;
+        if(isHiddenLeftoverVariant(canonical) || isHiddenLeftoverVariant(base)) return;
         seen.add(canonical);
 
         const opt = document.createElement('option');
@@ -8523,7 +8551,7 @@ renderTable();
   }
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
   function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const totalM=Math.round(Math.abs(dYears)*12); const years=Math.floor(totalM/12); const months=totalM%12; const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
-  function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); enhanceMultiSelect(sel); }
+  function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; if(isHiddenLeftoverVariant(canon)||isHiddenLeftoverVariant(base)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); enhanceMultiSelect(sel); }
   function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.filter(r=>!rowIsUnreliableFit(r)).map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' pp/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
     const mount=document.getElementById('durationsMount'); const sel=document.getElementById('variantMultiD'); makeVariantOptions(rows);
@@ -8667,6 +8695,7 @@ renderTable();
     [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{
       const canon=normalizeBase(base);
       if(!canon||seen.has(canon)) return;
+      if(isHiddenLeftoverVariant(canon)||isHiddenLeftoverVariant(base)) return;
       seen.add(canon);
       const opt=document.createElement('option');
       opt.value=canon; opt.textContent=displayLabelFromBase(base);
@@ -10392,6 +10421,7 @@ if (stepTraces.length){
     const cvMap = new Map(); // country -> variant[]
     PARAM_ROWS.forEach(r => {
       if(!r.country) return;
+      if(isHiddenLeftoverSeries(r.country, r.variant)) return;
       if(!cvMap.has(r.country)) cvMap.set(r.country, []);
       const arr = cvMap.get(r.country);
       if(!arr.includes(r.variant)) arr.push(r.variant);
@@ -16248,6 +16278,10 @@ document.addEventListener('click', (e) => {
       if (regionSel && regionSel.value) { regionSel.value = ''; }
       if (sel.value) setCountry('');
       chips.forEach(c => { c.checked = false; });
+      const searchEl = $('search'); if (searchEl && searchEl.value) searchEl.value = '';
+      // Types default = all four chart types on (TYPE_ORDER).
+      TYPE_ORDER.forEach(v => { const c = typeChecks.find(x => x.value === v); if (c) c.checked = true; });
+      const lo = $('latestOnly'); if (lo) lo.checked = true;
       fire(ps);                          // one re-render for everything
       $('search').focus({ preventScroll: true });
     };
@@ -16272,10 +16306,22 @@ document.addEventListener('click', (e) => {
       badge.setAttribute('aria-label', `${hiddenN} changed`);
       const rg = regionSel && regionSel.value;
       const cv = sel.value;
-      const n = on.length + (ps.value ? 1 : 0) + (rg ? 1 : 0) + (cv ? 1 : 0);
+      const searchEl = $('search');
+      const searchQ = searchEl ? searchEl.value.trim() : '';
+      const typeBoxes = TYPE_ORDER.map(v => typeChecks.find(x => x.value === v)).filter(Boolean);
+      const typesOff = typeBoxes.filter(c => !c.checked);
+      const loOff = !!(lo && !lo.checked);
+      const n = on.length + (ps.value ? 1 : 0) + (rg ? 1 : 0) + (cv ? 1 : 0)
+        + (searchQ ? 1 : 0) + (typesOff.length ? 1 : 0) + (loOff ? 1 : 0);
       bar.replaceChildren();
       if (rg) bar.append(mk('Region: ' + regionSel.options[regionSel.selectedIndex].textContent, () => { regionSel.value = ''; fire(regionSel); }));
       if (cv) bar.append(mk('Country: ' + cv, () => { setCountry(''); }));
+      if (searchQ) bar.append(mk('Search: ' + searchQ, () => { searchEl.value = ''; fire(ps); }));
+      if (typesOff.length) {
+        const lab = 'Types (−' + typesOff.map(c => c.parentNode.textContent.trim()).join(', −') + ')';
+        bar.append(mk(lab, () => { typeBoxes.forEach(c => { c.checked = true; }); fire(ps); }));
+      }
+      if (loOff) bar.append(mk('Latest only: off', () => { lo.checked = true; fire(lo); }));
       if (ps.value) bar.append(mk('Month: ' + ps.options[ps.selectedIndex].textContent, () => { ps.value = ''; fire(ps); }));
       on.forEach(c => { const b = mk(labelOf(c), () => { c.checked = false; fire(c); c.focus({ preventScroll: true }); });
         b.dataset.tone = c.parentNode.dataset.tone; bar.append(b); });
