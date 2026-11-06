@@ -7,6 +7,9 @@ source pages (sources/*.html, sources/tags.html included) and the generator's
 own gap text. Numbers keep their international format; only the space before
 "%" goes. German comments ("8 %") and modulo arithmetic ("i % 2") are not
 user-visible and not matched.
+
+Also guards chart hovertemplates: Plotly 3.5 does not treat "%%" as an escape
+(only %{...} is special), and Fleet share hover must not put a space before "%".
 """
 import pathlib, re, sys
 R = pathlib.Path(__file__).resolve().parent.parent
@@ -32,6 +35,7 @@ for p in sorted((R / "sources").glob("*.html")):
 gen = (R / "scripts/build_source_pages.py").read_text(encoding="utf-8")
 if "({g_txt} %)" in gen:
     bad.append("scripts/build_source_pages.py: gap text still spaced")
+hover_lines = "".join(l for _, l in code_lines(html) if "hovertemplate" in l)
 checks = [
     ("no spaced 'N %' in index.html code / markup", not any(b.startswith("index.html") for b in bad)),
     ("no spaced 'N %' in generated sources/*.html", not any(b.startswith(tuple(p.name for p in (R/'sources').glob('*.html'))) for b in bad)),
@@ -39,6 +43,13 @@ checks = [
     ("map legend: '4.2% BEV'", "toFixed(1)}% BEV in the last 12 months" in html),
     ("pct() helper unspaced", "replace(/\\.0$/, '') + '%';" in html),
     ("band label unspaced", "'95% confidence band'" in html),
+    ("time-lapse hover: single % after threshold", "predicted ${t}% in %{text}" in html),
+    ("time-lapse hover: no %% escape leftover", "predicted ${t}%%" not in html),
+    ("no Plotly hovertemplate uses %%", "%%" not in hover_lines),
+    ("fleet share hover has no space before %",
+     "%{y:.1f}%</b>" in html
+     and "</b> ' + (mode === 'absolute' ? 'vehicles' : '%')" not in html),
+    ("fleet absolute hover uses integer thousands", "%{y:,.0f}</b> vehicles" in html),
 ]
 for n, ok in checks: print(("PASS " if ok else "FAIL ") + n)
 for b in bad[:30]: print("  spaced:", b)
