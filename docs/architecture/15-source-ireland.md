@@ -126,6 +126,42 @@ query-param REST endpoint and no JSON-stat. We confirmed this by:
    fetcher reads it fresh from the root HTML every run, so it self-heals when
    SIMI redeploys.
 
+### Maintenance and fail-closed response handling
+
+SIMI can temporarily redirect the public dashboards to `/updating`
+(`Public/Updating`). That is **source downtime, not an empty registration
+month**. Bootstrap does not follow redirects and requires the passenger
+component and a valid asset version. A maintenance response stops before any
+filter request. The shared `partial()` transport used for registrations and
+rankings also rejects maintenance/unexpected redirects, non-200 responses,
+non-JSON/empty bodies, wrong components and missing requested props. Filter
+redirects must point back to the expected public dashboard; they are never
+followed to another destination. No member/login route or alternative endpoint
+is used.
+
+A valid engine dataset must explicitly contain a `datasets` list. Each listed
+engine type must carry exactly one finite, nonnegative integer monthly count;
+missing/null counts are errors, not zero. An explicitly empty dataset or
+explicit all-zero counts retain the existing no-row policy. Unknown labels
+still fail rather than being dropped. Months are collected before the variant's
+upsert, so a failed registration request does not write a partial window.
+Registration errors propagate to workflow failure, preventing the commit/render steps; the fetcher does **not** turn downtime into a
+successful no-op. Retry the normal fetch after the public dashboard returns;
+this repair neither changes the trailing-window revision policy nor requests a
+backfill. The CSV writer/schema and fuel mapping are unchanged.
+
+**Observed failure, 2026-11-07 14:31 CET:** a public partial GET returned HTTP
+302, `Content-Type: text/html`, `Location: https://stats.simi.ie/updating`.
+The destination exposed component `Public/Updating` and the same asset version
+as failed run [42301838042](https://github.com/LeRaffl/LeRaffl-Gallery/actions/runs/42301838042).
+The old bootstrap followed the redirect, accepted that maintenance page, and
+then attempted `.json()` on an unchecked partial redirect. This reproduces the
+failure mechanism; the original run did not log its HTTP response, so its exact
+status/body cannot be recovered from that log. This is a fail-closed client
+repair, **not a claim that SIMI's maintenance is fixed**. Sanitized evidence and
+offline synthetic healthy/error cases are covered by
+`scripts/fixtures/ireland/maintenance.json` and `scripts/test_fetch_ireland.py`.
+
 ### Isolating a single month
 
 Setting one `years` entry and `month_from == month_to` returns that single
@@ -249,10 +285,12 @@ Single variant ⇒ no parallel-render push race.
 
 | Failure mode | What happens | Diagnostic / fix |
 |---|---|---|
+| SIMI redirects to `/updating` | explicit maintenance error, nonzero exit; no fabricated data or success | Wait for the public dashboard to return, then retry the normal fetch |
+| Unexpected redirect, non-JSON or malformed partial | explicit source error, not an empty month | Inspect the public response; do not follow login/member routes or substitute zeros |
 | SIMI redeploys (new asset version) | `X-Inertia-Version` mismatch → 409 | Self-heals: the fetcher reads the version fresh from `/` each run |
 | `month_from`/`month_to` sent as int | PATCH 500 | Must be `{"name":<MonthName>,"value":<n>}` — already handled |
 | SIMI adds a new engine type | mapper raises `RuntimeError("unmapped engine-type label …")` before commit | Add the label to `LABEL_TO_COL` |
-| Inertia prop renamed (`carsByEngineType`) | partial returns null | Re-capture prop names from the live page (a Playwright network trace was how they were found) |
+| Inertia prop renamed (`carsByEngineType`) or invalid/missing counts | explicit source error; no partial-window upsert | Verify the public dashboard contract before changing the parser |
 | `/filter/passenger` route/shape changes | PATCH 404/422/500 | Re-inspect the dashboard's filter PATCH (capture the real request in a browser) |
 | SIMI restates recent months | upsert prints WARNING on >50% moves, still commits | Verify; revert manually if wrong |
 | New FLEXFUEL/other column left half-filled | TTM plot skipped ("nothing to plot") | Backfill the column across the full plotted span (see §6) |
