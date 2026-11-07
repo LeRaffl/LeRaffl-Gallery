@@ -1,0 +1,17 @@
+{
+  "observed": "2026-11-07 14:31 CET",
+  "public_url": "https://stats.simi.ie/",
+  "partial_get": {
+    "status": 302,
+    "headers": {
+      "Content-Type": "text/html; charset=utf-8",
+      "Location": "https://stats.simi.ie/updating"
+    }
+  },
+  "destination_page": {
+    "component": "Public/Updating",
+    "url": "/updating",
+    "version": "aee5007f0735c1b6588a0c849396f29d"
+  },
+  "note": "Public GETs only, no filter PATCH. Version matches failed run 42301838042; its HTTP response was not logged."
+}

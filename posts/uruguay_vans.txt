@@ -1,9 +1,9 @@
-🇺🇾 Uruguay (Vans) - September 26 - BEV Trajectory
-10.0% BEV
-0.6% PHEV
-89.3% ICE (of which 1.0%p were HEV)
+🇺🇾 Uruguay (Vans) - October 26 - BEV Trajectory
+11.6% BEV
+1.0% PHEV
+87.4% ICE (of which 0.7%p were HEV)
 
 Trailing 12 months are:
-6.1% BEV
-0.6% PHEV
-93.3% ICE (of which 1.5%p were HEV)
+7.1% BEV
+0.7% PHEV
+92.3% ICE (of which 1.5%p were HEV)

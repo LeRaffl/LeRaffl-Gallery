@@ -1351,6 +1351,8 @@ sequenceDiagram
 
 **Why twice-daily on the 1st–5th:** SIMI publishes the new month very early — usually on the 1st. Polling twice daily early in the month catches it fast; the early-exit makes runs no-ops once the previous month is in. Each active run re-fetches a trailing window (default 4 months) to absorb SIMI's revisions.
 
+**Source downtime:** bootstrap/partials fail closed on `/updating`, unexpected redirects, non-JSON or missing/invalid engine data; no zero substitute or successful no-op. A failed monthly window is not upserted, and a failed workflow never commits or renders. See [15-source-ireland.md §3](15-source-ireland.md).
+
 **Known fragility:** SIMI redeploys rotate the Inertia version (self-heals — read fresh each run); a new engine-type label raises `RuntimeError` before commit; if SIMI restructures the SPA, re-capture the Inertia prop names and the `/filter/passenger` request shape in a browser. See [15-source-ireland.md § 9](15-source-ireland.md). Migration note: Ireland previously rendered via the legacy local R pipeline with an older 12-column (no-FLEXFUEL) CSV; this flow normalised it to 13 columns.
 
 ## Flow U — ACAP ingest

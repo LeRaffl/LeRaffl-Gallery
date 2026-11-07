@@ -1,0 +1,7 @@
+🇪🇪 Estonia (Vans) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++1.9pp  BEV   (3.8% → 5.7%)
++0.7pp  PHEV  (0.5% → 1.2%)
++1.9pp  HEV   (1.6% → 3.5%)
+−4.5pp  ICE   (94.1% → 89.6%)

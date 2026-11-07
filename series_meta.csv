@@ -23,7 +23,7 @@ Denmark,Industry,2026-09,BEV,false,false,,true,true
 Denmark,Private,2026-09,BEV,false,false,,true,true
 Denmark,Vans,2026-09,BEV,false,false,,true,true
 Denmark,Whole,2026-09,BEV,false,false,,true,true
-Estonia,Whole,2026-09,BEV,false,false,,true,true
+Estonia,Whole,2026-10,BEV,false,false,,true,true
 Finland,Buses,2026-10,BEV,false,false,,true,true
 Finland,HDV,2026-10,BEV,false,false,,true,true
 Finland,Industry,2026-10,BEV,false,false,,true,true
@@ -88,10 +88,10 @@ Thailand,Whole,2026-08,BEV,false,false,,true,true
 Türkiye,Whole,2026-09,BEV,false,false,,false,false
 UK,Whole,2026-10,BEV,false,false,,true,true
 USA,Whole,2026-09,BEV,false,false,,true,true
-Uruguay,Buses,2026-09,BEV,false,false,,true,true
-Uruguay,HDV,2026-09,BEV,false,false,,true,true
-Uruguay,Vans,2026-09,BEV,false,false,,true,true
-Uruguay,Whole,2026-09,BEV,false,false,,true,true
+Uruguay,Buses,2026-10,BEV,false,false,,true,true
+Uruguay,HDV,2026-10,BEV,false,false,,true,true
+Uruguay,Vans,2026-10,BEV,false,false,,true,true
+Uruguay,Whole,2026-10,BEV,false,false,,true,true
 Austria,HDV,2026-09,BEV,false,false,,false,false
 Belgium,Vans,2026-09,BEV,false,false,,true,true
 Belgium,HDV,2026-09,BEV,false,false,,true,true
@@ -109,8 +109,8 @@ Hungary,Buses,2026-09,EV,true,true,,false,false
 Norway,Vans,2026-09,EV,true,true,,false,false
 Cyprus,HDV,2026-09,EV,true,true,,false,false
 Sweden,Buses,2026-09,EV,true,true,,false,false
-Estonia,Vans,2026-09,BEV,false,false,,true,true
-Estonia,HDV,2026-09,BEV,false,false,,true,true
+Estonia,Vans,2026-10,BEV,false,false,,true,true
+Estonia,HDV,2026-10,BEV,false,false,,true,true
 France,HDV,2026-09,EV,true,true,,false,false
 Norway,HDV,2026-09,EV,true,true,,false,false
 Portugal,HDV,2026-08,BEV,false,false,,true,true
@@ -122,7 +122,7 @@ Hungary,HDV,2026-09,EV,true,true,,false,false
 Slovenia,HDV,2026-09,EV,true,true,,false,false
 Germany,Buses,2026-09,EV,true,true,,false,false
 Czechia,Buses,2026-09,BEV,false,false,,true,true
-Estonia,Buses,2026-09,BEV,false,false,,true,true
+Estonia,Buses,2026-10,BEV,false,false,,true,true
 Romania,Buses,2026-09,EV,true,true,,false,false
 Slovakia,Buses,2026-09,EV,true,true,,false,false
 Slovenia,Buses,2026-09,EV,true,true,,false,false
@@ -165,7 +165,7 @@ Latvia,Vans,2026-09,BEV,false,false,,true,true
 Latvia,Buses,2026-09,BEV,false,false,,true,true
 Estonia,Private,2026-09,BEV,false,false,,true,true
 Estonia,Industry,2026-09,BEV,false,false,,true,true
-Estonia,Used,2026-09,BEV,false,false,,false,false
+Estonia,Used,2026-10,BEV,false,false,,false,false
 Belgium,Private,2026-09,BEV,false,false,,true,true
 Belgium,Industry,2026-09,BEV,false,false,,true,true
 Austria,Resale,2026-09,BEV,false,false,,true,true
