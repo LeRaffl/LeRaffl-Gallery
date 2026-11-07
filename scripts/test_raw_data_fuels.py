@@ -213,6 +213,19 @@ test('FCEV aggregate includes only confirmed fixed members and their TOTAL',()=>
  assert.equal(c.list[0].v.FCEV,3);assert.equal(c.list[0].tot,200);
  assert.equal(r.combined(['A','B'],1,r.plan(['A','B'])),null);
 });
+test('explicit Other filter sums selected leaves and labels mixed unseparated FCEV',()=>{
+ reset({A:detailed([1,2,3]),B:series({BEV:10,ICE:80,OTHERS:10},100)});
+ r.setState({c:['A','B'],f:['OTHERS']});const p=r.plan(['A','B']),c=r.combined(['A','B'],1,p);
+ assert.equal(c.list[0].v.OTHERS,19);assert(c.list[0].unknown.includes('FCEV'));
+ const e=draw([c.list[0]]);e.hits[0].events.mouseenter();assert.match(e.tip.innerHTML,/FCEV not separated/);
+ r.setView(['A','B'].map(c=>({c,l:r.bars(c,1,p)})),c.list);assert.match(r.csvText(),/"COMBINED",1,2000-01,2000-01,19,19,200/);
+});
+test('FCEV history outside the timeframe clears the aggregate without stale summary crashes',()=>{
+ const a=detailed([1,2,3,...Array(33).fill(null)]),b=detailed([2,3,4,...Array(33).fill(null)]);
+ const c=detailed(Array(36).fill(null));delete c.breakdown;
+ reset({A:a,B:b,C:c});r.setState({c:['A','B','C'],f:['FCEV'],t:1});r.render();
+ assert.equal(el('rdDlCsv').disabled,true);assert.match(el('rdFoot').innerHTML,/No combined chart/);
+});
 test('Hero observed series is true BEV / original TOTAL, ignoring detail',()=>{
  const s=detailed(Array(24).fill(1));s.b.ICE=Array(24).fill(79);
  const observed=plain(ctx.ttmFromSeries(s));assert.equal(observed.length,13);

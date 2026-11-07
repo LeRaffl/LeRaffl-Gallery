@@ -97,6 +97,9 @@ and held periods do not change because an optional detail starts later.
 `t` retains original source TOTAL, not the sum of drawn bands. Raw Data's
 strict coverage/window projection is specified in [35 §5.3b](35-proposal-raw-data-tab.md#53b-optional-fcev-detail-implemented).
 Fleet stock data is a separate pipeline and is unchanged.
+Submit corrections validate these same effective disjoint leaves after retaining
+an omitted FCEV; neither the legacy electric-only tolerance nor an invisible
+optional input can erase or double-count it (see [04](04-interfaces.md)).
 
 **`notes` preservation contract:** Automated fetchers write `notes = ""` for new rows. On re-ingestion (e.g. `--force`), a fetcher must not silently clear an existing non-empty `notes` value. The correct pattern (implemented in all `fetch_*.py` scripts since June 2026) is:
 

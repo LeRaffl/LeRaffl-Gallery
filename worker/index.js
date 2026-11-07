@@ -452,6 +452,29 @@ const FUEL_ORDER = [
   'FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'
 ];
 const ALLOWED_FUEL_COLS = new Set(FUEL_ORDER);
+class SubmissionValidationError extends Error {}
+function decodeGitHubCsv(content) {
+  return new TextDecoder('utf-8', {fatal:true}).decode(
+    Uint8Array.from(atob(content.replace(/\n/g, '')), c=>c.charCodeAt(0)));
+}
+function validateFcevRecord(cols, fields, period) {
+  const row = Object.fromEntries(cols.map((k,i)=>[k,fields[i]]));
+  if (row.FCEV === undefined || row.FCEV === '') return; // unknown, not zero
+  const total = Number(row.TOTAL), fc = Number(row.FCEV);
+  if (!Number.isFinite(fc) || fc < 0 || !Number.isFinite(total) || total < 0)
+    throw new SubmissionValidationError(`row ${period}: invalid effective FCEV/TOTAL`);
+  const leaves = FUEL_ORDER.filter(k=>k !== 'TOTAL');
+  const sum = leaves.reduce((n,k)=>n+(row[k] === undefined || row[k] === '' ? 0 : Number(row[k])),0);
+  const combustion = ['ICE','PETROL','DIESEL','FLEXFUEL','ETHANOL','GAS','CNG','LPG'];
+  const hasIce = row.ICE !== undefined && row.ICE !== '' || combustion.some(k=>Number(row[k]) > 0);
+  // Match the exporter: an unnamed >5% combustion residual is derivable only
+  // without an explicit combustion split. Confirmed optional detail otherwise
+  // requires disjoint leaves closing against ORIGINAL TOTAL, not 0.5/3% slack.
+  const residual = !hasIce && total-sum > total*0.05;
+  if (!Number.isFinite(sum) || sum > total+1e-6 || (!residual && Math.abs(sum-total)>1e-6))
+    throw new SubmissionValidationError(`row ${period}: effective FCEV leaves must close to original TOTAL`);
+}
+
 
 async function handleSubmission(request, env, ctx) {
   const origin = request.headers.get('Origin') || '';
@@ -502,6 +525,8 @@ async function handleSubmission(request, env, ctx) {
       if (k === 'FCEV' && v === null) { cleanFuels[k] = null; continue; }
       if (k === 'FCEV' && typeof v === 'string' && !v.trim()) continue;
       if (v === '' || v === null || v === undefined) continue;
+      if (k === 'FCEV' && !['number','string'].includes(typeof v))
+        return err('FCEV must be a numeric count or unknown', 400, origin);
       const n = Number(v);
       if (!Number.isFinite(n) || n < 0)               return err(`fuel ${k} must be a non-negative number`, 400, origin);
       cleanFuels[k] = n;
@@ -510,7 +535,8 @@ async function handleSubmission(request, env, ctx) {
     if (cleanFuels.BEV === undefined)                 return err(`row ${r.period}: BEV is required`, 400, origin);
     // Disjoint electric leaves must not exceed the original TOTAL.
     const bev = cleanFuels.BEV || 0, phev = cleanFuels.PHEV || 0, erev = cleanFuels.EREV || 0;
-    if (bev + phev + erev + (cleanFuels.FCEV || 0) > cleanFuels.TOTAL * 1.005) {
+    if (bev + phev + erev + (cleanFuels.FCEV || 0) > cleanFuels.TOTAL *
+        (typeof cleanFuels.FCEV === 'number' ? 1 : 1.005) + 1e-6) {
       return err(`row ${r.period}: BEV+PHEV+EREV+FCEV exceeds TOTAL`, 400, origin);
     }
     safeRows.push({
@@ -538,13 +564,19 @@ async function handleSubmission(request, env, ctx) {
   let existing = null;   // { sha, content (utf8 string) }
   if (fileRes.status === 200) {
     const fileJson = await fileRes.json();
-    existing = { sha: fileJson.sha, content: atob((fileJson.content || '').replace(/\n/g, '')) };
+    try { existing = {sha:fileJson.sha, content:decodeGitHubCsv(fileJson.content || '')}; }
+    catch (_) { return err('Existing CSV is not valid UTF-8; refusing to rewrite it.', 502, origin); }
   } else if (fileRes.status !== 404) {
     return err(`Failed to read ${filename}`, 502, origin);
   }
 
   // ── Apply upserts ──
-  const { newCsv, summary } = upsertRows(existing?.content, safeVariant, safeSource, safeRows);
+  let newCsv, summary;
+  try { ({newCsv,summary} = upsertRows(existing?.content, safeVariant, safeSource, safeRows)); }
+  catch (e) {
+    return err(e instanceof SubmissionValidationError ? e.message : 'Existing CSV cannot be updated safely.',
+               e instanceof SubmissionValidationError ? 400 : 502, origin);
+  }
 
   if (newCsv === existing?.content) {
     return err('Submission would not change the file (identical to current data).', 400, origin);
@@ -620,34 +652,44 @@ async function handleSubmission(request, env, ctx) {
 
 // Logical records keep an optional count aligned when source/notes fields
 // contain commas, quotes or newlines. Untouched field tokens are not decoded
-// and reserialized unless schema padding is required.
+// Untouched field tokens survive even when an optional schema column is added.
 function csvRecords(text) {
   const records = [];
-  let fields = [], field = '', quoted = false, start = 0;
+  let fields = [], tokens = [], field = '', quoted = false, start = 0, tokenStart = 0;
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
     if (c === '"') {
       if (quoted && text[i+1] === '"') { field += '"'; i++; }
       else quoted = !quoted;
-    } else if (c === ',' && !quoted) { fields.push(field); field = ''; }
-    else if ((c === '\r' || c === '\n') && !quoted) {
-      fields.push(field);
-      records.push({fields, raw:text.slice(start,i)});
-      if (c === '\r' && text[i+1] === '\n') i++;
-      fields = []; field = ''; start = i+1;
+    } else if (c === ',' && !quoted) {
+      fields.push(field); tokens.push(text.slice(tokenStart,i)); field = ''; tokenStart = i+1;
+    } else if ((c === '\r' || c === '\n') && !quoted) {
+      fields.push(field); tokens.push(text.slice(tokenStart,i));
+      const raw = text.slice(start,i), ending = c === '\r' && text[i+1] === '\n' ? '\r\n' : c;
+      records.push({fields,tokens,raw,ending});
+      if (ending === '\r\n') i++;
+      fields = []; tokens = []; field = ''; start = i+1; tokenStart = start;
     } else field += c;
   }
   if (quoted) throw new Error('Unterminated quoted CSV field');
-  if (start < text.length) { fields.push(field); records.push({fields,raw:text.slice(start)}); }
+  if (start < text.length) {
+    fields.push(field); tokens.push(text.slice(tokenStart));
+    records.push({fields,tokens,raw:text.slice(start),ending:''});
+  }
   return records;
 }
+
 const csvFields = line => csvRecords(line)[0]?.fields || [];
 const csvCell = value => /[",\r\n]/.test(String(value))
   ? '"'+String(value).replace(/"/g,'""')+'"' : String(value);
 
 function upsertRows(existingCsv, variant, source, rows) {
   // Parse existing
-  let lines = csvRecords(existingCsv || '').map(r=>r.raw);
+  const originalRecords = csvRecords(existingCsv || '');
+  const endings = new Map(originalRecords.map(r=>[r.raw,r.ending]));
+  const eol = originalRecords.find(r=>r.ending)?.ending || '\n';
+  const finalNewline = !existingCsv || /[\r\n]$/.test(existingCsv);
+  let lines = originalRecords.map(r=>r.raw);
   while (lines.length && lines[lines.length - 1] === '') lines.pop();
   let header;
   let existingDataLines;
@@ -668,6 +710,10 @@ function upsertRows(existingCsv, variant, source, rows) {
   }
 
   let cols = csvFields(header);
+  if (new Set(cols).size !== cols.length) throw new Error('Duplicate CSV header');
+  for (const line of existingDataLines) {
+    if (csvFields(line).length !== cols.length) throw new Error('CSV row does not match header');
+  }
   // Ensure every submitted fuel column exists; append if missing.
   const submittedFuels = new Set();
   for (const r of rows) for (const k of Object.keys(r.fuels)) submittedFuels.add(k);
@@ -681,9 +727,14 @@ function upsertRows(existingCsv, variant, source, rows) {
     const notesIdx = cols.indexOf('notes');
     if (notesIdx >= 0) cols = [...cols.slice(0, notesIdx), ...newFuelCols, ...cols.slice(notesIdx)];
     else cols = [...cols, ...newFuelCols];
-    header = cols.join(',');
+    const headerTokens = csvRecords(header)[0].tokens;
+    headerTokens.splice(notesIdx < 0 ? headerTokens.length : notesIdx, 0, ...newFuelCols);
+    const oldHeader = header; header = headerTokens.join(','); endings.set(header,endings.get(oldHeader));
     // Pad existing lines with empty values for the new columns.
-    existingDataLines = existingDataLines.map(line => padLineForNewCols(line, cols, newFuelCols, notesIdx));
+    existingDataLines = existingDataLines.map(line => {
+      const padded = padLineForNewCols(line, cols, newFuelCols, notesIdx);
+      endings.set(padded,endings.get(line)); return padded;
+    });
   }
 
   const periodIdx  = cols.indexOf('period');
@@ -698,6 +749,8 @@ function upsertRows(existingCsv, variant, source, rows) {
   const added    = [];
   const newLines = [];
   const submittedKeys = new Set(rows.map(r => `${r.period}|${variant}`));
+  if (submittedKeys.size !== rows.length) throw new SubmissionValidationError('Duplicate submitted period/variant');
+  const existingKeys = new Set();
 
   // Helper to format a fuel value compactly. Integers stay as integers; one
   // decimal otherwise. NA → empty string.
@@ -710,6 +763,8 @@ function upsertRows(existingCsv, variant, source, rows) {
   for (const dl of existingDataLines) {
     const parts = csvFields(dl);
     const key = `${parts[periodIdx]}|${parts[variantIdx]}`;
+    if (existingKeys.has(key)) throw new Error('Duplicate existing CSV period/variant');
+    existingKeys.add(key);
     if (submittedKeys.has(key)) {
       // We'll re-emit this row from the submission; capture old value for diff.
       const old = {};
@@ -734,10 +789,11 @@ function upsertRows(existingCsv, variant, source, rows) {
         case 'notes':         return r.notes || '';
         default:
           if (r.fuels[c] !== undefined) return fmt(r.fuels[c]);
-          if (c === 'FCEV' && previous) return previous[c] || '';
+          if ((c === 'FCEV' || !ALLOWED_FUEL_COLS.has(c)) && previous) return previous[c] || '';
           return '';
       }
     });
+    validateFcevRecord(cols,fields,r.period);
     const line = fields.map(csvCell).join(',');
     newLines.push(line);
     if (!wasReplaced) added.push({ period: r.period });
@@ -750,7 +806,9 @@ function upsertRows(existingCsv, variant, source, rows) {
     return ap < bp ? -1 : ap > bp ? 1 : 0;
   });
 
-  const newCsv = [header, ...newLines].join('\n') + '\n';
+  const output = [header,...newLines];
+  const newCsv = output.map((line,i)=>line +
+    (i < output.length-1 || finalNewline ? (endings.get(line)||eol) : '')).join('');
   return {
     newCsv,
     summary: {
@@ -762,19 +820,9 @@ function upsertRows(existingCsv, variant, source, rows) {
 }
 
 function padLineForNewCols(line, allCols, newCols, notesIdx) {
-  const parts = csvFields(line);
-  // The original line was written with the OLD column count. New cols got
-  // inserted before notes (or appended). Reconstruct so values stay aligned.
-  if (notesIdx < 0) {
-    // Appended at end — just push empties.
-    while (parts.length < allCols.length) parts.push('');
-    return parts.map(csvCell).join(',');
-  }
-  // Inserted before notes: split parts at original notes position.
-  const oldNotesIdx = notesIdx;       // notes index in OLD cols == same as in NEW cols up to insertion point
-  const before = parts.slice(0, oldNotesIdx);
-  const notesAndAfter = parts.slice(oldNotesIdx);
-  return [...before, ...newCols.map(() => ''), ...notesAndAfter].map(csvCell).join(',');
+  const tokens = [...csvRecords(line)[0].tokens];
+  tokens.splice(notesIdx < 0 ? tokens.length : notesIdx,0,...newCols.map(()=>''));
+  return tokens.join(',');
 }
 
 function buildPrBody({ country, variant, source, author, summary, rows }) {

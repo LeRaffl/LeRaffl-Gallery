@@ -7030,10 +7030,10 @@ const QR = (() => {
       map.set(b.to, e);
     }));
     const list = [...map.values()].filter(e=>e.seen===keep.length).sort((x,y)=>x.to-y.to);
-    // In All mode a mixed-coverage aggregate keeps FCEV in its inclusive
-    // parent for EVERY member, rather than plotting a misleading partial sum.
-    if (S.f === null) for (const e of list) if (e.v.FCEV === null){
-      e.v.OTHERS = (e.v.OTHERS||0) + e.knownFcev;
+    // All restores inclusive Other; explicit filters never re-add an unchecked
+    // known FCEV. Both must label the unseparated remainder of unknown members.
+    for (const e of list) if (e.v.FCEV === null){
+      if (S.f === null) e.v.OTHERS = (e.v.OTHERS||0) + e.knownFcev;
       e.unknown = [...new Set([...(e.unknown||[]), 'FCEV'])];
     }
     return list.length ? {list, members:keep, skipped,
@@ -14943,6 +14943,7 @@ const SD_FUEL_ORDER = ['BEV','FCEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL'
 const SD_RAW_BASE = 'https://raw.githubusercontent.com/LeRaffl/LeRaffl-Gallery/master/data';
 
 const SD_STATE = {
+  loadId: 0,           // prevent stale country/variant schema responses
   countryCols: null,    // array of fuel columns for the currently selected country
   rowCount: 0,
   lastSource: '',       // most-recent source seen in the CSV (shown as a hint, not autofilled)
@@ -14995,7 +14996,26 @@ function sdInit() {
   sdOnCountryChange();
 }
 
+function sdCsvRecords(text) {
+  const records = []; let fields = [], field = '', quoted = false;
+  for (let i=0;i<text.length;i++) {
+    const c=text[i];
+    if (c === '"') {
+      if (quoted && text[i+1] === '"') {field+='"';i++;} else quoted=!quoted;
+    } else if (c === ',' && !quoted) {fields.push(field);field='';}
+    else if ((c === '\r' || c === '\n') && !quoted) {
+      fields.push(field);if(fields.some(v=>v!==''))records.push(fields);
+      fields=[];field='';if(c==='\r' && text[i+1]==='\n')i++;
+    } else field+=c;
+  }
+  if(quoted)throw new Error('Unterminated quoted CSV field');
+  if(field!=='' || fields.length){fields.push(field);records.push(fields);}
+  return records;
+}
+
 async function sdOnCountryChange() {
+  const loadId = ++SD_STATE.loadId;
+  sdEl('sdSubmit').disabled = true;
   const country = sdEl('sdCountry').value;
   const variant = sdEl('sdVariant').value || 'Whole';
   const filename = variant === 'Whole' ? `${country}.csv` : `${country}_${variant}.csv`;
@@ -15013,15 +15033,15 @@ async function sdOnCountryChange() {
     const res = await fetch(`${SD_RAW_BASE}/${encodeURIComponent(filename)}`, { cache: 'no-store' });
     if (res.ok) {
       const text = await res.text();
-      const lines = text.split(/\r?\n/).filter(Boolean);
-      if (lines.length) {
-        const header = lines[0].split(',');
-        const fuels  = header.filter(h => SD_FUEL_ORDER.includes(h));
+      const records = sdCsvRecords(text);
+      if (records.length) {
+        const header = records[0];
+        const fuels = header.filter(h => SD_FUEL_ORDER.includes(h));
         if (fuels.length) cols = fuels;
         const sourceIdx = header.indexOf('source');
         const periodIdx = header.indexOf('period');
-        if (lines.length > 1) {
-          const lastFields = lines[lines.length - 1].split(',');
+        if (records.length > 1) {
+          const lastFields = records[records.length - 1];
           if (sourceIdx >= 0) lastSource = lastFields[sourceIdx] || '';
           if (periodIdx >= 0) {
             const m = /^(\d{4})-(\d{2})$/.exec(lastFields[periodIdx] || '');
@@ -15036,6 +15056,8 @@ async function sdOnCountryChange() {
     }
   } catch (_) { /* no network / first-time country: use defaults */ }
 
+  if (loadId !== SD_STATE.loadId) return;
+  sdEl('sdSubmit').disabled = false;
   SD_STATE.countryCols = cols;
   SD_STATE.lastSource  = lastSource;
   SD_STATE.nextYear    = nextYear;
@@ -15047,7 +15069,9 @@ async function sdOnCountryChange() {
   const hint = sdEl('sdSourceHint');
   if (lastSource) {
     hint.hidden = false;
-    hint.innerHTML = `Most recent source for ${country}: <a href="#" data-fill-source>${lastSource}</a>`;
+    hint.textContent = `Most recent source for ${country}: `;
+    const link = document.createElement('a'); link.href = '#';
+    link.dataset.fillSource = ''; link.textContent = lastSource; hint.appendChild(link);
   } else {
     hint.hidden = true;
   }
@@ -15218,7 +15242,11 @@ function sdUpdateSumcheck(node) {
   const pct = total ? (Math.abs(diff) / total * 100) : 0;
 
   if (sum === 0) { el.textContent = 'Categories sum: 0 — only TOTAL set.'; el.className = 'sd-row-sumcheck'; return; }
-  if (Math.abs(diff) < 1 || pct < 0.5) {
+  if (node.querySelector('input[data-fuel="FCEV"]') && fuels.FCEV === undefined) {
+    el.textContent = `Entered categories: ${fmtInt(sum)} / TOTAL ${fmtInt(total)}; FCEV blank (unknown on new rows, retained on corrections).`;
+    el.className = 'sd-row-sumcheck'; return;
+  }
+  if (typeof fuels.FCEV === 'number' ? Math.abs(diff) < 1e-6 : (Math.abs(diff) < 1 || pct < 0.5)) {
     el.textContent = `Categories sum: ${fmtInt(sum)} ≈ TOTAL (${fmtInt(total)})`;
     el.className = 'sd-row-sumcheck good';
   } else {

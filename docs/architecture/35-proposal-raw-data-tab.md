@@ -843,6 +843,9 @@ BEV / original TOTAL. An optional non-additive sidecar is aligned to `m`:
   The Other tooltip names unseparated FCEV. Links use ordinary `f=FCEV`.
 - Default All combined charts retain normal fixed membership. With mixed detail
   coverage, **all** FCEV goes back into Other and FCEV is null, not a partial sum.
+  Explicit Other filters instead sum only their selected per-country leaves,
+  never re-adding unchecked known FCEV, and label remaining inclusive Other
+  as “FCEV not separated” whenever any member is unknown.
   Explicit FCEV combined charts include only confirmed reporting members with
   complete common windows, fixed across the drawn span; denominator is their
   full original TOTAL, never FCEV sum or TOTAL of excluded countries. With fewer
