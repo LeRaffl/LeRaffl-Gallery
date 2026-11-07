@@ -821,8 +821,9 @@ an empty list. These are chart/export correctness repairs, not CSV changes.
 
 ### 5.3b Optional FCEV detail (implemented)
 
-Canonical `FCEV` means confirmed fuel-cell technology, not HICEV. No real
-country CSV/source is activated here. `b` stays legacy-inclusive (FCEV in
+Canonical `FCEV` means confirmed fuel-cell technology, not HICEV. JP/KR writers
+now supply it for future new periods only ([05](05-flows.md), [43](43-source-south-korea.md));
+historical unknowns are never automatically reclassified, including on force refresh. `b` stays legacy-inclusive (FCEV in
 Other), keeping legacy/Hero consumers compatible; Hero still observes true
 BEV / original TOTAL. An optional non-additive sidecar is aligned to `m`:
 

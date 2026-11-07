@@ -39,3 +39,25 @@ for(value in c(-1,Inf,NaN,'bad')) {
   stopifnot(inherits(try(legacy_fuel_rollup(bad),silent=TRUE),'try-error'))
 }
 cat('FCEV legacy fit inputs, TTM history, post text and unknown/zero regressions passed\n')
+
+# Activation transition using actual existing source fixture counts:
+# JADA January 2026 (FCV79 + Other1), MOTIR August 2026 (hydrogen312).
+for(country in c('Japan','South Korea')) {
+  n <- 36L
+  d <- data.frame(period=format(seq(as.Date('2024-01-01'),by='month',length.out=n),'%Y-%m'),
+    time_interval='monthly',variant='Whole',source='fixture',notes='')
+  if(country=='Japan') {
+    d$BEV <- 5419;d$PHEV <- 3582;d$HEV <- 121955;d$PETROL <- 59876;d$DIESEL <- 9135
+    d$OTHERS <- 80;d$TOTAL <- 200047;fc <- 79
+  } else {
+    d$BEV <- 31060;d$PHEV <- 1334;d$HEV <- 36102;d$ICE <- 41112
+    d$OTHERS <- 312;d$TOTAL <- 109920;fc <- 312
+  }
+  split <- d;split$FCEV <- NA_real_;split$FCEV[n] <- fc;split$OTHERS[n] <- split$OTHERS[n]-fc
+  old <- read_fixture(d);new <- read_fixture(split)
+  stopifnot(identical(old[fit_cols],new[fit_cols]))
+  stopifnot(identical(compute_ttm_long(old),compute_ttm_long(new)))
+  stopifnot(identical(build_post_text(old,country),build_post_text(new,country)))
+  stopifnot(identical(build_ttm_post_text(old,country),build_ttm_post_text(new,country)))
+}
+cat('Actual JP/KR source-count activation transition preserves legacy outputs\n')

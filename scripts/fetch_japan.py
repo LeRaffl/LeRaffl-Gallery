@@ -39,7 +39,7 @@ in data/Japan.csv match this scope (totals ~180-280k/month).
 CSV layout
 ----------
 Existing data/Japan.csv columns:
-    period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
+    period,time_interval,variant,source,BEV,FCEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 
 JADA column                           → CSV column
     ガソリン (Gasoline)               → PETROL
@@ -47,11 +47,13 @@ JADA column                           → CSV column
     ＰＨＶ (Plug-in Hybrid)            → PHEV
     ディーゼル (Diesel)                → DIESEL
     ＥＶ (Electric)                    → BEV
-    ＦＣＶ (Fuel-cell) + その他(*)     → OTHERS  (matches historical CSV: e.g.
-                                                  2026-01 OTHERS=80 = FCV 79 + その他 1)
+    ＦＣＶ (Fuel-cell)                → FCEV (optional, future new periods only)
+    その他(*)                        → OTHERS
+    Historical unknown FCEV stays blank, with FCV + その他 still in OTHERS,
+    even on --force. No migration of historical numeric values.
     合計 (Total)                       → TOTAL
 
-Sanity check: PETROL+HEV+PHEV+DIESEL+BEV+OTHERS must equal TOTAL.
+Sanity check: PETROL+HEV+PHEV+DIESEL+BEV+FCEV+OTHERS must equal TOTAL.
 
 Per the project rule we only ever write the most recent month; older rows
 are never touched, even if a later JADA file would adjust them.
@@ -105,7 +107,7 @@ HTTP_HEADERS = {
 
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
-    "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS",
+    "BEV", "FCEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS",
     "TOTAL", "notes",
 ]
 
@@ -214,7 +216,7 @@ def discover_latest(prefer_xlsx: bool = True) -> tuple[str | None, str | None]:
 def parse_xlsx(xlsx_bytes: bytes, target_year: int, target_month: int) -> dict | None:
     """Extract the 乗用車計 row for (year, month) from an XLSX rollup.
 
-    Returns a dict with fuel keys (PETROL/HEV/PHEV/DIESEL/BEV/OTHERS/TOTAL)
+    Returns a dict with fuel keys (PETROL/HEV/PHEV/DIESEL/BEV/FCEV/OTHERS/TOTAL)
     or None if the target month is not present.
     """
     from openpyxl import load_workbook
@@ -289,7 +291,8 @@ def _xlsx_total_row_to_fuels(row: tuple) -> dict:
     phev = n(8)
     diesel = n(10)
     bev = n(12)
-    fcv = n(14)
+    raw_fcv = cells[14] if len(cells) > 14 else None
+    fcv = None if raw_fcv is None or str(raw_fcv).strip() in ("", "-", "--") else n(14)
     other = n(16)
     total = n(18)
 
@@ -299,7 +302,8 @@ def _xlsx_total_row_to_fuels(row: tuple) -> dict:
         "PHEV": phev,
         "DIESEL": diesel,
         "BEV": bev,
-        "OTHERS": fcv + other,
+        "FCEV": fcv,
+        "OTHERS": other,
         "TOTAL": total,
     }
 
@@ -320,9 +324,15 @@ MAKER_NAMES = {
     "レクサス": "LEXUS", "いすゞ": "ISUZU", "光岡": "MITSUOKA",
     "輸入車": "IMPORTS (ALL BRANDS)",
 }
-# CSV column → market class (FCV and その他 both sit in OTHERS: not ranked).
+# MarketTop keeps its historical inclusive Other class; no new ranked class.
 MAKER_CLASSES = {"BEV": "BEV", "PHEV": "PHEV", "HEV": "HEV",
                  "PETROL": "PETROL", "DIESEL": "DIESEL", "OTHERS": "OTHERS"}
+
+
+def _maker_fuels(row):
+    fuels = _xlsx_total_row_to_fuels(row)
+    fuels['OTHERS'] += fuels.pop('FCEV') or 0
+    return fuels
 
 
 def _maker_label(row: tuple) -> str | None:
@@ -353,12 +363,12 @@ def parse_xlsx_makers(xlsx_bytes: bytes) -> dict[str, tuple[dict, int]]:
                         period = f"{int(m.group(1))}-{int(m.group(2)):02d}"
                 continue
             if row and row[0] == TOTAL_ROW_LABEL:
-                total_row = _xlsx_total_row_to_fuels(row)
+                total_row = _maker_fuels(row)
                 break
             label = _maker_label(row)
             if label is None or not any(isinstance(v, (int, float)) for v in row[3:18]):
                 continue
-            fuels = _xlsx_total_row_to_fuels(row)
+            fuels = _maker_fuels(row)
             brand = MAKER_NAMES.get(label, market_top.clean(label))
             acc = makers.setdefault(brand, {k: 0 for k in fuels})
             for k, v in fuels.items():
@@ -421,6 +431,34 @@ def _parse_data_row(line: str) -> list[int] | None:
     return counts
 
 
+def _pdf_fcev_cell(pdf_bytes: bytes, page_index: int, inclusive_other: int) -> int | None:
+    """Resolve a short text row only through its physical labelled FCV cell.
+
+    A missing trailing Other cell otherwise makes six-count rows ambiguous.
+    Blanks remain unknown; an explicitly printed 0 is a measured zero.
+    """
+    import pdfplumber
+    with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+        words = pdf.pages[page_index].extract_words()
+    totals = [w for w in words if unicodedata.normalize('NFKC',w['text']).strip() == TOTAL_ROW_LABEL]
+    headers = [w for w in words if unicodedata.normalize('NFKC',w['text']).strip() == 'FCV']
+    if len(totals) != 1 or len(headers) != 1: return None
+    row, head = totals[0], headers[0]
+    others = [w for w in words if unicodedata.normalize('NFKC',w['text']).startswith('その他')
+              and abs(w['top'] - head['top']) < 3 and w['x0'] > head['x0']]
+    if len(others) != 1 or head['top'] >= row['top']: return None
+    # The count is the first half of its labelled fuel+YoY pair. Only integer
+    # count words on the total row qualify, never the neighbouring YoY cell.
+    right = (head['x0'] + others[0]['x0']) / 2
+    cells = [w['text'] for w in words if abs(w['top'] - row['top']) < 2
+             and head['x0'] <= (w['x0']+w['x1'])/2 < right
+             and _INT_ONLY_RE.fullmatch(w['text'])]
+    if len(cells) != 1: return None
+    count = int(cells[0].replace(',',''))
+    if count > inclusive_other: raise RuntimeError('PDF FCV cell exceeds combined remainder')
+    return count
+
+
 def parse_pdf(pdf_bytes: bytes, target_year: int, target_month: int) -> dict | None:
     """Fallback: extract 乗用車計 row from a JADA monthly PDF.
 
@@ -435,14 +473,15 @@ def parse_pdf(pdf_bytes: bytes, target_year: int, target_month: int) -> dict | N
         6 cols → PETROL, HEV, PHEV, DIESEL, BEV, その他/FCV combined
         7 cols → PETROL, HEV, PHEV, DIESEL, BEV, FCV, その他
     JADA's published layout always has PETROL/HEV/PHEV/DIESEL/BEV/FCV/その他
-    in that order. When a category was zero, the cell appears as blank in
-    the PDF (and in the XLSX as 0). We treat any missing trailing categories
-    as zero by counting backwards from TOTAL.
+    in that order. Blank cells may disappear from text extraction: short rows
+    need a labelled physical FCV count (pdfplumber), never positional zero
+    padding. If no split is confirmed, FCEV stays unknown and the trailing
+    remainder stays inclusive Other. The five primary fuels are unchanged.
     """
     from pypdf import PdfReader
 
     reader = PdfReader(io.BytesIO(pdf_bytes))
-    for page in reader.pages:
+    for page_index, page in enumerate(reader.pages):
         text = page.extract_text() or ""
         m_title = TITLE_RE.search(text)
         if not m_title:
@@ -466,10 +505,16 @@ def parse_pdf(pdf_bytes: bytes, target_year: int, target_month: int) -> dict | N
         total = best[-1]
         fuels = best[:-1]  # PETROL, HEV, PHEV, DIESEL, BEV[, FCV[, その他]]
 
-        # Pad missing trailing categories with zeros (= unreported cells).
-        while len(fuels) < 7:
-            fuels.append(0)
-        petrol, hev, phev, diesel, bev, fcv, other = fuels[:7]
+        if len(fuels) not in (5, 6, 7):
+            raise RuntimeError("Unexpected JADA fuel-column count")
+        petrol, hev, phev, diesel, bev = fuels[:5]
+        # Full rows are unambiguous. Short rows need labelled coordinates;
+        # never reinterpret an unknown remainder or missing cell as FCV zero.
+        fcv = fuels[5] if len(fuels) == 7 else None
+        other = fuels[6] if len(fuels) == 7 else sum(fuels[5:])
+        if len(fuels) < 7:
+            fcv = _pdf_fcev_cell(pdf_bytes, page_index, other)
+            if fcv is not None: other -= fcv
 
         return {
             "PETROL": petrol,
@@ -477,7 +522,8 @@ def parse_pdf(pdf_bytes: bytes, target_year: int, target_month: int) -> dict | N
             "PHEV": phev,
             "DIESEL": diesel,
             "BEV": bev,
-            "OTHERS": fcv + other,
+            "FCEV": fcv,
+            "OTHERS": other,
             "TOTAL": total,
         }
 
@@ -495,6 +541,7 @@ def build_row(period: str, fuels: dict, source_url: str) -> dict:
         "variant": "Whole",
         "source": "JADA /JAMA",
         "BEV": float(fuels["BEV"]),
+        "FCEV": float(fuels["FCEV"]) if fuels.get("FCEV") is not None else None,
         "PHEV": float(fuels["PHEV"]),
         "HEV": float(fuels["HEV"]),
         "PETROL": float(fuels["PETROL"]),
@@ -505,27 +552,8 @@ def build_row(period: str, fuels: dict, source_url: str) -> dict:
     }
 
 
-def _csv_records(text: str) -> list[tuple[list[str], str]]:
-    """Parse logical CSV records while retaining their exact original text.
-
-    Physical-line splitting is unsafe for quoted multiline notes (and
-    str.splitlines also splits valid field characters such as U+0085).
-    """
-    stream = io.StringIO(text, newline="")
-    records = []
-    start = 0
-    for fields in csv.reader(stream, strict=True):
-        end = stream.tell()
-        records.append((fields, text[start:end]))
-        start = end
-    return records
-
-
-def _record_ending(record: str) -> str:
-    for ending in ("\r\n", "\n", "\r"):
-        if record.endswith(ending):
-            return ending
-    return ""
+from csv_records import (csv_records as _csv_records, record_ending as _record_ending,
+                         append_column, legacy_fcev, keep_numeric_tokens)
 
 
 def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
@@ -533,6 +561,8 @@ def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
 
     Keep the existing schema/order and all other records byte-for-byte. Extra
     columns survive replacements; new records leave unreported extras empty.
+    On a future new period only, append optional FCEV and empty historical
+    cells without changing old tokens. --force cannot activate an old blank.
     """
     path = Path(csv_path)
     original = path.read_bytes() if path.exists() else b""
@@ -544,9 +574,9 @@ def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
             raise ValueError(f"{csv_path}: invalid CSV header")
     else:
         columns, header = CSV_COLUMNS, ",".join(CSV_COLUMNS) + "\n"
-    if set(row) - set(columns):
+    if set(row) - set(columns) - {"FCEV"}:
         raise ValueError(f"{csv_path}: row columns absent from CSV header: "
-                         f"{sorted(set(row) - set(columns))}")
+                         f"{sorted(set(row) - set(columns) - {'FCEV'})}")
     if row.get("period") != period or not row.get("variant"):
         raise ValueError("upsert row must match period and have a variant")
     key = (period, row["variant"])
@@ -569,8 +599,18 @@ def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
     if at is not None and not force:
         print(f"  Period {period} ({key[1]}) already in CSV — not overwriting (use --force).")
         return False
-    values = dict(zip(columns, records[at][0])) if at is not None else {}
+    previous = dict(zip(columns, records[at][0])) if at is not None else None
+    watermark = max((k[0] for k in keys if k is not None and k[1] == key[1]), default='')
+    row = legacy_fcev(row, previous, historical=period <= watermark)
+    if 'FCEV' in row and 'FCEV' not in columns:
+        if at is None and period > watermark:
+            columns, header, records = append_column(columns, header, records, 'FCEV')
+        else:
+            row.pop('FCEV')  # no schema-only write for an old --force refresh
+    values = dict(previous or {})
     values.update(row)
+    if previous:
+        keep_numeric_tokens(values, previous, CSV_COLUMNS[4:-1])
     fields = ["" if values.get(c) is None else str(values.get(c, "")) for c in columns]
     if at is not None and fields == records[at][0]:
         return False
@@ -671,14 +711,14 @@ def main() -> int:
         return 0
 
     # Sanity: components sum to TOTAL.
-    components = fuels["PETROL"] + fuels["HEV"] + fuels["PHEV"] + fuels["DIESEL"] + fuels["BEV"] + fuels["OTHERS"]
+    components = fuels["PETROL"] + fuels["HEV"] + fuels["PHEV"] + fuels["DIESEL"] + fuels["BEV"] + fuels["OTHERS"] + (fuels.get("FCEV") or 0)
     if components != fuels["TOTAL"]:
         sys.exit(
-            f"Sanity check failed: PETROL+HEV+PHEV+DIESEL+BEV+OTHERS={components} "
+            f"Sanity check failed: PETROL+HEV+PHEV+DIESEL+BEV+FCEV+OTHERS={components} "
             f"!= TOTAL={fuels['TOTAL']}. Parsed values: {fuels}"
         )
     print(f"Parsed: BEV={fuels['BEV']}, PHEV={fuels['PHEV']}, HEV={fuels['HEV']}, "
-          f"PETROL={fuels['PETROL']}, DIESEL={fuels['DIESEL']}, OTHERS={fuels['OTHERS']}, "
+          f"PETROL={fuels['PETROL']}, DIESEL={fuels['DIESEL']}, FCEV={fuels.get('FCEV')}, OTHERS={fuels['OTHERS']}, "
           f"TOTAL={fuels['TOTAL']}")
 
     row = build_row(target_period, fuels, source_url)
