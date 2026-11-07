@@ -2132,6 +2132,17 @@ a:focus-visible{
 .rd-seg button{border:0;background:var(--surface-2);color:var(--muted);font:inherit;font-size:13px;padding:7px 13px;cursor:pointer}
 .rd-seg button.on{background:var(--accent-wash);color:var(--accent);font-weight:600}
 .rd-seg button+button{border-left:1px solid var(--line-3)}
+.rd-fuels{flex:1 0 100%;min-width:0;border:0;padding:0;margin:0}
+.rd-fuels legend{font-size:12px;color:var(--muted);margin-bottom:7px;padding:0}
+.rd-fuel-actions,.rd-fuel-list{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rd-fuel-actions{margin-bottom:7px}
+.rd-fuel-actions button{font:inherit;font-size:12px;padding:4px 9px;border:1px solid var(--line-3);
+  background:var(--surface-2);color:var(--text);border-radius:2px;cursor:pointer}
+.rd-fuel-opt{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;font-size:12px;
+  border:1px solid var(--line-3);border-radius:2px;cursor:pointer;color:var(--muted)}
+.rd-fuel-opt.on{background:var(--accent-wash);color:var(--accent)}
+.rd-fuel-opt input{margin:0;width:auto;accent-color:var(--accent)}
+.rd-fuel-hint{font-size:12px;color:var(--muted)}
 .rd-sumhead{display:flex;align-items:center;gap:10px;margin:0 2px 10px}
 .rd-sumhead .l{font-size:12px;letter-spacing:0;color:var(--muted)}
 .rd-sumhead .r{flex:1;height:1px;background:var(--line-3)}
@@ -4726,6 +4737,15 @@ const VIEW_START_YEAR = 2015;
       <div class="rd-field"><label id="rdAxLab">Axes</label>
         <div class="rd-seg" id="rdAx" role="group" aria-labelledby="rdAxLab"><button data-a="0" class="on">Per chart</button><button data-a="1">Same everywhere</button></div>
       </div>
+      <fieldset class="rd-fuels" aria-describedby="rdFuelHint">
+        <legend>Fuel bands</legend>
+        <div class="rd-fuel-actions">
+          <button type="button" id="rdFuelAll" aria-controls="rdFuelList">All</button>
+          <button type="button" id="rdFuelNone" aria-controls="rdFuelList">None</button>
+          <span class="rd-fuel-hint" id="rdFuelHint" role="status" aria-live="polite"></span>
+        </div>
+        <div class="rd-fuel-list" id="rdFuelList"></div>
+      </fieldset>
     </div>
 
     <div class="card">
@@ -4735,10 +4755,11 @@ const VIEW_START_YEAR = 2015;
       <p class="rd-foot" id="rdFoot"></p>
       <div class="rd-actions">
         <button class="btn" id="rdDlPng">↓ PNG</button>
-        <button class="btn" id="rdDlCsv">↓ CSV</button>
+        <button class="btn" id="rdDlCsv" aria-describedby="rdCsvHint">↓ CSV</button>
         <button class="btn" id="rdQrBtn">QR: on</button>
         <span style="color:var(--muted-2);font-size:12px;font-family:ui-monospace,monospace" id="rdStamp"></span>
       </div>
+      <p class="rd-foot" id="rdCsvHint">CSV: selected bands as absolute counts for full observed windows, not shares or coarse-window averages. TOTAL is unfiltered.</p>
     </div>
 
     <p class="small" style="margin-top:18px;max-width:78ch;color:var(--muted-2)">
@@ -6440,7 +6461,7 @@ const QR = (() => {
   const ORDER = ['BEV','PHEV','EREV','Hybrid','HEV','MHEV','ICE','PETROL','DIESEL','FLEXFUEL','OTHERS'];
   const INK=tok('--text','#1a1a18'), MUT=tok('--muted','#55534c'), GRID=tok('--line-soft','rgba(26,26,24,.08)'), SURF=tok('--surface','#ffffff');
 
-  let S = {c:[], n:12, u:'rel', t:0, qr:true, ax:0, q:1};
+  let S = {c:[], n:12, u:'rel', t:0, qr:true, ax:0, q:1, f:null};
   let VIEW = [], SUM = null, CB = null, booted = false;
 
   const STAMP = (() => {
@@ -6460,7 +6481,51 @@ const QR = (() => {
   function labelFor(k, cs){
     const abs = [...new Set(cs.flatMap(c=>((DATA[c]||{}).folded||[])
       .filter(f=>f.endsWith('into '+k)).map(f=>SHORT[f.split(' ')[0]]||f.split(' ')[0])))];
-    return abs.length ? `${LAB[k]} (incl. ${abs.join(', ')})` : LAB[k];
+    return abs.length ? `${LAB[k] || k} (incl. ${abs.join(', ')})` : (LAB[k] || k);
+  }
+
+  /* null = all (also future bands); [] = explicitly none. Unavailable
+     preferences are explained, never silently replaced by a broader bucket. */
+  const orderedBands = keys => [...new Set(keys)].sort((a,b)=>{
+    const ia = ORDER.indexOf(a), ib = ORDER.indexOf(b);
+    return (ia < 0 ? ORDER.length : ia) - (ib < 0 ? ORDER.length : ib) || a.localeCompare(b);
+  });
+  const bandColour = k => C[k] || C.OTHERS;
+  const isSelected = k => S.f === null || S.f.includes(k);
+  const bandKeys = list => orderedBands(list.flatMap(b=>Object.keys(b.v)));
+  const selectedTotal = b => Object.keys(b.v).reduce((sum,k)=>sum + (isSelected(k) ? (b.v[k]||0) : 0), 0);
+  const plotKeys = list => bandKeys(list).filter(k=>isSelected(k)
+    && (S.f !== null || list.some(b=>(b.v[k]||0)>0.5)));
+  const axisMaximum = list => Math.max(1, ...list.map(b=>
+    (S.f === null ? b.tot : selectedTotal(b)) * (b.scale || 1)));
+  const displayValue = (b,k) => S.u === 'rel' ? (b.tot > 0 ? (b.v[k]||0)/b.tot : 0)
+                                                        : (b.v[k]||0)*(b.scale||1);
+  const fuelCaption = keys => 'Fuels: ' + keys.map(k=>LAB[k] || k).join(' + ');
+  function availableFuels(cs, p){
+    return orderedBands(cs.flatMap(c=>Object.keys(DATA[c].b).map(k=>mapBand(k,p))));
+  }
+  function paintFuels(available, cs){
+    const host = $('rdFuelList'), labels = available.map(k=>labelFor(k,cs));
+    const signature = JSON.stringify([available, labels]);
+    // Keep the focused checkbox alive when only its checked state changes.
+    if (host.dataset.bands !== signature){
+      host.dataset.bands = signature;
+      host.innerHTML = available.map((k,i)=>`<label class="rd-fuel-opt"><input type="checkbox"
+        data-fuel="${esc(k)}">${esc(labels[i])}</label>`).join('');
+    }
+    host.querySelectorAll('input[data-fuel]').forEach(input=>{
+      input.checked = isSelected(input.dataset.fuel);
+      input.parentElement.classList.toggle('on', input.checked);
+    });
+    const absent = (S.f || []).filter(k=>!available.includes(k));
+    $('rdFuelHint').textContent = (S.f === null ? `All ${available.length} available bands`
+      : `${available.filter(isSelected).length} of ${available.length} bands selected`)
+      + (absent.length ? ' · not separately available here: ' + absent.map(k=>LAB[k]||k).join(', ')
+                        + '. Choose an available band or All.' : '');
+  }
+  function enableDownloads(enabled){
+    $('rdDlPng').disabled = !enabled;
+    $('rdDlCsv').disabled = !enabled;
   }
 
   /* The visitor's own country is the one they want to see first. The browser
@@ -6652,15 +6717,20 @@ const QR = (() => {
     // o: {title, sub, list, compact, dom:[xmin,xmax], ymax, qr}
     const list = o.list;
     const compact = o.compact;
-    const W = Math.max(compact?260:460, Math.round(el.clientWidth)), H = compact ? 168 : 330;
-    const ML = compact?40:54, MR=16, MT = compact ? 26 : (S.qr ? 62 : 44), MB = compact?26:34;
+    const filteredCompact = compact && S.f !== null;
+    const W = Math.max(compact?260:460, Math.round(el.clientWidth)), H = compact ? (filteredCompact?184:168) : 330;
+    const ML = compact?40:54, MR=16, MT = compact ? (filteredCompact?42:26) : (S.qr ? 62 : 44), MB = compact?26:34;
     const iw = W-ML-MR, ih = H-MT-MB;
     if (!list.length){
       el.innerHTML = `<div style="padding:${compact?14:26}px;color:${MUT};font-size:12.5px">
         ${o.title} — nothing to draw at T${S.n}M.</div>`;
       return;
     }
-    const keys = ORDER.filter(k=>list.some(b=>(b.v[k]||0)>0.5));
+    const keys = plotKeys(list);
+    if (!keys.length && S.f !== null){
+      el.innerHTML = `<div style="padding:20px;color:${MUT};font-size:12.5px">${esc(o.title)} — no selected fuel band is separately available here.</div>`;
+      return;
+    }
     const rel = S.u==='rel';
     const nstep = v => { const e=Math.pow(10,Math.floor(Math.log10(v))), m=v/e; return (m<=1?1:m<=2?2:m<=5?5:10)*e; };
     // The axis has to be measured in the same units the bars are DRAWN in. A
@@ -6668,8 +6738,7 @@ const QR = (() => {
     // drawn scaled to the window (2.37M at T1M). Measuring the axis on the raw
     // value put the top at 30M and squashed every monthly bar to a hairline —
     // exactly the countries with yearly rows: China, Germany, Poland.
-    const wf = b => rel ? 1 : (b.scale || 1);
-    const raw = o.ymax || Math.max(...list.map(b => b.tot * wf(b)));
+    const raw = o.ymax || axisMaximum(list);
     const sv = nstep(raw/4), max = rel ? 1 : Math.ceil(raw/sv)*sv;
 
     // x is a month-index domain, so charts can share one axis when asked to
@@ -6702,13 +6771,18 @@ const QR = (() => {
     const ty = compact?15:22;
     g += `<text x="${ML}" y="${ty}" font-size="${compact?11.5:14}" font-weight="650" fill="${INK}"
            font-family="system-ui,sans-serif">${o.title}</text>`;
+    if (filteredCompact){
+      const caption = fuelCaption(keys), room = Math.max(12, Math.floor(iw/5.5));
+      g += `<text x="${ML}" y="30" font-size="9" fill="${MUT}" font-family="system-ui,sans-serif">${esc(caption.length > room ? caption.slice(0,room-1)+'…' : caption)}</text>`;
+    }
     if (!compact){
       // The stamp block is fixed width; the QR (when on) sits to the right of it,
       // inside the header band — never over the plotting area.
       const qw = S.qr ? 58 : 0;
       const room = Math.floor((W - MR - ML - 160 - qw) / 6.15);
+      const subtitle = S.f === null ? o.sub : fuelCaption(keys) + ' · ' + o.sub;
       g += `<text x="${ML}" y="37" font-size="11" fill="${MUT}" font-family="ui-monospace,monospace">${
-            o.sub.length > room ? o.sub.slice(0, Math.max(8, room-1)) + '…' : o.sub}</text>`;
+            esc(subtitle.length > room ? subtitle.slice(0, Math.max(8, room-1)) + '…' : subtitle)}</text>`;
       g += `<text x="${W-MR-qw}" y="${ty}" font-size="12" font-weight="650" fill="${MUT}" text-anchor="end"
              font-family="system-ui,sans-serif">@LeRaffl</text>`;
       g += `<text x="${W-MR-qw}" y="37" font-size="10" fill="#6d7f9c" text-anchor="end"
@@ -6735,13 +6809,12 @@ const QR = (() => {
     list.forEach((b,i)=>{
       const bw = bwOf(i);
       const x = Math.min(Math.max(cx(i) - bw/2, ML), W - MR - bw);
-      const den = rel ? b.tot : max / (b.scale || 1);
       let acc = 0;
       const present = keys.filter(k=>(b.v[k]||0)>0);
       present.forEach((k,idx)=>{
-        const h = ((b.v[k]||0)/den)*ih, y = MT+ih-acc-h, last = idx===present.length-1;
+        const h = (rel ? displayValue(b,k) : displayValue(b,k)/max)*ih, y = MT+ih-acc-h, last = idx===present.length-1;
         g += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}"
-               height="${Math.max(0.5,h-(last||bw<4?0:1.5)).toFixed(1)}" fill="${C[k]}"
+               height="${Math.max(0.5,h-(last||bw<4?0:1.5)).toFixed(1)}" fill="${bandColour(k)}"
                rx="${last&&bw>6?2:0}"/>`;
         acc += h;
       });
@@ -6779,9 +6852,9 @@ const QR = (() => {
     if (!compact){
       let lx = ML;
       keys.forEach(k=>{
-        g += `<rect x="${lx}" y="${H-14}" width="9" height="9" rx="2" fill="${C[k]}"/>`;
+        g += `<rect x="${lx}" y="${H-14}" width="9" height="9" rx="2" fill="${bandColour(k)}"/>`;
         const lb = labelFor(k, S.c);
-        g += `<text x="${lx+13}" y="${H-6}" font-size="10.5" fill="${MUT}" font-family="system-ui,sans-serif">${lb}</text>`;
+        g += `<text x="${lx+13}" y="${H-6}" font-size="10.5" fill="${MUT}" font-family="system-ui,sans-serif">${esc(lb)}</text>`;
         lx += 22 + lb.length*6.2;
       });
     }
@@ -6797,10 +6870,13 @@ const QR = (() => {
             + (S.u==='abs' && b.scale!==1 ? ` · shown as a ${S.n}-month average` : '')
           : (b.from===b.to?pname(b.to):pname(b.from)+' … '+pname(b.to));
         tip.innerHTML = `<div class="h">${o.title} · ${head}</div><table>`
-          + keys.filter(k=>(b.v[k]||0)>0).reverse().map(k=>
-            `<tr><td class="k"><span class="sw" style="background:${C[k]}"></span>${labelFor(k, S.c)}</td>
-             <td class="v">${S.u==='rel'?((b.v[k]/b.tot)*100).toFixed(1)+'%':nice(b.v[k]*(S.u==='abs'?(b.scale||1):1))}</td></tr>`).join('')
-          + `<tr class="tot"><td>TOTAL</td><td class="v">${nice(b.tot*(S.u==='abs'?(b.scale||1):1))}</td></tr></table>`;
+          + keys.filter(k=>S.f !== null || (b.v[k]||0)>0).reverse().map(k=>
+            `<tr><td class="k"><span class="sw" style="background:${bandColour(k)}"></span>${esc(labelFor(k, S.c))}</td>
+             <td class="v">${S.u==='rel'?(displayValue(b,k)*100).toFixed(1)+'%':nice(displayValue(b,k))}</td></tr>`).join('')
+          + (S.f === null ? '' : `<tr class="tot"><td>Selected</td><td class="v">${S.u==='rel'
+              ? ((selectedTotal(b)/b.tot)*100).toFixed(1)+'% · '+nice(selectedTotal(b))
+              : nice(selectedTotal(b)*(b.scale||1))}</td></tr>`)
+          + `<tr class="tot"><td>TOTAL (all bands)</td><td class="v">${nice(b.tot*(S.u==='abs'?(b.scale||1):1))}</td></tr></table>`;
         tip.classList.add('on');
       });
       r.addEventListener('mousemove', ev=>{
@@ -6830,11 +6906,14 @@ const QR = (() => {
     }
     return S.c.map(encodeURIComponent).join(',');
   }
+  function stateHash(){
+    return '#rawdata?c=' + selToken() + `&n=${S.n}&u=${S.u}`
+      + (S.t?`&t=${S.t}`:'') + (S.ax?'&ax=1':'') + (S.q?'':'&q=0')
+      + (S.f === null ? '' : '&f=' + orderedBands(S.f).map(encodeURIComponent).join(','));
+  }
   function shareURL(){
-    // scheme dropped on purpose: shorter payload -> lower QR version -> larger
-    // modules at the same pixel size, which is what makes a 48px code scannable.
-    return 'leraffl.github.io/LeRaffl-Gallery/#rawdata?c='
-         + selToken() + `&n=${S.n}&u=${S.u}` + (S.t?`&t=${S.t}`:'') + (S.ax?'&ax=1':'');
+    // Scheme omitted to keep the QR small; settings match the browser hash.
+    return 'leraffl.github.io/LeRaffl-Gallery/' + stateHash();
   }
 
   /* Combined chart.
@@ -6908,8 +6987,11 @@ const QR = (() => {
     const plots = $('rdPlots'), sumwrap = $('rdSumWrap');
     if (!plots) return;
     plots.innerHTML = ''; sumwrap.innerHTML = '';
+    enableDownloads(false);
+    $('rdWinVal').textContent = `T${S.n}M` + (S.n===12?'  (TTM)':'');
     writeHash();
     if (!S.c.length){
+      paintFuels([], []);
       $('rdLegend').hidden = true;
       plots.innerHTML = `<div class="rd-plot" style="padding:38px 22px;text-align:center;`
         + `color:var(--muted);font-size:13.5px">No country selected — pick one above, `
@@ -6921,12 +7003,25 @@ const QR = (() => {
     // A country still in flight is simply not drawn yet; need() re-renders.
     const ready = S.c.filter(c=>DATA[c]);
     if (!ready.length){
+      paintFuels([], []);
+      VIEW = []; SUM = null; CB = null;
+      $('rdLegend').hidden = true;
       plots.innerHTML = `<div class="rd-plot" style="padding:38px 22px;text-align:center;`
         + `color:var(--muted);font-size:13.5px">Loading…</div>`;
       return;
     }
 
     const p = plan(ready);
+    const available = availableFuels(ready, p);
+    paintFuels(available, ready);
+    if (S.f !== null && !available.some(isSelected)){
+      $('rdLegend').hidden = true;
+      plots.innerHTML = `<div class="rd-plot" style="padding:30px;color:${MUT}">${S.f.length
+        ? 'Selected fuel bands are not separately available for these countries. Choose an available band or All.'
+        : 'No fuel selected — choose a fuel band or All above.'}</div>`;
+      $('rdFoot').textContent = 'Shares always use the unfiltered TOTAL; missing fuel splits are never invented.';
+      VIEW = []; SUM = null; CB = null; return;
+    }
     // shared right edge, so the timeframe filter cuts every chart at the same month
     const anchor = Math.min(...ready.map(c=>DATA[c].m[DATA[c].m.length-1]));
     const cut = b => !S.t || b.to > anchor - S.t;
@@ -6934,6 +7029,7 @@ const QR = (() => {
     VIEW = ready.map(c=>({c, l: bars(c, S.n, p).filter(cut), step: DATA[c].step}));
     CB = ready.length > 1 ? combined(ready, S.n, p) : null;
     SUM = CB ? CB.list.filter(cut) : null;
+    enableDownloads(VIEW.some(v=>v.l.length && plotKeys(v.l).length));
 
     const unit = ready.every(c=>DATA[c].step===3) ? 'quarter' : 'month';
     $('rdWinVal').textContent =
@@ -6946,8 +7042,7 @@ const QR = (() => {
     const all = VIEW.flatMap(v=>v.l);
     const doms = VIEW.map(v=>domOf(v.l, v.step));
     const gdom = doms.length ? [Math.min(...doms.map(d=>d[0])), Math.max(...doms.map(d=>d[1]))] : [0,1];
-    const gmax = all.length
-      ? Math.max(...all.map(b => b.tot * (S.u === 'abs' ? (b.scale || 1) : 1))) : 1;
+    const gmax = axisMaximum(all);
 
     if (SUM && SUM.length){
       const h = document.createElement('div');
@@ -6970,9 +7065,9 @@ const QR = (() => {
 
     const shl = $('rdLegend');
     if (compact){
-      const keys = ORDER.filter(k=>all.some(b=>(b.v[k]||0)>0.5));
+      const keys = plotKeys(all);
       shl.hidden = false;
-      shl.innerHTML = keys.map(k=>`<span><i style="background:${C[k]}"></i>${esc(labelFor(k, ready))}</span>`).join('');
+      shl.innerHTML = keys.map(k=>`<span><i style="background:${bandColour(k)}"></i>${esc(labelFor(k, ready))}</span>`).join('');
     } else shl.hidden = true;
 
     // Append every host first, then draw: measuring clientWidth before the grid
@@ -7031,6 +7126,8 @@ const QR = (() => {
         + 'Membership is constant, so the total never jumps.');
     if (S.ax) short.push('<b>Same axes everywhere</b>: shared time range and, in absolute units, '
       + 'one shared scale. The combined chart keeps its own.');
+    if (S.f !== null) short.push('Only selected fuel bands are drawn. Shares remain fractions of the '
+      + 'unfiltered <b>TOTAL</b>, not of the selected sum; Absolute axes follow the selected stack.');
     $('rdFoot').innerHTML = short.join(' ');
   }
 
@@ -7079,18 +7176,30 @@ const QR = (() => {
       img.src = svgToDataURL(s);
     });
   }
-  function downloadCSV(){
-    const rows = [];
-    const keys = ORDER.filter(k=>VIEW.some(v=>v.l.some(b=>(b.v[k]||0)>0))
-                              || (SUM||[]).some(b=>(b.v[k]||0)>0));
-    rows.push(['series','window_months','period_from','period_to',...keys,'TOTAL'].join(','));
+  function csvText(){
+    // Full-observation counts, not shares or scaled coarse averages. The
+    // visible download hint makes this backward-compatible convention explicit.
+    const views = VIEW.filter(v=>v.l.length && plotKeys(v.l).length);
+    if (!views.length) return '';
+    const rows = [], lists = views.flatMap(v=>v.l).concat(SUM || []);
+    const keys = bandKeys(lists).filter(k=>isSelected(k)
+      && (S.f !== null || lists.some(b=>(b.v[k]||0)>0)));
+    const selected = S.f !== null;
+    rows.push(['series','window_months','period_from','period_to',...keys,
+      ...(selected ? ['SELECTED_TOTAL'] : []),'TOTAL'].join(','));
     const emit = (name,l)=>l.forEach(b=>rows.push(
       [`"${name.replace(/"/g,'""')}"`, S.n, pname(b.from), pname(b.to),
-       ...keys.map(k=>Math.round((b.v[k]||0)*10)/10), Math.round(b.tot)].join(',')));
+       ...keys.map(k=>selected && !(k in b.v) ? '' : Math.round((b.v[k]||0)*10)/10),
+       ...(selected ? [Math.round(selectedTotal(b)*10)/10] : []), Math.round(b.tot)].join(',')));
     if (SUM && SUM.length) emit('COMBINED', SUM);
-    VIEW.forEach(v=>emit(v.c, v.l));
+    views.forEach(v=>emit(v.c, v.l));
+    return rows.join('\n');
+  }
+  function downloadCSV(){
+    const text = csvText();
+    if (!text) return;
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([rows.join('\n')], {type:'text/csv'}));
+    a.href = URL.createObjectURL(new Blob([text], {type:'text/csv'}));
     a.download = `rawdata_T${S.n}M_${STAMP.slice(0,10)}.csv`;
     a.click(); URL.revokeObjectURL(a.href);
   }
@@ -7162,8 +7271,9 @@ const QR = (() => {
   // the use-case the whole tab started from, and it is what the QR encodes.
   function readHash(){
     const q = (location.hash.split('?')[1] || '');
-    if (!q) return false;
     const P = new URLSearchParams(q);
+    S.f = !P.has('f') || P.get('f') === '*' ? null : orderedBands(P.get('f').split(',')
+      .filter(k=>/^[A-Za-z][A-Za-z0-9_-]{0,31}$/.test(k)));
     const n = parseInt(P.get('n'), 10);
     if (n >= 1 && n <= 24) S.n = n;
     if (P.get('u') === 'abs' || P.get('u') === 'rel') S.u = P.get('u');
@@ -7190,8 +7300,7 @@ const QR = (() => {
   }
   let hashWriting = false;
   function writeHash(){
-    const hash = '#rawdata?c=' + selToken() + `&n=${S.n}&u=${S.u}`
-               + (S.t?`&t=${S.t}`:'') + (S.ax?'&ax=1':'') + (S.q?'':'&q=0');
+    const hash = stateHash();
     if (location.hash === hash) return;
     hashWriting = true;
     try {
@@ -7260,6 +7369,17 @@ const QR = (() => {
     seg('rdTf',    't', 't',  v=>+v);
     seg('rdQual',  'q', 'q',  v=>+v);
     seg('rdAx',    'a', 'ax', v=>+v);
+    $('rdFuelAll').onclick = () => { S.f = null; render(); };
+    $('rdFuelNone').onclick = () => { S.f = []; render(); };
+    $('rdFuelList').onchange = e => {
+      const input = e.target;
+      if (!input.matches('input[data-fuel]')) return;
+      const ready = S.c.filter(c=>DATA[c]), available = availableFuels(ready, plan(ready));
+      const selected = new Set(S.f === null ? available : S.f);
+      if (input.checked) selected.add(input.dataset.fuel); else selected.delete(input.dataset.fuel);
+      S.f = orderedBands([...selected]);
+      render();
+    };
     $('rdDlPng').onclick = downloadPNG;
     $('rdDlCsv').onclick = downloadCSV;
     $('rdQrBtn').onclick = () => { S.qr = !S.qr; paintControls(); render(); };
@@ -7270,7 +7390,7 @@ const QR = (() => {
     // A deep link pasted into an already-open tab has to take effect.
     window.addEventListener('hashchange', () => {
       if (hashWriting || !location.hash.startsWith('#rawdata')) return;
-      if (readHash()){ paintControls(); paintPicker(); need(S.c).then(render); }
+      readHash(); paintControls(); paintPicker(); need(S.c).then(render);
     });
   }
 

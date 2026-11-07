@@ -697,11 +697,12 @@ with the current country, and back.
 | Country | Germany | Multi-select; a second selection engages Comparable mode (§ 2.3) |
 | Window `N` | 1 period | Slider 1–12 (quarterly countries: multiples of a quarter), presets `1 / 3 / 12` |
 | Timeframe | **all bars** | all / 5y / 2y |
-| Units | absolute | Toggle to relative (100 % stacked) |
+| Units | Share | Toggle to Absolute; selected shares always divide by unfiltered TOTAL, not the selected sum |
 | Aggregate | off | Sums selected countries into one stack; forces Comparable mode |
-| Export | — | PNG and CSV of exactly what is plotted, plus a QR of the settings URL (**on by default**) |
+| Export | — | PNG of selected charts; CSV of selected bands as full-observation absolute counts (see § 5.3a); QR of the same settings (**on by default**) |
 | Presets | — | *All* / *None* / one per region, reusing `COUNTRY_REGION` from `index.html` rather than inventing a second mapping |
-| Axes | Per chart | *Same everywhere* forces one shared time range and, in absolute units, one shared y scale across the small multiples |
+| Axes | Per chart | *Same everywhere* shares time range and absolute y scale; filtered y maxima follow the selected stack |
+| Fuel bands | All available | Native independent checkboxes, All/None; options follow the existing common breakdown, not an invented universal ICE category |
 
 ### 5.3 Rendering and state
 
@@ -761,6 +762,46 @@ so a query string falls through to About. Contained change: split on `?` before
 the lookup (existing tabs unaffected), pass the `URLSearchParams` to the tab's
 init, write state back with `history.replaceState`. Also what makes the
 Builder ↔ Raw Data cross-links work.
+
+### 5.3a Fuel-band selection (implemented)
+
+The fuel control filters already-resolved disjoint `series/*.json` bands. It
+changes neither CSVs nor the exporter, its totals, the common-split plan, or the
+combined chart's country membership/windows. Labelled native checkboxes sit in a
+`Fuel bands` fieldset with All/None and a live summary. Unknown future artifact
+keys remain discoverable with their own key label and neutral fallback colour;
+this feature adds no FCEV schema/data.
+
+- **Absolute:** stack and individual/shared y maxima use selected bands only,
+  including the existing coarse-window display scale. Known zero remains
+  selectable and has a finite zero-based axis.
+- **Share:** selected values remain `band / unfiltered series TOTAL`. Selecting
+  BEV alone never makes it 100%. Tooltips separate selected sum and full TOTAL.
+- **Availability:** options refresh after the usual `plan()`/`mapBand()` collapse.
+  A common `Hybrid` bucket cannot offer a fictitious separate PHEV. Preferences
+  whose split becomes unavailable are explicitly named, not silently replaced
+  by Hybrid/ICE or All; other available choices still work. All resets the
+  preference. Wholly unavailable choices or explicit None show an explanatory
+  empty state and disable exports. Old country-specific checkboxes do not linger.
+- **Links:** `f=BEV,PHEV` selects exact keys; `f=` means None; absent `f` (or `f=*`)
+  means All, including future bands. Browser hash and QR/share URL use the same
+  serializer, also including `q=0` where selected. An old link without `f` resets
+  a previous filter to All.
+- **PNG:** uses filtered SVGs. Compact SVGs carry their own fuel caption, not
+  just the external HTML legend.
+- **CSV:** retains the pre-existing full-observation absolute-count convention,
+  even in Share or when a coarse observation is displayed as a shorter-window
+  average. The visible download hint explains this exception to literal chart
+  unit equivalence. Only selected fuel columns are exported; original TOTAL
+  remains, and an explicit filter adds `SELECTED_TOTAL`. Default All retains the
+  existing column layout. Charts without a selected band are omitted rather
+  than asserted to be zero; absent per-chart bands are blank in filtered CSVs.
+  This does not add upstream missing-value coverage semantics (separate work).
+
+`python scripts/test_raw_data_fuels.py` executes the actual tab JavaScript in
+Node with a small DOM double: axes/denominator, common splits, zero/None/missing
+and future bands, URL/QR, tooltip, CSV download, and the SVG input used for PNG.
+A visual/raster browser check remains additional validation.
 
 ### 5.4 The definitions panel
 
