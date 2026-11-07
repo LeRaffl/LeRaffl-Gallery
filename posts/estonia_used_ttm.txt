@@ -1,11 +1,9 @@
 🇪🇪 Estonia (Used) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+1.6pp  BEV     (9.3% → 10.9%)
-−1.9pp  Hybrid  (23.1% → 21.2%)
-+0.3pp  ICE     (67.6% → 67.9%)
+Nov24–Oct25  vs  Nov25–Oct26
++1.2pp  BEV     (9.8% → 11.1%)
+−2.1pp  Hybrid  (23.3% → 21.2%)
++0.8pp  ICE     (66.9% → 67.7%)
 
-Hybrid peaked at 23.3% in 2025-11 (declining for 10 months).
-If the changes from the last 6 months continued linearly, BEV would overtake Hybrid in 2031-11.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+Hybrid peaked at 23.3% in 2025-11 (declining for 11 months).
+If the changes from the last 6 months continued linearly, BEV would overtake Hybrid in 2033-09.

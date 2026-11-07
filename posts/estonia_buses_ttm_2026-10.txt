@@ -1,0 +1,7 @@
+🇪🇪 Estonia (Buses) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++28.9pp  BEV  (0.0% → 28.9%)
+−28.9pp  ICE  (100.0% → 71.1%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-03.
