@@ -74,6 +74,12 @@ test('effective preserved FCEV and overlap cannot evade original TOTAL validatio
  assert.throws(()=>w.upsertRows(text,'Whole','s',[row(),row()]),/Duplicate submitted/);
  assert.throws(()=>w.upsertRows(text+text.split('\n')[1]+'\n','Whole','s',[row()]),/Duplicate existing/);
 });
+test('FCEV cannot hide overlapping broad ICE or a missing declared hybrid in residual ICE',()=>{
+ assert.throws(()=>w.upsertRows(null,'Whole','s',[row({FCEV:0,ICE:60,PETROL:20,OTHERS:9})]),/aggregate ICE overlaps/);
+ const old='period,time_interval,variant,source,BEV,FCEV,HEV,OTHERS,TOTAL,notes\n2026-01,monthly,Whole,s,10,,,90,100,\n';
+ assert.throws(()=>w.upsertRows(old,'Whole','s',[row({FCEV:0},'2026-02')]),/original TOTAL/);
+ assert.doesNotThrow(()=>w.upsertRows(null,'Whole','s',[row({FCEV:0,GAS:3})]));
+});
 (async()=>{
  for(const f of [{FCEV:-1},{FCEV:'NaN'},{FCEV:'Infinity'},{FCEV:'bad'},{FCEV:true},{FCEV:[]},{HICEV:1},{FCEV:95}]){
   const req={headers:new Headers(),json:async()=>({country:'fixture',rows:[row(f)]})};

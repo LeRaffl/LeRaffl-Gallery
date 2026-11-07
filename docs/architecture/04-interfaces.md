@@ -212,7 +212,9 @@ Numeric `0` records zero; explicit JSON `null` deliberately clears to unknown
 their existing replacement semantics; unknown, unsubmit-able extra columns survive
 corrections. Validation uses the **effective** row after optional preservation:
 known FCEV leaves must close against original TOTAL (epsilon 1e-6, no percentage
-slack), allowing only the exporter's documented unnamed combustion residual.
+slack), allowing the exporter's documented unnamed combustion residual only when every
+declared electric input is known. Aggregate ICE plus positive split combustion
+columns is rejected, not silently hidden by the exporter's aggregate-ICE precedence.
 Omitted retained FCEV cannot evade this check. Invalid submissions return 400;
 unreadable UTF-8, duplicate/ragged existing CSV records return 502 before mutation.
 
