@@ -6500,7 +6500,7 @@ const QR = (() => {
   const plotKeys = list => bandKeys(list).filter(k=>isSelected(k)
     && (S.f !== null || list.some(b=>(b.v[k]||0)>0.5)));
   const axisMaximum = list => Math.max(1, ...list.filter(completeSelection).map(b=>
-    (S.f === null ? b.tot : selectedTotal(b)) * (b.scale || 1)));
+    selectedTotal(b) * (b.scale || 1)));
   const displayValue = (b,k) => optionalBand(k) && typeof b.v[k] !== 'number' ? null
     : S.u === 'rel' ? (b.tot > 0 ? (b.v[k]||0)/b.tot : 0) : (b.v[k]||0)*(b.scale||1);
   const fuelCaption = keys => 'Fuels: ' + keys.map(k=>LAB[k] || k).join(' + ');
@@ -6987,7 +6987,9 @@ const QR = (() => {
     // only from series that came out of their CSV complete.
     const pool = S.q ? cs.filter(c=>!DATA[c].dropped) : cs;
     const skipped = cs.length - pool.length;
-    const per = pool.map(c=>({c, l:bars(c, N, p).filter(completeSelection)})).filter(x=>x.l.length);
+    // A coarse fallback is a labelled whole-observation average on its own
+    // chart, not the same period as a monthly peer. Never add unlike windows.
+    const per = pool.map(c=>({c, l:bars(c, N, p).filter(b=>b.span === N && (b.scale||1) === 1).filter(completeSelection)})).filter(x=>x.l.length);
     if (per.length < 2) return null;
     const ends = new Map(per.map(x=>[x.c, new Set(x.l.map(b=>b.to))]));
     const common = set => {
@@ -7086,6 +7088,7 @@ const QR = (() => {
     VIEW = ready.map(c=>({c, l: bars(c, S.n, p).filter(cut).filter(completeSelection), step: DATA[c].step}));
     CB = ready.length > 1 ? combined(ready, S.n, p) : null;
     SUM = CB ? CB.list.filter(cut) : null;
+    if (CB && !SUM.length) { CB = null; SUM = null; }
     enableDownloads(VIEW.some(v=>v.l.length && plotKeys(v.l).length));
 
     const unit = ready.every(c=>DATA[c].step===3) ? 'quarter' : 'month';
@@ -7179,7 +7182,7 @@ const QR = (() => {
     }
     if (CB && CB.excluded.length)
       short.unshift(`Combined chart sums the <b>${CB.members.length}</b> countries covering `
-        + `${pname(SUM[0].from)} onwards; <b>${CB.excluded.length}</b> left out for shorter history or selected-fuel coverage `
+        + `${pname(SUM[0].from)} onwards; <b>${CB.excluded.length}</b> left out for shorter history, incompatible windows or selected-fuel coverage `
         + `(${esc(CB.excluded.slice(0,4).join(', '))}` + (CB.excluded.length>4?', …':'') + '). '
         + 'Membership is constant, so the total never jumps.');
     if (S.ax) short.push('<b>Same axes everywhere</b>: shared time range and, in absolute units, '
@@ -7219,13 +7222,19 @@ const QR = (() => {
     cv.height = boxes.reduce((a,b)=>a+b[3],0)*scale + (svgs.length-1)*8*scale;
     const ctx = cv.getContext('2d');
     ctx.fillStyle = tok('--bg','#fdfdfc'); ctx.fillRect(0,0,cv.width,cv.height);
-    let done = 0, y = 0;
+    let done = 0, y = 0, failed = false;
+    const fail = () => {
+      failed = true;
+      console.error('[rawdata] PNG export failed; no image saved');
+      $('rdFoot').textContent = 'PNG export failed; no image was saved. Please retry.';
+    };
     const ys = boxes.map(b=>{ const cur = y; y += b[3]+8; return cur; });
     svgs.forEach((s,i)=>{
       const img = new Image();
       img.onload = () => {
         ctx.drawImage(img, 0, ys[i]*scale, boxes[i][2]*scale, boxes[i][3]*scale);
-        if (++done === svgs.length) cv.toBlob(b=>{
+        if (++done === svgs.length && !failed) cv.toBlob(b=>{
+          if (!b) { fail(); return; }
           const a = document.createElement('a');
           a.href = URL.createObjectURL(b);
           a.download = `rawdata_${S.c.length>3?S.c.length+'countries':S.c.join('-')}`
@@ -7233,7 +7242,7 @@ const QR = (() => {
           a.click(); URL.revokeObjectURL(a.href);
         });
       };
-      img.onerror = () => { if (++done === svgs.length) console.error('[rawdata] PNG export failed'); };
+      img.onerror = () => { done++; fail(); };
       img.src = svgToDataURL(s);
     });
   }
@@ -7252,7 +7261,7 @@ const QR = (() => {
       [`"${name.replace(/"/g,'""')}"`, S.n, pname(b.from), pname(b.to),
        ...keys.map(k=>(optionalBand(k) && typeof b.v[k] !== 'number') || (selected && !(k in b.v))
          ? '' : Math.round((b.v[k]||0)*10)/10),
-       ...(selected ? [Math.round(selectedTotal(b)*10)/10] : []), Math.round(b.tot)].join(',')));
+       ...(selected ? [Math.round(selectedTotal(b)*10)/10] : []), b.tot].join(',')));
     if (SUM && SUM.length) emit('COMBINED', SUM);
     views.forEach(v=>emit(v.c, v.l));
     return rows.join('\n');

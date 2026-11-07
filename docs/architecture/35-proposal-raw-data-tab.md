@@ -778,7 +778,8 @@ keys remain discoverable with their own key label and neutral fallback colour;
 optional FCEV plumbing is described below, without country-data activation.
 
 - **Absolute:** stack and individual/shared y maxima use selected bands only,
-  including the existing coarse-window display scale. Known zero remains
+  including All and the existing coarse-window display scale (the drawn sum,
+  not a potentially different source TOTAL, determines the axis). Known zero remains
   selectable and has a finite zero-based axis.
 - **Share:** selected values remain `band / unfiltered series TOTAL`. Selecting
   BEV alone never makes it 100%. Tooltips separate selected sum and full TOTAL.
@@ -793,12 +794,14 @@ optional FCEV plumbing is described below, without country-data activation.
   serializer, also including `q=0` where selected. An old link without `f` resets
   a previous filter to All.
 - **PNG:** uses filtered SVGs. Compact SVGs carry their own fuel caption, not
-  just the external HTML legend.
+  just the external HTML legend. Any SVG/canvas failure aborts the entire
+  download with a visible error; a partial or null image is never saved.
 - **CSV:** retains the pre-existing full-observation absolute-count convention,
   even in Share or when a coarse observation is displayed as a shorter-window
   average. The visible download hint explains this exception to literal chart
   unit equivalence. Only selected fuel columns are exported; original TOTAL
-  remains, and an explicit filter adds `SELECTED_TOTAL`. Default All retains the
+  remains with its original fractional precision, and an explicit filter adds
+  `SELECTED_TOTAL`. Default All retains the
   existing column layout. Charts without a selected band are omitted rather
   than asserted to be zero; absent per-chart bands are blank in filtered CSVs.
   Optional FCEV unknown cells remain blank, including default All exports.
@@ -807,6 +810,14 @@ optional FCEV plumbing is described below, without country-data activation.
 Node with a small DOM double: axes/denominator, common splits, zero/None/missing
 and future bands, URL/QR, tooltip, CSV download, and the SVG input used for PNG.
 A visual/raster browser check remains additional validation.
+
+Review regressions additionally enforce that a combined bar contains only
+observations for the **same requested window** (`span == N`, no coarse-average
+scale). A yearly fallback shown as a labelled monthly average on its own chart
+cannot be added to another country's actual single month. At T12M both can
+contribute their complete year. Exclusions are labelled, and if the timeframe
+cut leaves no combined bar the aggregate is cleared rather than dereferencing
+an empty list. These are chart/export correctness repairs, not CSV changes.
 
 ### 5.3b Optional FCEV detail (implemented)
 
