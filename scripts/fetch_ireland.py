@@ -73,12 +73,13 @@ import argparse
 import csv
 import html
 import json
+import math
 import os
 import re
 import sys
 from datetime import date
 from pathlib import Path
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
 import requests
 
@@ -211,6 +212,29 @@ def probe_bundle(client: "SimiClient") -> None:
         print(f"[probe] X-Inertia reload: HTTP {r.status_code}, not JSON")
 
 
+class SimiSourceError(RuntimeError):
+    """The public dashboard did not provide a usable registration response."""
+
+
+def check_response(response, context: str, statuses=(200,)) -> None:
+    """Do not confuse redirects/maintenance/HTML with an empty dataset.
+
+    Never follow a partial/filter redirect: a login, maintenance page or other
+    destination is not registration data. Do not log response bodies/cookies.
+    """
+    locations = [response.url, response.headers.get("Location", ""),
+                 response.headers.get("X-Inertia-Location", "")]
+    if any(urlsplit(u).path.rstrip("/") == "/updating" for u in locations):
+        raise SimiSourceError(
+            f"{context}: SIMI is updating (/updating); registrations unavailable. "
+            "Retry after the public dashboard returns; no empty/zero substitute.")
+    if response.status_code not in statuses:
+        kind = response.headers.get("Content-Type", "<missing>").split(";")[0]
+        raise SimiSourceError(
+            f"{context}: unexpected HTTP {response.status_code} ({kind}); "
+            f"expected {statuses}. Refusing to parse registration data.")
+
+
 class SimiClient:
     def __init__(self):
         self.s = requests.Session()
@@ -218,17 +242,25 @@ class SimiClient:
         self.version = None
 
     def bootstrap(self) -> None:
-        r = self.s.get(f"{BASE}/", timeout=30)
-        r.raise_for_status()
+        r = self.s.get(f"{BASE}/", allow_redirects=False, timeout=30)
+        check_response(r, "SIMI bootstrap")
         m = DATA_PAGE_RE.search(r.text)
         if not m:
-            raise RuntimeError("Inertia data-page not found on stats.simi.ie root; "
-                               "the site shape changed.")
-        page = json.loads(html.unescape(m.group(1)))
+            raise SimiSourceError("SIMI bootstrap: Inertia data-page not found; "
+                                  "the public dashboard is unavailable or changed.")
+        try:
+            page = json.loads(html.unescape(m.group(1)))
+        except ValueError as e:
+            raise SimiSourceError("SIMI bootstrap: invalid Inertia data-page JSON") from e
+        if not isinstance(page, dict) or page.get("component") != VARIANT_CONFIG["Whole"]["component"]:
+            raise SimiSourceError("SIMI bootstrap: expected Public/Passenger dashboard, "
+                                  "not a maintenance/login/other page.")
+        if not isinstance(page.get("version"), str) or not page["version"]:
+            raise SimiSourceError("SIMI bootstrap: missing Inertia asset version")
+        if "XSRF-TOKEN" not in self.s.cookies:
+            raise SimiSourceError("XSRF-TOKEN cookie not set by stats.simi.ie root.")
         self.version = page["version"]
         self.page = page
-        if "XSRF-TOKEN" not in self.s.cookies:
-            raise RuntimeError("XSRF-TOKEN cookie not set by stats.simi.ie root.")
 
     def _xsrf(self) -> str:
         return requests.utils.unquote(self.s.cookies.get("XSRF-TOKEN"))
@@ -258,69 +290,71 @@ class SimiClient:
                      "Origin": BASE, "Referer": page_url},
             data=json.dumps(body), allow_redirects=False, timeout=30,
         )
-        if p.status_code not in (200, 302, 303):
-            raise RuntimeError(f"filter PATCH failed: HTTP {p.status_code} {p.text[:300]}")
+        context = f"[{variant} {year}-{month:02d}] SIMI {props}"
+        check_response(p, context + " filter PATCH", (200, 302, 303))
+        if p.status_code in (302, 303):
+            target = urlsplit(urljoin(page_url, p.headers.get("Location", "")))
+            expected = urlsplit(page_url)
+            if (not p.headers.get("Location") or
+                    (target.scheme, target.netloc, target.path.rstrip("/")) !=
+                    (expected.scheme, expected.netloc, expected.path.rstrip("/"))):
+                raise SimiSourceError(context + ": unexpected filter redirect; "
+                                      "refusing an unconfirmed session filter.")
         g = self.s.get(page_url, headers={
             "X-Inertia": "true", "X-Inertia-Version": self.version,
             "X-Inertia-Partial-Component": cfg["component"],
             "X-Inertia-Partial-Data": props}, allow_redirects=False, timeout=30)
-        g.raise_for_status()
-        return g.json().get("props", {})
+        check_response(g, context)
+        kind = g.headers.get("Content-Type", "").split(";")[0].strip().lower()
+        if kind != "application/json":
+            raise SimiSourceError(f"{context}: expected JSON, got {kind or '<missing>'}; "
+                                  "not an empty registration month.")
+        try:
+            page = g.json()
+        except ValueError as e:
+            raise SimiSourceError(f"{context}: invalid/empty JSON response") from e
+        if not isinstance(page, dict) or page.get("component") != cfg["component"]:
+            raise SimiSourceError(f"{context}: unexpected Inertia component/page")
+        result = page.get("props")
+        if not isinstance(result, dict) or any(k not in result for k in props.split(",")):
+            raise SimiSourceError(f"{context}: missing requested Inertia props; "
+                                  "not an empty registration month.")
+        if result.get("errors"):
+            raise SimiSourceError(f"{context}: dashboard returned filter errors")
+        return result
 
     def fetch_month(self, variant: str, year: int, month: int) -> dict[str, float]:
-        """Return {canonical_col: count} for a single (variant, year, month)."""
-        cfg = VARIANT_CONFIG[variant]
-        page_url = f"{BASE}/{cfg['route']}" if cfg["route"] else f"{BASE}/"
-        body = {
-            "years": [{"name": year, "value": year}],
-            "month_from": {"name": MONTH_NAMES[month - 1], "value": month},
-            "day_from": None,
-            "month_to": {"name": MONTH_NAMES[month - 1], "value": month},
-            "day_to": None,
-            "registration_type": {"name": "Total New Registrations", "value": "new-total"},
-            "sales_types": [], "makes": [], "models": [], "body_types": [],
-            "transmissions": [], "engine_types": [], "engine_capacities": [],
-            "colours": [], "segments": [], "counties": [],
-        }
-        p = self.s.patch(
-            f"{BASE}/filter/{cfg['filter']}",
-            headers={
-                "X-XSRF-TOKEN": self._xsrf(),
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-                "Origin": BASE, "Referer": page_url,
-            },
-            data=json.dumps(body), allow_redirects=False, timeout=30,
-        )
-        if p.status_code not in (200, 302, 303):
-            raise RuntimeError(f"[{variant} {year}-{month:02d}] filter PATCH failed: "
-                               f"HTTP {p.status_code} {p.text[:200]}")
-        g = self.s.get(
-            page_url,
-            headers={
-                "X-Inertia": "true",
-                "X-Inertia-Version": self.version,
-                "X-Inertia-Partial-Component": cfg["component"],
-                "X-Inertia-Partial-Data": "carsByEngineType",
-            },
-            allow_redirects=False, timeout=30,
-        )
-        g.raise_for_status()
-        ce = g.json()["props"].get("carsByEngineType")
-        if not ce:
-            return {}
+        """Return the unchanged fuel mapping, only for an explicit monthly dataset."""
+        ce = self.partial(variant, year, month, "carsByEngineType")["carsByEngineType"]
+        context = f"[{variant} {year}-{month:02d}]"
+        if not isinstance(ce, dict) or not isinstance(ce.get("datasets"), list):
+            raise SimiSourceError(f"{context}: missing/invalid carsByEngineType dataset")
         cols: dict[str, float] = {}
         for ds in ce["datasets"]:
-            label = ds["label"]
-            col = LABEL_TO_COL.get(label)
+            if not isinstance(ds, dict):
+                raise SimiSourceError(f"{context}: invalid engine-type row")
+            label = ds.get("label")
+            col = LABEL_TO_COL.get(label) if isinstance(label, str) else None
             if col is None:
-                raise RuntimeError(
-                    f"[{year}-{month:02d}] unmapped engine-type label {label!r} "
-                    f"— add it to LABEL_TO_COL."
-                )
-            count = ds["units"][0]["count"] if ds.get("units") else 0
-            cols[col] = cols.get(col, 0.0) + float(count or 0)
+                raise SimiSourceError(f"{context}: unmapped engine-type label {label!r} "
+                                      "— add it to LABEL_TO_COL.")
+            units = ds.get("units")
+            if units == []:
+                # A listed engine type with no units is an explicit zero month;
+                # the fetcher has read it that way since #64. Absent/None/multi
+                # stay errors below.
+                cols[col] = cols.get(col, 0.0)
+                continue
+            if not isinstance(units, list) or len(units) != 1 or not isinstance(units[0], dict):
+                raise SimiSourceError(f"{context}: expected one monthly count for {label!r}")
+            raw = units[0].get("count")
+            try:
+                count = float(raw) if raw is not None and not isinstance(raw, bool) else math.nan
+            except (TypeError, ValueError):
+                count = math.nan
+            if not math.isfinite(count) or count < 0 or not count.is_integer():
+                raise SimiSourceError(f"{context}: invalid/missing registration count for {label!r}")
+            cols[col] = cols.get(col, 0.0) + count
         return cols
 
 

@@ -12,8 +12,10 @@ name: Fetch Ireland data (SIMI motorstats)
 # fetcher replays the session-filter flow (GET → PATCH /filter/<type> → GET
 # Inertia partial carsByEngineType) per variant. See scripts/fetch_ireland.py
 # and docs/architecture/15-source-ireland.md. Each run re-fetches a trailing
-# window per variant (revisions), with per-variant early-exit. When a CSV
-# changes, the touched variants render via a serial render-country.yml matrix.
+# window per variant (revisions), with per-variant early-exit. Maintenance or
+# invalid registration responses fail the fetch (no empty/zero substitute or
+# commit). When a CSV changes, the touched variants render via a serial
+# render-country.yml matrix.
 
 on:
   workflow_dispatch:
