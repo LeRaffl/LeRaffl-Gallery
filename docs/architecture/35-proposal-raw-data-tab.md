@@ -1165,3 +1165,6 @@ rendered PNG, so it is a maintainer call and is not part of this proposal.
 - [31-proposal-country-source-pages.md](31-proposal-country-source-pages.md) — `observed_cadence()`, `contiguous_runs()`, and the `hev_note` front-matter this reuses
 - `R/plots.R` — `TTM_FUEL_COLORS`, the palette this tab must match
 - `index.html` — `fetchCompareObs()` / `COMPARE_OBS_CACHE`, the fetch pattern to reuse
+
+Shared links restore omitted axis, quality and timeframe controls to their documented
+defaults even in an already-open Raw tab, not to values left by a previous link.
