@@ -505,30 +505,97 @@ def build_row(period: str, fuels: dict, source_url: str) -> dict:
     }
 
 
-def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
-    existing: dict[str, dict] = {}
-    line_ending = "\n"
-    if Path(csv_path).exists():
-        # Detect the existing file's line ending so the diff stays minimal
-        # when the workflow commits. data/Japan.csv is currently CRLF.
-        with open(csv_path, "rb") as fb:
-            head = fb.read(4096)
-        if b"\r\n" in head:
-            line_ending = "\r\n"
-        with open(csv_path, newline="", encoding="utf-8") as f:
-            for r in csv.DictReader(f):
-                existing[r["period"]] = r
+def _csv_records(text: str) -> list[tuple[list[str], str]]:
+    """Parse logical CSV records while retaining their exact original text.
 
-    if period in existing and not force:
-        print(f"  Period {period} already in CSV — not overwriting (use --force).")
+    Physical-line splitting is unsafe for quoted multiline notes (and
+    str.splitlines also splits valid field characters such as U+0085).
+    """
+    stream = io.StringIO(text, newline="")
+    records = []
+    start = 0
+    for fields in csv.reader(stream, strict=True):
+        end = stream.tell()
+        records.append((fields, text[start:end]))
+        start = end
+    return records
+
+
+def _record_ending(record: str) -> str:
+    for ending in ("\r\n", "\n", "\r"):
+        if record.endswith(ending):
+            return ending
+    return ""
+
+
+def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
+    """Touch only (period, variant); --force is required to replace a row.
+
+    Keep the existing schema/order and all other records byte-for-byte. Extra
+    columns survive replacements; new records leave unreported extras empty.
+    """
+    path = Path(csv_path)
+    original = path.read_bytes() if path.exists() else b""
+    text = original.decode("utf-8")
+    records = _csv_records(text)
+    if records:
+        columns, header = records.pop(0)
+        if len(set(columns)) != len(columns) or not {"period", "variant"} <= set(columns):
+            raise ValueError(f"{csv_path}: invalid CSV header")
+    else:
+        columns, header = CSV_COLUMNS, ",".join(CSV_COLUMNS) + "\n"
+    if set(row) - set(columns):
+        raise ValueError(f"{csv_path}: row columns absent from CSV header: "
+                         f"{sorted(set(row) - set(columns))}")
+    if row.get("period") != period or not row.get("variant"):
+        raise ValueError("upsert row must match period and have a variant")
+    key = (period, row["variant"])
+    period_idx, variant_idx = columns.index("period"), columns.index("variant")
+    keys = []
+    seen = set()
+    for fields, _ in records:
+        if not fields:  # retain blank records too
+            keys.append(None)
+            continue
+        if len(fields) != len(columns):
+            raise ValueError(f"{csv_path}: CSV record does not match header")
+        old_key = (fields[period_idx], fields[variant_idx])
+        if old_key in seen:
+            raise ValueError(f"{csv_path}: duplicate CSV key {old_key}")
+        seen.add(old_key)
+        keys.append(old_key)
+
+    at = keys.index(key) if key in keys else None
+    if at is not None and not force:
+        print(f"  Period {period} ({key[1]}) already in CSV — not overwriting (use --force).")
+        return False
+    values = dict(zip(columns, records[at][0])) if at is not None else {}
+    values.update(row)
+    fields = ["" if values.get(c) is None else str(values.get(c, "")) for c in columns]
+    if at is not None and fields == records[at][0]:
         return False
 
-    existing[period] = row
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS, lineterminator=line_ending)
-        writer.writeheader()
-        for p in sorted(existing.keys()):
-            writer.writerow(existing[p])
+    # CRLF in the writer's dialect also quotes embedded CR on an LF file.
+    buf = io.StringIO(newline="")
+    csv.writer(buf, lineterminator="\r\n").writerow(fields)
+    new_record = buf.getvalue()[:-2]
+    eol = _record_ending(header) or next(
+        (_record_ending(r) for _, r in records if _record_ending(r)), "\n")
+    pieces = [header] + [r for _, r in records]
+    if at is not None:
+        pieces[at + 1] = new_record + _record_ending(records[at][1])
+    else:
+        # Preserve existing order; insert before the first later key, not a
+        # wholesale sort of the historical records.
+        at = next((i for i, k in enumerate(keys) if k is not None and k > key), len(records))
+        ending = eol if at < len(records) or not text or _record_ending(text) else ""
+        if not _record_ending(pieces[at]):
+            pieces[at] += eol  # an unterminated final/header record needs a separator
+        pieces.insert(at + 1, new_record + ending)
+    updated = "".join(pieces).encode("utf-8")
+    if updated == original:
+        return False
+    path.write_bytes(updated)
     return True
 
 
