@@ -53,7 +53,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 pypdf openpyxl cryptography
+        run: pip install requests beautifulsoup4 pypdf pdfplumber openpyxl cryptography
 
       # Offline; guards the top brands builder (scripts/market_top.py).
       - name: Test the top brands/models builder

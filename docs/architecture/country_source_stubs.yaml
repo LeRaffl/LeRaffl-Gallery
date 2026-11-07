@@ -253,7 +253,7 @@ stubs:
     market_designation_note: "JADA publishes makers, not models, and lumps every imported brand into one row (\"IMPORTS (ALL BRANDS)\"); TOYOTA includes Lexus. Kei cars are not in these tables either."
     notes:
       - "Japan's registrations come from JADA (Japan Automobile Dealers Association), which publishes a monthly 燃料別メーカー別登録台数（乗用車） file — registrations by fuel type and manufacturer. Each publication is a rolling four-month rollup; we take the newest month. The XLSX is parsed by preference, the PDF is a fallback layout carrying the same data."
-      - "Fuel-cell vehicles (ＦＣＶ) and その他 are summed into OTHERS."
+      - "Fuel-cell vehicles (ＦＣＶ) use optional FCEV only for future new CSV periods; その他 remains OTHERS. Historical unknown FCEV stays blank with FCV+その他 inside OTHERS, including on force refresh: no historical reclassification. XLSX and confirmed PDF cells supply the split; missing detail is not zero. MarketTop retains its existing inclusive Other class."
       - "The same workbook lists every maker's row, so the fetcher also builds the top-brands tables below (trailing twelve months plus each single month) from it. Each file only holds four months, so the months are kept in market/japan_months.json and the twelve-month view fills up as new files arrive."
     caveats:
       - "Kei cars (軽自動車) are excluded — the file's own footer says so (「軽自動車は含みません」). Kei cars are roughly a third of the Japanese light-vehicle market, so this is NOT the whole Japanese car market and its BEV share is not comparable with a kei-inclusive figure."

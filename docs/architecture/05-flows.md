@@ -427,20 +427,44 @@ sequenceDiagram
         end
         Site-->>Job: file bytes
         Job->>Job: Find sheet/page titled "YYYY年M月" (year/month)
-        Job->>Job: Extract 乗用車計 (passenger-car total) row → PETROL/HEV/PHEV/DIESEL/BEV/(FCV+その他)/TOTAL
+        Job->>Job: Extract 乗用車計 (passenger-car total) row → PETROL/HEV/PHEV/DIESEL/BEV/FCEV/OTHERS/TOTAL
         Job->>Job: Sanity-check: sum of fuels == TOTAL
         Job->>CSV: Upsert target-month row (preserves CRLF endings)
         Job->>Render: gh workflow run render-country.yml -f country=Japan
     end
 ```
 
-**Where parsing lives:** [scripts/fetch_japan.py](../../scripts/fetch_japan.py). The module docstring documents the column mapping, the FCV+その他 *(sonota, "other")* fold-in convention, and the no-partial-writes rule.
+**Where parsing lives:** [scripts/fetch_japan.py](../../scripts/fetch_japan.py). The module docstring documents the column mapping, the future-only FCEV split and historical FCV+その他 *(sonota, "other")* compatibility, and the no-partial-writes rule.
 
 **Vehicle scope:** JADA page 342 covers 登録車 *(tōrokusha,* standard passenger cars: engine > 660 cc **or** length > 3.40 m / width > 1.48 m / height > 2.00 m; ≈ LDV / EU M1, almost all under 3.5 t — no formal weight cap*)* only. Kei cars (軽自動車 *kei jidōsha*: ≤ 660 cc **and** ≤ 3.40 × 1.48 × 2.00 m, typically 700-1000 kg, ~35-40 % of Japan's new-car market) are explicitly excluded by the file's footer "２．軽自動車は含みません。" *("2. Kei cars not included.")* — see [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source). The pre-existing `data/Japan.csv` rows since 2020-02 follow the same scope (monthly totals 180–280k match 登録車-only volumes).
 
 **Why XLSX preferred, PDF fallback:** both files carry the same payload but the XLSX has stable cell positions (A=row label, D=PETROL, F=HEV, …, R=TOTAL). The PDF text, when extracted with pypdf, is reordered column-by-column rather than row-by-row, which forced us into a line-based parser (see "Issues hit" below). We try XLSX first and only fall back to PDF if the XLSX URL was not supplied / not parseable for the target month. This also future-proofs us against JADA dropping one of the two formats.
 
-**Why `OTHERS = ＦＣＶ + その他(*)`:** JADA reports fuel-cell vehicles (ＦＣＶ) and "other" (LPG etc., footnoted `*その他はＬＰＧ車等`) as two separate columns. The pre-existing `data/Japan.csv` collapses them into a single `OTHERS` column. Verified against three historical rows: e.g. 2026-01 OTHERS=80 in the CSV matches FCV=79 + その他=1 in the source. We follow the established CSV convention rather than introduce an `FCV` column.
+**FCEV activation, without rewriting history:** JADA's ＦＣＶ is confirmed
+fuel-cell technology, separate from その他(*) (LPG etc.; not HICEV). New periods
+strictly newer than the pre-write CSV watermark carry `FCEV = ＦＣＶ` and
+`OTHERS = その他`. An old blank/absent FCEV remains unknown even on `--force`,
+with incoming FCV still folded into legacy Other (e.g. 2026-01: 79+1=80).
+Historical gaps do not activate a retroactive split either. Previously known
+FCEV rows can follow the normal source revision policy. An unavailable fallback
+never erases an already confirmed split: preserve it if the inclusive remainder
+is unchanged, otherwise abort that unknowable correction. The first future write
+appends `FCEV` to an existing header and one empty field to each old nonblank
+logical record: numeric spelling, quoted notes, unknown columns, record order,
+line endings and final-newline state are preserved. There is no schema-only
+write on an old force refresh and no data backfill in this change.
+
+For PDF rows with omitted trailing cells, `pdfplumber` locates a count beneath
+the physical FCV header of the labelled passenger-total row; it does not infer
+FCEV from the presence of a sixth text token. No confirmed cell means blank,
+not zero; an explicitly printed numeric 0 means zero. Workbook cells follow
+the same unknown/zero distinction. MarketTop explicitly recombines FCV+Other
+before its existing maker aggregation, leaving all class/ranking values intact.
+Legacy R TTM / three curves and the artifact compatibility view remain as
+specified in [03](03-data-objects.md) / [35 §5.3b](35-proposal-raw-data-tab.md#53b-optional-fcev-detail-implemented).
+Offline coverage: `test_fetch_japan.py`, `test_fcev_activation.py` and
+`test_fcev_legacy.R` (including real JP/KR source-count transition fixtures).
+
 
 **Why daily from the 1st:** unlike ANAC (Chile, publishes ~14th) and ANFAVEA (Brazil, publishes ~6th–10th), JADA tends to publish the previous month's file on the **first business day** of the following month — the April 2026 file in our sample was published 2026-05-11, which is on the late side; January 2026 was published 2026-02-05. Starting on day 1 keeps the first publication day in range; the self-throttle makes the empty days free.
 
@@ -451,15 +475,15 @@ sequenceDiagram
 | Duplicate Chile's structure rather than abstract a generic "fetch_country" runner | The project convention (Brazil flow notes) is to keep each fetcher country-local: each agency has its own URL scheme, file layout, and quirks. The shared shape sits in the workflow YAML (cron + dispatch + commit + render-trigger), not in the Python. |
 | Take target month = previous calendar month by default | Mirrors Chile/Brazil and matches the maintainer's mental model. Any other month can be forced via `--year`/`--month` on the CLI or workflow_dispatch inputs. |
 | Self-throttle by reading `latest_period` from the CSV before any HTTP call | A no-op invocation should cost nothing on JADA's side. We hit the index page only when there's a real chance the target month isn't yet in the CSV. |
-| Preserve the existing CRLF line endings in `data/Japan.csv` | Detected at write time by sniffing the first 4 KiB of the file. Without this the very first ingest would rewrite all 172 rows from CRLF to LF and produce a noisy diff (we tripped over this during development; see "Issues hit"). |
-| Sum check `PETROL+HEV+PHEV+DIESEL+BEV+OTHERS == TOTAL` before writing | The XLSX has both per-fuel columns and a 合計 (Total) column. If they disagree, the column mapping is wrong — fail loudly rather than write a bad row. Cross-checked exact for 12/12 months of 2022 and 3/3 months of 2026 against the existing CSV during development. |
+| Line-level CSV upsert by `(period, variant)`; existing rows need `--force` | The existing header/order, optional extra columns and every untouched logical record are retained verbatim (numeric spelling, quoted/multiline notes, mixed LF/CRLF endings and final-newline state). Replacements keep unspecified extra-column values and their record ending; insertions use the header ending and preserve historical order. Appending after an unterminated record adds only the necessary separator. Identical rows are a no-op. No historical values are reclassified; optional FCEV expansion follows the boundary above. Offline regression tests: `scripts/test_fetch_japan.py`. |
+| Sum check `PETROL+HEV+PHEV+DIESEL+BEV+FCEV+OTHERS == TOTAL` before writing | The XLSX has both per-fuel columns and a 合計 (Total) column. If they disagree, the column mapping is wrong — fail loudly rather than write a bad row. Cross-checked exact for 12/12 months of 2022 and 3/3 months of 2026 against the existing CSV during development. |
 | Manual `--xlsx-url` / `--pdf-url` overrides on the workflow | The maintainer noticed that JADA's hosting may block cloud IP ranges (we hit `HTTP 403, x-deny-reason: host_not_allowed` from the development sandbox). Manual URL inputs let the workflow run even if auto-discovery is blocked on Actions runners. The first scheduled CI run is what tells us whether discovery works from `ubuntu-latest`. |
 
 ### Issues hit during development
 
 1. **JADA blocked the dev sandbox.** Initial `WebFetch` / `curl` against `https://www.jada.or.jp/pages/342/` returned `HTTP 403 x-deny-reason: host_not_allowed`. The maintainer uploaded two sample files to `master` (a 2026 monthly XLSX+PDF pair plus a 2022 full-year XLSX) and we developed the parser against those. We do not yet know whether the GitHub-hosted runner is also blocked — the first manual dispatch on the feature branch will tell us. If it is, the `--xlsx-url` / `--pdf-url` workflow inputs are the fallback.
 
-2. **PDF parser shifted columns by one when ＦＣＶ was zero.** First version used a single multi-line regex anchored on the `構成比` (composition) row that always follows a data row. On months without an ＦＣＶ entry (2026-02, -03, -04) the regex over-matched: it picked up a `0` from the *previous* row's `構成比 … 0.1 100.0 --` line as PETROL and shifted every column to the right. Fix: switched to a line-based parser. Each `\n`-separated line is independently tokenised; only lines whose count tokens contain at least one comma-grouped integer (real fuel counts always do; `構成比` percentages never do) are kept. From those, the row with the largest TOTAL is the 乗用車計 row. After the fix, the PDF parser matches the XLSX parser byte-exact on all 16 validated months.
+2. **PDF parser shifted columns by one when trailing cells were blank.** First version used a single multi-line regex anchored on the `構成比` (composition) row that always follows a data row. On months with blank その他 (2026-02, -03, -04; FCV was actually 29, 29 and 14) the regex over-matched: it picked up a `0` from the *previous* row's `構成比 … 0.1 100.0 --` line as PETROL and shifted every column to the right. Fix: switched to a line-based parser. Each `\n`-separated line is independently tokenised; only lines whose count tokens contain at least one comma-grouped integer (real fuel counts always do; `構成比` percentages never do) are kept. From those, the row with the largest TOTAL is the 乗用車計 row. After the fix, the PDF parser matches the XLSX parser byte-exact on all 16 validated months.
 
 3. **First test rewrote all 172 rows.** End-to-end smoke test produced a diff of the entire file even though only one row was added. Cause: `data/Japan.csv` uses CRLF line endings (committed that way originally); `csv.DictWriter(lineterminator="\n")` rewrote it as LF. Fix: detect the existing file's line ending by reading its first bytes and feed it back to `DictWriter`. Chile.csv has the same CRLF convention, but `fetch_chile.py` has not yet hit this because Chile.csv was rewritten as part of the bootstrap commit; we still left a TODO for a follow-up to keep the two scripts consistent.
 
@@ -467,7 +491,8 @@ sequenceDiagram
 
 ### Validation
 
-Parser was checked byte-exact against the existing `data/Japan.csv` rows:
+Original validation used inclusive `OTHERS = FCV + その他`. For the optional
+FCEV split, recombine those two fields before comparing to historical CSV rows:
 
 | Sample file | Months validated | Result |
 |---|---|---|
