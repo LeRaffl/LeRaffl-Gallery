@@ -140,7 +140,8 @@ followed to another destination. No member/login route or alternative endpoint
 is used.
 
 A valid engine dataset must explicitly contain a `datasets` list. Each listed
-engine type must carry exactly one finite, nonnegative integer monthly count;
+engine type must carry exactly one finite, nonnegative integer monthly count,
+or an empty `units` list, which counts as an explicit zero (as since #64);
 missing/null counts are errors, not zero. An explicitly empty dataset or
 explicit all-zero counts retain the existing no-row policy. Unknown labels
 still fail rather than being dropped. Months are collected before the variant's

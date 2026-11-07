@@ -156,12 +156,19 @@ class SourceContractTests(unittest.TestCase):
             with self.subTest(count=count):
                 with self.assertRaises(fi.SimiSourceError):
                     client(page(props={"carsByEngineType": dataset({"Electric": count})})).fetch_month("Whole", 2026, 7)
-        for units in [None, [], [{"count": 1}, {"count": 2}], [{}]]:
+        for units in [None, [{"count": 1}, {"count": 2}], [{}]]:
             ce = dataset()
             ce["datasets"][0]["units"] = units
             with self.subTest(units=units):
                 with self.assertRaises(fi.SimiSourceError):
                     client(page(props={"carsByEngineType": ce})).fetch_month("Whole", 2026, 7)
+
+    def test_listed_label_with_empty_units_is_explicit_zero(self):
+        ce = dataset({"Electric": 7, "Petrol": 3})
+        ce["datasets"][1]["units"] = []
+        cols = client(page(props={"carsByEngineType": ce})).fetch_month("Whole", 2026, 7)
+        self.assertEqual(cols[fi.LABEL_TO_COL["Petrol"]], 0.0)
+        self.assertEqual(sum(cols.values()), 7.0)
 
     def test_all_existing_fuel_buckets_and_total_are_unchanged(self):
         labels = {name: i for i, name in enumerate(fi.LABEL_TO_COL, 1)}

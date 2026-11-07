@@ -339,6 +339,12 @@ class SimiClient:
                 raise SimiSourceError(f"{context}: unmapped engine-type label {label!r} "
                                       "— add it to LABEL_TO_COL.")
             units = ds.get("units")
+            if units == []:
+                # A listed engine type with no units is an explicit zero month;
+                # the fetcher has read it that way since #64. Absent/None/multi
+                # stay errors below.
+                cols[col] = cols.get(col, 0.0)
+                continue
             if not isinstance(units, list) or len(units) != 1 or not isinstance(units[0], dict):
                 raise SimiSourceError(f"{context}: expected one monthly count for {label!r}")
             raw = units[0].get("count")
