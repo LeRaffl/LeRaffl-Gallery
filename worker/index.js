@@ -465,12 +465,18 @@ function validateFcevRecord(cols, fields, period) {
     throw new SubmissionValidationError(`row ${period}: invalid effective FCEV/TOTAL`);
   const leaves = FUEL_ORDER.filter(k=>k !== 'TOTAL');
   const sum = leaves.reduce((n,k)=>n+(row[k] === undefined || row[k] === '' ? 0 : Number(row[k])),0);
-  const combustion = ['ICE','PETROL','DIESEL','FLEXFUEL','ETHANOL','GAS','CNG','LPG'];
-  const hasIce = row.ICE !== undefined && row.ICE !== '' || combustion.some(k=>Number(row[k]) > 0);
-  // Match the exporter: an unnamed >5% combustion residual is derivable only
-  // without an explicit combustion split. Confirmed optional detail otherwise
-  // requires disjoint leaves closing against ORIGINAL TOTAL, not 0.5/3% slack.
-  const residual = !hasIce && total-sum > total*0.05;
+  const combustion = ['PETROL','DIESEL','FLEXFUEL','ETHANOL'];
+  const aggregateIce = row.ICE !== undefined && row.ICE !== '';
+  if (aggregateIce && [...combustion,'GAS','CNG','LPG'].some(k=>Number(row[k]) > 0))
+    throw new SubmissionValidationError(`row ${period}: aggregate ICE overlaps its split combustion columns`);
+  const hasIce = aggregateIce || combustion.some(k=>Number(row[k]) > 0);
+  // Gas folds into Other, not into the exporter's named ICE columns. Derive
+  // the >5% unnamed residual only if every declared electric input is known;
+  // a missing hybrid must not be guessed to be combustion. Otherwise require
+  // disjoint leaves closing against ORIGINAL TOTAL, never percentage slack.
+  const completeElectric = ['BEV','PHEV','EREV','HEV','MHEV'].every(k=>
+    !cols.includes(k) || (String(row[k]).trim() !== '' && Number.isFinite(Number(row[k]))));
+  const residual = !hasIce && completeElectric && total-sum > total*0.05;
   if (!Number.isFinite(sum) || sum > total+1e-6 || (!residual && Math.abs(sum-total)>1e-6))
     throw new SubmissionValidationError(`row ${period}: effective FCEV leaves must close to original TOTAL`);
 }
