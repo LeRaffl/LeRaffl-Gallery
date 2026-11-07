@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-07T11:17:48Z",
+ "generated": "2026-11-07T19:00:49Z",
  "today": "2026-11-07",
  "countries": [
   {
@@ -1223,11 +1223,11 @@
    "source_url": "https://www.transpordiamet.ee/soidukitega-tehtud-toimingute-statistika",
    "cadence_text": "twice daily (07:05 and 13:05 UTC) on the 1st–15th; the month's workbook is posted in the first days of the next month and never restated",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1268,14 +1268,14 @@
     ],
     "workflow": ".github/workflows/fetch-estonia.yml"
    },
-   "last_render": "2026-10-16",
+   "last_render": "2026-11-07",
    "flag": "🇪🇪",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     },
@@ -1297,33 +1297,33 @@
     },
     {
      "name": "Used",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2021-01",
-     "rows": 69,
+     "rows": 70,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2021-01",
-     "rows": 69,
+     "rows": 70,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2021-01",
-     "rows": 69,
+     "rows": 70,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2021-01",
-     "rows": 69,
+     "rows": 70,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -4648,11 +4648,11 @@
    "source_url": "https://www.acau.com.uy/",
    "cadence_text": "daily from the 1st of the month, self-throttling per variant",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4708,38 +4708,38 @@
     ],
     "workflow": ".github/workflows/fetch-uruguay.yml"
    },
-   "last_render": "2026-10-26",
+   "last_render": "2026-11-07",
    "flag": "🇺🇾",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2021-06",
-     "rows": 47,
+     "rows": 48,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2024-01",
-     "rows": 21,
+     "rows": 22,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2024-01",
-     "rows": 21,
+     "rows": 22,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2024-02",
-     "rows": 20,
+     "rows": 21,
      "cadence": "monthly",
      "in_repo": true
     }

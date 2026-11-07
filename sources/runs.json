@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-07T11:17:48Z",
+ "generated": "2026-11-07T19:00:49Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7616,6 +7616,78 @@
    "slug": "japan",
    "period": "2026-10",
    "flag": "🇯🇵"
+  },
+  {
+   "date": "2026-11-07",
+   "label": "Estonia",
+   "base": "Estonia",
+   "slug": "estonia",
+   "period": "2026-10",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-11-07",
+   "label": "Estonia (Buses)",
+   "base": "Estonia",
+   "slug": "estonia_buses",
+   "period": "2026-10",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-11-07",
+   "label": "Estonia (HDV)",
+   "base": "Estonia",
+   "slug": "estonia_hdv",
+   "period": "2026-10",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-11-07",
+   "label": "Estonia (Used)",
+   "base": "Estonia",
+   "slug": "estonia_used",
+   "period": "2026-10",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-11-07",
+   "label": "Estonia (Vans)",
+   "base": "Estonia",
+   "slug": "estonia_vans",
+   "period": "2026-10",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-11-07",
+   "label": "Uruguay",
+   "base": "Uruguay",
+   "slug": "uruguay",
+   "period": "2026-10",
+   "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-11-07",
+   "label": "Uruguay (Buses)",
+   "base": "Uruguay",
+   "slug": "uruguay_buses",
+   "period": "2026-10",
+   "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-11-07",
+   "label": "Uruguay (HDV)",
+   "base": "Uruguay",
+   "slug": "uruguay_hdv",
+   "period": "2026-10",
+   "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-11-07",
+   "label": "Uruguay (Vans)",
+   "base": "Uruguay",
+   "slug": "uruguay_vans",
+   "period": "2026-10",
+   "flag": "🇺🇾"
   }
  ]
 }
