@@ -1,9 +1,9 @@
 🇺🇾 Uruguay - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+21.3pp  BEV   (23.6% → 44.9%)
-+3.5pp  PHEV  (1.0% → 4.5%)
-−2.2pp  HEV   (9.4% → 7.2%)
-−22.6pp  ICE   (66.0% → 43.4%)
+Nov24–Oct25  vs  Nov25–Oct26
++21.1pp  BEV   (25.8% → 46.9%)
++3.9pp  PHEV  (1.1% → 5.0%)
+−2.7pp  HEV   (9.5% → 6.8%)
+−22.3pp  ICE   (63.6% → 41.3%)
 
-HEV peaked at 10.3% in 2025-12 (declining for 9 months).
+HEV peaked at 10.3% in 2025-12 (declining for 10 months).
