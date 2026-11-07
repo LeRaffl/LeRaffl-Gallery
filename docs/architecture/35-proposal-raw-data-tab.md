@@ -533,16 +533,21 @@ else:                    collect the calendar cycle at granularity G;
   "dropped": 0, "coarse": 12, "residual_ice": 0, "folded": [],
   "m": [24131, 24143, "…"],          // month index of each cycle END
   "g": [12, 12, "…"],                // months the observation covers
-  "t": [309952.0, 176555.0, "…"],    // TOTAL, ≡ Σ bands by construction
+  "t": [309952.0, 176555.0, "…"],    // original source TOTAL (not recomputed from bands)
   "b": { "BEV": [...], "PETROL": [...], "DIESEL": [...], "OTHERS": [...] },
   "why": { "2018-02": "bands miss TOTAL by +10.5%" } }
 ```
 
 Two properties the client relies on and must never lose:
 
-1. **`t[i] ≡ Σ b[*][i]`** for every period. There is no `unreported` band — an
-   earlier draft had one and it was dropped (§ 2.4): it put a validation artifact
-   in front of a reader who came to look at registrations.
+1. **`t[i]` retains original source TOTAL**, including its precision. Drawing
+   bands normally close to it; old non-FCEV rows keep the existing 3% tolerance.
+   Known FCEV rows must close tightly to the original input TOTAL (epsilon), not
+   a recomputed or reduced denominator. There is no `unreported` band. This
+   repairs the old denominator bug: a small omitted fuel could pass the drawing
+   tolerance and silently shrink the denominator. No blanket artifact rewrite
+   accompanies the code change; future builds of previously inconsistent rows
+   may therefore have corrected shares, even without FCEV.
 2. **`m` is strictly increasing and `g` divides its own cycle**, so the client's
    window walk (`m[j-1] === m[j] - g[j]`) is the only contiguity test it needs.
 
@@ -587,7 +592,7 @@ non-zero on a fatal.
 | `ICE` and `PETROL`/`DIESEL` both populated non-zero in one row | fatal — § 2.1 |
 | A negative value in any band column | fatal — see below |
 | `hev_note` present but `PHEV` also populated | fatal — metadata and data disagree |
-| Emitted `t[i] ≠ Σ b[*][i]` (within float epsilon) | fatal — the invariant the client assumes |
+| Emitted bands differ from original TOTAL beyond drawing tolerance | fatal; known FCEV input rows require tight disjoint closure, never the 3% allowance |
 | A band at exactly zero between two populated, non-trivial neighbours | recorded |
 | `time_interval` contradicts observed spacing | recorded |
 | Every held-back row, with its reason | recorded → `35b` |
@@ -644,7 +649,7 @@ the table to read before editing `build_series.py`.
 | Stage 6 tolerance | Czechia 2016–2021 | 62 periods sit between 0.5 % and 3 % |
 | Stage 8 stamping | Canada/Georgia 2016→2017 seam | mid-quarter stamps overlap the yearly bar before them |
 | The client window fn | Belgium pre-2022, Japan's non-December year end | accumulate `g`, and do not re-add an alignment test |
-| The emitted schema | the `t ≡ Σ b` invariant, `35b` generation | the client stacks what it is given and never re-derives |
+| The emitted schema | source TOTAL / drawing-tolerance contract, `35b` generation | the client stacks what it is given and never re-derives |
 
 The empirical method behind those numbers is worth keeping: every rule was
 switched off in turn and the output diffed against the full run (§ 7c). Two rules
@@ -765,12 +770,12 @@ Builder ↔ Raw Data cross-links work.
 
 ### 5.3a Fuel-band selection (implemented)
 
-The fuel control filters already-resolved disjoint `series/*.json` bands. It
-changes neither CSVs nor the exporter, its totals, the common-split plan, or the
-combined chart's country membership/windows. Labelled native checkboxes sit in a
+The fuel control filters resolved disjoint `series/*.json` bands. For ordinary
+bands it does not change the common-split plan or combined membership/windows;
+optional coverage uses the rules in §5.3b. Labelled native checkboxes sit in a
 `Fuel bands` fieldset with All/None and a live summary. Unknown future artifact
 keys remain discoverable with their own key label and neutral fallback colour;
-this feature adds no FCEV schema/data.
+optional FCEV plumbing is described below, without country-data activation.
 
 - **Absolute:** stack and individual/shared y maxima use selected bands only,
   including All and the existing coarse-window display scale (the drawn sum,
@@ -799,7 +804,7 @@ this feature adds no FCEV schema/data.
   `SELECTED_TOTAL`. Default All retains the
   existing column layout. Charts without a selected band are omitted rather
   than asserted to be zero; absent per-chart bands are blank in filtered CSVs.
-  This does not add upstream missing-value coverage semantics (separate work).
+  Optional FCEV unknown cells remain blank, including default All exports.
 
 `python scripts/test_raw_data_fuels.py` executes the actual tab JavaScript in
 Node with a small DOM double: axes/denominator, common splits, zero/None/missing
@@ -813,6 +818,43 @@ cannot be added to another country's actual single month. At T12M both can
 contribute their complete year. Exclusions are labelled, and if the timeframe
 cut leaves no combined bar the aggregate is cleared rather than dereferencing
 an empty list. These are chart/export correctness repairs, not CSV changes.
+
+### 5.3b Optional FCEV detail (implemented)
+
+Canonical `FCEV` means confirmed fuel-cell technology, not HICEV. No real
+country CSV/source is activated here. `b` stays legacy-inclusive (FCEV in
+Other), keeping legacy/Hero consumers compatible; Hero still observes true
+BEV / original TOTAL. An optional non-additive sidecar is aligned to `m`:
+
+```json
+"breakdown": {"FCEV": {"parent": "OTHERS", "v": [null, 0, 12], "g": [1, 1, 12]}}
+```
+
+- Null means unknown, zero means measured none. Validate count ≤ parent,
+  finite/nonnegative values, array lengths and positive integer detail resolution.
+- Raw windows separate FCEV by subtracting it from inclusive Other **only if
+  every observation is known and the complete window respects its own whole
+  calendar resolution**. Monthly legacy data with annual optional detail does
+  not invent monthly FCEV. Native coarse observations retain their existing
+  full-observation / displayed-average convention. Optional `g` cannot coarsen
+  or remove legacy observations; incomplete detail stays inclusive in Other.
+- Explicit FCEV filters (also combinations) omit unknown windows; no fabricated
+  zero. Both individual/shared axes, tooltips, CSV and PNG follow that view.
+  The Other tooltip names unseparated FCEV. Links use ordinary `f=FCEV`.
+- Default All combined charts retain normal fixed membership. With mixed detail
+  coverage, **all** FCEV goes back into Other and FCEV is null, not a partial sum.
+  Explicit Other filters instead sum only their selected per-country leaves,
+  never re-adding unchecked known FCEV, and label remaining inclusive Other
+  as “FCEV not separated” whenever any member is unknown.
+  Explicit FCEV combined charts include only confirmed reporting members with
+  complete common windows, fixed across the drawn span; denominator is their
+  full original TOTAL, never FCEV sum or TOTAL of excluded countries. With fewer
+  than two eligible members there is no combined chart. This is a reporting
+  subset, not an estimate of non-reporting countries.
+- No new fleet-stock handling or source-specific BEV/EV reclassification.
+
+Offline regressions: `test_fcev_schema.py`, `test_fcev_legacy.R`,
+`test_fcev_submit.py` and behavioral `test_raw_data_fuels.py`.
 
 ### 5.4 The definitions panel
 
@@ -1044,7 +1086,7 @@ byte-identical before and after:
   on every build, emitted into every series file, read by nothing. The
   combined-hybrid case is already carried by the band label.
 - **The post-aggregation `TOTAL > 0` filter** — reconciliation guarantees
-  `Σ bands ≥ 0.97 · TOTAL > 0`, and `TOTAL` after aggregation *is* `Σ bands`, so
+  `Σ bands ≥ 0.97 · TOTAL > 0`; source TOTAL is retained after aggregation, so
   the branch could never fire.
 - **Two rejection counters** kept apart and then only ever added together.
 - **The `anchor` parameter** threaded through `bars()` and `combined()` — the

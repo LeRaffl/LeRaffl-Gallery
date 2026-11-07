@@ -66,6 +66,7 @@ CSV with header. **Wide-but-sparse**: per-country only the fuel columns that the
 | `variant` | yes | string | Always `Whole` for top-level country files. Reserved for future per-CSV variants. |
 | `source` | yes | string | Short name of the source (`KBA`, `Statistik Austria`). Carried per-row so the maintainer can audit which row came from where; a bare link is tolerated (a Submit-Data PR may carry one) but never shown as a name. What charts, `params.csv` and `series/` display is derived from this column — see `params.csv` → `source`. |
 | `BEV` | yes | numeric | Battery electric vehicles registered in the period. |
+| `FCEV` | optional | numeric | Confirmed fuel-cell registrations, excluding HICEV. Disjoint from `OTHERS` and explicit `ICE`; blank = unknown, zero = reported none. Schema support only: no country activated here. Legacy three-curve residual ICE / TTM Other remain inclusive. |
 | `PHEV` | optional | numeric | Plug-in hybrid. Absent in Türkiye, Georgia, Ukraine. **South Africa**'s is naamsa's «Plug-in hybrid» line for the whole new-vehicle market (all segments, not M1 — [60](60-source-south-africa.md)). Ecuador's is derived from the model by a rule table, as Argentina's ([48](48-source-ecuador.md) §3b). |
 | `EREV` | optional | numeric | Extended-range EVs (a subset of PHEV in some sources). Written by **China** (retail + wholesale), **Spain** (all eight variants), **Argentina**, **Hong Kong** and **Ecuador** (all from range-extender designations, e.g. `REEV`; Ecuador also the Changan Deepal), and **Taiwan** (THB's own fuel category 電能(增程) — practically zero so far). Folds into PHEV in the three-curve view. |
 | `HEV` | optional | numeric | Full hybrid. For countries that report a single "Hybrid" total without splitting (Türkiye, Georgia, Ukraine), this column carries the total and the post-text labels it as "Hybrid". **Peru** writes full and mild hybrids together here — the registry only separated them in 2025 ([45](45-source-peru.md) § 3) — and so does **Paraguay**, whose tariff subheading 8703.40 / .50 covers every non-plug-in hybrid ([47](47-source-paraguay.md) § 3). **Taiwan** writes THB's hybrid codes here, including the Nissan e-POWER series hybrid; THB has no mild-hybrid code ([49](49-source-taiwan.md) § 3). |
@@ -79,6 +80,26 @@ CSV with header. **Wide-but-sparse**: per-country only the fuel columns that the
 | `ICE` | optional | numeric | Used when the source gives a single combustion total with no petrol/diesel breakdown: **Argentina, Chile, China, Colombia, South Korea, Thailand, USA**. Where it is present, `PETROL` and `DIESEL` stay empty. |
 | `TOTAL` | yes | numeric | Sum of everything for the period. |
 | `notes` | optional | string | Free text for the submitter or maintainer. Some fetchers store the source URL or provenance note here (e.g. Brazil, Japan, Türkiye). |
+
+**Optional FCEV projection:** raw CSV leaves must close to source `TOTAL`
+when FCEV is known (including zero); no overlap with `OTHERS` is tolerated by
+the exporter's ordinary 3% drawing allowance. Historical unknown rows retain
+existing inclusive `OTHERS`, with FCEV blank; no automatic rewriting.
+`R/data.R::legacy_fuel_rollup()` adds known FCEV to Other only in the derived
+TTM view, never to its strict missing-value fuel list. Fit shares still use
+BEV/TOTAL, (PHEV+EREV)/TOTAL and the residual; explicit Korean ICE is not enlarged.
+
+The registration `series` artifact keeps inclusive legacy `b.OTHERS`, and adds
+optional **non-additive** `breakdown.FCEV = {parent: "OTHERS", v: [...], g: [...]}`.
+Arrays align with `m`; `v` contains finite counts or `null`, and `g` contains
+independent months-of-resolution. Never sum this sidecar into `b`. Legacy `g`
+and held periods do not change because an optional detail starts later.
+`t` retains original source TOTAL, not the sum of drawn bands. Raw Data's
+strict coverage/window projection is specified in [35 §5.3b](35-proposal-raw-data-tab.md#53b-optional-fcev-detail-implemented).
+Fleet stock data is a separate pipeline and is unchanged.
+Submit corrections validate these same effective disjoint leaves after retaining
+an omitted FCEV; neither the legacy electric-only tolerance nor an invisible
+optional input can erase or double-count it (see [04](04-interfaces.md)).
 
 **`notes` preservation contract:** Automated fetchers write `notes = ""` for new rows. On re-ingestion (e.g. `--force`), a fetcher must not silently clear an existing non-empty `notes` value. The correct pattern (implemented in all `fetch_*.py` scripts since June 2026) is:
 

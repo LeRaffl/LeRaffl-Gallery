@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import re
 import statistics
 import sys
@@ -122,6 +123,25 @@ def source_line(rows):
     return f"{current} · earlier: {labels[0]}"
 
 
+def column_granularity(xs, total, step):
+    """Existing smear heuristic, shared by legacy bands and optional details."""
+    g = [step] * len(xs)
+    i = 0
+    while i < len(xs):
+        j = i
+        while j + 1 < len(xs) and xs[j + 1] == xs[i] and xs[i] > 0:
+            j += 1
+        if j - i + 1 >= SMEAR_MIN_RUN:
+            material = (abs(xs[i] - round(xs[i])) > 1e-9
+                        or xs[i] / max(total[i], 1.0) >= SMEAR_MIN_SHARE)
+            if material:
+                span = (12 if j - i + 1 >= 12 else 3) * step
+                for k in range(i, j + 1):
+                    g[k] = max(g[k], span)
+        i = j + 1
+    return g
+
+
 # ---------------------------------------------------------------- the pipeline
 
 def build_country(country, rows):
@@ -132,6 +152,12 @@ def build_country(country, rows):
         return None
     idx = [midx(r["period"]) for r in rows]
     n = len(rows)
+    has_fcev = any("FCEV" in r for r in rows)
+    fcev = [num(r.get("FCEV")) for r in rows]
+    for r, value in zip(rows, fcev):
+        raw = r.get("FCEV")
+        if raw is not None and str(raw).strip() and (value is None or not math.isfinite(value) or value < 0):
+            raise ValueError(f"{country} {r['period']}: FCEV must be a finite non-negative count or empty")
 
     # -- stage 1: native step, from the SPACING and never from time_interval.
     # 22 files carry a label that contradicts their own row spacing; the
@@ -175,6 +201,11 @@ def build_country(country, rows):
             v["BEV"] = num(r.get("BEV"))
         if num(r.get("OTHERS")) is not None:
             v["OTHERS"] = v.get("OTHERS", 0.0) + num(r.get("OTHERS"))
+        # Keep the legacy projection inclusive, exactly as the previous
+        # OTHERS bucket. The optional breakdown below is NOT another addend.
+        fc = num(r.get("FCEV"))
+        if fc is not None:
+            v["OTHERS"] = v.get("OTHERS", 0.0) + fc
         vals.append(v)
 
     total = [num(r.get("TOTAL")) or 0.0 for r in rows]
@@ -196,6 +227,12 @@ def build_country(country, rows):
             v["ICE"] = rest
             residual_ice += 1
 
+    # Opt-in schema contract: confirmed detail must be disjoint and fully
+    # reconciled, not merely hidden inside the legacy 3% drawing tolerance.
+    for i, value in enumerate(fcev):
+        if value is not None and abs(sum(vals[i].values()) - total[i]) > max(1e-6, abs(total[i]) * 1e-9):
+            raise ValueError(f"{country} {rows[i]['period']}: FCEV row must close to source TOTAL with disjoint leaves")
+
     cols = sorted(set().union(*vals) if vals else set(), key=BAND_ORDER.index)
     if not cols:
         return None
@@ -204,31 +241,11 @@ def build_country(country, rows):
     # Where one series had monthly numbers and another only annual, the annual
     # one was divided by 12 and the monthly one left alone. Granularity is
     # therefore a property of the cell, not of the row.
-    gcol = {c: [step] * n for c in cols}
-    for c in cols:
-        xs = [v.get(c, 0.0) for v in vals]
-        i = 0
-        while i < n:
-            j = i
-            while j + 1 < n and xs[j + 1] == xs[i] and xs[i] > 0:
-                j += 1
-            run = j - i + 1
-            if run >= SMEAR_MIN_RUN:
-                material = (abs(xs[i] - round(xs[i])) > 1e-9
-                            or xs[i] / max(total[i], 1.0) >= SMEAR_MIN_SHARE)
-                if material:
-                    # Snap to a real calendar cycle rather than the raw run. A
-                    # TWELVE-month cycle needs twelve identical rows: six was
-                    # too eager and cost five countries their data. Romania's
-                    # 2019 lost half a year to it — correcting five of the
-                    # twelve rows against ACEA left a six-row remnant that then
-                    # claimed a whole year and could never complete it. Six to
-                    # eleven identical rows are not an annual figure; reading
-                    # them as quarters is the smaller claim and it is drawable.
-                    span = (12 if run >= 12 else 3) * step
-                    for k in range(i, j + 1):
-                        gcol[c][k] = max(gcol[c][k], span)
-            i = j + 1
+    gcol = {c: column_granularity([v.get(c, 0.0) for v in vals], total, step)
+            for c in cols}
+    # Optional details cannot coarsen/drop legacy observations. Their own
+    # resolution travels separately and must be respected by a raw window.
+    fcev_g = column_granularity([x or 0.0 for x in fcev], total, step)
 
     # -- stage 5b: a row alone in its cycle already IS that cycle.
     # The only place time_interval is trusted, and "alone in its cycle" is what
@@ -329,7 +346,7 @@ def build_country(country, rows):
 
     # -- stage 8: aggregate to whole calendar cycles.
     G = [max(gcol[c][i] for c in cols) for i in range(n)]
-    out_m, out_g, out_t = [], [], []
+    out_m, out_g, out_t, out_ranges = [], [], [], []
     out_b = {c: [] for c in cols}
     partial = 0
     i = 0
@@ -347,7 +364,8 @@ def build_country(country, rows):
             span = whole[i] or step
             out_m.append((idx[i] // span) * span + span - 1)
             out_g.append(span)
-            out_t.append(sum(vals[i].get(c, 0.0) for c in cols))
+            out_t.append(total[i])  # preserve the source denominator, not Σ drawn bands
+            out_ranges.append((i, i))
             for c in cols:
                 out_b[c].append(vals[i].get(c, 0.0))
             i += 1
@@ -371,7 +389,8 @@ def build_country(country, rows):
         acc = {c: sum(vals[x].get(c, 0.0) for x in range(i, j + 1)) for c in cols}
         out_m.append(idx[j])
         out_g.append(gi)
-        out_t.append(sum(acc.values()))          # closes by construction
+        out_t.append(sum(total[i:j + 1]))
+        out_ranges.append((i, j))
         for c in cols:
             out_b[c].append(acc[c])
         i = j + 1
@@ -379,7 +398,7 @@ def build_country(country, rows):
     if not out_m:
         return None
 
-    return {
+    result = {
         "country": country,
         "slug": slugify(country),
         "source": source_line(rows),
@@ -394,10 +413,25 @@ def build_country(country, rows):
         "folded": [f"{a} into {b}" for a, b in folded],
         "m": out_m,
         "g": out_g,
-        "t": [round(x, 1) for x in out_t],
+        "t": out_t,  # source TOTAL, including its original precision
         "b": {c: [round(x, 1) for x in out_b[c]] for c in cols},
         "why": {rows[i]["period"]: why[i] for i in range(n) if why[i]},
     }
+    if has_fcev:
+        values, resolution = [], []
+        for output, (a, b) in enumerate(out_ranges):
+            known = fcev[a:b + 1]
+            contiguous = (a == b or ((b-a+1) * step == out_g[output]
+                          and all(idx[k+1] - idx[k] == step for k in range(a,b))))
+            values.append(sum(known) if contiguous and all(x is not None for x in known) else None)
+            resolution.append(max(fcev_g[a:b + 1]))
+        # Keep existing rounding byte-for-value unless it would erase part of
+        # a confirmed tiny subset. Unknown detail never changes legacy bands.
+        for i, value in enumerate(values):
+            if value is not None and value > result["b"]["OTHERS"][i]:
+                result["b"]["OTHERS"][i] = out_b["OTHERS"][i]
+        result["breakdown"] = {"FCEV": {"parent": "OTHERS", "v": values, "g": resolution}}
+    return result
 
 
 # ---------------------------------------------------------------- validation
@@ -437,9 +471,16 @@ def validate(country, rows, series):
     if series:
         for i, t in enumerate(series["t"]):
             s = sum(series["b"][c][i] for c in series["b"])
-            if abs(s - t) > max(1.0, abs(t) * 1e-6):
+            # Rendering may tolerate source rounding/incomplete leaves, but
+            # t remains the independently retained source TOTAL throughout.
+            if abs(s - t) > max(1.0, abs(t) * RECONCILE_TOL):
                 fatal.append(f"{country} {plabel(series['m'][i])}: "
                              f"emitted TOTAL {t} != Σ bands {s}")
+        detail = series.get("breakdown", {}).get("FCEV")
+        if detail:
+            for i, value in enumerate(detail["v"]):
+                if value is not None and (value < 0 or value > series["b"].get("OTHERS", [0] * len(series["t"]))[i] + 1e-6):
+                    fatal.append(f"{country}: FCEV breakdown exceeds its inclusive OTHERS parent")
 
     # A band that drops to exactly zero between two populated neighbours still
     # closes to TOTAL when ICE is a residual — Colombia 2025-07 BEV, between

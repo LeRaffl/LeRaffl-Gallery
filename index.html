@@ -6450,15 +6450,15 @@ const QR = (() => {
   /* Phase 6: nur BEV auf den kanonischen Gruenton (#2e8b57) gezogen, damit BEV
      ueber alle Tabs eine Farbe traegt. Der Rest bleibt R/ΔE2000-abgestimmt
      (siehe Kommentar oben) — PHEV/EREV als getrenntes Blaupaar nicht angefasst. */
-  const C = {BEV:'#2e8b57', PHEV:'#4f9fe0', EREV:'#2f6fb0', Hybrid:'#ffd166', HEV:'#ffd166',
+  const C = {BEV:'#2e8b57', FCEV:'#9b75c9', PHEV:'#4f9fe0', EREV:'#2f6fb0', Hybrid:'#ffd166', HEV:'#ffd166',
              MHEV:'#c9a544', ICE:'#a65832', PETROL:'#8fa0bd', DIESEL:'#c98f52',
              FLEXFUEL:'#9b7a4e', OTHERS:'#5c6a78'};
-  const LAB = {BEV:'BEV', PHEV:'PHEV', EREV:'EREV', Hybrid:'Hybrid', HEV:'HEV', MHEV:'MHEV',
+  const LAB = {BEV:'BEV', FCEV:'FCEV / H₂', PHEV:'PHEV', EREV:'EREV', Hybrid:'Hybrid', HEV:'HEV', MHEV:'MHEV',
                ICE:'ICE', PETROL:'Petrol', DIESEL:'Diesel', FLEXFUEL:'Flexfuel', OTHERS:'Other'};
   // A band that absorbed another one says so, or the reader assumes "Petrol"
   // means the same thing here as on the chart beside it.
   const SHORT = {HEV:'hybrids', MHEV:'mild hybrids', FLEXFUEL:'flexfuel', EREV:'EREV'};
-  const ORDER = ['BEV','PHEV','EREV','Hybrid','HEV','MHEV','ICE','PETROL','DIESEL','FLEXFUEL','OTHERS'];
+  const ORDER = ['BEV','FCEV','PHEV','EREV','Hybrid','HEV','MHEV','ICE','PETROL','DIESEL','FLEXFUEL','OTHERS'];
   const INK=tok('--text','#1a1a18'), MUT=tok('--muted','#55534c'), GRID=tok('--line-soft','rgba(26,26,24,.08)'), SURF=tok('--surface','#ffffff');
 
   let S = {c:[], n:12, u:'rel', t:0, qr:true, ax:0, q:1, f:null};
@@ -6493,16 +6493,22 @@ const QR = (() => {
   const bandColour = k => C[k] || C.OTHERS;
   const isSelected = k => S.f === null || S.f.includes(k);
   const bandKeys = list => orderedBands(list.flatMap(b=>Object.keys(b.v)));
-  const selectedTotal = b => Object.keys(b.v).reduce((sum,k)=>sum + (isSelected(k) ? (b.v[k]||0) : 0), 0);
+  const optionalBand = k => k === 'FCEV' || Object.values(DATA).some(s=>s.breakdown && s.breakdown[k]);
+  const completeSelection = b => S.f === null || S.f.every(k=>!optionalBand(k) || typeof b.v[k] === 'number');
+  const selectedTotal = b => !completeSelection(b) ? null
+    : Object.keys(b.v).reduce((sum,k)=>sum + (isSelected(k) ? (b.v[k]||0) : 0), 0);
   const plotKeys = list => bandKeys(list).filter(k=>isSelected(k)
     && (S.f !== null || list.some(b=>(b.v[k]||0)>0.5)));
-  const axisMaximum = list => Math.max(1, ...list.map(b=>
+  const axisMaximum = list => Math.max(1, ...list.filter(completeSelection).map(b=>
     selectedTotal(b) * (b.scale || 1)));
-  const displayValue = (b,k) => S.u === 'rel' ? (b.tot > 0 ? (b.v[k]||0)/b.tot : 0)
-                                                        : (b.v[k]||0)*(b.scale||1);
+  const displayValue = (b,k) => optionalBand(k) && typeof b.v[k] !== 'number' ? null
+    : S.u === 'rel' ? (b.tot > 0 ? (b.v[k]||0)/b.tot : 0) : (b.v[k]||0)*(b.scale||1);
   const fuelCaption = keys => 'Fuels: ' + keys.map(k=>LAB[k] || k).join(' + ');
   function availableFuels(cs, p){
-    return orderedBands(cs.flatMap(c=>Object.keys(DATA[c].b).map(k=>mapBand(k,p))));
+    return orderedBands(cs.flatMap(c=>[
+      ...Object.keys(DATA[c].b).map(k=>mapBand(k,p)),
+      ...Object.entries(DATA[c].breakdown || {}).filter(([,d])=>d.v.some(v=>v !== null)).map(([k])=>k)
+    ]));
   }
   function paintFuels(available, cs){
     const host = $('rdFuelList'), labels = available.map(k=>labelFor(k,cs));
@@ -6629,6 +6635,42 @@ const QR = (() => {
   // Per-country files (§ 4.8), so picking one country costs one request and a
   // single-country data update invalidates one cache entry. Mirrors
   // COMPARE_OBS_CACHE's shape.
+  // Optional breakdowns are subsets of an inclusive legacy parent, NEVER
+  // extra addends in b. Null is unknown, including all pre-split history.
+  function validateBreakdowns(s){
+    for (const [key,d] of Object.entries(s.breakdown || {})){
+      if (key in s.b || !s.b[d.parent] || !Array.isArray(d.v) || !Array.isArray(d.g)
+          || d.v.length !== s.m.length || d.g.length !== s.m.length)
+        throw new Error('Invalid optional fuel breakdown: '+key);
+      d.v.forEach((v,i)=>{
+        if ((v !== null && (!Number.isFinite(v) || v < 0 || v > s.b[d.parent][i] + 1e-6))
+            || !Number.isInteger(d.g[i]) || d.g[i] < 1)
+          throw new Error('Invalid optional fuel observation: '+key);
+      });
+    }
+    return s;
+  }
+  function projectBreakdowns(s, first, last, from, to, values){
+    const unknown = [];
+    for (const [key,d] of Object.entries(s.breakdown || {})){
+      const g = Math.max(...d.g.slice(first,last+1));
+      const known = d.v.slice(first,last+1).every(v=>v !== null)
+        && (to-from+1) >= g && (to-from+1) % g === 0
+        && (g === 1 || (from % g === 0 && (to+1) % g === 0));
+      const n = known ? d.v.slice(first,last+1).reduce((a,b)=>a+b,0) : null;
+      if (n !== null){
+        if (n > (values[d.parent]||0) + 1e-6) throw new Error('Optional fuel exceeds parent');
+        values[d.parent] = (values[d.parent]||0) - n;
+      } else unknown.push(key);
+      values[key] = n;
+    }
+    return unknown;
+  }
+  function labelForBar(key, b){
+    const label = labelFor(key,S.c);
+    return key === 'OTHERS' && (b.unknown || []).includes('FCEV')
+      ? label + ' (FCEV not separated)' : label;
+  }
   function slugOf(country){
     const row = INDEX.countries.find(x=>x.country===country);
     return row ? row.slug : country.toLowerCase().replace(/[^a-z0-9]+/g,'-');
@@ -6638,7 +6680,7 @@ const QR = (() => {
     return Promise.all(want.map(c=>{
       if (PENDING.has(c)) return PENDING.get(c);
       const pr = getJSON('series/' + slugOf(c) + '.json')
-        .then(j => { DATA[c] = j; PENDING.delete(c); })
+        .then(j => { DATA[c] = validateBreakdowns(j); PENDING.delete(c); })
         .catch(e => { PENDING.delete(c); console.warn('series fetch failed:', c, e.message); });
       PENDING.set(c, pr);
       return pr;
@@ -6684,7 +6726,9 @@ const QR = (() => {
         tot += s.t[x];
         for (const q in s.b) { const kk = mapBand(q,p); v[kk] = (v[kk]||0) + s.b[q][x]; }
       }
-      out.push({from:s.m[i]-span+1, to:s.m[i], span, tot, v, coarse:gmax>1, scale});
+      const from = s.m[i]-span+1, to = s.m[i];
+      const unknown = projectBreakdowns(s,j,i,from,to,v);
+      out.push({from, to, span, tot, v, unknown, coarse:gmax>1, scale});
     }
     return out.reverse();
   }
@@ -6871,7 +6915,7 @@ const QR = (() => {
           : (b.from===b.to?pname(b.to):pname(b.from)+' … '+pname(b.to));
         tip.innerHTML = `<div class="h">${o.title} · ${head}</div><table>`
           + keys.filter(k=>S.f !== null || (b.v[k]||0)>0).reverse().map(k=>
-            `<tr><td class="k"><span class="sw" style="background:${bandColour(k)}"></span>${esc(labelFor(k, S.c))}</td>
+            `<tr><td class="k"><span class="sw" style="background:${bandColour(k)}"></span>${esc(labelForBar(k, b))}</td>
              <td class="v">${S.u==='rel'?(displayValue(b,k)*100).toFixed(1)+'%':nice(displayValue(b,k))}</td></tr>`).join('')
           + (S.f === null ? '' : `<tr class="tot"><td>Selected</td><td class="v">${S.u==='rel'
               ? ((selectedTotal(b)/b.tot)*100).toFixed(1)+'% · '+nice(selectedTotal(b))
@@ -6945,7 +6989,7 @@ const QR = (() => {
     const skipped = cs.length - pool.length;
     // A coarse fallback is a labelled whole-observation average on its own
     // chart, not the same period as a monthly peer. Never add unlike windows.
-    const per = pool.map(c=>({c, l:bars(c, N, p).filter(b=>b.span === N && (b.scale||1) === 1)})).filter(x=>x.l.length);
+    const per = pool.map(c=>({c, l:bars(c, N, p).filter(b=>b.span === N && (b.scale||1) === 1).filter(completeSelection)})).filter(x=>x.l.length);
     if (per.length < 2) return null;
     const ends = new Map(per.map(x=>[x.c, new Set(x.l.map(b=>b.to))]));
     const common = set => {
@@ -6972,13 +7016,26 @@ const QR = (() => {
     }
     if (common(keep) < 3) return null;
     const map = new Map();
+    const optionalKeys = new Set(per.flatMap(x=>x.l.flatMap(b=>Object.keys(b.v).filter(optionalBand))));
     per.filter(x=>keep.includes(x.c)).forEach(x=>x.l.forEach(b=>{
       const e = map.get(b.to) || {from:b.to-N+1, to:b.to, tot:0, v:{}, seen:0, coarse:false};
       e.tot += b.tot; e.seen++; e.coarse = e.coarse || !!b.coarse;
-      for (const q in b.v) e.v[q] = (e.v[q]||0) + b.v[q];
+      for (const q in b.v) if (!optionalBand(q)) e.v[q] = (e.v[q]||0) + b.v[q];
+      for (const q of optionalKeys){
+        if (e.v[q] === null || typeof b.v[q] !== 'number') e.v[q] = null;
+        else e.v[q] = (e.v[q]||0) + b.v[q];
+      }
+      e.knownFcev = (e.knownFcev||0) + (typeof b.v.FCEV === 'number' ? b.v.FCEV : 0);
+      e.unknown = [...new Set([...(e.unknown||[]), ...(b.unknown||[])])];
       map.set(b.to, e);
     }));
     const list = [...map.values()].filter(e=>e.seen===keep.length).sort((x,y)=>x.to-y.to);
+    // All restores inclusive Other; explicit filters never re-add an unchecked
+    // known FCEV. Both must label the unseparated remainder of unknown members.
+    for (const e of list) if (e.v.FCEV === null){
+      if (S.f === null) e.v.OTHERS = (e.v.OTHERS||0) + e.knownFcev;
+      e.unknown = [...new Set([...(e.unknown||[]), 'FCEV'])];
+    }
     return list.length ? {list, members:keep, skipped,
                           excluded:cs.filter(c=>!keep.includes(c) && pool.includes(c))} : null;
   }
@@ -7028,7 +7085,7 @@ const QR = (() => {
     const anchor = Math.min(...ready.map(c=>DATA[c].m[DATA[c].m.length-1]));
     const cut = b => !S.t || b.to > anchor - S.t;
 
-    VIEW = ready.map(c=>({c, l: bars(c, S.n, p).filter(cut), step: DATA[c].step}));
+    VIEW = ready.map(c=>({c, l: bars(c, S.n, p).filter(cut).filter(completeSelection), step: DATA[c].step}));
     CB = ready.length > 1 ? combined(ready, S.n, p) : null;
     SUM = CB ? CB.list.filter(cut) : null;
     if (CB && !SUM.length) { CB = null; SUM = null; }
@@ -7093,8 +7150,9 @@ const QR = (() => {
     VIEW.forEach(v=>{
       const d = DATA[v.c];
       if (!v.l.length){
-        notes.push(`<b>${esc(v.c)}</b> has no bar at T${S.n}M — ${d.step===3?'quarterly':'yearly'} `
-                 + `source, pick a multiple of ${d.step}.`);
+        notes.push(`<b>${esc(v.c)}</b> has no bar at T${S.n}M — `
+          + ((S.f || []).some(optionalBand) ? 'no complete confirmed selected-fuel window.'
+            : `${d.step===3?'quarterly':'yearly'} source, pick a multiple of ${d.step}.`));
         return;
       }
       if (v.l[0].from > d.m[0] || d.dropped)
@@ -7124,13 +7182,16 @@ const QR = (() => {
     }
     if (CB && CB.excluded.length)
       short.unshift(`Combined chart sums the <b>${CB.members.length}</b> countries covering `
-        + `${pname(SUM[0].from)} onwards; <b>${CB.excluded.length}</b> left out for shorter history or incompatible observation windows `
+        + `${pname(SUM[0].from)} onwards; <b>${CB.excluded.length}</b> left out for shorter history, incompatible windows or selected-fuel coverage `
         + `(${esc(CB.excluded.slice(0,4).join(', '))}` + (CB.excluded.length>4?', …':'') + '). '
         + 'Membership is constant, so the total never jumps.');
     if (S.ax) short.push('<b>Same axes everywhere</b>: shared time range and, in absolute units, '
       + 'one shared scale. The combined chart keeps its own.');
     if (S.f !== null) short.push('Only selected fuel bands are drawn. Shares remain fractions of the '
       + 'unfiltered <b>TOTAL</b>, not of the selected sum; Absolute axes follow the selected stack.');
+    if (ready.some(c=>DATA[c].breakdown)) short.push('FCEV / H₂ means confirmed fuel-cell vehicles, not hydrogen combustion. '
+      + 'Only fully reported windows can show FCEV separately; otherwise it stays inside Other. Missing is not zero. '
+      + 'An FCEV-filtered combined chart uses only confirmed reporting members and their full TOTAL.');
     $('rdFoot').innerHTML = short.join(' ');
   }
 
@@ -7198,7 +7259,8 @@ const QR = (() => {
       ...(selected ? ['SELECTED_TOTAL'] : []),'TOTAL'].join(','));
     const emit = (name,l)=>l.forEach(b=>rows.push(
       [`"${name.replace(/"/g,'""')}"`, S.n, pname(b.from), pname(b.to),
-       ...keys.map(k=>selected && !(k in b.v) ? '' : Math.round((b.v[k]||0)*10)/10),
+       ...keys.map(k=>(optionalBand(k) && typeof b.v[k] !== 'number') || (selected && !(k in b.v))
+         ? '' : Math.round((b.v[k]||0)*10)/10),
        ...(selected ? [Math.round(selectedTotal(b)*10)/10] : []), b.tot].join(',')));
     if (SUM && SUM.length) emit('COMBINED', SUM);
     views.forEach(v=>emit(v.c, v.l));
@@ -14876,11 +14938,12 @@ const SD_COUNTRIES = [
 
 // Fuel columns we render inputs for, in canonical order. Per-country we only
 // show the ones that exist in that country's CSV header.
-const SD_FUEL_ORDER = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'];
+const SD_FUEL_ORDER = ['BEV','FCEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'];
 
 const SD_RAW_BASE = 'https://raw.githubusercontent.com/LeRaffl/LeRaffl-Gallery/master/data';
 
 const SD_STATE = {
+  loadId: 0,           // prevent stale country/variant schema responses
   countryCols: null,    // array of fuel columns for the currently selected country
   rowCount: 0,
   lastSource: '',       // most-recent source seen in the CSV (shown as a hint, not autofilled)
@@ -14933,7 +14996,26 @@ function sdInit() {
   sdOnCountryChange();
 }
 
+function sdCsvRecords(text) {
+  const records = []; let fields = [], field = '', quoted = false;
+  for (let i=0;i<text.length;i++) {
+    const c=text[i];
+    if (c === '"') {
+      if (quoted && text[i+1] === '"') {field+='"';i++;} else quoted=!quoted;
+    } else if (c === ',' && !quoted) {fields.push(field);field='';}
+    else if ((c === '\r' || c === '\n') && !quoted) {
+      fields.push(field);if(fields.some(v=>v!==''))records.push(fields);
+      fields=[];field='';if(c==='\r' && text[i+1]==='\n')i++;
+    } else field+=c;
+  }
+  if(quoted)throw new Error('Unterminated quoted CSV field');
+  if(field!=='' || fields.length){fields.push(field);records.push(fields);}
+  return records;
+}
+
 async function sdOnCountryChange() {
+  const loadId = ++SD_STATE.loadId;
+  sdEl('sdSubmit').disabled = true;
   const country = sdEl('sdCountry').value;
   const variant = sdEl('sdVariant').value || 'Whole';
   const filename = variant === 'Whole' ? `${country}.csv` : `${country}_${variant}.csv`;
@@ -14951,15 +15033,15 @@ async function sdOnCountryChange() {
     const res = await fetch(`${SD_RAW_BASE}/${encodeURIComponent(filename)}`, { cache: 'no-store' });
     if (res.ok) {
       const text = await res.text();
-      const lines = text.split(/\r?\n/).filter(Boolean);
-      if (lines.length) {
-        const header = lines[0].split(',');
-        const fuels  = header.filter(h => SD_FUEL_ORDER.includes(h));
+      const records = sdCsvRecords(text);
+      if (records.length) {
+        const header = records[0];
+        const fuels = header.filter(h => SD_FUEL_ORDER.includes(h));
         if (fuels.length) cols = fuels;
         const sourceIdx = header.indexOf('source');
         const periodIdx = header.indexOf('period');
-        if (lines.length > 1) {
-          const lastFields = lines[lines.length - 1].split(',');
+        if (records.length > 1) {
+          const lastFields = records[records.length - 1];
           if (sourceIdx >= 0) lastSource = lastFields[sourceIdx] || '';
           if (periodIdx >= 0) {
             const m = /^(\d{4})-(\d{2})$/.exec(lastFields[periodIdx] || '');
@@ -14974,6 +15056,8 @@ async function sdOnCountryChange() {
     }
   } catch (_) { /* no network / first-time country: use defaults */ }
 
+  if (loadId !== SD_STATE.loadId) return;
+  sdEl('sdSubmit').disabled = false;
   SD_STATE.countryCols = cols;
   SD_STATE.lastSource  = lastSource;
   SD_STATE.nextYear    = nextYear;
@@ -14985,7 +15069,9 @@ async function sdOnCountryChange() {
   const hint = sdEl('sdSourceHint');
   if (lastSource) {
     hint.hidden = false;
-    hint.innerHTML = `Most recent source for ${country}: <a href="#" data-fill-source>${lastSource}</a>`;
+    hint.textContent = `Most recent source for ${country}: `;
+    const link = document.createElement('a'); link.href = '#';
+    link.dataset.fillSource = ''; link.textContent = lastSource; hint.appendChild(link);
   } else {
     hint.hidden = true;
   }
@@ -15051,8 +15137,9 @@ function sdAddRow() {
 
   const fuelCellsHtml = cols.map(c => `
     <div class="sd-cell">
-      <label>${c}</label>
-      <input type="number" min="0" step="any" data-fuel="${c}" placeholder="0">
+      <label>${c === 'FCEV' ? 'FCEV / H₂' : c}</label>
+      <input type="number" min="0" step="any" data-fuel="${c}" placeholder="${c === 'FCEV' ? 'unknown' : '0'}"
+        ${c === 'FCEV' ? 'title="Blank keeps an existing FCEV value on correction; on a new row it means unknown."' : ''}>
     </div>`).join('');
 
   const html = `
@@ -15148,14 +15235,18 @@ function sdUpdateSumcheck(node) {
   const el = node.querySelector('[data-sumcheck]');
   if (fuels.TOTAL === undefined) { el.textContent = ''; el.className = 'sd-row-sumcheck'; return; }
 
-  const cats = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','ICE'];
+  const cats = SD_FUEL_ORDER.filter(k=>k !== 'TOTAL');
   const sum = cats.reduce((s, k) => s + (fuels[k] || 0), 0);
   const total = fuels.TOTAL;
   const diff = sum - total;
   const pct = total ? (Math.abs(diff) / total * 100) : 0;
 
   if (sum === 0) { el.textContent = 'Categories sum: 0 — only TOTAL set.'; el.className = 'sd-row-sumcheck'; return; }
-  if (Math.abs(diff) < 1 || pct < 0.5) {
+  if (node.querySelector('input[data-fuel="FCEV"]') && fuels.FCEV === undefined) {
+    el.textContent = `Entered categories: ${fmtInt(sum)} / TOTAL ${fmtInt(total)}; FCEV blank (unknown on new rows, retained on corrections).`;
+    el.className = 'sd-row-sumcheck'; return;
+  }
+  if (typeof fuels.FCEV === 'number' ? Math.abs(diff) < 1e-6 : (Math.abs(diff) < 1 || pct < 0.5)) {
     el.textContent = `Categories sum: ${fmtInt(sum)} ≈ TOTAL (${fmtInt(total)})`;
     el.className = 'sd-row-sumcheck good';
   } else {

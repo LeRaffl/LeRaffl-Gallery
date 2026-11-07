@@ -13,13 +13,15 @@ start = html.index('/* ── Raw Data tab', html.index('/* ── Raw Data tab'
 raw = html[start:html.index('// -------- Plotly chart download helper', start)]
 raw = raw[:raw.rindex('})();')] + '''
   globalThis.rawTest = {selectedTotal, displayValue, axisMaximum, plotKeys,
-    availableFuels, plan, bars, combined, paintFuels, drawPlot, render, wire, csvText,
+    availableFuels, plan, bars, paintFuels, drawPlot, render, wire, csvText,
     downloadCSV, downloadPNG, svgToDataURL, stateHash, shareURL, readHash, writeHash,
+    validateBreakdowns, completeSelection, combined,
     state:()=>S, setState:s=>Object.assign(S,s),
     setData:d=>{DATA=d;NAMES=Object.keys(d).sort();},
     setView:(v,sum=null)=>{VIEW=v;SUM=sum;}};
 })();
 '''
+raw += html[html.index('  function ttmFromSeries(j)'):html.index('  function loadObs(countries)')]
 js = r'''
 const assert=require('node:assert/strict'),vm=require('node:vm');
 let count=0;function test(name,fn){fn();count++;console.log('ok  '+name);}
@@ -159,6 +161,89 @@ test('country changes refresh options and explain unavailable preferences',()=>{
  assert(!el('rdFuelList').inputs.some(i=>i.dataset.fuel==='PHEV'));assert.match(el('rdFuelHint').textContent,/not separately available here: PHEV/);
  assert.match(el('rdPlots').innerHTML,/not separately available/);assert.equal(el('rdDlCsv').disabled,true);
  el('rdFuelAll').onclick();assert.equal(r.state().f,null);assert.equal(el('rdDlCsv').disabled,false);});
+
+function detailed(values,g=1){
+ const n=values.length;return series({BEV:10,ICE:80,OTHERS:10},100,{
+  m:Array.from({length:n},(_,i)=>24000+i),g:Array(n).fill(1),t:Array(n).fill(100),
+  b:{BEV:Array(n).fill(10),ICE:Array(n).fill(80),OTHERS:Array(n).fill(10)},
+  breakdown:{FCEV:{parent:'OTHERS',v:values,g:Array(n).fill(g)}}});
+}
+test('confirmed detail is a disjoint raw leaf, not an extra addend',()=>{
+ reset({A:detailed([null,2,0])});const bars=r.bars('A',1,r.plan(['A']));
+ assert.equal(bars[0].v.FCEV,null);assert.equal(bars[0].v.OTHERS,10);
+ assert.equal(bars[1].v.FCEV,2);assert.equal(bars[1].v.OTHERS,8);
+ assert.equal(bars[2].v.FCEV,0);assert.equal(bars[2].v.OTHERS,10);
+ bars.forEach(b=>assert.equal(Object.values(b.v).reduce((a,v)=>a+(v||0),0),b.tot));
+});
+test('unknown FCEV is not zero in selected values or export',()=>{
+ const bars=r.bars('A',1,r.plan(['A']));r.setState({f:['FCEV']});
+ assert.equal(r.displayValue(bars[0],'FCEV'),null);assert.equal(r.selectedTotal(bars[0]),null);
+ assert.equal(r.completeSelection(bars[0]),false);assert.equal(r.completeSelection(bars[2]),true);
+ r.render();const text=r.csvText();assert.match(text,/FCEV,SELECTED_TOTAL,TOTAL/);
+ assert.doesNotMatch(text,/2000-01,2000-01/);assert.match(text,/,0,0,100/);
+});
+test('default All export leaves unknown optional cells blank',()=>{
+ r.setState({f:null});r.render();const lines=r.csvText().split('\n').map(l=>l.split(','));
+ const col=lines[0].indexOf('FCEV');assert(col>=0);assert.equal(lines[1][col],'');assert.equal(lines[2][col],'2');
+});
+test('TTM requires twelve confirmed months but legacy windows remain',()=>{
+ reset({A:detailed([...Array(12).fill(null),...Array(12).fill(1)])});
+ let bars=r.bars('A',12,r.plan(['A']));assert.equal(bars.length,13);
+ assert.equal(bars[0].v.FCEV,null);assert.equal(bars[12].v.FCEV,12);
+ r.setState({f:['FCEV']});assert.equal(bars.filter(r.completeSelection).length,1);
+ r.setState({f:null});assert.equal(bars.filter(r.completeSelection).length,13);
+});
+test('optional annual resolution does not invent monthly counts',()=>{
+ reset({A:detailed(Array(24).fill(1/12),12)});r.setState({f:['FCEV']});
+ assert.equal(r.bars('A',1,r.plan(['A'])).filter(r.completeSelection).length,0);
+ const bars=r.bars('A',12,r.plan(['A'])).filter(r.completeSelection);assert.equal(bars.length,2);
+ bars.forEach(b=>assert(Math.abs(b.v.FCEV-1)<1e-9));
+});
+test('native coarse count is known only as its whole observation',()=>{
+ const a=detailed([12,12,12],12);a.m=[24011,24023,24035];a.g=[12,12,12];a.step=12;
+ a.t=[1200,1200,1200];a.b={BEV:[120,120,120],ICE:[960,960,960],OTHERS:[120,120,120]};
+ reset({A:a});r.setState({f:['FCEV'],u:'abs'});const b=r.bars('A',1,r.plan(['A']))[0];
+ assert.equal(b.span,12);assert.equal(b.v.FCEV,12);assert.equal(r.displayValue(b,'FCEV'),1);
+});
+test('mixed-coverage All aggregate keeps inclusive Other, not partial FCEV',()=>{
+ reset({A:detailed([1,2,3]),B:series({BEV:10,ICE:80,OTHERS:10},100)});
+ r.setState({c:['A','B']});const c=r.combined(['A','B'],1,r.plan(['A','B']));
+ assert(c);c.list.forEach(b=>{assert.equal(b.v.FCEV,null);assert.equal(b.v.OTHERS,20);
+  assert.equal(Object.values(b.v).reduce((a,v)=>a+(v||0),0),200);});
+});
+test('FCEV aggregate includes only confirmed fixed members and their TOTAL',()=>{
+ r.setData({A:detailed([1,2,3]),B:series({BEV:10,ICE:80,OTHERS:10},100),C:detailed([2,3,4])});
+ r.setState({c:['A','B','C'],f:['FCEV']});const c=r.combined(['A','B','C'],1,r.plan(['A','B','C']));
+ assert.deepEqual(plain(c.members),['A','C']);assert.deepEqual(plain(c.excluded),['B']);
+ assert.equal(c.list[0].v.FCEV,3);assert.equal(c.list[0].tot,200);
+ assert.equal(r.combined(['A','B'],1,r.plan(['A','B'])),null);
+});
+test('explicit Other filter sums selected leaves and labels mixed unseparated FCEV',()=>{
+ reset({A:detailed([1,2,3]),B:series({BEV:10,ICE:80,OTHERS:10},100)});
+ r.setState({c:['A','B'],f:['OTHERS']});const p=r.plan(['A','B']),c=r.combined(['A','B'],1,p);
+ assert.equal(c.list[0].v.OTHERS,19);assert(c.list[0].unknown.includes('FCEV'));
+ const e=draw([c.list[0]]);e.hits[0].events.mouseenter();assert.match(e.tip.innerHTML,/FCEV not separated/);
+ r.setView(['A','B'].map(c=>({c,l:r.bars(c,1,p)})),c.list);assert.match(r.csvText(),/"COMBINED",1,2000-01,2000-01,19,19,200/);
+});
+test('FCEV history outside the timeframe clears the aggregate without stale summary crashes',()=>{
+ const a=detailed([1,2,3,...Array(33).fill(null)]),b=detailed([2,3,4,...Array(33).fill(null)]);
+ const c=detailed(Array(36).fill(null));delete c.breakdown;
+ reset({A:a,B:b,C:c});r.setState({c:['A','B','C'],f:['FCEV'],t:1});r.render();
+ assert.equal(el('rdDlCsv').disabled,true);assert.match(el('rdFoot').innerHTML,/No combined chart/);
+});
+test('Hero observed series is true BEV / original TOTAL, ignoring detail',()=>{
+ const s=detailed(Array(24).fill(1));s.b.ICE=Array(24).fill(79);
+ const observed=plain(ctx.ttmFromSeries(s));assert.equal(observed.length,13);
+ observed.forEach(p=>assert.equal(p.y,.1));delete s.breakdown;
+ assert.deepEqual(plain(ctx.ttmFromSeries(s)),observed);
+});
+test('loader rejects double-addends, misalignment and invalid detail',()=>{
+ const s=detailed([1,2,3]);assert.equal(r.validateBreakdowns(s),s);
+ for(const mutate of [x=>x.b.FCEV=[1,2,3],x=>x.breakdown.FCEV.v.pop(),
+  x=>x.breakdown.FCEV.v[0]=11,x=>x.breakdown.FCEV.v[0]=-1,x=>x.breakdown.FCEV.g[0]=0]){
+  const bad=JSON.parse(JSON.stringify(s));mutate(bad);assert.throws(()=>r.validateBreakdowns(bad));
+ }
+});
 test('All absolute axis uses the actual drawn sum even with a tolerated TOTAL difference',()=>{
  reset();const b={...bar,tot:1000,v:{BEV:20,ICE:1000}};assert.equal(r.axisMaximum([b]),1020);
  assert.equal(r.displayValue({...b,tot:1000},'BEV'),20);r.setState({u:'rel'});assert.equal(r.displayValue(b,'BEV'),.02);
