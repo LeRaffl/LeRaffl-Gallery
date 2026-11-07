@@ -113,6 +113,11 @@ test('None roundtrips distinctly; links without f restore All',()=>{
  r.readHash();assert.deepEqual(plain(r.state().f),[]);ctx.location.hash='#rawdata?c=A&n=1&u=abs';
  r.readHash();assert.equal(r.state().f,null);r.setState({f:['BEV']});ctx.location.hash='#rawdata';
  r.readHash();assert.equal(r.state().f,null);});
+test('a same-tab default share link clears previous shared axes, quality and timeframe',()=>{
+ reset();r.setState({n:24,u:'abs',t:24,ax:1,q:0,f:['ICE']});
+ ctx.location.hash='#rawdata?c=A&n=12&u=rel';r.readHash();const s=r.state();
+ assert.equal(s.ax,0);assert.equal(s.q,1);assert.equal(s.t,0);assert.equal(s.n,12);assert.equal(s.u,'rel');assert.equal(s.f,null);
+});
 test('URL deduplicates future keys and rejects invalid tokens',()=>{
  ctx.location.hash='#rawdata?c=A&f=EXTRA,EXTRA,%3Cscript%3E';r.readHash();assert.deepEqual(plain(r.state().f),['EXTRA']);
  ctx.location.hash='#rawdata?c=A&f=*';r.readHash();assert.equal(r.state().f,null);});
