@@ -14,7 +14,7 @@ raw = html[start:html.index('// -------- Plotly chart download helper', start)]
 raw = raw[:raw.rindex('})();')] + '''
   globalThis.rawTest = {selectedTotal, displayValue, axisMaximum, plotKeys,
     availableFuels, plan, bars, paintFuels, drawPlot, render, wire, csvText,
-    downloadCSV, svgToDataURL, stateHash, shareURL, readHash, writeHash,
+    downloadCSV, downloadPNG, svgToDataURL, stateHash, shareURL, readHash, writeHash,
     validateBreakdowns, completeSelection, combined,
     state:()=>S, setState:s=>Object.assign(S,s),
     setData:d=>{DATA=d;NAMES=Object.keys(d).sort();},
@@ -30,7 +30,8 @@ class Classes{
  constructor(){this.s=new Set();} add(x){this.s.add(x);} remove(x){this.s.delete(x);}
  contains(x){return this.s.has(x);} toggle(x,on){if(on)this.add(x);else this.remove(x);}
 }
-const downloads=[];
+const downloads=[];let exportSvgs=[],imageOutcomes=[],nullCanvasBlob=false;
+class ImageDouble{set src(_v){(imageOutcomes.shift() === false ? this.onerror : this.onload)();}}
 class Element{
  constructor(){this.dataset={};this.classList=new Classes();this.children=[];this.clientWidth=600;
   this.style={};this.tip={innerHTML:'',classList:new Classes()};}
@@ -53,7 +54,10 @@ const ctx={console,URL,URLSearchParams,Blob,Date,Math,Set,Map,BigInt,
  setTimeout:f=>{f();return 0;},clearTimeout:()=>{},
  location:{href:'https://example.test/index.html',hash:'#not-active'},
  history:{replaceState(_a,_b,u){replacedURL=u;}},window:{addEventListener(){}},
- document:{getElementById:el,querySelectorAll:()=>[],addEventListener(){},createElement:()=>new Element()}};
+ Image:ImageDouble,
+ document:{getElementById:el,querySelectorAll:()=>exportSvgs,addEventListener(){},createElement:tag=>{
+  if(tag==='canvas')return {getContext:()=>({fillRect(){},drawImage(){}}),toBlob:f=>f(nullCanvasBlob?null:new Blob(['PNG fixture']))};
+  return new Element();}}};
 vm.createContext(ctx);vm.runInContext(SOURCE,ctx);const r=ctx.rawTest;
 const state={c:['A'],n:1,u:'abs',t:0,qr:false,ax:0,q:1,f:null};
 const bar={from:24000,to:24000,span:1,tot:1000,v:{BEV:10,PHEV:20,ICE:970},scale:1};
@@ -209,6 +213,19 @@ test('FCEV aggregate includes only confirmed fixed members and their TOTAL',()=>
  assert.equal(c.list[0].v.FCEV,3);assert.equal(c.list[0].tot,200);
  assert.equal(r.combined(['A','B'],1,r.plan(['A','B'])),null);
 });
+test('explicit Other filter sums selected leaves and labels mixed unseparated FCEV',()=>{
+ reset({A:detailed([1,2,3]),B:series({BEV:10,ICE:80,OTHERS:10},100)});
+ r.setState({c:['A','B'],f:['OTHERS']});const p=r.plan(['A','B']),c=r.combined(['A','B'],1,p);
+ assert.equal(c.list[0].v.OTHERS,19);assert(c.list[0].unknown.includes('FCEV'));
+ const e=draw([c.list[0]]);e.hits[0].events.mouseenter();assert.match(e.tip.innerHTML,/FCEV not separated/);
+ r.setView(['A','B'].map(c=>({c,l:r.bars(c,1,p)})),c.list);assert.match(r.csvText(),/"COMBINED",1,2000-01,2000-01,19,19,200/);
+});
+test('FCEV history outside the timeframe clears the aggregate without stale summary crashes',()=>{
+ const a=detailed([1,2,3,...Array(33).fill(null)]),b=detailed([2,3,4,...Array(33).fill(null)]);
+ const c=detailed(Array(36).fill(null));delete c.breakdown;
+ reset({A:a,B:b,C:c});r.setState({c:['A','B','C'],f:['FCEV'],t:1});r.render();
+ assert.equal(el('rdDlCsv').disabled,true);assert.match(el('rdFoot').innerHTML,/No combined chart/);
+});
 test('Hero observed series is true BEV / original TOTAL, ignoring detail',()=>{
  const s=detailed(Array(24).fill(1));s.b.ICE=Array(24).fill(79);
  const observed=plain(ctx.ttmFromSeries(s));assert.equal(observed.length,13);
@@ -221,6 +238,43 @@ test('loader rejects double-addends, misalignment and invalid detail',()=>{
   x=>x.breakdown.FCEV.v[0]=11,x=>x.breakdown.FCEV.v[0]=-1,x=>x.breakdown.FCEV.g[0]=0]){
   const bad=JSON.parse(JSON.stringify(s));mutate(bad);assert.throws(()=>r.validateBreakdowns(bad));
  }
+});
+test('All absolute axis uses the actual drawn sum even with a tolerated TOTAL difference',()=>{
+ reset();const b={...bar,tot:1000,v:{BEV:20,ICE:1000}};assert.equal(r.axisMaximum([b]),1020);
+ assert.equal(r.displayValue({...b,tot:1000},'BEV'),20);r.setState({u:'rel'});assert.equal(r.displayValue(b,'BEV'),.02);
+});
+test('CSV retains original fractional TOTAL precision, not a rounded denominator',()=>{
+ reset();r.setView([{c:'A',l:[{...bar,tot:1000.125}]}]);assert.match(r.csvText(),/,1000\.125$/);
+});
+test('combined chart never adds a whole year to a single monthly observation',()=>{
+ const yearly=series({BEV:120,ICE:1080},1200,{step:12,m:[24011,24023,24035],g:[12,12,12]});
+ const monthly=series({BEV:10,ICE:90},100,{m:Array.from({length:36},(_,i)=>24000+i),g:Array(36).fill(1),
+  t:Array(36).fill(100),b:{BEV:Array(36).fill(10),ICE:Array(36).fill(90)}});
+ reset({A:yearly,B:monthly});r.setState({c:['A','B']});assert.equal(r.combined(['A','B'],1,r.plan(['A','B'])),null);
+ const whole=r.combined(['A','B'],12,r.plan(['A','B']));assert(whole);assert.equal(whole.list[0].tot,2400);
+});
+test('time cutoff with an excluded member cannot crash on an empty combined list',()=>{
+ const late=end=>series({BEV:10,ICE:990},1000,{m:[24000,24001,24002,end],g:[1,1,1,1],t:[1000,1000,1000,1000],
+  b:{BEV:[10,10,10,10],ICE:[990,990,990,990]}});
+ const data={A:late(24012),B:late(24013),C:series({BEV:10,ICE:990},1000,{m:[24008,24009,24014]})};
+ reset(data);r.setState({c:['A','B','C'],t:1});r.render();assert.doesNotMatch(el('rdFoot').innerHTML,/undefined/);
+});
+function svgFixture(){return {outerHTML:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 330"></svg>',getAttribute:()=> '0 0 600 330'};}
+test('PNG export is all-or-nothing when an SVG fails, regardless of load order',()=>{
+ for(const outcomes of [[false,true],[true,false]]){
+  reset();exportSvgs=[svgFixture(),svgFixture()];imageOutcomes=[...outcomes];const before=downloads.length;
+  r.downloadPNG();assert.equal(downloads.length,before);assert.match(el('rdFoot').textContent,/PNG export failed/);
+ }
+ exportSvgs=[];
+});
+test('PNG canvas failure is visible and never downloads a null/partial image',()=>{
+ exportSvgs=[svgFixture()];imageOutcomes=[true];nullCanvasBlob=true;const before=downloads.length;
+ r.downloadPNG();assert.equal(downloads.length,before);assert.match(el('rdFoot').textContent,/PNG export failed/);
+ nullCanvasBlob=false;exportSvgs=[];
+});
+test('successful PNG export still downloads the filtered SVG composite',()=>{
+ exportSvgs=[svgFixture()];imageOutcomes=[true];const before=downloads.length;r.downloadPNG();
+ assert.equal(downloads.length,before+1);assert.match(downloads.at(-1).download,/rawdata_.*\.png$/);exportSvgs=[];
 });
 
 (async()=>{reset();r.setState({f:['BEV']});r.setView([{c:'A',l:[bar]}]);r.downloadCSV();

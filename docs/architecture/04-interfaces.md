@@ -202,17 +202,31 @@ Headers:
 | Negative or non-finite fuel value | `400 "fuel X must be a non-negative number"` |
 | `TOTAL` missing | `400 "row YYYY-MM: TOTAL is required"` |
 | `BEV` missing | `400 "row YYYY-MM: BEV is required"` |
-| `BEV + PHEV + EREV + FCEV > TOTAL × 1.005` | `400 "row YYYY-MM: BEV+PHEV+EREV+FCEV exceeds TOTAL"` |
+| `BEV + PHEV + EREV + FCEV > TOTAL` when FCEV is known (legacy unknown rows retain ×1.005) | `400 "row YYYY-MM: BEV+PHEV+EREV+FCEV exceeds TOTAL"` |
 | Resulting CSV is byte-identical to current | `400 "Submission would not change the file..."` |
 
 **Optional correction safety:** `FCEV` omitted or blank (including whitespace)
 preserves an existing row's FCEV on replacement; a new row stays unknown.
 Numeric `0` records zero; explicit JSON `null` deliberately clears to unknown
 (the form does not offer a clear-to-unknown action). Other omitted fuels retain
-their existing replacement semantics. The frontend registry/header reader and
-category-sum hint include FCEV when present. Worker upserts parse quoted logical
-CSV records, so commas/multiline notes do not shift the optional column. This
-is not a byte-preserving rewrite of the Worker (record separators still normalize).
+their existing replacement semantics; unknown, unsubmit-able extra columns survive
+corrections. Validation uses the **effective** row after optional preservation:
+known FCEV leaves must close against original TOTAL (epsilon 1e-6, no percentage
+slack), allowing only the exporter's documented unnamed combustion residual.
+Omitted retained FCEV cannot evade this check. Invalid submissions return 400;
+unreadable UTF-8, duplicate/ragged existing CSV records return 502 before mutation.
+
+The frontend registry/header reader parses quoted logical records, not physical
+lines; stale country/variant requests cannot replace the current schema. A blank
+optional input is explicitly unknown/retained, never a falsely successful sum.
+Known FCEV uses the same tight category-sum hint as the Worker.
+
+Worker GitHub content is decoded as UTF-8 exactly once. Untouched records retain
+their numeric tokens, quotes, Unicode, individual separators and final-newline
+state. Schema expansion inserts empty tokens without reserializing old fields;
+new/replaced records use the file's separator convention. Quoted commas and
+multiline notes therefore do not shift optional columns. Duplicate keys reject
+rather than silently losing one record.
 
 ### Side effects (on success)
 
