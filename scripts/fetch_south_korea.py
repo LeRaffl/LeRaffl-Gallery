@@ -14,7 +14,7 @@ a PDF attachment. Two tables in the PDF are used:
         vehicle types, domestic makers + imports)                  → TOTAL
   참고 2 «친환경차 차종별 내수 판매 현황» (eco-friendly cars by type):
         하이브리드 → HEV · 전기차 → BEV · 플러그인 하이브리드 → PHEV ·
-        수소차 → OTHERS (hydrogen FCEV)
+        수소차 → FCEV (hydrogen fuel-cell; future new periods only)
   ICE = TOTAL − 친환경차 내수 (no petrol/diesel split is published)
 
 The ministry's own footnote names the underlying data: KAMA (한국자동차
@@ -79,12 +79,12 @@ BASE = "https://www.motir.go.kr"
 LIST_URL = (BASE + "/kor/article/ATCL3f49a5a8c?searchCondition=1&searchKeyword="
             "%EC%9E%90%EB%8F%99%EC%B0%A8%EC%82%B0%EC%97%85+%EB%8F%99%ED%96%A5&pageIndex={page}")
 CSV_PATH = Path(__file__).resolve().parent.parent / "data" / "South Korea.csv"
-FUELS = ["BEV", "PHEV", "HEV", "OTHERS", "ICE"]
+FUELS = ["BEV", "FCEV", "PHEV", "HEV", "OTHERS", "ICE"]
 CSV_COLUMNS = ["period", "time_interval", "variant", "source"] + FUELS + ["TOTAL", "notes"]
 
 # 참고 2 row labels → gallery column (the export table below it uses the same
 # labels, so parsing stops at the first footnote line after the domestic table).
-ECO_ROWS = {"하이브리드": "HEV", "전기차": "BEV", "플러그인 하이브리드": "PHEV", "수소차": "OTHERS"}
+ECO_ROWS = {"하이브리드": "HEV", "전기차": "BEV", "플러그인 하이브리드": "PHEV", "수소차": "FCEV"}
 SUM_TOLERANCE = 2
 MIN_MONTH_FRACTION = 0.25
 
@@ -189,7 +189,10 @@ def rows_of(parsed: dict) -> dict[str, dict[str, int]]:
         ice = total - parsed["eco"][k]
         if ice < 0:
             raise ParseError(f"{p}: ICE would be negative ({total} − {parsed['eco'][k]})")
-        c["ICE"] = ice
+        if eco_sum != parsed["eco"][k]:
+            raise ParseError(f"{p}: known FCEV leaves do not close exactly to original TOTAL")
+        c["OTHERS"] = 0  # every eco leaf is explicitly named; hydrogen is FCEV
+        c["ICE"] = ice   # unchanged source formula: excludes the entire eco total
         c["TOTAL"] = total
         out[p] = c
     return out
@@ -254,56 +257,91 @@ def release_pdf(session, view_path: str) -> tuple[str, bytes]:
 
 # ── CSV line-level upsert (invariant 2) ────────────────────────────────────
 
-def fmt(v: int) -> str:
-    return f"{float(v):.1f}"
+def fmt(v: int | None) -> str:
+    return "" if v is None else f"{float(v):.1f}"
 
 
 def render_line(period: str, counts: dict[str, int], notes: str = "") -> str:
     buf = io.StringIO()
-    csv.writer(buf, lineterminator="").writerow(
-        [period, "monthly", "Whole", SOURCE] + [fmt(counts[k]) for k in FUELS + ["TOTAL"]] + [notes])
-    return buf.getvalue()
+    csv.writer(buf, lineterminator="\r\n").writerow(
+        [period, "monthly", "Whole", SOURCE] + [fmt(counts.get(k) if k == "FCEV" else counts[k]) for k in FUELS + ["TOTAL"]] + [notes])
+    return buf.getvalue()[:-2]
 
 
-def read_lines(path: Path) -> tuple[str, list[str]]:
-    # Split on "\n" only: the 2017-04 row's source URL holds mojibake with a
-    # U+0085 (NEL), which str.splitlines() would treat as a line break.
-    lines = path.read_text(encoding="utf-8").rstrip("\n").split("\n")
-    return lines[0], lines[1:]
-
-
-def key_of(line: str) -> tuple[str, str]:
-    f = next(csv.reader([line]))
-    return f[0], f[2]
+from csv_records import (csv_records, record_ending, append_column,
+                         legacy_fcev, keep_numeric_tokens)
 
 
 def upsert(path: Path, updates: dict[str, str], force: bool) -> dict[str, int]:
-    header, lines = read_lines(path)
-    if header.split(",") != CSV_COLUMNS:
-        sys.exit(f"{path}: unexpected header {header!r}")
+    original = path.read_bytes() if path.exists() else b""
+    text = original.decode('utf-8')
+    records = csv_records(text)
+    if records:
+        columns, header = records.pop(0)
+        required = set(CSV_COLUMNS) - {'FCEV'}
+        if len(set(columns)) != len(columns) or not required <= set(columns):
+            raise ValueError(f"{path}: unexpected header {columns!r}")
+    else:
+        columns, header = list(CSV_COLUMNS), ','.join(CSV_COLUMNS) + '\n'
+    pi, vi = columns.index('period'), columns.index('variant')
+    keys = []
+    for fields, raw in records:
+        if not fields: keys.append(None); continue
+        if len(fields) != len(columns): raise ValueError('CSV record does not match header')
+        key = (fields[pi], fields[vi])
+        if key in keys: raise ValueError(f'Duplicate CSV key {key}')
+        keys.append(key)
+    # Freeze this watermark before processing the release's multiple rows.
+    # Missing historical gaps use legacy Other too, not retroactive FCEV.
+    watermark = max((k[0] for k in keys if k and k[1] == 'Whole'), default='')
     stats = {"added": 0, "updated": 0, "unchanged": 0, "skipped": 0}
-    index = {key_of(l): i for i, l in enumerate(lines)}
+    eol = record_ending(header) or next((record_ending(raw) for _,raw in records if record_ending(raw)), '\n')
+    final_newline = not text or bool(record_ending(text))
     for period, new in sorted(updates.items()):
-        k = (period, "Whole")
-        if k in index:
-            old = lines[index[k]]
-            old_f, new_f = next(csv.reader([old])), next(csv.reader([new]))
-            same = (old_f[3] == new_f[3]
-                    and all(float(a or 0) == float(b or 0) for a, b in zip(old_f[4:10], new_f[4:10])))
-            if same:
-                stats["unchanged"] += 1          # numerically equal: keep the line byte-for-byte
-            elif old_f[3] != SOURCE and not force:
-                stats["skipped"] += 1
-            else:
-                lines[index[k]] = new
-                stats["updated"] += 1
+        parsed = csv_records(new)
+        if len(parsed) != 1 or len(parsed[0][0]) != len(CSV_COLUMNS):
+            raise ValueError('Invalid update record')
+        row = dict(zip(CSV_COLUMNS, parsed[0][0]))
+        if row['period'] != period or row['variant'] != 'Whole':
+            raise ValueError('Update must match period/Whole key')
+        key = (period, 'Whole')
+        at = keys.index(key) if key in keys else None
+        previous = dict(zip(columns, records[at][0])) if at is not None else None
+        row = legacy_fcev(row, previous, historical=period <= watermark)
+        # The source gate is unchanged. --force never overrides the historical
+        # FCEV boundary above; only a separate explicit migration could do so.
+        if previous and previous['source'] != SOURCE and not force:
+            stats['skipped'] += 1; continue
+        if 'FCEV' not in columns:
+            if at is None and period > watermark:
+                columns, header, records = append_column(columns, header, records, 'FCEV')
+            else: row.pop('FCEV', None)
+        values = dict(previous or {})
+        values.update(row)
+        if previous:
+            if not row.get('notes'): values['notes'] = previous.get('notes', '')
+            keep_numeric_tokens(values, previous, FUELS + ['TOTAL'])
+        fields = ['' if values.get(c) is None else str(values.get(c, '')) for c in columns]
+        if at is not None and fields == records[at][0]:
+            stats['unchanged'] += 1; continue
+        buf = io.StringIO(newline='')
+        csv.writer(buf, lineterminator='\r\n').writerow(fields)
+        raw = buf.getvalue()[:-2]
+        if at is not None:
+            records[at] = (fields, raw + record_ending(records[at][1]))
+            stats['updated'] += 1
         else:
-            lines.append(new)
-            stats["added"] += 1
-    if stats["added"]:
-        lines.sort(key=key_of)
-    if stats["added"] or stats["updated"]:
-        path.write_text("\n".join([header] + lines) + "\n", encoding="utf-8")
+            at = next((i for i,k in enumerate(keys) if k and k > key),len(records))
+            if at == 0:
+                if not record_ending(header): header += eol
+            elif not record_ending(records[at-1][1]):
+                f,r = records[at-1]; records[at-1] = (f,r+eol)
+            ending = eol if at < len(records) or final_newline else ''
+            records.insert(at,(fields,raw+ending));keys.insert(at,key)
+            stats['added'] += 1
+    updated = (header + ''.join(raw for _,raw in records)).encode('utf-8')
+    if updated != original and (stats['added'] or stats['updated']):
+        path.write_bytes(updated)
     return stats
 
 
@@ -313,8 +351,10 @@ def existing(path: Path) -> dict[str, dict[str, str]]:
 
 
 def differs(a: dict[str, int], row: dict[str, str]) -> list[str]:
+    a = legacy_fcev(a, row)
     out = []
     for k in FUELS + ["TOTAL"]:
+        if a.get(k) is None: continue  # unknown detail is not a reported zero
         v = float(row.get(k) or 0)
         if abs(v - a[k]) > 0.5:
             out.append(f"{k} {v:,.0f}→{a[k]:,}")
@@ -341,7 +381,7 @@ def main() -> int:
     ap.add_argument("--pdf", nargs="*", default=[],
                     help="Offline: parse these local PDFs instead of downloading.")
     ap.add_argument("--force", action="store_true",
-                    help="Ignore the self-throttle, the completeness guard and foreign rows.")
+                    help="Ignore the self-throttle, the completeness guard and foreign rows; never backfill FCEV.")
     ap.add_argument("--dry-run", action="store_true", help="Parse and report; write nothing.")
     ap.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"))
     ap.add_argument("--step-summary", default=os.environ.get("GITHUB_STEP_SUMMARY"))
@@ -405,8 +445,9 @@ def main() -> int:
                 revisions.append(f"- {p}: " + ", ".join(d))
 
     report = [f"## South Korea (MOTIR «자동차산업 동향») — newest month {target}\n",
-              "| period | BEV | PHEV | HEV | H2 (OTHERS) | ICE | TOTAL | BEV share |",
-              "|---|---:|---:|---:|---:|---:|---:|---:|"]
+              "Source decomposition below; historical blank FCEV stays inclusive OTHERS on write, even with --force.\n",
+              "| period | BEV | FCEV / H₂ | PHEV | HEV | OTHERS | ICE | TOTAL | BEV share |",
+              "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for p, c in sorted(writes.items()):
         report.append(f"| {p} | " + " | ".join(f"{c[k]:,}" for k in FUELS + ["TOTAL"])
                       + f" | {c['BEV'] / c['TOTAL']:.1%} |")

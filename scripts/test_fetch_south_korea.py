@@ -71,7 +71,7 @@ def test_aug_2026_release():
     p = fk.parse_release(AUG_2026)
     assert p["months"] == ["2025-08", "2026-07", "2026-08"]
     rows = fk.rows_of(p)
-    assert rows["2026-08"] == {"HEV": 36102, "BEV": 31060, "PHEV": 1334, "OTHERS": 312,
+    assert rows["2026-08"] == {"HEV": 36102, "BEV": 31060, "PHEV": 1334, "FCEV": 312, "OTHERS": 0,
                                "ICE": 109920 - 68808, "TOTAL": 109920}
     # the previous month fills a month without a release of its own
     assert rows["2026-07"]["BEV"] == 35936 and rows["2026-07"]["TOTAL"] == 139231
@@ -118,7 +118,7 @@ def test_guards():
 def test_upsert_keeps_equal_rows():
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "South Korea.csv"
-        p.write_text(",".join(fk.CSV_COLUMNS) + "\n"
+        p.write_text(",".join(c for c in fk.CSV_COLUMNS if c != "FCEV") + "\n"
                      "2026-06,monthly,Whole,motir.go.kr,39031,1113,53578,500,65503,159725,\n"
                      "2026-07,monthly,Whole,someone else,1,1,1,1,1,5,\n", encoding="utf-8")
         same = {"BEV": 39031, "PHEV": 1113, "HEV": 53578, "OTHERS": 500, "ICE": 65503, "TOTAL": 159725}
@@ -128,7 +128,7 @@ def test_upsert_keeps_equal_rows():
                            "2026-08": fk.render_line("2026-08", new)}, force=False)
         assert st == {"added": 1, "updated": 0, "unchanged": 1, "skipped": 1}, st
         lines = p.read_text(encoding="utf-8").splitlines()
-        assert lines[1].endswith(",159725,")               # integer formatting kept
+        assert lines[1].endswith(",159725,,")               # integer formatting kept
         assert lines[3].startswith("2026-08,monthly,Whole,motir.go.kr,31060.0,1334.0,")
 
 
@@ -138,11 +138,11 @@ def test_upsert_survives_nel_in_a_source_field():
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "South Korea.csv"
         row = "2017-04,monthly,Whole,https://x/?q=\u00c3\u0085+\u00c3,862.0,25.0,6364.0,1.0,146326.0,153578.0,"
-        p.write_text(",".join(fk.CSV_COLUMNS) + "\n" + row + "\n", encoding="utf-8")
+        p.write_text(",".join(c for c in fk.CSV_COLUMNS if c != "FCEV") + "\n" + row + "\n", encoding="utf-8")
         c = {"BEV": 1, "PHEV": 1, "HEV": 1, "OTHERS": 1, "ICE": 1, "TOTAL": 5}
         fk.upsert(p, {"2026-08": fk.render_line("2026-08", c)}, force=False)
         lines = p.read_text(encoding="utf-8").split("\n")
-        assert lines[1] == row and lines[2].startswith("2026-08,"), lines
+        assert lines[1] == row + "," and lines[2].startswith("2026-08,"), lines
 
 
 def main() -> int:

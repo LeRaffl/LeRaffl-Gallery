@@ -22,7 +22,7 @@ variants:
 variant_notes:
   Whole: Domestic sales of new vehicles of all types (passenger cars and commercial vehicles), domestic makers plus KAIDA-member imports.
 hev_split: true
-hev_note: Hybrids are their own column; imported hybrids include mild hybrids (KAIDA counts them together), domestic makers' do not. Plug-in hybrids and hydrogen cars (OTHERS) are separate.
+hev_note: Hybrids are their own column; imported hybrids include mild hybrids (KAIDA counts them together), domestic makers' do not. Plug-in hybrids and hydrogen fuel-cell cars are separate (FCEV for future new rows; historical unknown split stays in OTHERS).
 backfill: 2017-01 → 2024-12 entered by hand from these releases (the older PDFs hold the table as a graphic, so they are not re-parsed); 2025-01 → automated and cross-checked
 scope_note: Domestic sales (내수 판매), not registrations — all vehicle types, domestic makers plus imports reported by KAIDA. Petrol and diesel are not split; combustion is one ICE figure = total − eco-friendly cars.
 caveats:
@@ -59,7 +59,7 @@ Source:    MOTIR (산업통상부) press release «YYYY년 M월 자동차산업 
 Auth:      None.
 Tables:    표 3 내수 판매량 (total domestic sales)  → TOTAL
            참고 2 친환경차 차종별 내수: 하이브리드 → HEV, 전기차 → BEV,
-                  플러그인 하이브리드 → PHEV, 수소차 → OTHERS
+                  플러그인 하이브리드 → PHEV, 수소차 → FCEV (future new rows)
            ICE = TOTAL − 친환경차 내수
 Columns:   each table: same month a year earlier · previous month · current
            month (labels read from the header).
@@ -110,11 +110,31 @@ A month with no release of its own is filled by the next release's
 previous-month column (2026-07: no «7월» release on the board as of
 2026-09-25 — its figures came in with the August release).
 
-Columns: `BEV, PHEV, HEV, OTHERS, ICE, TOTAL` (the existing layout); `OTHERS`
-is hydrogen fuel-cell cars. `source` = `motir.go.kr`, the same string as the
-hand-entered rows, so revisions of the latest two months overwrite them.
-Line-level upserts; a row whose numbers are unchanged is left byte-for-byte
-(the hand-entered rows are integers, the fetcher writes `.1f`).
+Columns for new files: `BEV, FCEV, PHEV, HEV, OTHERS, ICE, TOTAL`.
+`수소차` is the source's hydrogen fuel-cell count, not HICEV. For confirmed
+future split rows `OTHERS = 0` because every eco-car leaf is named; explicit
+`ICE = TOTAL − 친환경차 내수` is **unchanged** and already excludes FCEV.
+Known leaves must close exactly to original TOTAL (no adjusting ICE/TOTAL to
+hide a mismatch inside the older ±2 count sanity tolerance).
+
+**Future-only transition:** snapshot the latest existing Whole period before
+processing release rows. Only absent periods beyond that watermark acquire
+new FCEV detail. Old blank/absent detail (including holes at/before the
+watermark) remains unknown, even with `--force`; incoming hydrogen is folded
+back into historical inclusive OTHERS for comparison/upsert. Already-known
+splits retain the existing MOTIR revision policy. An unavailable fallback
+never erases an already confirmed split: preserve it if the inclusive remainder
+is unchanged, otherwise abort that unknowable correction. This also keeps the old
+self-throttle and year-earlier checks from inventing fuel reclassification.
+A missing mandatory hydrogen row is schema drift and aborts, never FCEV=0.
+
+On the first future write, append the optional FCEV column plus empty cells in
+old records on demand; this PR does not touch the real CSV. Old headers need
+not match one exact fixed order: required fields are checked, unknown columns
+and their values survive corrections. Quoted/multiline notes, numeric tokens,
+CRLF/LF/CR, original record order and final-newline state survive untouched
+records; empty source notes never erase an existing note. `source` remains
+`motir.go.kr`. No historical backfill or re-fetch is part of activation.
 
 ## 3. Scope (read this before comparing)
 
@@ -215,7 +235,17 @@ sequenceDiagram
 | `내수 판매량 … ≠ 내 수` | the two tables disagree in the release itself | check the PDF; `force` if MOTIR's own tables differ |
 | `Remote end closed connection` after 5 retries | MOTIR blocking | re-run later; if persistent, route through the Worker relay (Austria pattern) |
 
-## 7. Not done (yet)
+## 7. FCEV activation validation
+
+`test_fcev_activation.py` uses the existing real MOTIR text fixture and JADA
+workbook/PDF fixtures, tests strict decomposition and unknown/zero semantics,
+force refreshes, historical holes, optional migration/idempotence, unknown
+extra columns and quoted/CRLF records. `test_fcev_legacy.R` compares exact fit
+inputs, legacy TTM windows/values and post text across JP/KR split transitions.
+Fuel separation does not alter BEV/PHEV/HEV, original TOTAL or explicit ICE.
+Fleet stock data is a different pipeline and is unchanged.
+
+## 8. Not done (yet)
 
 - **Brand / model tables.** MOTIR's release ranks passenger-car models only
   as a chart image and not by powertrain; no free source gives brand × model
