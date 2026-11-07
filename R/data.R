@@ -69,7 +69,25 @@ TTM_CALENDAR_COUNTRIES <- c("Vietnam")
 # is always sourced after this file) -- one definition so they cannot drift.
 HYBRID_MIN_SHARE <- 0.0005
 
+# CSV FCEV is a disjoint raw leaf, but legacy output keeps it in Other.
+# Missing detail must not enter the strict-window fuel list or remove history.
+legacy_fuel_rollup <- function(df) {
+  if (!"FCEV" %in% names(df)) return(df)
+  fc <- suppressWarnings(as.numeric(df$FCEV))
+  supplied <- !is.na(df$FCEV) & trimws(as.character(df$FCEV)) != ""
+  if (any(supplied & is.na(fc))) stop("Invalid FCEV count")
+  if (any(!is.na(fc) & (!is.finite(fc) | fc < 0))) stop("Invalid FCEV count")
+  if (!any(!is.na(fc))) return(df)
+  if (!"OTHERS" %in% names(df)) df$OTHERS <- rep(0, nrow(df))
+  # The zero above belongs only to this derived view, never the raw CSV.
+  known <- !is.na(fc)
+  df$OTHERS <- as.numeric(df$OTHERS)
+  df$OTHERS[known] <- df$OTHERS[known] + fc[known]
+  df
+}
+
 compute_ttm_long <- function(df, bev_label = "BEV", calendar = FALSE) {
+  df <- legacy_fuel_rollup(df)
   df <- df[order(df$year), ]
   if (nrow(df) == 0) return(NULL)
   last_ti <- df$time_interval[nrow(df)]

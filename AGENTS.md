@@ -188,3 +188,16 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
 
 Keep this file compact and permanent. Push volatile detail down into the linked
 living docs and link to it — don't duplicate it here.
+
+### Optional fuel-cell detail
+
+`FCEV` is an optional numeric registration-data column for confirmed fuel-cell
+vehicles (UI: **FCEV / H₂**), not hydrogen combustion (HICEV). It is disjoint
+from `OTHERS` and explicit `ICE`; never subtract it twice or add it to BEV.
+Blank means unknown; only a reported zero is `0`. No country is activated by
+this schema support alone; source mapping/history changes require a separate
+review. Legacy three curves retain FCEV in their residual ICE; legacy TTM and
+`series.b` retain it in inclusive Other. `series.breakdown.FCEV` is a
+non-additive subset, not an extra legacy band. Raw Data separates it only for
+fully known whole-resolution windows. Preserve original source TOTAL as the
+share denominator. See architecture 03, 04, 09 and 35 for the contract.
