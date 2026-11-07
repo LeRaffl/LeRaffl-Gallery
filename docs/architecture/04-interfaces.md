@@ -198,12 +198,21 @@ Headers:
 | `rows.length > 36` | `400 "too many rows in one submission"` |
 | `period` not `YYYY-MM` | `400 "invalid period \"...\""` |
 | `time_interval` not in allowlist | `400 "invalid time_interval"` |
-| Unknown fuel column | `400 "unknown fuel column \"X\""` (allowlist: BEV, PHEV, EREV, HEV, MHEV, PETROL, DIESEL, GAS, CNG, LPG, FLEXFUEL, ETHANOL, OTHERS, ICE, TOTAL) |
+| Unknown fuel column | `400 "unknown fuel column \"X\""` (allowlist: BEV, FCEV, PHEV, EREV, HEV, MHEV, PETROL, DIESEL, GAS, CNG, LPG, FLEXFUEL, ETHANOL, OTHERS, ICE, TOTAL) |
 | Negative or non-finite fuel value | `400 "fuel X must be a non-negative number"` |
 | `TOTAL` missing | `400 "row YYYY-MM: TOTAL is required"` |
 | `BEV` missing | `400 "row YYYY-MM: BEV is required"` |
-| `BEV + PHEV + EREV > TOTAL × 1.005` | `400 "row YYYY-MM: BEV+PHEV+EREV exceeds TOTAL"` |
+| `BEV + PHEV + EREV + FCEV > TOTAL × 1.005` | `400 "row YYYY-MM: BEV+PHEV+EREV+FCEV exceeds TOTAL"` |
 | Resulting CSV is byte-identical to current | `400 "Submission would not change the file..."` |
+
+**Optional correction safety:** `FCEV` omitted or blank (including whitespace)
+preserves an existing row's FCEV on replacement; a new row stays unknown.
+Numeric `0` records zero; explicit JSON `null` deliberately clears to unknown
+(the form does not offer a clear-to-unknown action). Other omitted fuels retain
+their existing replacement semantics. The frontend registry/header reader and
+category-sum hint include FCEV when present. Worker upserts parse quoted logical
+CSV records, so commas/multiline notes do not shift the optional column. This
+is not a byte-preserving rewrite of the Worker (record separators still normalize).
 
 ### Side effects (on success)
 

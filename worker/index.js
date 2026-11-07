@@ -447,10 +447,11 @@ async function handleRelay(request, env) {
 // column with NA in pre-existing rows).
 
 const ALLOWED_TIME_INTERVALS = new Set(['monthly', 'quarterly', 'yearly']);
-const ALLOWED_FUEL_COLS = new Set([
-  'BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG',
+const FUEL_ORDER = [
+  'BEV','FCEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG',
   'FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'
-]);
+];
+const ALLOWED_FUEL_COLS = new Set(FUEL_ORDER);
 
 async function handleSubmission(request, env, ctx) {
   const origin = request.headers.get('Origin') || '';
@@ -496,6 +497,10 @@ async function handleSubmission(request, env, ctx) {
     const cleanFuels = {};
     for (const [k, v] of Object.entries(fuels)) {
       if (!ALLOWED_FUEL_COLS.has(k))                  return err(`unknown fuel column "${k}"`, 400, origin);
+      // Omitted/blank preserves an existing optional count; explicit null
+      // deliberately clears it to unknown, never to a measured zero.
+      if (k === 'FCEV' && v === null) { cleanFuels[k] = null; continue; }
+      if (k === 'FCEV' && typeof v === 'string' && !v.trim()) continue;
       if (v === '' || v === null || v === undefined) continue;
       const n = Number(v);
       if (!Number.isFinite(n) || n < 0)               return err(`fuel ${k} must be a non-negative number`, 400, origin);
@@ -503,10 +508,10 @@ async function handleSubmission(request, env, ctx) {
     }
     if (cleanFuels.TOTAL === undefined)               return err(`row ${r.period}: TOTAL is required`, 400, origin);
     if (cleanFuels.BEV === undefined)                 return err(`row ${r.period}: BEV is required`, 400, origin);
-    // Sum sanity check: BEV + PHEV + EREV must not exceed TOTAL.
+    // Disjoint electric leaves must not exceed the original TOTAL.
     const bev = cleanFuels.BEV || 0, phev = cleanFuels.PHEV || 0, erev = cleanFuels.EREV || 0;
-    if (bev + phev + erev > cleanFuels.TOTAL * 1.005) {
-      return err(`row ${r.period}: BEV+PHEV+EREV exceeds TOTAL`, 400, origin);
+    if (bev + phev + erev + (cleanFuels.FCEV || 0) > cleanFuels.TOTAL * 1.005) {
+      return err(`row ${r.period}: BEV+PHEV+EREV+FCEV exceeds TOTAL`, 400, origin);
     }
     safeRows.push({
       period:        r.period,
@@ -613,9 +618,36 @@ async function handleSubmission(request, env, ctx) {
 // to the end (so old rows stay byte-identical, only the touched rows + the
 // header line move).
 
+// Logical records keep an optional count aligned when source/notes fields
+// contain commas, quotes or newlines. Untouched field tokens are not decoded
+// and reserialized unless schema padding is required.
+function csvRecords(text) {
+  const records = [];
+  let fields = [], field = '', quoted = false, start = 0;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') {
+      if (quoted && text[i+1] === '"') { field += '"'; i++; }
+      else quoted = !quoted;
+    } else if (c === ',' && !quoted) { fields.push(field); field = ''; }
+    else if ((c === '\r' || c === '\n') && !quoted) {
+      fields.push(field);
+      records.push({fields, raw:text.slice(start,i)});
+      if (c === '\r' && text[i+1] === '\n') i++;
+      fields = []; field = ''; start = i+1;
+    } else field += c;
+  }
+  if (quoted) throw new Error('Unterminated quoted CSV field');
+  if (start < text.length) { fields.push(field); records.push({fields,raw:text.slice(start)}); }
+  return records;
+}
+const csvFields = line => csvRecords(line)[0]?.fields || [];
+const csvCell = value => /[",\r\n]/.test(String(value))
+  ? '"'+String(value).replace(/"/g,'""')+'"' : String(value);
+
 function upsertRows(existingCsv, variant, source, rows) {
   // Parse existing
-  let lines = existingCsv ? existingCsv.replace(/\r\n/g, '\n').split('\n') : [];
+  let lines = csvRecords(existingCsv || '').map(r=>r.raw);
   while (lines.length && lines[lines.length - 1] === '') lines.pop();
   let header;
   let existingDataLines;
@@ -623,7 +655,7 @@ function upsertRows(existingCsv, variant, source, rows) {
     // Brand new file. Build a sensible default header from the union of the
     // submitted columns, with the canonical order.
     const cols = ['period','time_interval','variant','source'];
-    const fuelOrder = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'];
+    const fuelOrder = FUEL_ORDER;
     const presentFuels = new Set();
     for (const r of rows) for (const k of Object.keys(r.fuels)) presentFuels.add(k);
     for (const f of fuelOrder) if (presentFuels.has(f)) cols.push(f);
@@ -635,11 +667,11 @@ function upsertRows(existingCsv, variant, source, rows) {
     existingDataLines = lines.slice(1);
   }
 
-  let cols = header.split(',');
+  let cols = csvFields(header);
   // Ensure every submitted fuel column exists; append if missing.
   const submittedFuels = new Set();
   for (const r of rows) for (const k of Object.keys(r.fuels)) submittedFuels.add(k);
-  const fuelOrder = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'];
+  const fuelOrder = FUEL_ORDER;
   const newFuelCols = [];
   for (const f of fuelOrder) {
     if (submittedFuels.has(f) && !cols.includes(f)) newFuelCols.push(f);
@@ -676,7 +708,7 @@ function upsertRows(existingCsv, variant, source, rows) {
   };
 
   for (const dl of existingDataLines) {
-    const parts = dl.split(',');
+    const parts = csvFields(dl);
     const key = `${parts[periodIdx]}|${parts[variantIdx]}`;
     if (submittedKeys.has(key)) {
       // We'll re-emit this row from the submission; capture old value for diff.
@@ -692,6 +724,7 @@ function upsertRows(existingCsv, variant, source, rows) {
   for (const r of rows) {
     const key = `${r.period}|${variant}`;
     const wasReplaced = replaced.some(x => x.key === key);
+    const previous = replaced.find(x=>x.key === key)?.old;
     const fields = cols.map(c => {
       switch (c) {
         case 'period':        return r.period;
@@ -701,18 +734,19 @@ function upsertRows(existingCsv, variant, source, rows) {
         case 'notes':         return r.notes || '';
         default:
           if (r.fuels[c] !== undefined) return fmt(r.fuels[c]);
+          if (c === 'FCEV' && previous) return previous[c] || '';
           return '';
       }
     });
-    const line = fields.join(',');
+    const line = fields.map(csvCell).join(',');
     newLines.push(line);
     if (!wasReplaced) added.push({ period: r.period });
   }
 
   // Sort by period (chronological), keeping yearly/quarterly mixed in by date.
   newLines.sort((a, b) => {
-    const ap = a.split(',')[periodIdx];
-    const bp = b.split(',')[periodIdx];
+    const ap = csvFields(a)[periodIdx];
+    const bp = csvFields(b)[periodIdx];
     return ap < bp ? -1 : ap > bp ? 1 : 0;
   });
 
@@ -728,19 +762,19 @@ function upsertRows(existingCsv, variant, source, rows) {
 }
 
 function padLineForNewCols(line, allCols, newCols, notesIdx) {
-  const parts = line.split(',');
+  const parts = csvFields(line);
   // The original line was written with the OLD column count. New cols got
   // inserted before notes (or appended). Reconstruct so values stay aligned.
   if (notesIdx < 0) {
     // Appended at end — just push empties.
     while (parts.length < allCols.length) parts.push('');
-    return parts.join(',');
+    return parts.map(csvCell).join(',');
   }
   // Inserted before notes: split parts at original notes position.
   const oldNotesIdx = notesIdx;       // notes index in OLD cols == same as in NEW cols up to insertion point
   const before = parts.slice(0, oldNotesIdx);
   const notesAndAfter = parts.slice(oldNotesIdx);
-  return [...before, ...newCols.map(() => ''), ...notesAndAfter].join(',');
+  return [...before, ...newCols.map(() => ''), ...notesAndAfter].map(csvCell).join(',');
 }
 
 function buildPrBody({ country, variant, source, author, summary, rows }) {
