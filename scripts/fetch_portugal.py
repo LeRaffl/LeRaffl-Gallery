@@ -359,25 +359,6 @@ def csv_has_period(csv_path: str, period: str, variant: str) -> bool:
         return any(r["period"] == period and r["variant"] == variant for r in csv.DictReader(f))
 
 
-# Rows whose petrol/diesel/others were scaled onto TOTAL − electrified.
-# The Google Sheet still has the quarterly figure pasted onto each month;
-# a --sheet run must not put that paste back.
-ESTIMATED_SPLIT_PREFIX = "PETROL/DIESEL/OTHERS estimated"
-
-
-def periods_with_estimated_split(csv_path: str, variant: str) -> set:
-    """Periods whose note marks the combustion split as estimated."""
-    if not os.path.exists(csv_path):
-        return set()
-    out = set()
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            if (row.get("variant") == variant
-                    and (row.get("notes") or "").startswith(ESTIMATED_SPLIT_PREFIX)):
-                out.add(row["period"])
-    return out
-
-
 def run_variant(variant: str, from_sheet: bool) -> None:
     cfg = VARIANT_CONFIG[variant]
     if from_sheet:
@@ -385,13 +366,6 @@ def run_variant(variant: str, from_sheet: bool) -> None:
     else:
         parsed = fetch_motordata(cfg["cat"])
     rows = to_rows(parsed, variant, from_sheet)
-    if from_sheet:
-        kept = periods_with_estimated_split(cfg["csv"], variant)
-        for period in kept:
-            rows.pop((period, variant), None)
-        if kept:
-            print(f"[{variant}] left {len(kept)} estimated-split rows "
-                  f"(the sheet still has the quarterly paste)")
     if not rows:
         print(f"[{variant}] no non-zero months fetched.")
         return
