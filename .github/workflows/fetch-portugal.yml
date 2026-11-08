@@ -22,13 +22,6 @@ name: Fetch Portugal data (ACAP / motordata)
 
 on:
   workflow_dispatch:
-    inputs:
-      sheet:
-        description: 'Backfill/patch Whole from the Google Sheet (true/false)'
-        required: false
-        default: 'false'
-        type: choice
-        options: ['false', 'true']
   schedule:
     # ACAP publishes on the 1st from ~17:00 Lisbon time (WET=UTC, WEST=UTC+1).
     # Poll on the 1st–5th at 17:30 and 20:30 UTC; per-variant early-exit makes
@@ -59,10 +52,7 @@ jobs:
         run: python scripts/test_market_top.py
 
       - name: Fetch & update Portugal CSVs (all variants)
-        run: |
-          python scripts/fetch_portugal.py ${SHEET:+--sheet}
-        env:
-          SHEET: ${{ inputs.sheet == 'true' && '1' || '' }}
+        run: python scripts/fetch_portugal.py
 
       - name: Detect whether Whole changed
         id: changed

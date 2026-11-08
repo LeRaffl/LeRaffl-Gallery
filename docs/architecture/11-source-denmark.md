@@ -23,7 +23,7 @@ variant_notes:
   Vans: New vans (BILTYPE 4000102000).
 hev_split: false
 fcev: folded into OTHERS
-backfill: pre-2018 Whole rows from the maintainer's Google Sheet (one-off)
+backfill: pre-2018 Whole rows already in data/Denmark.csv
 scope_note: Whole = all new registrations; Private / Industry split by terms of use.
 column_map:
   BEV: BEV
@@ -59,11 +59,9 @@ API:       POST https://api.statbank.dk/v1/data with JSON body
            (one request per variant; format=JSONSTAT)
 Variants:  Whole, Private, Industry, HDV, Vans (5 separate CSV files)
 HEV:       Not split by Statbank (folded into Petrol/Diesel upstream); no HEV column
-Backfill:  Pre-2018 Whole rows from the maintainer's Google Sheet (one-off)
-           (Private/Industry/HDV/Vans not in the sheet pre-2018; live data starts at API range)
+Backfill:  Pre-2018 Whole rows already in data/Denmark.csv
 Schedule:  Daily cron 1st–15th, 05:15 UTC; early-exit per variant once last month is in
-Scripts:   scripts/fetch_denmark.py             (monthly fetcher)
-           scripts/backfill_denmark_pre2018.py  (one-off)
+Scripts:   scripts/fetch_denmark.py
 Workflow:  .github/workflows/fetch-denmark.yml
 ```
 
@@ -204,37 +202,13 @@ client-side filter artefact. Statbank only started tracking the Lorries
 × propellant breakdown in 2021. Pre-2021 phantom-zero months are
 filtered by the `to_csv_rows` skip-when-TOTAL=0 check.
 
-## 5. Backfill: pre-2018 Whole history
+## 5. Pre-2018 Whole history
 
 `api.statbank.dk` only goes back to 2018-01 for the passenger-car
-breakdown. The maintainer's
-[Google Sheet](https://docs.google.com/spreadsheets/d/1n6QacQ7BIWMa9-vQpbDuuwkquSzYk7XIRbXzjcIsnyg/)
-tracks Denmark passenger-car BEV/PHEV/ICE back to 2014-01 (assembled by
-hand from older Statbank releases and ACEA press notes). Without the
-backfill, the Weibull `t0 = floor(min(year))` for Denmark would be 2018
-instead of 2014, distorting the published trajectory.
-
-[`scripts/backfill_denmark_pre2018.py`](../../scripts/backfill_denmark_pre2018.py)
-mirrors the Netherlands one-off backfill:
-
-- Tab `registrations` → variant `Whole`, 48 monthly rows 2014-01..2017-12.
-- The sheet only has `BEV / PHEV / ICE / OTHERS / TOTAL` (no Petrol/Diesel
-  split). We write `BEV`, `PHEV`, `OTHERS`, `TOTAL`; `PETROL` / `DIESEL`
-  / `HEV` / `FLEXFUEL` are blank. The renderer recovers ICE share from
-  `(TOTAL − BEV − PHEV)` exactly like for Netherlands pre-2018.
-- Idempotent: existing `(period, "Whole")` rows are left untouched.
-- Source label is `"api.statbank.dk (BIL53) — pre-2018 via maintainer sheet"`
-  so the pre-2018 rows are distinguishable from API rows in the CSV.
-
-The `registrations_private` and `registrations_industry` tabs both start
-2018-01 in the sheet (the maintainer didn't compile pre-2018 history for
-those slices), so the backfill script only writes to `data/Denmark.csv`.
-
-Run on-demand:
-
-```sh
-python scripts/backfill_denmark_pre2018.py
-```
+breakdown. The 48 Whole rows 2014-01..2017-12 are already in
+`data/Denmark.csv` (BEV, PHEV, OTHERS, TOTAL; petrol and diesel blank).
+Do not re-import them. Without those rows the Weibull `t0` would be 2018
+instead of 2014. Private and Industry have no pre-2018 history.
 
 ## 6. Schedule and idempotency
 
@@ -301,7 +275,6 @@ it for now.
 | New DRIV code (e.g. a new alt-fuel) | Script raises `RuntimeError("unmapped DRIV code …")` and aborts before commit | Add the new code to `DRIV_TO_COL` (almost always under `OTHERS`) |
 | Statbank restates an older month with >50% delta | Upsert prints `WARNING` to the action log but still commits the new values | Manually verify and revert with a CSV edit if not real |
 | `OMRÅDE` URL/JSON encoding regresses in some HTTP client | API returns 400 / empty dataset | Stick with `requests`; the script passes the body via `json=` so encoding is automatic |
-| Google Sheet revoked from "anyone with the link" | Backfill script fails with a Google login HTML response | Re-share the sheet, or hardcode pre-2018 history into a static CSV |
 
 ## 10. Maintenance recipes
 

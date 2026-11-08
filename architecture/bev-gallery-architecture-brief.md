@@ -172,7 +172,6 @@
 | GitHub Actions Runner | GitHub Repo | git checkout + git push, Releases-API | HTTPS + Git | `GITHUB_TOKEN` (Workflow-scoped, automatisch von GitHub Actions) |
 | GitHub Actions Runner | Posit Public Package Manager | R-Package-Download | HTTPS | keine |
 | Maintainer (lokal) | GitHub Repo | git push (R-Skript-Output direkt vom Mac) | HTTPS + git | OAuth über macOS Keychain |
-| Maintainer (lokal) | Google Sheets API | (legacy, optional) Sheet auslesen | HTTPS | OAuth (lokal) |
 
 ---
 
@@ -199,12 +198,9 @@
 7. Build-manifest scannt `images/`, schreibt `manifest.json`, committet.
 8. Push triggert GitHub Pages Deploy → Page aktualisiert sich nach wenigen Sekunden.
 
-### Flow C: Lokales Rendern durch Maintainer (Legacy, weiter parallel verfügbar)
-1. Maintainer öffnet altes per-country R-Skript (z.B. `bev_share_Germany_*.R`) in RStudio.
-2. Skript liest aus Google Sheets *oder* aus `data/Germany.csv` (je nach Variante).
-3. Skript erzeugt vier PNGs, schreibt sie nach iCloud + ins lokale Repo-Clone, committet, pusht.
-4. Push triggert Build-manifest, Pages deployt.
-*Diese Path bleibt funktional als Fallback und ist die historisch dominante Render-Form.*
+### Flow C: Lokales Rendern durch Maintainer (retired)
+
+Die CSVs im Repo sind die Akte. Dieser Pfad liest keine Tabelle mehr.
 
 ### Flow D: Feedback einreichen
 1. Visitor öffnet "Feedback & Questions" Tab oder klickt FAB-Button (überall sichtbar).
@@ -229,7 +225,7 @@
 | Sprache: Backend | JavaScript (ES Modules, Workers API) | Worker |
 | Sprache: Frontend | Vanilla JS (ES2020), HTML5, CSS3 (kein Build) | `index.html` |
 | Sprache: Datenpipeline | R 4.5+ | `R/*.R`, `build_manifest.R` |
-| R-Pakete | `ggplot2, scales, grid, png, ggtext, viridis, showtext, sysfonts, glue, gert, readxl, dplyr, tidyr, patchwork, lubridate, jsonlite, fs, tibble, googlesheets4` (legacy) | siehe oben |
+| R-Pakete | `ggplot2, scales, grid, png, ggtext, viridis, showtext, sysfonts, glue, gert, readxl, dplyr, tidyr, patchwork, lubridate, jsonlite, fs, tibble` | siehe oben |
 | Storage | Cloudflare KV | Rate-Limit Counter |
 | Storage | Git LFS *(nicht im Einsatz)* | — |
 | Storage | Repo-Files (CSV, JSON, PNG, OTF, R, JS, HTML) | alles dauerhafte |
@@ -247,7 +243,6 @@
 | Cloudflare Dashboard | Out-of-band Worker-Konfiguration (compatibility_date, observability, logs) **plus Workers-Builds-Konfiguration (Branch, Root directory, Deploy command, GitHub-OAuth-Verknüpfung)** | Maintainer | medium — Einstellungen werden in `wrangler.toml` gespiegelt; die Git-Integration ist OAuth-basiert und revoke-bar |
 | Cloudflare ↔ GitHub OAuth-App | Read-Access auf das Repo für Workers Builds (Code-Checkout zum Bauen). Kein Schreibzugriff. | Maintainer (granted), Cloudflare Inc. (Konsument) | medium — Revoke macht Auto-Deploy unmöglich, ohne den Worker selbst zu beeinflussen; lokaler `wrangler` bleibt nutzbar |
 | Posit Public Package Manager | R-Package-Quelle in CI | Posit | medium — Cache-fähig |
-| Google Sheets | Legacy: Rohdaten-Quelle für Maintainer-lokalen R-Run | Maintainer | sinkt — wird durch `data/<Country>.csv` ersetzt |
 | ACEA (acea.auto) | Multi-Land-Quelle für Whole (bedingt) und CV-Varianten | ACEA | extern; gescraped von `fetch-acea.yml` / `fetch-acea-cv.yml` |
 | Nationale Statistikquellen | Pro-Land-Rohdaten (KBA, ofv.no, statbank.dk, …) | jeweils national | extern, manuell ausgelesen |
 | X (twitter.com), Bluesky | Outbound-Promotion + Spenden | extern | nur als Caption-Links |
@@ -262,7 +257,6 @@
 | `GITHUB_TOKEN` (workflow-scoped) | GitHub Actions Runner-Env | Auto-injected pro Workflow-Run | kann nach master pushen — Render-Action committet direkt; akzeptabel weil Action nur durch Maintainer triggerbar |
 | Cloudflare API Token | macOS Keychain via Wrangler OAuth | Account-weite Worker-Verwaltung | nur Maintainer-Mac |
 | Git Credentials | macOS Keychain | OAuth für `git push` | nur Maintainer-Mac |
-| Google Sheets OAuth | Lokale R-Session | nur lesend | nur Maintainer-Mac, legacy |
 
 **Trust-Boundaries:**
 - *Public ↔ Worker*: Origin-Check, Rate-Limit, Honeypot, Captcha (für Feedback). Submit-Endpoint hat keinen Captcha aber Schema-Validierung + Rate-Limit. Maximaler Schaden eines Angreifers: Spam-PRs öffnen — Maintainer kann das durch Close ablehnen.
