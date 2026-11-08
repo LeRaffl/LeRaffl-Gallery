@@ -141,7 +141,7 @@ sheet is used for backfill / patching, not as the live source.
 The sheet's petrol/diesel/others for 2018-01…2022-07 is a quarterly figure
 pasted onto each month. Those CSV rows keep that mix, scaled to
 `TOTAL − BEV − PHEV − HEV`, and the note starts with
-`PETROL/DIESEL/OTHERS estimated`. `--sheet` leaves those rows alone.
+`PETROL/DIESEL/OTHERS estimated`. The scheduled fetch does not read the sheet. A manual `--sheet` run would paste the quarterly figure back.
 BEV, PHEV, HEV and TOTAL there are the monthly ACAP figures, not an
 estimate, so the rows stay `monthly` (a `monthly_est` mark would hollow
 the BEV points). 2017 has no mix to scale and is unchanged.
