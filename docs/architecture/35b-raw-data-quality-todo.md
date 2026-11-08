@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 61 countries · 7,078 periods drawable · 168 held back · **46 of 61 files cost the chart nothing.**
+**Status:** 61 countries · 7,119 periods drawable · 127 held back · **46 of 61 files cost the chart nothing.**
 
 ---
 
@@ -15,12 +15,6 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 - [ ] `2025-11` — OTHERS drops to 0 between 57 and 31. The row still closes to `TOTAL`, so no sum check sees it.
 - [ ] **94 rows where `OTHERS` carries more than 80% of `TOTAL`** — the source broke out almost nothing, so there is no mix to stack · 2012-01…2019-10
 - [ ] **2 rows with an exactly-zero combustion side** — only the EV columns were filled and `TOTAL` computed from them · 2019-11…2019-12
-
-### Portugal  ·  costs 88 periods
-
-- [ ] **31 rows whose bands do not add up to `TOTAL`** (worst 2018-01: bands miss TOTAL by +43.6%) · 2018-01, 2018-03…2018-04, 2018-06…2018-07 …
-- [ ] **13 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (2 of 3 rows present)) · 2017-08…2017-10, 2018-02, 2018-05 …
-→ *Symptom:* 4 visible gaps in the chart, 44 months (worst 2018-01…2020-03).
 
 ### Singapore  ·  costs 23 periods
 
@@ -58,6 +52,11 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 
 - [ ] **No rows for 2020-01…2020-06** — 6 periods the CSV says nothing about.
 → *Symptom:* 1 visible gap in the chart, 6 months (worst 2020-01…2020-07).
+
+### Portugal  ·  costs 6 periods
+
+- [ ] **3 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (2 of 3 rows present)) · 2017-08…2017-10
+→ *Symptom:* 1 visible gap in the chart, 3 months (worst 2017-08…2017-11).
 
 ### China  ·  costs 2 periods
 
@@ -176,7 +175,7 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 ### Portugal
 
-- A coarse figure is written across finer rows in **`BEV`, `PHEV`, `HEV`, `PETROL`, `DIESEL`, `OTHERS`** — up to 93 rows, 2010-01…2021-12. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
+- A coarse figure is written across finer rows in **`BEV`, `PHEV`, `HEV`, `OTHERS`** — up to 93 rows, 2010-01…2021-03. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
 
 ### Romania
 
