@@ -22,7 +22,7 @@ variant_notes:
   HDV: Heavy goods vehicles incl. tractor units — Pesados de Mercadorias (N2/N3).
   Buses: Buses and coaches — Pesados de Passageiros (M2/M3).
 hev_split: true
-backfill: existing CSV from 2010-01 retained; Google-Sheet patches on demand
+backfill: existing CSV from 2010-01 is the record
 scope_note: Whole = passenger cars (Ligeiros de Passageiros). Vans, HDV and Buses are fetched too; mopeds
   and motorcycles are not ingested.
 caveats:
@@ -61,7 +61,7 @@ Variants:  Whole only (Ligeiros de Passageiros). LCV/HCV/Bus exist (out of scope
 HEV:       Reported natively (HEV/Gasolina + HEV/Gasóleo)
 FLEXFUEL:  Not reported by Portugal → column stays uniformly empty
 OTHERS:    Residual = all-fuels TOTAL − (BEV+PHEV+HEV+PETROL+DIESEL)
-Backfill:  Existing CSV (2010-01+) retained; --sheet patches from the Google Sheet
+Backfill:  Existing CSV (2010-01+) is the record. Do not re-import a spreadsheet.
 Schedule:  Twice-daily cron on the 1st–5th, 17:30 & 20:30 UTC
 Scripts:   scripts/fetch_portugal.py
 Workflow:  .github/workflows/fetch-portugal.yml
@@ -96,8 +96,7 @@ POST https://motordata.pt/autoinforma/chartdata_novo.php
 
 **No year parameter.** `ano` / `year` / `list_ano` are all ignored — the endpoint
 always returns the *current calendar year*. So the fetcher maintains the current
-year's months; older history comes from the committed CSV or the Google Sheet
-(`--sheet`).
+year's months; older history stays in the committed CSV.
 
 `thisyear` contains only **published** months (e.g. in late May it is `[Jan, Feb,
 Mar, Apr]`). Index `i` → month `i+1` of `date.today().year`.
@@ -122,21 +121,16 @@ Mar, Apr]`). Index `i` → month `i+1` of `date.today().year`.
 probing). Summing the visible GNC/GPL/GNL codes therefore undercounts. The
 all-fuels query (`list_combustivel=` empty) gives the authoritative TOTAL, and
 OTHERS as the residual captures every gas/hydrogen/unlisted fuel exactly.
-Verified against the maintainer's Google Sheet: 2026-04 OTHERS = 21595 − (5010
-+ 3234 + 5731 + 5251 + 751) = 1618 = the sheet's value; HEV 17+18 = 5510 + 221
-= 5731 = the sheet's HEV.
+Checked 2026-04: OTHERS = 21595 − (5010 + 3234 + 5731 + 5251 + 751) = 1618;
+HEV 17+18 = 5510 + 221 = 5731.
 
 So each run issues 8 POSTs for the passenger category: one all-fuels (TOTAL) plus
 BEV, PHEV×2, HEV×2, PETROL, DIESEL.
 
-## 4. Cross-check against the Google Sheet
+## 4. Spreadsheet retired
 
-The maintainer keeps a Google Sheet (Portugal tab, gid `1007806052` in sheet
-`1tT_Ja3de_S528_…`) with the full history in our exact schema (BEV/PHEV/HEV/
-PETROL/DIESEL/OTHERS/TOTAL from 2010-01). It is kept current and matched
-motordata's live values to within a few units (motordata is fractionally newer
-on recent months — routine ACAP revision; motordata is the live truth). The
-sheet is used for backfill / patching, not as the live source.
+A Google Sheet was a one-time import. `data/Portugal.csv` is the record.
+Do not pull the sheet again. Months motordata no longer serves stay in the CSV.
 
 The sheet's petrol/diesel/others for 2018-01…2022-07 is a quarterly figure
 pasted onto each month. Those CSV rows keep that mix, scaled to
@@ -161,8 +155,7 @@ identical POST flow (canonical definitions: [09-glossary.md § Variant definitio
 (Mopeds/motorcycles categories 4–7 are not ingested.)
 
 **Commercials are fetch-only — not auto-rendered on schedule.** motordata exposes
-only the current calendar year (no year param) and the Google Sheet has no
-commercial history, so Vans/HDV/Buses start very thin (2025/2026) and accumulate
+only the current calendar year (no year param), so Vans/HDV/Buses start very thin (2025/2026) and accumulate
 month by month. A Weibull fit on 4 points is meaningless (the first eyeball
 render gave "175 years" transitions and the TTM was skipped for lack of a
 12-month window). So `fetch-portugal.yml` fetches + commits all four CSVs but
@@ -178,13 +171,8 @@ Because the endpoint only returns the *current* calendar year, **December data
 to the new (still-empty) year, so December of the year just ended may not be
 fetchable via motordata. Mitigations:
 
-- The committed CSV already holds prior history.
-- `python scripts/fetch_portugal.py --sheet` patches any month from the
-  maintainer's Google Sheet (kept current, includes December).
-- The workflow exposes a `sheet=true` dispatch input for the same.
-
-If motordata turns out to keep showing the prior year until the new year has
-data, December is captured normally and the `--sheet` fallback is just insurance.
+- The committed CSV already holds prior history. If December is missing after
+  the year rolls, edit that row in the CSV. Do not patch it from a spreadsheet.
 
 ## 7. Schedule and idempotency
 
@@ -194,14 +182,13 @@ data, December is captured normally and the `--sheet` fallback is just insurance
 The `previous_month` early-exit makes runs no-ops once the new month is in the
 CSV. Each active run re-fetches the whole current year and upserts, so ACAP's
 routine revisions of recent months are absorbed (backward corrections are
-acceptable). `--force` skips the early-exit; `--sheet` switches to the Google
-Sheet source.
+acceptable). `--force` skips the early-exit.
 
 ## 8. Workflow data flow
 
 ```mermaid
 flowchart TD
-    Cron["Cron 1-5 * 17:30 & 20:30 UTC<br/>or workflow_dispatch (sheet?)"]
+    Cron["Cron 1-5 * 17:30 & 20:30 UTC<br/>or workflow_dispatch"]
     Cron --> Fetch["scripts/fetch_portugal.py"]
     Fetch -->|"POST chartdata_novo.php<br/>(all-fuels + per core fuel)"| MD["motordata.pt/autoinforma"]
     MD -->|"thisyear monthly series"| Fetch
@@ -209,7 +196,6 @@ flowchart TD
     CSV -.->|"if changed"| GA["EndBug/add-and-commit"]
     GA --> Dispatch["gh workflow run render-country.yml<br/>(country=Portugal, variant=Whole)"]
     Dispatch --> Render["R/render_country.R"]
-    Sheet["Google Sheet (Portugal tab)"] -. "--sheet backfill/patch" .-> Fetch
 ```
 
 Single variant ⇒ no parallel-render push race.
@@ -219,10 +205,9 @@ Single variant ⇒ no parallel-render push race.
 | Failure mode | What happens | Diagnostic / fix |
 |---|---|---|
 | motordata changes the endpoint/param names | POST fails or returns unexpected JSON | Re-inspect `charts1t.php` (the `$.ajax` to `chartdata_novo.php` and its `postdata`) |
-| A core fuel code is renumbered | core counts drop, OTHERS absorbs the difference silently | Cross-check BEV/PHEV/HEV against the Google Sheet; re-read the dropdown codes |
-| December year-boundary | December not in motordata's "thisyear" | `--sheet` patch (see §6) |
+| A core fuel code is renumbered | core counts drop, OTHERS absorbs the difference silently | Re-read the dropdown codes and diff the current-year CSV |
+| December year-boundary | December not in motordata's "thisyear" | Edit the CSV row. Do not pull a spreadsheet |
 | ACAP revises a month >50% | upsert prints WARNING, still commits | Verify; revert manually if wrong |
-| Google Sheet un-shared | `--sheet` mode fails | Re-share "anyone with the link"; or rely on the live endpoint |
 
 ## 9b. Top brands (`market/portugal_top.json`)
 
@@ -261,9 +246,6 @@ series exactly, like the electrified ones (verified 2026-10-10).
 ```sh
 # Normal recent-window refresh (current year)
 python scripts/fetch_portugal.py --force
-
-# Patch/backfill from the Google Sheet (e.g. to fill a December gap)
-python scripts/fetch_portugal.py --sheet --force
 
 # The brands file (§9b) is refreshed by every run, incl. the no-op ones;
 # --no-top skips it.

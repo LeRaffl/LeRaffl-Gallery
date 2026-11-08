@@ -163,7 +163,7 @@ Netherlands is the first country split into per-variant CSVs:
 
 | Variant | File | What it covers |
 |---|---|---|
-| `Whole` | `data/Netherlands.csv` | Instroom Personenauto Nieuw — newly-registered passenger cars. Includes pre-2018 backfill from the maintainer's Google Sheet. |
+| `Whole` | `data/Netherlands.csv` | Instroom Personenauto Nieuw — newly-registered passenger cars. Pre-2018 rows are already in the CSV. |
 | `Used` | `data/Netherlands_Used.csv` | Personenauto Occasion import (sum of `> 90 dgn` + `<= 90 dgn` sub-categories). |
 | `HDV` | `data/Netherlands_HDV.csv` | Zware bedrijfsvoertuigen Nieuw — heavy goods vehicles (≈ N-class trucks ≥3500kg). |
 
@@ -177,7 +177,7 @@ Denmark uses the same per-variant CSV layout, sourced from Statistics Denmark's 
 
 | Variant | File | What it covers |
 |---|---|---|
-| `Whole` | `data/Denmark.csv` | Passenger cars, terms of use = Total. Includes pre-2018 backfill from the maintainer's Google Sheet (2014-01..2017-12). |
+| `Whole` | `data/Denmark.csv` | Passenger cars, terms of use = Total. Pre-2018 rows (2014-01..2017-12) are already in the CSV. |
 | `Private` | `data/Denmark_Private.csv` | Passenger cars, terms of use = In households. |
 | `Industry` | `data/Denmark_Industry.csv` | Passenger cars, terms of use = In industries. |
 | `HDV` | `data/Denmark_HDV.csv` | Lorries, total. History starts 2021-01 (Statbank only began publishing the Lorries × propellant breakdown then; pre-2021 cells are real zeros). |
@@ -218,7 +218,7 @@ The full source-playbook — the Inertia session-filter flow, the `month_from` m
 
 ### Portugal (Whole + commercials, OTHERS as residual)
 
-Portugal has `Whole` (`data/Portugal.csv`) plus three **fetch-only** commercial variants — `Vans` (N1), `HDV` (N2/N3 >3.5t goods incl. tractor units), `Buses` (M2/M3) — sourced from ACAP via its motordata.pt chart backend (`chartdata_novo.php`). The endpoint returns the **current calendar year's** monthly series per fuel (no year parameter); see [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py). Fuel codes map to BEV/PHEV/HEV/PETROL/DIESEL; **OTHERS is computed as the residual** against the all-fuels total (the fuel dropdown is incomplete, so summing named "other" codes would undercount — verified against the maintainer's Google Sheet). Portugal reports **HEV** natively but **never reports ethanol/flexfuel**, so the FLEXFUEL column is **uniformly empty** (an all-empty column is skipped by the TTM logic — no half-fill hazard). `Whole` was migrated from the legacy local R pipeline (old 12-column schema → canonical 13) and its history is retained from 2010-01; a `--sheet` mode patches it from the Google Sheet (also the fallback for the December year-boundary). The **commercials start thin (2025/2026)** because motordata has no year param and the sheet has no commercial history — so they are fetched/committed but **not auto-rendered on schedule** (a 4-point Weibull is meaningless); render on demand once depth accumulates.
+Portugal has `Whole` (`data/Portugal.csv`) plus three **fetch-only** commercial variants — `Vans` (N1), `HDV` (N2/N3 >3.5t goods incl. tractor units), `Buses` (M2/M3) — sourced from ACAP via its motordata.pt chart backend (`chartdata_novo.php`). The endpoint returns the **current calendar year's** monthly series per fuel (no year parameter); see [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py). Fuel codes map to BEV/PHEV/HEV/PETROL/DIESEL; **OTHERS is computed as the residual** against the all-fuels total (the fuel dropdown is incomplete, so summing named "other" codes would undercount). Portugal reports **HEV** natively but **never reports ethanol/flexfuel**, so the FLEXFUEL column is **uniformly empty** (an all-empty column is skipped by the TTM logic — no half-fill hazard). `Whole` history from 2010-01 stays in the CSV; do not re-import a spreadsheet, including for a missing December. The **commercials start thin (2025/2026)** because motordata has no year param — so they are fetched/committed but **not auto-rendered on schedule** (a 4-point Weibull is meaningless); render on demand once depth accumulates.
 
 The full source-playbook — the motordata POST flow, the OTHERS-residual rationale, the December year-boundary caveat, the vehicle categories (HDV/Vans/Buses available but out of scope), fragility, maintenance recipes — lives in [16-source-portugal.md](16-source-portugal.md). Read that doc before changing anything in [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py).
 

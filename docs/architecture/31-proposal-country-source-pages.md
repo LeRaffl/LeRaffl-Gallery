@@ -231,7 +231,7 @@ cadence: "daily cron, 1st–15th"
 variants: [Whole, Used, HDV]
 hev_split: false        # drives the "no HEV column" caveat automatically
 fcev: "folded into OTHERS"
-backfill: "pre-2018 Whole from maintainer Google Sheet"
+backfill: "pre-2018 Whole already in the CSV"
 scope_note: "HDV ≈ Zware bedrijfsvoertuigen, not strict EU N-class"
 column_map:
   BEV: BEV

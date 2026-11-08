@@ -6,7 +6,6 @@ Fetch Portugal new registration data from ACAP's public data backend
 Usage
 -----
     python scripts/fetch_portugal.py [--variant {whole,vans,hdv,buses,all}] [--force]
-    python scripts/fetch_portugal.py --sheet [--force]    # backfill/patch Whole from Google Sheet
 
 Output files (one per motordata vehicle-category; same POST flow, different cat)
 -------------------------------------------------------------------------------
@@ -15,10 +14,10 @@ Output files (one per motordata vehicle-category; same POST flow, different cat)
     data/Portugal_HDV.csv     <- HDV    Pesados de Mercadorias (N2/N3 >3.5t) cat 3
     data/Portugal_Buses.csv   <- Buses  Pesados de Passageiros (M2/M3)      cat 2
 
-Note: motordata exposes only the CURRENT calendar year (no year param), and the
-Google Sheet only has passenger history — so the commercial variants start thin
-(2025/2026) and accumulate over time. They are fetched/committed but not
-auto-rendered on schedule (see .github/workflows/fetch-portugal.yml).
+Note: motordata exposes only the CURRENT calendar year (no year param), so the
+commercial variants start thin (2025/2026) and accumulate over time. They are
+fetched/committed but not auto-rendered on schedule (see
+.github/workflows/fetch-portugal.yml).
 
 Sources
 -------
@@ -35,10 +34,9 @@ data comes from a POST endpoint:
 `thisyear` is the monthly series for the CURRENT calendar year (only published
 months; e.g. in late May it is [Jan,Feb,Mar,Apr]). There is NO year parameter —
 the endpoint always returns the current year. So this fetcher maintains the
-current year's months; historical months come from the committed CSV (already
-present from the legacy pipeline) or the maintainer's Google Sheet (--sheet).
+current year's months; older history stays in the committed CSV.
 
-Fuel code -> canonical column (verified: HEV 17+18 sum = the sheet's HEV, etc.):
+Fuel code -> canonical column:
     BEV     <- 7  Elétrico (BEV)
     PHEV    <- 14 PHEV/Gasolina + 15 PHEV/Gasóleo
     HEV     <- 17 HEV/Gasolina  + 18 HEV/Gasóleo
@@ -48,8 +46,8 @@ Fuel code -> canonical column (verified: HEV 17+18 sum = the sheet's HEV, etc.):
     OTHERS  <- TOTAL − (BEV+PHEV+HEV+PETROL+DIESEL)   [catches GNC/GPL/GNL/H2 and
                any fuel codes NOT shown in the dropdown — the dropdown is
                incomplete, e.g. codes 20/23 exist but aren't listed, so summing
-               named "other" codes undercounts; the residual is exact: verified
-               2026-04 OTHERS = 21595 − 19977 = 1618 = the sheet's value]
+               named "other" codes undercounts; the residual is exact: checked
+               2026-04 OTHERS = 21595 − 19977 = 1618]
     FLEXFUEL <- (always empty — Portugal does not report ethanol/flexfuel)
 
 Vehicle categories also exposed (out of scope; passenger cars only for now):
@@ -57,9 +55,10 @@ Vehicle categories also exposed (out of scope; passenger cars only for now):
     2 Pesados passageiros (Buses) | 3 Pesados mercadorias (HDV >3.5t goods).
 
 Year-boundary caveat: December data publishes on Jan 1, when the endpoint's
-"thisyear" rolls to the new (empty) year. December may therefore not be fetchable
-via motordata until it appears; use `--sheet` to patch it from the maintainer's
-Google Sheet (which carries the full history and is kept current).
+"thisyear" rolls to the new (empty) year. December may therefore not be
+fetchable via motordata until the new year has data and `lastyear` still
+covers it, or until a manual CSV edit. The committed CSV is the record;
+do not patch history from a spreadsheet.
 
 Top brands (market/portugal_top.json)
 -------------------------------------
@@ -79,11 +78,8 @@ See docs/architecture/16-source-portugal.md for the full playbook.
 """
 import argparse
 import csv
-import io
 import os
-import re
 import sys
-import urllib.request
 from datetime import date
 from pathlib import Path
 
@@ -105,11 +101,6 @@ VARIANT_CONFIG = {
     "HDV":   {"cat": "3", "csv": "data/Portugal_HDV.csv"},
     "Buses": {"cat": "2", "csv": "data/Portugal_Buses.csv"},
 }
-
-SHEET_ID = "1tT_Ja3de_S528_JeSBkj74q-lfEIekE5-GRm9_pWgUo"
-SHEET_GID = "1007806052"
-SHEET_URL = (f"https://docs.google.com/spreadsheets/d/{SHEET_ID}"
-             f"/gviz/tq?tqx=out:csv&gid={SHEET_GID}")
 
 # Core fuel code -> canonical column. OTHERS is computed as a residual against
 # the all-fuels TOTAL (the dropdown's fuel list is incomplete, so enumerating
@@ -257,36 +248,7 @@ def fetch_motordata(cat: str) -> dict:
     return out
 
 
-def parse_sheet_num(s: str):
-    """European format: '14.558' -> 14558.0; '' -> ''."""
-    s = (s or "").strip()
-    if not s:
-        return ""
-    return float(s.replace(".", "").replace(",", "."))
-
-
-def fetch_sheet() -> dict:
-    """Read the maintainer's Google Sheet Portugal tab -> {period: {col: value}}."""
-    print(f"Fetching Google Sheet: {SHEET_URL}")
-    text = urllib.request.urlopen(SHEET_URL).read().decode("utf-8")
-    rows = list(csv.reader(io.StringIO(text)))
-    header = rows[0]
-    col = {name: i for i, name in enumerate(header)}
-    out: dict[str, dict] = {}
-    period_re = re.compile(r"(\d{4})M(\d{2})")
-    for r in rows[1:]:
-        if not r or not r[col["YYYYMMM"]]:
-            continue
-        m = period_re.match(r[col["YYYYMMM"]].strip())
-        if not m:
-            continue
-        period = f"{m.group(1)}-{m.group(2)}"
-        out[period] = {c: parse_sheet_num(r[col[c]]) if c in col else ""
-                       for c in ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"]}
-    return out
-
-
-def to_rows(parsed: dict, variant: str, from_sheet: bool) -> dict:
+def to_rows(parsed: dict, variant: str) -> dict:
     rows: dict = {}
     for period, cols in parsed.items():
         total = cols.get("TOTAL", "")
@@ -295,13 +257,13 @@ def to_rows(parsed: dict, variant: str, from_sheet: bool) -> dict:
             continue
         rows[(period, variant)] = {
             "period": period, "time_interval": "monthly", "variant": variant, "source": SOURCE,
-            "BEV": cols.get("BEV", 0.0 if not from_sheet else ""),
-            "PHEV": cols.get("PHEV", 0.0 if not from_sheet else ""),
-            "HEV": cols.get("HEV", 0.0 if not from_sheet else ""),
-            "PETROL": cols.get("PETROL", 0.0 if not from_sheet else ""),
-            "DIESEL": cols.get("DIESEL", 0.0 if not from_sheet else ""),
+            "BEV": cols.get("BEV", 0.0),
+            "PHEV": cols.get("PHEV", 0.0),
+            "HEV": cols.get("HEV", 0.0),
+            "PETROL": cols.get("PETROL", 0.0),
+            "DIESEL": cols.get("DIESEL", 0.0),
             "FLEXFUEL": "",  # Portugal never reports ethanol/flexfuel
-            "OTHERS": cols.get("OTHERS", 0.0 if not from_sheet else ""),
+            "OTHERS": cols.get("OTHERS", 0.0),
             "TOTAL": total,
             "notes": "",
         }
@@ -359,13 +321,10 @@ def csv_has_period(csv_path: str, period: str, variant: str) -> bool:
         return any(r["period"] == period and r["variant"] == variant for r in csv.DictReader(f))
 
 
-def run_variant(variant: str, from_sheet: bool) -> None:
+def run_variant(variant: str) -> None:
     cfg = VARIANT_CONFIG[variant]
-    if from_sheet:
-        parsed = fetch_sheet()  # sheet only carries passenger (Whole)
-    else:
-        parsed = fetch_motordata(cfg["cat"])
-    rows = to_rows(parsed, variant, from_sheet)
+    parsed = fetch_motordata(cfg["cat"])
+    rows = to_rows(parsed, variant)
     if not rows:
         print(f"[{variant}] no non-zero months fetched.")
         return
@@ -379,18 +338,10 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--variant", choices=["whole", "vans", "hdv", "buses", "all"],
                     default="all", help="Which slice to fetch (default: all).")
-    ap.add_argument("--sheet", action="store_true",
-                    help="Backfill/patch the Whole variant from the maintainer's Google Sheet "
-                         "(the sheet only carries passenger cars).")
     ap.add_argument("--force", action="store_true", help="Skip the 'previous month present' early-exit.")
     ap.add_argument("--no-top", action="store_true",
                     help="Skip the top brands refresh (market/portugal_top.json).")
     args = ap.parse_args()
-
-    if args.sheet:
-        # The Google Sheet only has passenger data → Whole only.
-        run_variant("Whole", from_sheet=True)
-        return
 
     aliases = {"whole": "Whole", "vans": "Vans", "hdv": "HDV", "buses": "Buses"}
     targets = list(aliases.values()) if args.variant == "all" else [aliases[args.variant]]
@@ -410,7 +361,7 @@ def main() -> None:
             return
 
     for variant in targets:
-        run_variant(variant, from_sheet=False)
+        run_variant(variant)
     if not args.no_top and wants_whole:
         market_top.guarded(refresh_top)
 

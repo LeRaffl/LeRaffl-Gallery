@@ -44,7 +44,7 @@ What runs where, what version, what package.
 
 ### Legacy local R (off-repo)
 
-The maintainer's per-country scripts pull `gert` (Git ops), `googlesheets4` (Google Sheets read), `readxl`, `tidyr`, `reshape2`, `xts`, `tidyquant`, `patchwork`, `lubridate`, `ggcorrplot`, `gridExtra`, `htmltools`, `fontawesome`, `emojifont`, on top of the render-pipeline set. None of those are needed in CI.
+The maintainer's per-country scripts pull `gert` (Git ops), `readxl`, `tidyr`, `reshape2`, `xts`, `tidyquant`, `patchwork`, `lubridate`, `ggcorrplot`, `gridExtra`, `htmltools`, `fontawesome`, `emojifont`, on top of the render-pipeline set. None of those are needed in CI.
 
 ## Frontend dependencies
 

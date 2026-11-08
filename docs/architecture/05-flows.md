@@ -135,7 +135,9 @@ After this, Flow E (manifest rebuild) is explicitly dispatched by the Render-cou
 
 ---
 
-## Flow C — Local-render legacy
+## Flow C — Local-render legacy (retired)
+
+The CSVs in this repo are the record. The diagram below is how the old Mac scripts used to run. Do not revive the spreadsheet read.
 
 ```mermaid
 sequenceDiagram
@@ -1214,7 +1216,7 @@ sequenceDiagram
 
 **Why HEV is always blank:** Statbank does not split full hybrids — they fold into Petrol/Diesel upstream. Same convention as Netherlands. The renderer recovers ICE share from `(TOTAL − BEV − PHEV)`.
 
-**Why pre-2018 backfill for Whole only:** Statbank's BIL53 propellant breakdown starts 2018-01. The maintainer's Google Sheet has Whole back to 2014-01 (manually compiled) but not the other four variants. Without the backfill, Denmark's Weibull `t0` would shift from 2014 to 2018. See [scripts/backfill_denmark_pre2018.py](../../scripts/backfill_denmark_pre2018.py).
+**Why pre-2018 backfill for Whole only:** Statbank's BIL53 propellant breakdown starts 2018-01. Whole already has 2014-01..2017-12 in `data/Denmark.csv`; the other four variants do not. Without those rows Denmark's Weibull `t0` would shift from 2014 to 2018.
 
 **Why HDV starts 2021-01:** Statbank only started publishing the Lorries × propellant breakdown in 2021-01; pre-2021 cells in BIL53 are real zeros. The `TOTAL == 0` skip filters them.
 
@@ -1364,23 +1366,17 @@ sequenceDiagram
     participant Cron as GitHub Actions (cron / dispatch)
     participant Job as fetch-portugal.yml job
     participant MD as motordata.pt/autoinforma
-    participant Sheet as Google Sheet (Portugal tab)
     participant CSV as data/Portugal.csv
     participant Render as render-country.yml
 
     Cron->>Job: workflow_dispatch OR cron (1st–5th, 17:30 & 20:30 UTC)
     Job->>Job: Early-exit if CSV already has previous-month row
-    alt default (motordata)
-        Job->>MD: POST chartdata_novo.php (list_catveiculo=0, list_combustivel=empty) → all-fuels TOTAL
-        loop per core fuel (BEV, PHEV×2, HEV×2, PETROL, DIESEL)
-            Job->>MD: POST chartdata_novo.php (list_combustivel=code)
-            MD-->>Job: thisyear monthly series (current calendar year)
-        end
-        Job->>Job: OTHERS = TOTAL − core; FLEXFUEL empty
-    else --sheet (backfill/patch, incl. December)
-        Job->>Sheet: GET gviz CSV (Portugal tab)
-        Sheet-->>Job: full history BEV/PHEV/HEV/PETROL/DIESEL/OTHERS/TOTAL
+    Job->>MD: POST chartdata_novo.php (list_catveiculo=0, list_combustivel=empty) → all-fuels TOTAL
+    loop per core fuel (BEV, PHEV×2, HEV×2, PETROL, DIESEL)
+        Job->>MD: POST chartdata_novo.php (list_combustivel=code)
+        MD-->>Job: thisyear monthly series (current calendar year)
     end
+    Job->>Job: OTHERS = TOTAL − core; FLEXFUEL empty
     Job->>CSV: Upsert (13-col)
     alt CSV changed
         Job->>CSV: Commit data/Portugal.csv
@@ -1390,15 +1386,15 @@ sequenceDiagram
     end
 ```
 
-**Where parsing lives:** [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py). The POST flow, the no-year-param constraint, the OTHERS-residual rationale (the fuel dropdown is incomplete), the December year-boundary caveat + `--sheet` fallback, and the vehicle categories live in [16-source-portugal.md](16-source-portugal.md).
+**Where parsing lives:** [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py). The POST flow, the no-year-param constraint, the OTHERS-residual rationale (the fuel dropdown is incomplete), the December year-boundary caveat, and the vehicle categories live in [16-source-portugal.md](16-source-portugal.md).
 
-**Vehicle scope:** Whole = passenger cars (`list_catveiculo=0`, M1); Vans = Ligeiros de Mercadorias (cat 1, N1); HDV = Pesados de Mercadorias (cat 3, N2/N3 >3.5t goods incl. tractor units); Buses = Pesados de Passageiros (cat 2, M2/M3). **Commercials are fetch-only / not auto-rendered:** motordata exposes only the current year (no year param) and the Google Sheet has no commercial history, so they start thin (2025/2026) and a 4-point Weibull is meaningless — they accumulate monthly and can be rendered on demand. See [16-source-portugal.md § 5](16-source-portugal.md).
+**Vehicle scope:** Whole = passenger cars (`list_catveiculo=0`, M1); Vans = Ligeiros de Mercadorias (cat 1, N1); HDV = Pesados de Mercadorias (cat 3, N2/N3 >3.5t goods incl. tractor units); Buses = Pesados de Passageiros (cat 2, M2/M3). **Commercials are fetch-only / not auto-rendered:** motordata exposes only the current year (no year param), so they start thin (2025/2026) and a 4-point Weibull is meaningless — they accumulate monthly and can be rendered on demand. See [16-source-portugal.md § 5](16-source-portugal.md).
 
-**Why OTHERS is a residual:** the fuel dropdown doesn't list every code (hidden codes exist), so OTHERS = all-fuels TOTAL − (BEV+PHEV+HEV+PETROL+DIESEL) is exact. Verified against the maintainer's Google Sheet (2026-04 OTHERS = 1618). HEV and PHEV are split across Gasolina/Gasóleo variants and summed. FLEXFUEL stays empty (Portugal doesn't report it) — uniformly empty, so no TTM hazard.
+**Why OTHERS is a residual:** the fuel dropdown doesn't list every code (hidden codes exist), so OTHERS = all-fuels TOTAL − (BEV+PHEV+HEV+PETROL+DIESEL) is exact. Checked 2026-04 (OTHERS = 1618). HEV and PHEV are split across Gasolina/Gasóleo variants and summed. FLEXFUEL stays empty (Portugal doesn't report it) — uniformly empty, so no TTM hazard.
 
 **Why twice-daily on the 1st–5th at 17:30 & 20:30 UTC:** ACAP publishes from ~17:00 Lisbon on the 1st; both UTC slots sit after publication in either DST season. Early-exit makes runs no-ops once the previous month is in.
 
-**Known fragility / December:** the endpoint only returns the current calendar year, so December (published Jan 1) can fall in a gap when the year rolls over — patch via `--sheet` (workflow `sheet=true` input). A renumbered core fuel code would be silently absorbed into the OTHERS residual; cross-check BEV/PHEV/HEV against the Google Sheet. Migration note: Portugal previously rendered via the legacy local R pipeline with an older 12-column CSV; this flow normalised it to 13 columns (FLEXFUEL uniformly empty).
+**Known fragility / December:** the endpoint only returns the current calendar year, so December (published Jan 1) can fall in a gap when the year rolls over — edit the CSV row, do not pull a spreadsheet. A renumbered core fuel code would be silently absorbed into the OTHERS residual; diff the current-year CSV. Migration note: Portugal previously rendered via the legacy local R pipeline with an older 12-column CSV; this flow normalised it to 13 columns (FLEXFUEL uniformly empty).
 
 ## Flow V — ANDI PDF ingest
 

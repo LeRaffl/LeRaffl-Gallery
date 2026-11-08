@@ -19,7 +19,7 @@ variant_notes:
   HDV: New heavy commercial vehicles (Zware bedrijfsvoertuigen) — broader than EU N2/N3.
 hev_split: false
 fcev: folded into OTHERS (~1 unit/month Whole, ~30/month Used)
-backfill: pre-2018 Whole rows from the maintainer's Google Sheet (one-off)
+backfill: pre-2018 Whole rows already in data/Netherlands.csv
 scope_note: HDV ≈ Zware bedrijfsvoertuigen, not a strict EU N-class.
 column_map:
   BEV: BEV
@@ -72,10 +72,9 @@ API:       Three saved Swing workspace templates, opened like the viewer's SPA:
 Variants:  Whole, Used, HDV   (three separate CSV files)
 HEV:       Not split by RDW (folded into Benzine/Diesel upstream); no HEV column
 FCEV:      Folded into OTHERS (~1 unit/month for Whole; ~30/month for Used)
-Backfill:  Pre-2018 Whole rows from the maintainer's Google Sheet (one-off)
+Backfill:  Pre-2018 Whole rows already in data/Netherlands.csv
 Schedule:  Daily cron 1st–15th, 06:30 UTC; early-exit per variant once last month is in
 Scripts:   scripts/fetch_netherlands.py   (monthly scraper)
-           scripts/backfill_netherlands_pre2018.py  (one-off)
 Workflow:  .github/workflows/fetch-netherlands.yml
 IP block:  duurzamemobiliteit.databank.nl blocks GitHub Actions Azure IPs
            (TCP-drop, errno 101) AND Cloudflare egress IPs (HTTP 403).
@@ -300,43 +299,12 @@ and Used (two `> 90`/`<= 90` sub-columns per fuel).
 > it silently produced **0 rows** until fixed — see the "variant parses 0 rows"
 > diagnostic in `main()`, which dumps the pivot shape when this recurs.
 
-## 6. Backfill: pre-2018 history
+## 6. Pre-2018 history
 
-The Swing dataset only goes back to 2018-01 (a Swing-side configuration —
-not all years are available in the public templates). The maintainer's
-[Google Sheet](https://docs.google.com/spreadsheets/d/1tT_Ja3de_S528_JeSBkj74q-lfEIekE5-GRm9_pWgUo/)
-has Whole monthly data back to 2011-01. Without backfilling, fitting the
-regression on Swing-only data would shift the baseline year `t0` from
-2010 to 2018 and visibly alter the published trajectory (the `t0` for
-the BEV regression curve is `floor(min(year))`, see [R/fit.R:10](../../R/fit.R)).
-
-[`scripts/backfill_netherlands_pre2018.py`](../../scripts/backfill_netherlands_pre2018.py)
-is the one-off, idempotent merge:
-
-- Reads the "Netherlands" tab as CSV via the
-  `https://docs.google.com/spreadsheets/d/<ID>/gviz/tq?tqx=out:csv&sheet=<name>`
-  endpoint (works because the sheet is shared as "anyone with the link can
-  view").
-- Filters to `period < 2018-01` (the cutoff matching the Swing dataset's
-  start so backfill and live data never overlap).
-- Existing `(period, "Whole")` rows in `data/Netherlands.csv` are left
-  untouched; only the 84 missing pre-2018 rows are added.
-- Pre-2018 rows have **only** `BEV`/`PHEV`/`TOTAL`; `PETROL`/`DIESEL`/`OTHERS`
-  are blank (those splits weren't tracked at the time). The downstream BEV/
-  PHEV/ICE math still works because ICE share is derived from TOTAL minus
-  the EV columns. The TTM stacked-shares plot starts later (2019-01) because
-  `compute_ttm_long` requires every present fuel column to have a complete
-  12-month rolling window.
-
-`Used` and `HDV` sheet tabs both start 2018-01 (same as Swing) so this
-script does not touch those variants.
-
-Run on-demand:
-```sh
-python scripts/backfill_netherlands_pre2018.py
-```
-
-Re-running is safe — adds 0 new rows on a no-op pass.
+The Swing dataset only goes back to 2018-01. The 84 Whole rows before that
+are already in `data/Netherlands.csv` (BEV, PHEV and TOTAL only; petrol and
+diesel were not split). Do not re-import them. Without those rows the
+baseline year `t0` would shift from 2010 to 2018.
 
 ## 7. Schedule and idempotency
 
@@ -406,7 +374,6 @@ change, mirror the change in plots.R.
 | Swing changes the table JSON shape | `Swing header level has N columns, the table declares M` / `Swing row i has …` | Run `probe_open` (prints title, dimensions, header levels and sample rows) and adapt `swing_table_to_legacy`. Deliberately a hard error: a shifted label once mis-assigned every fuel while the totals still matched. |
 | Swing changes the pivot layout of a variant | Parser returns 0 rows or fails noisily; render aborts before commit | `probe_open` with the `variant` input; adapt `parse_table` / `_parse_periods_in_rows` / `_parse_fuels_in_rows` |
 | RDW retroactively restates a month with values that differ >50% from what's in the CSV | Upsert prints `WARNING` to the action log but still commits the new values | Decide whether the restatement is real and revert with a manual edit if not |
-| Google Sheet revoked from "anyone with the link" | Backfill script fails with a Google login HTML response | Re-share the sheet, or hardcode the pre-2018 history into a static CSV |
 | The maintainer reconfigures a saved Swing template (e.g. drops a year, changes Aandrijfcategorie selection) | Scraper succeeds but produces wrong-shaped data | The "Captured caption" line in the action log doesn't match `Instroom Personenauto Nieuw - Nederland`. Re-save the workspace with the correct configuration. |
 | **Silent period cap** — a saved workspace with a *static* month list stops at the last month that was ticked when saved | Scraper keeps succeeding (`committed: false`, render skipped) but the CSV never advances — looks exactly like "source hasn't published yet" | The `[Whole] parsed … (2018-01 .. YYYY-MM)` line in the log shows a max period that stops advancing while the portal (opened in a browser) has newer months. Fix: re-save the 3 workspaces with the **rolling "last N months"** option, not individual month ticks (see §3). This bit us 2026-07 — the fetch had silently capped at 2026-04 for months. |
 

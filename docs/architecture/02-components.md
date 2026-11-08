@@ -534,17 +534,12 @@ Most country fetchers (Brazil, Chile, Japan, ACEA) run during the first half of 
 
 ### What it is
 
-Per-country R scripts on the maintainer's Mac (`bev_share_<Country>_*.R`) that read directly from a Google Sheet and push images + params + weights to the repo. Off-repo; not part of CI.
+Per-country R scripts that used to live on the maintainer's Mac (`bev_share_<Country>_*.R`). Off-repo; not part of CI. They used to read a spreadsheet. That path is retired.
 
 ### Status
 
-Still functional and the maintainer's preferred path for fast iteration during data-collection. Output is byte-compatible with the new pipeline — same image filenames, same `params.csv` row format.
-
-### Why keep it instead of migrating fully to the new pipeline?
-
-- The maintainer can iterate in RStudio with breakpoints, `View(df)`, etc. — far faster than triggering CI.
-- Google Sheets is still where the maintainer transcribes raw national data; until that flow moves to direct CSV editing, the local R is the bridge.
-- The new pipeline is the **authoritative** path (used by the Render Action and any public submission). The local R is the **convenience** path. Both write the same files; whichever wins last wins.
+Retired as a data path. The CSVs in this repo are the record. The local R
+scripts, if they still exist on the maintainer's Mac, are not a source.
 
 ---
 
