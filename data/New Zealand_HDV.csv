@@ -140,3 +140,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-07,monthly,HDV,NZTA Motor Vehicle Register,1,0,3,0,367,0,371,
 2026-08,monthly,HDV,NZTA Motor Vehicle Register,5,0,3,0,411,1,420,
 2026-09,monthly,HDV,NZTA Motor Vehicle Register,6,0,5,0,605,0,616,
+2026-10,monthly,HDV,NZTA Motor Vehicle Register,6,0,8,2,416,1,433,
