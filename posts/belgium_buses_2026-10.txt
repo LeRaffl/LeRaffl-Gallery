@@ -1,0 +1,9 @@
+🇧🇪 Belgium (Buses) - October 26 - BEV Trajectory
+47.0% BEV
+0.0% PHEV
+53.0% ICE
+
+Trailing 12 months are:
+23.1% BEV
+2.8% Hybrid
+74.1% ICE

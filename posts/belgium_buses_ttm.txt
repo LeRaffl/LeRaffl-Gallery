@@ -1,8 +1,8 @@
 🇧🇪 Belgium (Buses) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-−29.4pp  BEV     (51.1% → 21.6%)
-+0.2pp  Hybrid  (2.8% → 3.0%)
-+29.3pp  ICE     (46.1% → 75.4%)
+Nov24–Oct25  vs  Nov25–Oct26
+−27.3pp  BEV     (50.4% → 23.1%)
++0.4pp  Hybrid  (2.4% → 2.8%)
++26.8pp  ICE     (47.2% → 74.1%)
 
-Hybrid peaked at 11.3% in 2024-10 (declining for 23 months).
+Hybrid peaked at 11.0% in 2024-11 (declining for 23 months).

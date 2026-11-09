@@ -1,10 +1,10 @@
 🇧🇪 Belgium (Private) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+2.3pp  BEV   (9.2% → 11.5%)
-+1.8pp  PHEV  (4.1% → 5.8%)
-+3.2pp  HEV   (45.3% → 48.5%)
-−7.2pp  ICE   (41.4% → 34.2%)
+Nov24–Oct25  vs  Nov25–Oct26
++3.1pp  BEV   (9.1% → 12.2%)
++1.5pp  PHEV  (4.3% → 5.9%)
++3.0pp  HEV   (45.6% → 48.5%)
+−7.6pp  ICE   (41.0% → 33.4%)
 
-If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2028-04.
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2032-12.
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2028-03.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2031-09.

@@ -1,0 +1,9 @@
+🇧🇪 Belgium (Industry) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++8.7pp  BEV   (52.8% → 61.4%)
+−6.7pp  PHEV  (12.8% → 6.1%)
++1.4pp  HEV   (17.5% → 18.9%)
+−3.4pp  ICE   (16.9% → 13.6%)
+
+PHEV peaked at 22.8% in 2024-11 (declining for 23 months).

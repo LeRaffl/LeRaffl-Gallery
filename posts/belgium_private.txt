@@ -1,9 +1,9 @@
-🇧🇪 Belgium (Private) - September 26 - BEV Trajectory
-20.1% BEV
+🇧🇪 Belgium (Private) - October 26 - BEV Trajectory
+17.8% BEV
 7.4% PHEV
-72.5% ICE (of which 46.9%p were HEV)
+74.8% ICE (of which 49.5%p were HEV)
 
 Trailing 12 months are:
-11.5% BEV
-5.8% PHEV
-82.7% ICE (of which 48.5%p were HEV)
+12.2% BEV
+5.9% PHEV
+81.9% ICE (of which 48.5%p were HEV)
