@@ -62,27 +62,31 @@ convention but a different question, and offering a toggle would invite reading
 the more flattering number. **No toggle, by decision.** The convention is stated
 on the page.
 
-`feGridFactor()` derives one number from the mix: primary energy per kWh
-generated. On the current world mix that is ~2.04, which is why the BEV advantage
-is ~1.9× in primary energy while it is ~3.4× at the battery.
+The mix decides how much primary energy a kWh of electricity costs: about 2.0
+kWh on the world mix, close to 1.0 on Norway's hydro grid. That is why the BEV
+advantage in primary energy depends on where the car is charged, and why the
+view charges each country's cars from that country's own grid (§6a).
 
 ---
 
 ## 4. Data flow
 
 ```
-weights.csv ──┐
-params.csv ───┼─→ fleet tab model ──→ buildFleetPlot() ──→ buildFleetEnergy()
-fleet_*.csv ──┘   (projectCountryFleet*)      │                    │
-                                              ↓                    ↓
-                                        Vehicles view        Energy view
-energy_factors.csv ─→ FE_F constant ───────────────────────────────┘
+weights.csv ──────────────┐
+params.csv ───────────────┼─→ fleet tab model ──→ buildFleetPlot() ──→ buildFleetEnergy()
+fleet/fleet_initial.csv ──┤   (projectCountryFleet*)      │                    │
+fleet/fleet_calibration ──┘                               ↓                    ↓
+                                                    Vehicles view        Energy view
+energy_factors.csv ─→ FE_F constant ───────────────────────────────────────────┤
+fleet/grid_mix.csv ─→ fleetState.grid (per country, per year) ─────────────────┘
 ```
 
 `buildFleetPlot()` hands `buildFleetEnergy()` the **same** country selection,
 hazard settings, projection function and end year it used itself. There is
 deliberately no second fleet model: two models for the same quantity drift apart,
-and the divergence is invisible until someone compares them.
+and the divergence is invisible until someone compares them. `buildFleetEnergy()`
+keeps the **per-country** rows of every year next to their sum (`parts`), because
+electricity has to be charged from each country's own grid (§6a).
 
 `energy_factors.csv` is the single source of truth for factors; the `FE_F`
 constant in the page is **generated** from it by
@@ -107,6 +111,16 @@ absent it carries the *entire* combustion fleet — China holds 322 M cars there
 and traces to crude oil. Where they are populated it is the genuine residual
 (LPG/CNG, ~0.7 % in Germany) and traces to natural gas.
 
+**Projected combustion cars must not land in `OTHERS`.** Until 2026-11 the fleet
+model booked the whole combustion side of future registrations into `OTHERS`. For
+every country with a petrol/diesel split this view then read those cars as
+LPG/CNG: by 2035 almost a quarter (23 %) of Germany's projected fleet was a "gas
+car", charged at
+the gas factor (0.252 instead of 0.320 kgCO2e/kWh) and drawn on the natural-gas
+branch. The fleet model now splits that inflow into `HEV` / `PETROL` / `DIESEL` by
+the country's own registration mix (`docs/architecture/37-fleet-data-harmonization.md`
+§7), so `OTHERS` only ever holds what the stock put there.
+
 **The rule must be applied per country, before aggregation.** At aggregate level
 the case is undecidable: Germany and the UK populate `PETROL`/`DIESEL` while
 China does not, so an aggregate row looks "populated" and China's 294 M cars land
@@ -120,7 +134,8 @@ first and sums afterwards.
 **Measured / observed**
 - Fleet stock and registrations per country — from this repo only
 - Energy conversion efficiencies, heating values, well-to-tank chain (JEC WTW v5)
-- Grid mix and plant efficiencies (IEA)
+- Grid mix and CO2e intensity **per country and year** (Ember, §6a); plant
+  efficiencies (IEA)
 
 **Documented inputs** (each with a source in `energy_factors.csv`)
 - Real-world consumption per powertrain — not type approval; the gap is large
@@ -128,12 +143,58 @@ first and sums afterwards.
   BEVs more than petrol, which matters as much as consumption per km
 
 **Assumptions**
-- Grid mix held constant. Deliberate: it credits the power sector with no future
-  improvement, so electrified transport is shown at its worst. A real grid
-  trajectory is a separate modelling project.
+- Consumption, mileage and tank-to-wheel efficiency are **one fleet-average value
+  per powertrain for every country and every year** (mileage from Germany's KBA
+  survey). A country that drives more, or whose cars are larger, is not
+  distinguished. This is now the largest uncalibrated layer of the view.
+- Grid **mix** held at the last year on record for all future years. Deliberate: it
+  credits the power sector with no future improvement, so in the energy Sankey
+  electrified transport is shown at its worst. (The emissions strip has scenarios,
+  §7.)
 - The final split into air drag / rolling resistance / braking / auxiliaries is
   cycle-dependent and indicative. It is the softest layer; the conversion losses
   to its left are solid, and that is where the story is.
+
+---
+
+## 6a. The grid — per country, per year
+
+`fleet/grid_mix.csv` holds, for every fleet country and for `World`, one row per
+year from 2010: the CO2e intensity of generation (`gco2_kwh`, gCO2e per kWh
+generated) and the shares of generation by source. It is written by
+[`scripts/fetch_grid_mix.py`](../scripts/fetch_grid_mix.py) from the Our World in
+Data energy dataset (CC BY 4.0), which republishes **Ember's** Yearly Electricity
+Data. Refreshed by hand once a year; generated, never hand-edited.
+
+Until 2026-11 the view used one world grid (≈ 480 g, 35 % coal) for every
+country. The spread it hid is the largest single factor in the electric side:
+
+| Grid (2025) | gCO2e/kWh |
+|---|---|
+| Norway | 28 |
+| France | 41 |
+| Germany | 330 |
+| World | 458 |
+| China | 525 |
+| India | 670 |
+
+`feGridAt(country, year, scenario)` returns `{g, mix}`:
+
+- **up to the last year on record** — that year's own row (the first row for
+  earlier years). An observed fleet year therefore meets the grid it ran on,
+  under every scenario.
+- **after it** — the mix is held (see §6); the intensity follows the scenario (§7).
+- **no rows for a country** — the file's `World` series. **File not loadable** —
+  the world mix and `grid_co2_now` in `energy_factors.csv`, as before.
+
+`feChain()` computes generation per country (`parts`), multiplies each by its own
+grid, and sums: several countries selected together are never charged from an
+average of their grids.
+
+**Caveat — generation, not consumption.** The figures describe what a country
+generates. A country that imports much of its electricity (Luxembourg, also
+Lithuania or Hungary in some years) consumes a different mix. Ember publishes no
+consumption-based series for all fleet countries; this is noted on the page.
 
 ---
 
@@ -154,32 +215,34 @@ cannot answer honestly, and one that would otherwise flatter combustion.
 well-to-tank chain) — the same source family as the energy well-to-tank factors,
 kept consistent on purpose.
 
-**Electricity** uses a **directly sourced** grid CO2e intensity with a
-**decarbonisation trajectory**, chosen deliberately over deriving it from the
-Sankey's mix. Two reasons: the mix is held constant by design (§3, §6), so it
-cannot express a grid that improves; and a single measured world figure plus a
-single scenario target is more defensible — and easier to cite — than a
-per-source blend. `feGridCO2At(year, scenario)` offers two scenarios, switchable
-on the chart:
+**Electricity** uses each country's own grid CO2e intensity (§6a): observed for
+the years on record, and one of three scenarios after the last of them,
+switchable on the chart (`feGridAt`):
 
-- **decarbonises** (default) — linear from today's world average
-  (`grid_co2_now`, Ember ≈ 480 gCO2/kWh, 2023) to a net-zero target
-  (`grid_co2_target`, IEA Net Zero by 2050 ≈ 2040), flat after.
-- **today's grid held** — `grid_co2_now` forever. The honest worst case for the
-  electrified side, and the "keep today's grid mix" what-if the fleet view's
-  held-constant convention (§3) implies.
+- **recent trend continues** (default) — the country's own least-squares trend
+  over the last ten data years carries on, never upwards and never below
+  `grid_co2_target`. No acceleration and no stall is assumed. On the world series
+  that is about −7 g a year, on Germany's about −17 g.
+- **net-zero path** — linear from the last observed value to `grid_co2_target`
+  (≈ 20 g) at `grid_co2_target_year` (2040), flat after: IEA Net Zero by 2050.
+  This was the default until 2026-11. It is a normative scenario — what would
+  have to happen — not a forecast, and as a silent default it made every
+  electrified fleet look about as clean as it can ever be. It stays one click
+  away.
+- **today's grid held** — the last observed value forever. The worst case for the
+  electrified side, and the what-if the Sankey's held mix (§6) implies.
 
-Both endpoints and their years are four sourced rows in `energy_factors.csv`, so
-the whole trajectory is one edit away from a different scenario. The grid
-trajectory is emissions-only — the **energy** Sankey still holds the mix constant
-(§3), so switching scenarios never moves the energy panel.
+The scenario moves emissions only — the **energy** Sankey holds the mix (§6), so
+switching scenarios never moves the energy panel. The headline under the chart
+shows the generation-weighted grid intensity of the selected year, so the number
+behind the electricity band is always on the page.
 
-On today's grid a BEV is near 90 gCO2e/km against ~215 for a petrol car — a ~2.4×
-gap that widens as the grid decarbonises. The chart stacks emissions by primary
-source (oil / gas / electricity), so the shift shows up directly: oil falls, the
-electricity band moves with both the fleet and the chosen grid path, and the net
-comes down. Factors and their sources live in the
-`# --- greenhouse-gas emissions ---` block of `energy_factors.csv`.
+On the 2025 world grid a BEV is near 95 gCO2e/km against ~215 for a petrol car;
+on Norway's it is near 6. The chart stacks emissions by primary source (oil / gas
+/ electricity), so the shift shows up directly: oil falls, the electricity band
+moves with both the fleet and the chosen grid path, and the net comes down.
+Factors and their sources live in the `# --- greenhouse-gas emissions ---` block
+of `energy_factors.csv`.
 
 ## 8. Offline twin — `R/energy_flows.R`
 
@@ -200,7 +263,12 @@ not need:
   gallery's own fitted curves.
 
 The browser view uses the fleet tab's projection instead, so these are for
-analysis and cross-checking rather than for the page.
+analysis and cross-checking rather than for the page. Two things the page now
+does that the R twin does not: it charges each country from its own grid (§6a;
+the R script still uses the world mix rows of `energy_factors.csv`), and it
+handles the young-fleet problem by starting each fleet from the age structure its
+registration history implies (`37-fleet-data-harmonization.md` §7) rather than by
+converging the rate.
 
 ---
 
@@ -228,10 +296,13 @@ analysis and cross-checking rather than for the page.
 
 ## 10. Open items
 
-1. **Grid trajectory** — now a lever on the **emissions** side (§7:
-   decarbonises / today's grid held), but still held constant for **energy** by
-   construction (§3). A physical-energy grid trajectory would need the mix itself
-   to evolve, which is a larger change than the emissions scenario.
+1. **Grid trajectory** — per country and with three scenarios on the
+   **emissions** side (§6a, §7), but the mix is still held for **energy** (§6). A
+   physical-energy grid trajectory would need the mix itself to evolve.
+1a. **Per-country mileage and consumption** — the largest remaining
+   one-size-fits-all layer (§6). Mileage in particular differs by a factor of two
+   between countries.
+1b. **Consumption-based grid** for net importers (§6a).
 2. **Rest-of-world context band** — prototyped (an optional hatched band sized
    from a published world total, off by default). Not carried into the sub-tab,
    since it is the only figure that would not come from this repo.

@@ -510,6 +510,13 @@ a row to the table above.
 - ✅ **22 more countries from Eurostat** (§4c): `scripts/fetch_fleet_eurostat.py`,
   one source for the EU/EFTA countries plus Albania and Türkiye that have a
   registration series. The Fleet tab now offers 34 countries.
+- ✅ **Calibration from the repo's own data** (§7): `scripts/build_fleet_calibration.py`
+  → `fleet/fleet_calibration.json` (observed net attrition, inflow mix, age
+  structure per country), rebuilt monthly by
+  `.github/workflows/build-fleet-calibration.yml`; `scripts/fetch_grid_mix.py` →
+  `fleet/grid_mix.csv` (each country's electricity mix and CO2e intensity, for
+  the Energy view). The loader now reads **`Whole` rows only**, so a stock row
+  of another variant can be added without being counted as a passenger car.
 
 **Next:**
 1. **Roll the pattern out** to the other ⚠ countries: confirm each source (one
@@ -517,9 +524,31 @@ a row to the table above.
    it (like DE); otherwise on-demand/yearly with an agent.
 2. **Backfill `source` + flags** for the 11 not-yet-automated countries from §4
    (they migrated with values intact but mostly empty `source`/`TOTAL`).
-3. **Later:** KBA Neuzulassungen via the ArcGIS API (§4b) to replace ACEA for
-   Germany registrations; fleet **variants** (HDV/Vans/Buses) from FZ 13.1/13.7/
-   13.9/13.10.
+3. **Fleet variants (Vans / HDV / Buses)** — the next step after §7. What is
+   already in place: the schema has `variant` (§2.1), the loader filters on it,
+   the calibration builder reads `Whole` only, and the registration side already
+   carries `data/<Country>_{Vans,HDV,Buses}.csv` with fitted curves in
+   `params.csv` and volumes in `weights.csv`. What it takes, in this order:
+   1. **Stock rows.** Eurostat `road_eqs_lormot` (lorries by motor energy),
+      `road_eqs_busmot` (buses) and the N1 share of lorries extend
+      `fetch_fleet_eurostat.py`; KBA FZ 13.1/13.7/13.9/13.10 extend
+      `fetch_fleet_germany.py`. Check scope per source first: the N1/N2 boundary
+      (3.5 t) and "lorries" vs "road tractors" differ by country.
+   2. **Calibration per variant.** `build_fleet_calibration.py` keyed
+      `(country, variant)`; the stock-flow identity is the same, the turnover is
+      not (vans leave faster than cars, tractors are exported young).
+   3. **A variant picker** in the Fleet tab (one variant at a time: a van and a
+      car do not stack), reusing `getCountryWholeParam` / `getCountryAnnualInflow`
+      with the variant instead of `whole`.
+   4. **Energy factors per variant** — the hard part, and the reason this is not
+      a rename: consumption (an articulated lorry burns ~30 l/100 km), mileage
+      (~100,000 km a year for long-haul tractors against ~13,000 for a car) and
+      the powertrain set (diesel-only today, gas and fuel-cell as real niches)
+      need their own sourced rows in `energy_factors.csv`, keyed by variant.
+      Per vehicle an HDV emits 30 to 60 times a car's CO2e, so a wrong factor
+      here outweighs everything calibrated for cars.
+4. **Later:** KBA Neuzulassungen via the ArcGIS API (§4b) to replace ACEA for
+   Germany registrations.
 
 ### When you change X, also update Y (fleet)
 
@@ -529,7 +558,18 @@ a row to the table above.
   **and** the country's `notes`/flags. For a Eurostat country: `COUNTRIES` in
   `scripts/fetch_fleet_eurostat.py` and the §4c table.
 - **A new fleet country / variant** → this §4 table, `SD_COUNTRIES` variants in
-  `index.html`, and `09-glossary.md` if the scope needs a note.
+  `index.html`, and `09-glossary.md` if the scope needs a note. A new country
+  also needs its grid rows: re-run `scripts/fetch_grid_mix.py` (it reads the
+  country list from the stock file) and `scripts/build_fleet_calibration.py`.
+- **The projection model or its defaults** (`index.html`: `projectCountryFleet*`,
+  `fleetTurnover`, `fleetIceSplit`, `initVintageBuckets`, the `haz*` defaults) →
+  §7 here, the Fleet entries of the in-page FAQ, and `scripts/test_fleet_model.py`.
+- **What the calibration file contains** → `scripts/build_fleet_calibration.py`,
+  `scripts/test_build_fleet_calibration.py`, §7 here, and the readers in
+  `index.html` (`fleetCalibration`, `fleetAgeProfile`, `fleetCombustionHistory`).
+- **The grid data or its scenarios** → `scripts/fetch_grid_mix.py`,
+  `index.html` (`parseGridMix`, `feGridAt`), `energy_factors.csv` (target rows)
+  and `architecture/energy-view-methodology.md` §6a/§7.
 
 ---
 
@@ -546,3 +586,154 @@ a row to the table above.
   (only capped model-level + regional e-mobility); FZ 27.9 xlsx stays the source.
 
 These are the only gaps between this spec and a mechanical yearly refresh.
+
+---
+
+## 7 · Calibration — what the projection is fitted to
+
+Until 2026-11 the Fleet tab's projection ran on seven global attrition rates
+typed into the page (BEV 0.035 … OTHERS 0.060), one age assumption, and one rule
+for where new cars go. A review against the repo's own data found all three
+wrong in ways that were visible in the default chart:
+
+| Defect | Effect in the default view |
+|---|---|
+| One attrition level for every country | Observed net attrition ranges from −2 % (Romania) to +9 % (Luxembourg) a year. With the global ~5–6 %, Finland's fleet fell from 3.8 M to 2.0 M by 2035, Romania's from 8.8 M to 4.0 M, China's from 359 M to 278 M. None of these fleets is shrinking. |
+| A rate box did not mean what it said | The Weibull scale was set by equal *median* life, and the start fleet was spread uniformly over ages 0…scale. A fleet with "0.050" in the box lost about 6.4 % in its first year. |
+| Every category assumed mature | A battery fleet whose cars are mostly under five years old was spread over 22 years of ages and started losing cars at once. |
+| BEV 0.035 vs petrol 0.050 | Asserted a 40 % longer life for battery cars. No source, and no battery fleet is old enough to show it. |
+| Combustion inflow booked to `OTHERS` | The S-curve "ICE" share is everything but BEV/PHEV/EREV (`R/data.R`): full hybrids, petrol, diesel, gas. All of it went to `OTHERS`, which the Energy view reads as LPG/CNG. By 2035, 23 % of Germany's projected fleet was a gas car; full hybrids (46 % of Germany's combustion-side registrations) never reached the HEV band. |
+| Rates rose with *projection* time (knee 12 y, +0.4 pp/y) | Only in the non-default linear mode, but there a fleet with steady inflow shed cars ever faster after 2037 for no physical reason. |
+
+### 7.1 `fleet/fleet_calibration.json`
+
+Generated by `scripts/build_fleet_calibration.py` from `fleet/fleet_initial.csv`
+and `data/<Country>.csv` (passenger cars, `Whole`, only). Never hand-edit.
+Per country, each block present only where the data supports it:
+
+```json
+"Germany": {
+  "attrition":   {"rate": 0.0515, "n": 5, "from": 2021, "to": 2025,
+                  "by_year": {"2021": 0.0483, "…": 0},
+                  "by_fuel": {"BEV": 0.1229, "PHEV": 0.1406, "PETROL": 0.0433, "DIESEL": 0.0563}},
+  "inflow_mix":  {"window": "2025-11..2026-10",
+                  "HEV": 0.4613, "PETROL": 0.3381, "DIESEL": 0.1922, "OTHERS": 0.0083},
+  "reg_by_year": {"BEV": {"2012": 2956, "…": 0}, "PHEV": {}, "HEV": {}, "COMBUSTION": {}}
+}
+```
+
+**`attrition.rate`** — net attrition of the whole passenger-car stock, from the
+stock-flow identity (year = stock at 31 December, §3):
+
+```
+net_exits[Y] = stock[Y-1] + new_registrations[Y] - stock[Y]
+rate[Y]      = net_exits[Y] / stock[Y-1]
+```
+
+published as the **median of the last five** stock years that have a complete
+registration year (12 months, or four quarters, or one yearly row), and only
+with at least three of them. It is a **net** figure and it describes the
+**registry**:
+
+- scrappage and exports **minus** used imports and re-registrations. Exporters
+  of young used cars are high (Luxembourg 9.1 %, Belgium 6.1 %, Germany 5.1 %),
+  importers low or negative (Lithuania −0.9 %, Romania −2.0 %, New Zealand
+  1.1 %);
+- registries that rarely deregister (Finland 1.2 %, Türkiye 0.0 %) show low
+  values that say more about the register than about the cars. The calibration
+  reproduces them on purpose: the projection continues the *published* series.
+- it also inherits any scope difference between a country's stock and
+  registration source. The published `by_year` values are the check: a stable
+  series is a real rate, a jumpy one is a scope or revision artefact (Estonia
+  2025 jumps to 8.5 % on a register clean-up; the median ignores it).
+
+**`attrition.by_fuel`** — the same identity per fuel. **Diagnostic only, not
+used by the model.** It shows what a single rate hides — Germany loses 12 % of
+its battery cars a year (young used BEVs exported), the Netherlands 16 % of its
+diesels — and it is what a later per-category calibration would start from.
+Values beyond ±50 % (India's BEV row) are a scope mismatch and are left out.
+
+**`inflow_mix`** — shares of the combustion side (`TOTAL − BEV − PHEV − EREV`)
+over the latest 12 months of registrations: `HEV` (incl. `MHEV` where the source
+has that column), `PETROL`, `DIESEL`, `OTHERS`. Published only where the source
+reports its own petrol **and** diesel split for the whole window (invariant 4:
+an empty column is not zero).
+
+**`reg_by_year`** — yearly registrations of complete years per class, the raw
+material for age profiles. `COMBUSTION = TOTAL − BEV − PHEV − HEV`.
+
+### 7.2 How the page uses it
+
+**Turnover boxes.** Each of the seven boxes is the share of a *mature* fleet of
+that type that leaves per year — in both hazard modes. In Weibull mode the scale
+is solved so that `1 / Σ S(a) = rate` (a mature fleet holds `S(a)` cars of age
+`a` per car registered a year). Defaults: 0.045 everywhere, diesel 0.050.
+0.045 is the middle of the large non-import-dominated registries (Germany 5.1 %,
+UK 4.5 %, Norway 4.4 %, Austria 4.0 %, France 3.7 %). The only difference
+between categories the stock data supports is diesel leaving western fleets
+faster than petrol (≈ 1.1×).
+
+**Calibration switch** (default on, `fleetTurnover`). One factor per country
+scales all seven rates so the first projected year loses the country's observed
+share. The boxes then set how categories differ; the country's record sets the
+level. Bounds: the survival model is never asked for less than 1 % or more than
+15 % a year. Below 1 % — which no survival curve can produce — the model retires
+1 % and books the difference as **net used imports**, arriving each year in the
+current fleet's own mix and age structure. The line under the switch states the
+figure for every selected country.
+
+**Age structure** (`initVintageBuckets`), best source first:
+
+1. BEV / PHEV / HEV (and the combined HYBRID bucket): spread over the ages in
+   proportion to the country's own yearly registrations of that class.
+2. Everything else, where at least five unbroken years of `COMBUSTION` exist: each
+   category takes its share of every registered year, thinned by its own
+   survival curve; stock left over is older than the record and takes the mature
+   shape beyond it. A fleet that grew fast starts young and loses more as it
+   ages (China: 1.5 % a year now, 2.1 % in 2035, 3.2 % in 2050); a steady fleet
+   starts near mature (Germany stays at 5.1 to 5.4 %). This is the browser's answer to
+   the young-fleet problem `R/energy_flows.R` handles by converging the rate.
+3. Otherwise mature.
+
+**Inflow** (`fleetYearInflow`, shared by both modes). Volume: the last 12 months
+of registrations (`weights.csv`). BEV by the fitted curve, plug-ins between the
+BEV and ICE curves, and the combustion side split by `inflow_mix` into HEV /
+PETROL / DIESEL / OTHERS (`fleetIceSplit`). A class the stock does not carry
+goes where that stock keeps those cars (full hybrids → HYBRID, else PETROL;
+petrol/diesel → OTHERS where the stock has no split, i.e. China). Without an
+`inflow_mix` the split follows the stock, which overstates diesel.
+
+### 7.3 What is still assumed — read before quoting a projection
+
+- **Turnover is constant at its recent level.** No saturation: a fleet that has
+  been growing keeps growing. Romania (+3.6 % a year observed) reaches 1.4× by
+  2035 and 2.2× by 2050 in the projection. Over 10 years that is the recent
+  trend; over 25 it is an extrapolation nobody should quote.
+- **Registration volume is constant** at the last 12 months (× the multiplier).
+- **The inflow mix inside the combustion side is constant.** Diesel's share of
+  sales is still falling in most markets, so future diesel stock is overstated.
+- **One turnover level per country, not per fuel.** Countries that export young
+  battery cars (Germany, `by_fuel.BEV` 12 %) keep them in the projection:
+  Germany's projected BEV stock is too high by roughly the cumulative export.
+- **Used imports arrive in the current fleet's mix.** In reality the used cars
+  entering Lithuania or New Zealand will be increasingly electric.
+- **Weibull shape 3** for every category and country. Published car survival
+  curves put the shape between roughly 2 and 6 depending on country and method;
+  it is an input, not a measurement, and has not been fitted here.
+
+### 7.4 Maintenance
+
+- `build-fleet-calibration.yml` rebuilds the JSON monthly (10th) and on any push
+  that changes the stock file or the script. Deterministic, no timestamp:
+  unchanged input → no commit.
+- `scripts/build_fleet_calibration.py --report` prints the table; read it after
+  a yearly stock refresh. A rate that moved by more than a point is a data
+  question (a scope change, a revised stock year), not a model question.
+- `fleet/grid_mix.csv` is refreshed by hand once a year with
+  `scripts/fetch_grid_mix.py` (Ember's release is in spring);
+  `architecture/energy-view-methodology.md` §6a.
+- `fleet/hazard_defaults.csv`, `fleet/fleet_observed.csv` and
+  `fleet/fleet_meta.json` predate the harmonized dataset and are **not read by
+  the page**. `hazard_defaults.csv` still feeds `R/energy_flows.R`. Their rates
+  (NL-based, borrowed for "EU" and "WORLD") are superseded by §7.1 and should
+  not be quoted.
