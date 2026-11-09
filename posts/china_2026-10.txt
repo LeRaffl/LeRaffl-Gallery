@@ -1,0 +1,9 @@
+🇨🇳 China - October 26 - BEV Trajectory
+46.9% BEV
+20.7% PHEV (of which 6.9%p were EREV)
+32.4% ICE
+
+Trailing 12 months are:
+39.0% BEV
+20.2% PHEV (of which 5.5%p were EREV)
+40.8% ICE

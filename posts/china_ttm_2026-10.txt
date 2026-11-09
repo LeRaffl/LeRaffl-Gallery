@@ -1,0 +1,9 @@
+🇨🇳 China - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++6.8pp  BEV   (32.1% → 39.0%)
++0.0pp  PHEV  (20.2% → 20.2%)
+−6.9pp  ICE   (47.7% → 40.8%)
+
+PHEV peaked at 20.9% in 2025-06 (declining for 16 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-12.
