@@ -5001,9 +5001,9 @@ const VIEW_START_YEAR = 2015;
         <div style="display:flex; align-items:center; gap:6px;">
           <label for="weibullShape">Weibull shape</label>
           <span class="info-tip"
-            data-tip="How sharply the chance of leaving the fleet rises with a car's age. shape = 1 means age does not matter (the Constant rate mode). shape = 3 (default): almost no exits in the first years, most of them around and after the average lifetime. Higher values give a sharper end-of-life cliff. Ignored in Constant rate mode.">i</span>
+            data-tip="How sharply the chance of leaving the fleet rises with a car's age. shape = 1 means age does not matter (the Constant rate mode). shape = 2.5 (default): few exits in the first years, most of them around and after the average lifetime. Higher values give a sharper end-of-life cliff. The default is fitted, not assumed: against Eurostat's stock by age, the eight registries that are neither fed by used imports nor drained by exports give shapes from 2.1 to 3.2, median 2.5 (fleet/survival_fit.csv). Ignored in Constant rate mode.">i</span>
         </div>
-        <input id="weibullShape" type="number" min="0.5" max="10" step="0.1" value="3.0">
+        <input id="weibullShape" type="number" min="0.5" max="10" step="0.1" value="2.5">
       </div>
     </div>
   </div>
@@ -5143,7 +5143,7 @@ const VIEW_START_YEAR = 2015;
   <div class="fe-kpis">
     <div class="fe-kpi"><div class="fe-k">Primary energy</div><div class="fe-v" id="feK1">&mdash;</div><div class="fe-s">TWh per year</div></div>
     <div class="fe-kpi"><div class="fe-k">Reaches the wheel</div><div class="fe-v fe-ok" id="feK2">&mdash;</div><div class="fe-s">the rest becomes heat</div></div>
-    <div class="fe-kpi"><div class="fe-k">Per car</div><div class="fe-v" id="feK3">&mdash;</div><div class="fe-s">kWh per car per year</div></div>
+    <div class="fe-kpi"><div class="fe-k">Per car</div><div class="fe-v" id="feK3">&mdash;</div><div class="fe-s" id="feK3s">kWh per car per year</div></div>
     <div class="fe-kpi"><div class="fe-k">Fleet</div><div class="fe-v" id="feK4">&mdash;</div><div class="fe-s">million cars</div></div>
   </div>
   <div class="fe-ctl">
@@ -5193,8 +5193,11 @@ const VIEW_START_YEAR = 2015;
     country's grid</b>: the generation mix of each year on record (Ember, in
     <code>fleet/grid_mix.csv</code>), and after the last year on record that mix is held, which
     credits the power sector with no future improvement &mdash; in this chart electrified
-    transport is shown at its worst. Consumption, mileage and efficiency are single
-    fleet-average values for every country; they and their sources live in
+    transport is shown at its worst. <b>Mileage</b> is by fuel and, where a statistics office
+    publishes it, by country (<code>fleet/mileage.csv</code>: Norway, Germany; Germany's figures
+    stand in for the rest); each country's kilometres per car are held constant in the
+    projection, so electrification does not add driving. Consumption and efficiency are single
+    fleet-average values for every country. Factors and their sources live in
     <code>energy_factors.csv</code>, and the method is written up in
     <code>architecture/energy-view-methodology.md</code>.
     <br><br>
@@ -11431,8 +11434,10 @@ function shiftSharesForDecay(bevShare, iceShare, decayMult){
 // fleet left last year"), which the earlier median-life definition was not:
 // it made a mature fleet lose 1.43 x the number typed into the box.
 //
-// At shape = 1 the Weibull degenerates to a constant hazard; at shape = 3
-// (default) young vehicles almost never leave and old ones leave fast.
+// At shape = 1 the Weibull degenerates to a constant hazard; at the default
+// 2.5 young vehicles rarely leave and old ones leave fast. 2.5 is the median
+// of the per-country fits in fleet/survival_fit.csv
+// (scripts/fit_fleet_survival.py), not a convention.
 const VINTAGE_AGE_CAP = 120;
 
 function weibullSurvival(a, scale, shape){
@@ -11511,7 +11516,26 @@ function fleetCombustionHistory(country, startYear){
   return out.length >= 5 ? out : null;
 }
 
-// Initial vintage distribution from a snapshot row. Three sources, best first:
+// Observed age structure of a country's whole passenger-car stock at the end
+// of `year`: shares [under 5, 5-10, 10-20, over 20 years] (Eurostat, via
+// fleet_calibration.json). The year itself, else the nearest within two years.
+const FLEET_AGE_BANDS = [[0, 5], [5, 10], [10, 20], [20, Infinity]];
+function fleetAgeBands(country, year){
+  const all = fleetCalibration(country)?.age_bands;
+  if (!all) return null;
+  for (const d of [0, -1, 1, -2, 2]) {
+    const b = all[String(year + d)];
+    if (Array.isArray(b) && b.length === FLEET_AGE_BANDS.length) return b;
+  }
+  return null;
+}
+
+// Initial vintage distribution from a snapshot row. With `bands` (observed
+// age structure, fleetAgeBands) the stock is placed band by band: the young
+// categories by their own registration profile, the remaining cars of each
+// band shared among the other categories and spread inside the band by the
+// registration history where it reaches, by the survival curve where it does
+// not. Without bands, three sources, best first:
 //  * `profiles[cat]` (shares by age, from fleetAgeProfile) for the young
 //    categories;
 //  * `history` (fleetCombustionHistory) for the others: the category's share
@@ -11523,9 +11547,10 @@ function fleetCombustionHistory(country, startYear){
 //    stock (a country that exports its used cars) it is scaled down to fit;
 //  * otherwise mature: S(a) cars of age a, the age mix the hazard boxes are
 //    defined against.
-function initVintageBuckets(startRow, scaleByCat, shape, profiles, history){
+function initVintageBuckets(startRow, scaleByCat, shape, profiles, history, bands){
   const v = emptyVintageBuckets();
   const cats = getFleetCategories();
+  if (bands && initVintageBucketsFromBands(v, startRow, scaleByCat, shape, profiles, history, bands)) return v;
   const usesHistory = cat => history && !(profiles && profiles[cat]);
   const historyStock = cats.reduce((s, cat) =>
     s + (usesHistory(cat) ? Math.max(0, safeNum(startRow[cat], 0)) : 0), 0);
@@ -11557,6 +11582,62 @@ function initVintageBuckets(startRow, scaleByCat, shape, profiles, history){
     for (let a = from; a <= VINTAGE_AGE_CAP; a++) arr[a] *= left / sum;
   });
   return v;
+}
+
+// Fills `v` from observed age bands; false (and `v` untouched) when the bands
+// cannot be reconciled with the stock.
+function initVintageBucketsFromBands(v, startRow, scaleByCat, shape, profiles, history, bands){
+  const cats = getFleetCategories();
+  const stock = cats.reduce((s, c) => s + Math.max(0, safeNum(startRow[c], 0)), 0);
+  if (!(stock > 0)) return false;
+  const bandOf = a => FLEET_AGE_BANDS.findIndex(([lo, hi]) => a >= lo && a < hi);
+  // 1. Young categories by their own profile; count what they take per band.
+  const left = bands.map(b => Math.max(0, b) * stock);
+  const placed = {};
+  let others = 0;
+  cats.forEach(cat => {
+    const total = Math.max(0, safeNum(startRow[cat], 0));
+    if (!total) return;
+    const prof = profiles && profiles[cat];
+    if (!prof) { others += total; return; }
+    placed[cat] = new Float64Array(VINTAGE_AGE_CAP + 1);
+    for (let a = 0; a <= VINTAGE_AGE_CAP; a++) {
+      placed[cat][a] = total * prof[a];
+      left[bandOf(a)] -= placed[cat][a];
+    }
+  });
+  // 2. What is left per band belongs to the other categories.
+  const room = left.map(x => Math.max(0, x));
+  const roomSum = room.reduce((a, b) => a + b, 0);
+  if (others > 0 && !(roomSum > 0)) return false;
+  Object.keys(placed).forEach(cat => { v[cat].set(placed[cat]); });
+  cats.forEach(cat => {
+    const total = Math.max(0, safeNum(startRow[cat], 0));
+    if (!total || placed[cat]) return;
+    const sc = scaleByCat[cat];
+    FLEET_AGE_BANDS.forEach(([lo, hiRaw], i) => {
+      const hi = Math.min(hiRaw, VINTAGE_AGE_CAP + 1);
+      const n = total * room[i] / roomSum;
+      if (!(n > 0)) return;
+      // Inside the band: registered cars thinned by survival where the record
+      // covers the whole band; otherwise the survival curve alone, and for the
+      // open-ended oldest band a plain decay (a Weibull has too thin a tail:
+      // fitted curves leave 5-7% of a fleet over 20 years old where 9-12% is
+      // observed).
+      const w = new Float64Array(hi - lo);
+      let sum = 0;
+      const covered = history && history.length >= hi;
+      for (let a = lo; a < hi; a++) {
+        w[a - lo] = covered ? history[a] * weibullSurvival(a, sc, shape)
+          : isFinite(hiRaw) ? weibullSurvival(a, sc, shape) + 1e-9
+          : Math.exp(-(a - lo) / 7);
+        sum += w[a - lo];
+      }
+      if (!(sum > 0)) { w.fill(1); sum = hi - lo; }
+      for (let a = lo; a < hi; a++) v[cat][a] = n * w[a - lo] / sum;
+    });
+  });
+  return true;
 }
 
 function vintageTotal(buckets, cat){
@@ -12087,7 +12168,7 @@ function projectCountryFleetVintageRun(country, startYear, endYear, options){
 
   const hazardCurve = options.hazardCurve
     || { base: options.hazards || {}, kneeYear: 0, slope: 0 };
-  const shape = Math.max(0.5, safeNum(options.weibullShape, 3));
+  const shape = Math.max(0.5, safeNum(options.weibullShape, 2.5));
   const splitInfo = inferNonBevSplit(startRow);
   const iceSplit = fleetIceSplit(country, startRow);
   const cats = getFleetCategories();
@@ -12100,6 +12181,7 @@ function projectCountryFleetVintageRun(country, startYear, endYear, options){
   });
 
   const history = fleetCombustionHistory(country, startYear);
+  const bands = fleetAgeBands(country, startYear);
 
   const h0 = {};
   cats.forEach(cat => { h0[cat] = Math.max(0.0001, safeNum(hazardCurve.base?.[cat], 0.045)); });
@@ -12110,7 +12192,7 @@ function projectCountryFleetVintageRun(country, startYear, endYear, options){
   };
   // Share of the start fleet that leaves in the first projection year.
   const firstYearExit = scaleByCat => {
-    const b = initVintageBuckets(startRow, scaleByCat, shape, profiles, history);
+    const b = initVintageBuckets(startRow, scaleByCat, shape, profiles, history, bands);
     let exits = 0;
     cats.forEach(cat => {
       for (let a = 0; a <= VINTAGE_AGE_CAP; a++)
@@ -12134,7 +12216,7 @@ function projectCountryFleetVintageRun(country, startYear, endYear, options){
   }
   const scaleByCat = scalesFor(k);
 
-  let buckets = initVintageBuckets(startRow, scaleByCat, shape, profiles, history);
+  let buckets = initVintageBuckets(startRow, scaleByCat, shape, profiles, history, bands);
   const series = [{ ...startRow, projected: false, country }];
 
   for (let year = startYear + 1; year <= endYear; year++) {
@@ -12432,7 +12514,7 @@ const container = document.getElementById('fleetCategoryContainer');
    country selection, hazard settings and projection that buildFleetPlot()
    already computed, then converts vehicles into energy. One model, two views —
    so the two panels can never drift apart.                                  */
-const FE_F = {"lhv_petrol":8.94,"lhv_diesel":9.97,"wtt_petrol":1.19,"wtt_diesel":1.16,"grid_td_loss":0.08,"charging_loss":0.1,"mix_coal":0.35,"mix_gas":0.23,"mix_nuclear":0.09,"mix_hydro":0.14,"mix_wind":0.08,"mix_solar":0.07,"mix_other":0.04,"eff_coal_plant":0.38,"eff_gas_plant":0.5,"eff_nuclear_iea":0.33,"eff_other_plant":0.4,"cons_petrol":7.5,"cons_diesel":6.5,"cons_hybrid":5.5,"cons_phev_fuel":5.9,"cons_phev_elec":6.0,"cons_bev":19.0,"ttw_ice":0.23,"ttw_hybrid":0.3,"ttw_bev":0.8,"km_petrol":11000.0,"km_diesel":17500.0,"km_hybrid":13000.0,"km_phev":15000.0,"km_bev":14000.0,"res_air":0.37,"res_roll":0.33,"res_brake":0.23,"res_aux":0.07,"wtt_gasfuel":1.12,"world_cars_2018":1050000000.0,"world_cars_2025":1230000000.0,"ghg_petrol":0.32,"ghg_diesel":0.328,"ghg_gasfuel":0.252,"grid_co2_now":0.48,"grid_co2_target":0.02,"grid_co2_base_year":2023.0,"grid_co2_target_year":2040.0};
+const FE_F = {"lhv_petrol":8.94,"lhv_diesel":9.97,"wtt_petrol":1.19,"wtt_diesel":1.16,"grid_td_loss":0.08,"charging_loss":0.1,"mix_coal":0.35,"mix_gas":0.23,"mix_nuclear":0.09,"mix_hydro":0.14,"mix_wind":0.08,"mix_solar":0.07,"mix_other":0.04,"eff_coal_plant":0.38,"eff_gas_plant":0.5,"eff_nuclear_iea":0.33,"eff_other_plant":0.4,"cons_petrol":7.5,"cons_diesel":6.5,"cons_hybrid":5.5,"cons_phev_fuel":5.9,"cons_phev_elec":6.0,"cons_bev":19.0,"ttw_ice":0.23,"ttw_hybrid":0.3,"ttw_bev":0.8,"km_all":11400.0,"km_petrol":9100.0,"km_diesel":14900.0,"km_hybrid":14500.0,"km_phev":12300.0,"km_bev":12100.0,"res_air":0.37,"res_roll":0.33,"res_brake":0.23,"res_aux":0.07,"wtt_gasfuel":1.12,"world_cars_2018":1050000000.0,"world_cars_2025":1230000000.0,"ghg_petrol":0.32,"ghg_diesel":0.328,"ghg_gasfuel":0.252,"grid_co2_now":0.48,"grid_co2_target":0.02,"grid_co2_base_year":2023.0,"grid_co2_target_year":2040.0};
 const FE_KEYS = ['BEV','PHEV','HEV','DIESEL','PETROL','GASFUEL'];
 const FE_COLS = {"Crude oil":0,"Natural gas":0,"Coal":0,"Gas":0,"Nuclear":0,"Other":0,"Renewables":0,
  "Petrol":1,"Diesel":1,"Gas fuel":1,"Electricity":1,"Supply loss":1,
@@ -12572,9 +12654,28 @@ function feGridAt(country, year, scenario){
  if (g == null) g = Math.max(Math.min(last.g, tgt), last.g + feGridTrend(ser)*(year-last.year));
  return {g, mix: last.mix};
 }
-/* Per-vehicle annual energy in kWh: carrier (at tank/wall), and useful work. */
-function fePerVehicle(pt){
- const km = FE_F[FE_KM[pt]];
+/* km per car and year, by energy class, for one country. From the country's
+   own statistics where fleet/mileage.csv has them (built into the calibration
+   file as km per car of the year-end stock); a class the office does not
+   report takes the default scaled to the country's overall level; a country
+   without any figures takes the defaults in energy_factors.csv. */
+function feMileage(country){
+ const def = {PETROL:FE_F.km_petrol, DIESEL:FE_F.km_diesel, HEV:FE_F.km_hybrid,
+              PHEV:FE_F.km_phev, BEV:FE_F.km_bev, GASFUEL:FE_F.km_petrol};
+ const m = country ? fleetCalibration(country)?.mileage : null;
+ if (!m) return def;
+ const level = m.ALL > 0 && FE_F.km_all > 0 ? m.ALL / FE_F.km_all : 1;
+ const out = {};
+ Object.keys(def).forEach(k => {
+  const own = k === 'GASFUEL' ? m.PETROL : m[k];
+  out[k] = own > 0 ? own : def[k] * level;
+ });
+ return out;
+}
+/* Per-vehicle annual energy in kWh: carrier (at tank/wall), and useful work.
+   `km` defaults to the class's default mileage. */
+function fePerVehicle(pt, km){
+ if (!(km > 0)) km = FE_F[FE_KM[pt]];
  const fuel = (l100, lhv) => l100/100*km*lhv;
  switch(pt){
   case 'PETROL': { const c = fuel(FE_F.cons_petrol, FE_F.lhv_petrol);
@@ -12592,6 +12693,13 @@ function fePerVehicle(pt){
     return {carrierFuel:0, carrierElec:b, work:b*FE_F.ttw_bev, wtt:1, src:'elec', km}; }
  }
  return null;
+}
+/* Fleet-average km per car of one country's row (cars by energy class). */
+function feAverageKm(country, row){
+ const km = feMileage(country);
+ let cars = 0, total = 0;
+ FE_KEYS.forEach(pt => { const n = safeNum(row[pt], 0); cars += n; total += n * km[pt]; });
+ return cars > 0 ? total / cars : 0;
 }
 /* The fleet model reports seven categories; energy needs six, and two of them
    are context-dependent. HYBRID is a lumped stand-in for HEV where a source has
@@ -12614,22 +12722,42 @@ function feNormalise(row){
 /* One year of the fleet -> Sankey links in TWh/yr. Energy is conserved:
    primary = work + supply loss + conversion loss, by construction.
    `entry` = {row, year, parts}: `row` is the fleet summed over the selected
-   countries (cars by fuel), `parts` the same per country. Fuel is fuel
-   wherever it is burned, but electricity is not: each country's electric cars
-   are charged from that country's own grid (feGridAt), which is what `parts`
-   is for. `gridScen` only moves the CO2e of future years. */
+   countries (cars by fuel), `parts` the same per country - which is what the
+   chain runs on, because two things are national: how far a car is driven
+   (feMileage; `kmScale` holds a country's km per car constant in projected
+   years) and what grid it is charged from (feGridAt). `gridScen` only moves
+   the CO2e of future years. */
 function feChain(entry, gridScen){
  const row = entry.row, year = entry.year;
  const TWH = 1e9, L = [], add = (s,t,v) => { if (v > 1e6) L.push({s,t,v:v/TWH}); };
- let cp=0, cd=0, cg=0, ce=0, W=0, primary=0, cars=0;
+ const parts = entry.parts && entry.parts.length ? entry.parts : [{country:null, row}];
+ const zero = () => Object.fromEntries(FE_KEYS.map(k => [k, 0]));
+ const fuelBy = zero(), elecBy = zero(), workBy = zero();
+ const genBy = {coal:0, gas:0, nuclear:0, other:0, renew:0};
+ let cp=0, cd=0, cg=0, ce=0, W=0, primary=0, cars=0, km=0, gen=0, co2ElecKg=0;
+ parts.forEach(p => {
+  const kmBy = feMileage(p.country), scale = p.kmScale > 0 ? p.kmScale : 1;
+  let cel = 0;
+  FE_KEYS.forEach(pt => {
+   const n = safeNum(p.row[pt], 0); if (!n) return;
+   const e = fePerVehicle(pt, kmBy[pt] * scale);
+   cars += n; km += n * e.km;
+   fuelBy[pt] += e.carrierFuel*n; elecBy[pt] += e.carrierElec*n; workBy[pt] += e.work*n;
+   cel += e.carrierElec*n;
+  });
+  if (!(cel > 0)) return;
+  // Electricity: generated on this country's own grid.
+  const gp = cel/(1-FE_F.grid_td_loss), G = feGridAt(p.country, year, gridScen || 'constant');
+  Object.keys(genBy).forEach(k => { genBy[k] += gp*G.mix[k]; });
+  gen += gp; co2ElecKg += gp*G.g;
+ });
  FE_KEYS.forEach(pt => {
-  const n = safeNum(row[pt], 0); if (!n) return;
-  cars += n;
-  const e = fePerVehicle(pt), lab = FE_LAB[pt];
-  const cf = e.carrierFuel*n, cel = e.carrierElec*n, w = e.work*n;
+  const cf = fuelBy[pt], cel = elecBy[pt], w = workBy[pt], lab = FE_LAB[pt];
+  if (!(cf + cel > 0)) return;
+  const src = fePerVehicle(pt).src;
   if (cf > 0){
-   if (e.src === 'diesel'){ cd += cf; add('Diesel', lab, cf); }
-   else if (e.src === 'gas'){ cg += cf; add('Gas fuel', lab, cf); }
+   if (src === 'diesel'){ cd += cf; add('Diesel', lab, cf); }
+   else if (src === 'gas'){ cg += cf; add('Gas fuel', lab, cf); }
    else { cp += cf; add('Petrol', lab, cf); }
   }
   if (cel > 0){ ce += cel; add('Electricity', lab, cel); }
@@ -12642,18 +12770,6 @@ function feChain(entry, gridScen){
  primary += oil;
  if (cg > 0){ const g = cg*FE_F.wtt_gasfuel;
   add('Natural gas','Gas fuel',cg); add('Natural gas','Supply loss', g-cg); primary += g; }
- // Electricity: generated per country on that country's grid, then summed.
- const genBy = {coal:0, gas:0, nuclear:0, other:0, renew:0};
- let gen = 0, co2ElecKg = 0;
- const parts = entry.parts && entry.parts.length ? entry.parts : [{country:null, row}];
- parts.forEach(p => {
-  let cel = 0;
-  FE_KEYS.forEach(pt => { const n = safeNum(p.row[pt], 0); if (n) cel += fePerVehicle(pt).carrierElec*n; });
-  if (!(cel > 0)) return;
-  const gp = cel/(1-FE_F.grid_td_loss), G = feGridAt(p.country, year, gridScen || 'constant');
-  Object.keys(genBy).forEach(k => { genBy[k] += gp*G.mix[k]; });
-  gen += gp; co2ElecKg += gp*G.g;
- });
  [['Coal','coal',FE_F.eff_coal_plant],['Gas','gas',FE_F.eff_gas_plant],
   ['Nuclear','nuclear',FE_F.eff_nuclear_iea],['Other','other',FE_F.eff_other_plant],
   ['Renewables','renew',1]].forEach(([lab,key,eff]) => {
@@ -12670,6 +12786,7 @@ function feChain(entry, gridScen){
  const co2Gas  = (cg*FE_F.ghg_gasfuel) / MT;
  const co2Elec = co2ElecKg / MT;
  return {links:L, primary:primary/TWH, work:W/TWH, cars,
+   km,                                      // vehicle-km of the year
    gridG: gen > 0 ? co2ElecKg/gen : null,   // kgCO2e/kWh, generation-weighted
    co2:{oil:co2Oil, gas:co2Gas, elec:co2Elec, total:co2Oil+co2Gas+co2Elec}};
 }
@@ -12721,6 +12838,8 @@ function feRender(idx){
  document.getElementById('feK2').textContent = Math.round(100*ch.work/ch.primary) + '%';
  document.getElementById('feK3').textContent = f(ch.primary/(ch.cars/1e6)*1000);
  document.getElementById('feK4').textContent = f(ch.cars/1e6);
+ const k3s = document.getElementById('feK3s');
+ if (k3s) k3s.textContent = 'kWh per car per year' + (ch.cars > 0 ? ' · ' + fmtInt(ch.km/ch.cars) + ' km' : '');
  feWireExpl();
  feRenderCO2(idx);
 }
@@ -12840,6 +12959,17 @@ function buildFleetEnergy(countries, commonYears, lastObservedYear, endYear, pro
  });
  feSeries = [...byYear.entries()].sort((a,b) => a[0]-b[0])
    .map(([year, v]) => ({year, row: v.row, parts: v.parts, projected: v.projected}));
+ // Projected years: hold each country's km per car at its last observed value.
+ // The per-fuel mileages differ mostly because the fuels' cars differ in age
+ // (old petrol cars are driven little, young battery cars a lot). Applied
+ // unchanged to a fleet that turns electric they would add driving that nobody
+ // does; scaled, the fuels keep their proportions and the country its total.
+ const kmAtStart = {};
+ feSeries.filter(e => !e.projected).forEach(e => e.parts.forEach(p => {
+  const k = feAverageKm(p.country, p.row); if (k > 0) kmAtStart[p.country] = k; }));
+ feSeries.filter(e => e.projected).forEach(e => e.parts.forEach(p => {
+  const now = feAverageKm(p.country, p.row);
+  if (kmAtStart[p.country] > 0 && now > 0) p.kmScale = kmAtStart[p.country] / now; }));
  // Precompute the emissions series once per rebuild (under the current grid
  // scenario) so the slider stays cheap.
  feBuildCo2();
@@ -12921,7 +13051,7 @@ function buildFleetPlot() {
     hazardCurve: readHazardCurve(),
     calibrate: document.getElementById('fleetCalibrate')?.checked ?? true,
     inflowDecay: readInflowDecay(),
-    weibullShape: safeNum(document.getElementById('weibullShape')?.value, 3),
+    weibullShape: safeNum(document.getElementById('weibullShape')?.value, 2.5),
     inflowMultiplier: safeNum(document.getElementById('fleetInflowMultiplier')?.value, 1),
     netImportsPerYear: safeNum(document.getElementById('fleetNetImportsPerYear')?.value, 0),
     bevImportShare: clamp01(
@@ -13575,16 +13705,24 @@ const FAQ_DATA = [
     answers: [
       'For each category we use the standard two-parameter Weibull survival function:',
       '<b>S(age) = exp( − (age / scale)^shape )</b>',
-      'The probability that a vehicle of age <i>a</i> survives one more year is <b>S(a+1) / S(a)</b>. There is one global <b>shape</b> input (default 3.0) and a per-category <b>scale</b> derived from the seven rate boxes.',
-      'The scale is chosen so that a mature fleet loses exactly the typed rate per year. A mature fleet holds S(a) cars of age <i>a</i> for every car registered per year, so it loses 1 / Σ S(a) of its cars a year; the scale is the one for which that equals the rate <i>h</i>. To a good approximation <b>average life ≈ 1 / h</b>, and for shape 3 <b>scale ≈ 1.09 / h</b>. Worked example for 0.045: average life about 22 years, scale about 24 years; yearly exit chance about 0.05% at age 1, 2% at age 10, 8% at age 20, 18% at age 30.',
+      'The probability that a vehicle of age <i>a</i> survives one more year is <b>S(a+1) / S(a)</b>. There is one global <b>shape</b> input (default 2.5) and a per-category <b>scale</b> derived from the seven rate boxes.',
+      'The scale is chosen so that a mature fleet loses exactly the typed rate per year. A mature fleet holds S(a) cars of age <i>a</i> for every car registered per year, so it loses 1 / Σ S(a) of its cars a year; the scale is the one for which that equals the rate <i>h</i>. To a good approximation <b>average life ≈ 1 / h</b>, and for shape 2.5 <b>scale ≈ 1.10 / h</b>. Worked example for 0.045: average life about 22 years, scale about 24.5 years; yearly exit chance about 0.2% at age 1, 3% at age 10, 8% at age 20, 13% at age 30.',
       'Setting <b>shape = 1</b> makes the exit chance independent of age, which is the Constant rate mode.'
+    ] },
+  { tag: 'model', label: 'Model', q: 'Is a Weibull shape of 2.5 accurate?',
+    answers: [
+      'It is fitted, not assumed. Eurostat publishes each country\u2019s car stock in age bands (under 5, 5\u201310, 10\u201320, over 20 years) and its new registrations back to 1970. A survival curve applied to the registrations has to reproduce those bands, and the shape and scale that do it best can be found per country (<code>scripts/fit_fleet_survival.py</code>, results in <code>fleet/survival_fit.csv</code>).',
+      'For the eight registries that are neither fed by used imports nor drained by exports, the shape comes out between 2.1 and 3.2: Sweden 2.1, Germany 2.2, Denmark 2.3, Austria 2.5, Spain 2.6, Switzerland 2.7, UK 2.8, Norway 3.2. The median is 2.5, which is the default. The earlier 3.0 was inside that range but on the high side.',
+      'How much it matters: moderately. With the scale re-fitted, each of these countries is close to its best fit at a shape of either 2 or 3, and none at both, which is why the middle is the default. The level of turnover, which is calibrated per country, matters more than the shape.',
+      '<b>Where the Weibull is wrong:</b> in the tail. Fitted curves leave 5\u20137% of a fleet over 20 years old where 9\u201312% is observed, because some cars are kept far longer than any smooth curve allows. This is why, where Eurostat has the age bands, the projection starts from the observed age structure instead of the fitted one.',
+      'Countries with large used imports (Finland, Hungary, Poland) or exports (Belgium, Luxembourg) cannot be fitted this way: the curve then describes trade, not ageing.'
     ] },
   { tag: 'model', label: 'Model', q: 'How is the initial age distribution chosen?',
     answers: [
-      'From the registration history wherever there is one. The cars registered in the start year are age 0, those of the year before age 1, and so on.',
+      'From observation wherever there is one. For 27 countries Eurostat reports what share of the stock is under 5, 5\u201310, 10\u201320 and over 20 years old, and the projection starts from exactly those shares: 36% of Finland\u2019s cars are over 20 years old, 9% of Switzerland\u2019s. Inside a band, and for countries without bands, the registration history decides: the cars registered in the start year are age 0, those of the year before age 1, and so on.',
       '<b>BEV, PHEV and HEV:</b> the stock is spread over the ages in proportion to the country’s own yearly registrations of that type. In Norway most battery cars on the road were registered in the last five years, and the model starts them that young.',
       '<b>Petrol, diesel and other combustion cars:</b> the registration history of the combustion side fills the young ages, thinned by the survival curve. Whatever stock is left over is older than the record and takes the mature age shape beyond it. A fleet that grew fast (China) therefore starts young, loses few cars now and more as it ages; a fleet replaced at a steady pace for decades (Germany) starts close to mature.',
-      'Where there is no usable history, a category starts with the mature age mix its rate is defined against.'
+      'Where there is neither, a category starts with the mature age mix its rate is defined against.'
     ] },
   { tag: 'model', label: 'Model', q: 'Why do battery cars get the same rate as petrol cars?',
     answers: [
@@ -13643,6 +13781,14 @@ const FAQ_DATA = [
       'Each country’s own. The generation mix and the CO₂e per kWh come from Ember’s yearly electricity data (<code>fleet/grid_mix.csv</code>), year by year as far as the record goes, so an observed fleet year meets the grid it actually ran on. Several countries selected together are each charged from their own grid and then summed.',
       'For future years the emissions chart offers three scenarios: each grid’s own ten-year trend continued (default), a linear path to about 20 g/kWh by 2040 (IEA Net Zero by 2050, a target rather than a forecast), or the last observed grid held.',
       'The figure is the mix a country <b>generates</b>. For a country that imports much of its electricity (Luxembourg) the mix it consumes can differ.'
+    ] },
+  { tag: 'model', label: 'Model', q: 'How many kilometres does a car drive in the Energy view?',
+    answers: [
+      'As many as the statistics say, by fuel. Offices that read odometers at inspection publish the kilometres driven per fuel: in Norway in 2025 a petrol car did about 8,100 km, a diesel 13,000 and a battery car 14,000; in Germany a petrol car 9,100, a diesel 14,900 and a battery car 12,100 (<code>fleet/mileage.csv</code>). Norway and Germany use their own figures; every other country uses Germany\u2019s as the default until its own are added.',
+      'These are kilometres per car of the year-end stock: total kilometres divided by the cars in the stock file. The offices\u2019 own per-vehicle averages are about 7% lower, because they divide by every vehicle that was on the road at some point in the year.',
+      '<b>Battery cars are not driven further because they are electric.</b> Age for age they do about the fleet average: in Norway, cars up to four years old do 13,800 km as battery cars, 11,600 as petrol cars and 14,800 as diesels. The gap between the fuels is mostly age. Petrol cars are old, and an old car is driven little (3,800 km at 25 years and over).',
+      'So the projection does not let electrification add driving. Each country\u2019s kilometres per car are held at their last observed value; the fuels keep their proportions to each other. Without that step, a fully electric fleet would appear to drive 14% more per car in Norway and 7% more in Germany.',
+      'Until this was introduced the view used 11,000 km for every petrol car and 17,500 for every diesel in every country, which overstated fuel use by roughly a fifth.'
     ] }
 ];
 

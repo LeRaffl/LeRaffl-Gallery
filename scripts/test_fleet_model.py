@@ -14,6 +14,9 @@ The model lives in index.html; this runs the real in-page functions under node
 * registrations are conserved and the combustion side lands in HEV / PETROL /
   DIESEL by the country's inflow mix, not wholesale in OTHERS (which the
   Energy view reads as LPG/CNG);
+* where the age structure of a stock is observed, the fleet starts from it;
+* a car is driven as far as its own country's statistics say, and a country's
+  km per car is held constant as its fleet turns electric;
 * electricity is charged from each country's own grid, and the three grid
   scenarios behave as documented;
 * the defaults in the markup and in the code agree, and only passenger-car
@@ -34,7 +37,8 @@ emptyFleetRow rowTotal getObservedRow inferNonBevTargetBucket inferNonBevSplit f
 fleetYearInflow applyFleetNetImports fleetProjectionCache cachedFleetProjection projectCountryFleet
 projectCountryFleetLinear projectCountryFleetVintage projectCountryFleetVintageRun effectiveHazard
 inflowDecayMultiplier shiftSharesForDecay parseGridMix feWorldMix feGridSeries feGridTrend feGridAt
-feChain fePerVehicle FE_F FE_KEYS FE_LAB FE_KM feNormalise""".split()
+feChain fePerVehicle FE_F FE_KEYS FE_LAB FE_KM feNormalise
+FLEET_AGE_BANDS fleetAgeBands initVintageBucketsFromBands feMileage feAverageKm""".split()
 
 HARNESS = r"""
 const {execFileSync} = require('child_process');
@@ -127,6 +131,36 @@ fleetState.calibration.B.attrition.rate = 0.03; fleetProjectionCache.clear();
   check(fleetCombustionHistory('A', 2025) === null, 'fewer than five unbroken years: no history');
   INFLOW = 60000; }
 
+// Observed age bands win over every inferred structure.
+{ INFLOW = 0;
+  const bands = [0.10, 0.20, 0.40, 0.30];
+  const sumBand = (arr, lo, hi) => { let t = 0; for (let a = lo; a < Math.min(hi, VINTAGE_AGE_CAP + 1); a++) t += arr[a]; return t; };
+  const sc = { PETROL: deriveWeibullScale(0.045, 3), DIESEL: deriveWeibullScale(0.05, 3), BEV: deriveWeibullScale(0.045, 3) };
+  const row = { BEV: 0, PETROL: 600000, DIESEL: 400000 };
+  const b = initVintageBuckets(Object.assign(emptyFleetRow(2025), row), sc, 3, {}, null, bands);
+  FLEET_AGE_BANDS.forEach(([lo, hi], i) => {
+    const got = (sumBand(b.PETROL, lo, hi) + sumBand(b.DIESEL, lo, hi)) / 1e6;
+    check(near(got, bands[i], 1e-9), 'age band ' + lo + '+ holds its observed share (' + got.toFixed(3) + ')');
+  });
+  check(near(vintageTotal(b, 'PETROL'), 600000, 1e-3) && near(vintageTotal(b, 'DIESEL'), 400000, 1e-3), 'banded buckets add up to each category');
+  check(near(sumBand(b.DIESEL, 20, 999) / 400000, 0.30, 1e-9), 'every non-profile category gets the same band shares');
+  // A young BEV fleet takes its cars out of the youngest band first.
+  const prof = new Float64Array(VINTAGE_AGE_CAP + 1); prof[0] = 0.5; prof[1] = 0.5;
+  const b2 = initVintageBuckets(Object.assign(emptyFleetRow(2025), { BEV: 50000, PETROL: 950000 }), sc, 3, { BEV: prof }, null, bands);
+  check(near(b2.BEV[0], 25000, 1e-9) && near(sumBand(b2.PETROL, 0, 5), 50000, 1e-6), 'young BEVs fill the under-5 band; petrol gets what is left of it');
+  check(near(sumBand(b2.PETROL, 20, 999), 300000, 1e-6) && near(vintageTotal(b2, 'PETROL'), 950000, 1e-3), '...and the old bands stay all petrol');
+  // Bands the stock contradicts (more young BEVs than young cars) still add up.
+  const b3 = initVintageBuckets(Object.assign(emptyFleetRow(2025), { BEV: 500000, PETROL: 500000 }), sc, 3, { BEV: prof }, null, bands);
+  check(near(vintageTotal(b3, 'PETROL'), 500000, 1e-3) && near(vintageTotal(b3, 'BEV'), 500000, 1e-3) && sumBand(b3.PETROL, 0, 5) === 0, 'inconsistent bands never lose or invent cars');
+  setCountry('F', { PETROL: 1e6 }, { age_bands: { '2024': [0.05, 0.10, 0.30, 0.55], '2019': [0.4, 0.3, 0.2, 0.1] } });
+  check(fleetAgeBands('F', 2025)[3] === 0.55 && fleetAgeBands('F', 2016) === null, 'bands: nearest year within two, else none');
+  const oldFleet = exit1(projectCountryFleetVintage('F', 2025, 2026, opts()));
+  setCountry('F', { PETROL: 1e6 }, { age_bands: { '2025': [0.45, 0.35, 0.18, 0.02] } });
+  const newFleet = exit1(projectCountryFleetVintage('F', 2025, 2026, opts()));
+  check(oldFleet > 2 * newFleet, 'an observed old fleet loses far more cars than an observed young one (' + oldFleet.toFixed(3) + ' vs ' + newFleet.toFixed(3) + ')');
+  check(near(exit1(projectCountryFleetVintage('F', 2025, 2026, opts({ calibrate: true }))), newFleet, 1e-12), 'bands without an observed rate: nothing to calibrate to');
+  INFLOW = 60000; }
+
 // ---- 4. where new registrations land --------------------------------------
 BEV_SHARE = 0.2; ICE_SHARE = 0.7;   // -> 10% plug-in hybrids
 const sumRow = r => getFleetCategories().reduce((a, k) => a + r[k], 0);
@@ -206,6 +240,29 @@ check(near(feGridAt('Clean', 2024, 'constant').mix.renew, 0.98, 1e-9), 'mix is f
   const petrol = feChain({ year: 2024, row: { BEV: 0, PHEV: 0, HEV: 0, DIESEL: 0, PETROL: 1e6, GASFUEL: 0 } }, 'trend');
   check(petrol.co2.elec === 0 && petrol.gridG === null && petrol.co2.oil > 0, 'a fleet without plug-ins has no grid emissions'); }
 
+// ---- 6. how far a car is driven ---------------------------------------------
+{ fleetState.calibration.Far = { mileage: { year: 2025, ALL: 22800, PETROL: 20000, DIESEL: 30000, BEV: 25000 } };
+  const m = feMileage('Far'), d = feMileage('Nowhere');
+  check(m.PETROL === 20000 && m.BEV === 25000 && m.GASFUEL === 20000, "a country's own km per car are used (gas cars as petrol)");
+  check(near(m.PHEV, FE_F.km_phev * 22800 / FE_F.km_all, 1e-9), 'a class the office does not report: the default at the country level');
+  check(d.PETROL === FE_F.km_petrol && d.BEV === FE_F.km_bev, 'no figures: the defaults');
+  check(near(fePerVehicle('BEV', 25000).carrierElec, FE_F.cons_bev / 100 * 25000, 1e-9) && fePerVehicle('BEV').km === FE_F.km_bev, 'energy per car scales with its km');
+  const cars = n => ({ BEV: n.BEV || 0, PHEV: 0, HEV: 0, DIESEL: 0, PETROL: n.PETROL || 0, GASFUEL: 0 });
+  const far = feChain({ year: 2024, row: cars({ PETROL: 1e6 }), parts: [{ country: 'Far', row: cars({ PETROL: 1e6 }) }] });
+  const std = feChain({ year: 2024, row: cars({ PETROL: 1e6 }), parts: [{ country: 'Nowhere', row: cars({ PETROL: 1e6 }) }] });
+  check(near(far.co2.oil / std.co2.oil, 20000 / FE_F.km_petrol, 1e-9), 'emissions follow the km: same cars, driven further, emit in proportion');
+  check(near(far.km, 20000 * 1e6, 1) && near(far.cars, 1e6, 1e-6), 'the chain reports the vehicle-km it used');
+  // Electrification must not add driving: km per car stays where it was.
+  const before = cars({ PETROL: 9e5, BEV: 1e5 }), after = cars({ PETROL: 1e5, BEV: 9e5 });
+  const k0 = feAverageKm('Far', before), k1 = feAverageKm('Far', after);
+  check(k1 > k0, 'unscaled, a fleet of battery cars would drive more per car (' + Math.round(k0) + ' -> ' + Math.round(k1) + ')');
+  const held = feChain({ year: 2030, row: after, parts: [{ country: 'Far', row: after, kmScale: k0 / k1 }] });
+  check(near(held.km / held.cars, k0, 1e-6), 'with kmScale the country still drives ' + Math.round(k0) + ' km per car');
+  const two = feChain({ year: 2024, row: cars({ PETROL: 2e6 }), parts: [{ country: 'Far', row: cars({ PETROL: 1e6 }) }, { country: 'Nowhere', row: cars({ PETROL: 1e6 }) }] });
+  check(near(two.co2.oil, far.co2.oil + std.co2.oil, 1e-9), 'two countries: each driven at its own mileage, then summed');
+  const flows = two.links.filter(l => l.s === 'Petrol').reduce((a, l) => a + l.v, 0), crude = two.links.find(l => l.s === 'Crude oil' && l.t === 'Petrol').v;
+  check(near(flows, crude, 1e-9), 'Sankey links stay balanced when countries are combined'); }
+
 console.log(JSON.stringify(out));
 `;
 eval(src + '\n' + TESTS);
@@ -238,6 +295,19 @@ def main():
     checks.append((rates["DIESEL"] > rates["PETROL"], "diesel default turnover is above petrol"))
     checks.append((bool(re.search(r'<input id="hazardSlope"[^>]*value="0"', html)),
                    "the projection-time age curve is off by default (slope 0)"))
+    shape_html = re.search(r'<input id="weibullShape"[^>]*value="([0-9.]+)"', html)
+    shape_js = re.findall(r"weibullShape[^\n]{0,60}, ([0-9.]+)\)", html)
+    checks.append((bool(shape_html) and len(shape_js) >= 2 and all(float(v) == float(shape_html.group(1)) for v in shape_js),
+                   f"Weibull shape: markup default = code fallbacks ({shape_html.group(1) if shape_html else None}, {shape_js})"))
+    fit = ROOT / "fleet" / "survival_fit.csv"
+    if fit.exists():
+        import csv as _csv
+        import statistics as _st
+        with fit.open(newline="", encoding="utf-8") as fh:
+            usable = [float(r["shape"]) for r in _csv.DictReader(fh) if r["usable"] == "yes"]
+        checks.append((len(usable) >= 5 and bool(shape_html)
+                       and abs(round(_st.median(usable), 1) - float(shape_html.group(1))) < 1e-9,
+                       f"default shape = median of the usable fits in fleet/survival_fit.csv ({usable})"))
     checks.append((bool(re.search(r'<input type="checkbox" id="fleetCalibrate" checked>', html)),
                    "calibration is on by default"))
     checks.append((bool(re.search(r'name="feGridScen" value="trend" checked', html)),

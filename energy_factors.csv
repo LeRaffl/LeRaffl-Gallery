@@ -48,12 +48,28 @@ ttw_ice,0.23,share,literature,"real-world average over mixed driving"
 ttw_hybrid,0.30,share,literature,"incl. recuperation and load-point shifting"
 ttw_bev,0.80,share,literature,"charging point to wheel: charging and battery losses (~10%) times drivetrain (~89%); applied to cons_bev, which is measured at the wall"
 #
-# --- annual mileage ---
-km_petrol,11000,km/yr,measured,"KBA Fahrleistungserhebung - petrol cars"
-km_diesel,17500,km/yr,measured,"KBA - diesel cars drive markedly more"
-km_hybrid,13000,km/yr,literature,"between petrol and diesel"
-km_phev,15000,km/yr,literature,"company-car skew"
-km_bev,14000,km/yr,literature,"KBA / real-world telematics"
+# --- annual mileage: km per car of the YEAR-END STOCK - DEFAULTS ---
+# Used for a country that has no rows of its own in fleet/mileage.csv. Countries
+# that do (Norway from SSB, Germany from KBA) use their own figures, built into
+# fleet/fleet_calibration.json by scripts/build_fleet_calibration.py.
+#
+# The defaults are Germany's 2025 figures on that same basis: KBA total km by
+# fuel divided by the KBA year-end stock (not KBA's published per-vehicle
+# average, which is over ~7 % more vehicles). They replace 11,000 / 17,500 /
+# 14,000 km, which overstated petrol driving by a fifth.
+#
+# Battery cars are not driven further because they are electric. Age for age
+# they do about the fleet average (SSB table 12578, cars up to 4 years old:
+# battery 13,812 km, petrol 11,594, diesel 14,825, all 13,927); petrol cars are
+# simply old, and old cars are driven little. In projections the page therefore
+# holds each country's km per car constant and lets the fuels differ only in
+# proportion (index.html: buildFleetEnergy).
+km_all,11400,km/yr,measured,"KBA Verkehr in Kilometern 2025 - 562.3 bn km / 49.49 M cars (year-end stock)"
+km_petrol,9100,km/yr,measured,"KBA VK 2025 - petrol 47.4 % of 562.3 bn km / 29.34 M petrol cars"
+km_diesel,14900,km/yr,measured,"KBA VK 2025 - diesel 35.4 % of 562.3 bn km / 13.39 M diesel cars"
+km_hybrid,14500,km/yr,measured,"KBA VK 2025 - hybrids without plug 13,526 km per vehicle, x1.07 to the year-end stock basis"
+km_phev,12300,km/yr,assumption,"no KBA figure found; km_bev x 1.02, the PHEV/BEV ratio in Norway (SSB 12577, 2025)"
+km_bev,12100,km/yr,measured,"KBA VK 2025 - battery cars 11,312 km per vehicle, x1.07 to the year-end stock basis"
 #
 # --- split of useful work at the wheel (softest layer, cycle dependent) ---
 res_air,0.37,share,literature,"mixed cycle mid-size car - aerodynamic drag"
