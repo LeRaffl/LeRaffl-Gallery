@@ -1,0 +1,9 @@
+🇳🇿 New Zealand (Vans) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++0.3pp  BEV   (1.5% → 1.7%)
++2.3pp  PHEV  (5.7% → 8.0%)
++0.2pp  HEV   (15.3% → 15.5%)
+−2.8pp  ICE   (77.5% → 74.8%)
+
+HEV peaked at 16.1% in 2025-05 (declining for 17 months).

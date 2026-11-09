@@ -1,11 +1,9 @@
 🇳🇿 New Zealand (HDV) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+0.3pp  BEV   (1.4% → 1.7%)
+Nov24–Oct25  vs  Nov25–Oct26
+−0.3pp  BEV   (1.8% → 1.5%)
 +0.0pp  PHEV  (0.0% → 0.0%)
-−0.4pp  HEV   (1.6% → 1.2%)
-+0.1pp  ICE   (97.0% → 97.0%)
+−0.5pp  HEV   (1.7% → 1.2%)
++0.8pp  ICE   (96.5% → 97.3%)
 
-HEV peaked at 1.8% in 2025-11 (declining for 10 months).
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+HEV peaked at 1.8% in 2025-11 (declining for 11 months).

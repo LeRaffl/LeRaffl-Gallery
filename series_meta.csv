@@ -61,7 +61,7 @@ Nepal,Whole,2026-10,BEV,false,false,,false,false
 Netherlands,HDV,2026-09,BEV,false,false,,true,true
 Netherlands,Used,2026-09,BEV,false,false,,true,true
 Netherlands,Whole,2026-09,BEV,false,false,,true,true
-New Zealand,Whole,2026-09,BEV,false,false,,true,true
+New Zealand,Whole,2026-10,BEV,false,false,,true,true
 Norway,Whole,2026-10,BEV,false,false,,true,true
 Poland,Whole,2026-09,BEV,false,false,,true,true
 Portugal,Whole,2026-10,BEV,false,false,,true,true
@@ -153,9 +153,9 @@ Hong Kong,Used,2026-08,BEV,false,false,,true,true
 Hong Kong,Vans,2026-08,BEV,false,false,,true,true
 Czechia,Used,2026-09,BEV,false,false,,true,true
 Czechia,Vans,2026-09,BEV,false,false,,true,true
-New Zealand,Vans,2026-09,BEV,false,false,,true,true
-New Zealand,HDV,2026-09,BEV,false,false,,true,true
-New Zealand,Used,2026-09,BEV,false,false,,true,true
+New Zealand,Vans,2026-10,BEV,false,false,,true,true
+New Zealand,HDV,2026-10,BEV,false,false,,true,true
+New Zealand,Used,2026-10,BEV,false,false,,true,true
 China,Wholesale,2026-09,BEV,false,false,,true,true
 Lithuania,Used,2026-09,BEV,false,false,,false,false
 South Africa,Whole,2026-06,BEV,false,false,,true,true
