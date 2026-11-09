@@ -164,3 +164,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-07,monthly,HDV,DIV,40.0,0.0,0.0,0.0,581.0,6.0,627.0,DIV 2026-07: new lorries + tractor units by fuel
 2026-08,monthly,HDV,DIV,21.0,0.0,0.0,0.0,461.0,0.0,482.0,DIV 2026-08: new lorries + tractor units by fuel
 2026-09,monthly,HDV,DIV,37.0,0.0,0.0,0.0,732.0,1.0,770.0,DIV 2026-09: new lorries + tractor units by fuel
+2026-10,monthly,HDV,DIV,15.0,0.0,0.0,0.0,739.0,7.0,761.0,DIV 2026-10: new lorries + tractor units by fuel
