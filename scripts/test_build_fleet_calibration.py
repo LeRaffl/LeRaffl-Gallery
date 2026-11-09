@@ -125,6 +125,34 @@ check(abs(t["attrition"]["rate"] - 0.03) < 1e-9, f"a reported TOTAL is the denom
 uk = world([l.replace("Aland", "United Kingdom") for l in fleet], {"UK": (REG_HEADER, reg)})
 check("attrition" in uk.get("United Kingdom", {}), "United Kingdom reads data/UK.csv")
 
+# --- 11. age bands, long history and mileage ---------------------------------
+d = Path(tempfile.mkdtemp())
+(d / "fleet.csv").write_text(FLEET_HEADER + "\n" + "\n".join(fleet) + "\n", encoding="utf-8")
+(d / "data").mkdir()
+(d / "data" / "Aland.csv").write_text(REG_HEADER + "\n" + "\n".join(reg) + "\n", encoding="utf-8")
+(d / "age.csv").write_text("country,year,lt2,y2_5,y5_10,y10_20,gt20,total,source\n"
+                           "Aland,2025,100,150,250,300,200,1000,x\nAland,2024,,150,250,300,200,900,x\n", encoding="utf-8")
+(d / "hist.csv").write_text("country,year,new_registrations,source\n"
+                            + "".join(f"Aland,{y},{50000 + y},x\n" for y in (2005, 2016, 2018, 2019, 2021)), encoding="utf-8")
+(d / "km.csv").write_text("country,year,fuel,km_per_car,total_mkm,source,notes\n"
+                          "Aland,2025,ALL,10000,12000,office,\nAland,2025,PETROL,8000,6000,office,\n"
+                          "Aland,2025,BEV,13000,,office,\nAland,2025,DIESEL,,99999999,office,\n"
+                          "Aland,2019,ALL,9000,9000,office,\n", encoding="utf-8")
+x = bc.build(d / "fleet.csv", d / "data", d / "age.csv", d / "hist.csv", d / "km.csv")["countries"]["Aland"]
+check(x["age_bands"] == {"2025": [0.25, 0.25, 0.3, 0.2]}, f"age bands: two youngest merged, shares of the stock, incomplete year dropped: {x.get('age_bands')}")
+comb = x["reg_by_year"]["COMBUSTION"]
+check(list(comb)[:4] == ["2016", "2017", "2018", "2019"] and comb["2019"] == 52019 and comb["2017"] == 52017,
+      f"long history is prepended where it joins the country's own series; a one-year hole is interpolated: {list(comb)[:5]}")
+check("2005" not in comb and comb["2021"] != 52021, "...not across an 11-year hole, and never over the country's own years")
+km = x["mileage"]
+check(km["year"] == 2025 and km["ALL"] == 12000 and abs(km["basis_ratio"] - 1.2) < 1e-9,
+      f"km per STOCK car = total km / year-end stock (1,000,000 cars), not the office's average: {km}")
+check(km["PETROL"] == 10000, f"a fuel with a total: total / that fuel's stock (600,000), got {km.get('PETROL')}")
+check(km["BEV"] == 15600 and km["scaled_from_average"] == ["BEV"], f"a fuel without a total: its average x the ALL ratio, got {km.get('BEV')}")
+check("DIESEL" not in km, "an impossible figure (scope mismatch) is left out")
+none = bc.build(d / "fleet.csv", d / "data", None, None, None)["countries"]["Aland"]
+check("age_bands" not in none and "mileage" not in none and "attrition" in none, "without the optional files the core calibration still builds")
+
 doc = json.loads(bc.OUT_PATH.read_text(encoding="utf-8"))
 cs = doc["countries"]
 check(len(cs) >= 30, f"committed calibration covers the fleet countries, got {len(cs)}")
@@ -134,6 +162,12 @@ check(all(abs(sum(c["inflow_mix"][k] for k in ("HEV", "PETROL", "DIESEL", "OTHER
           for c in cs.values() if "inflow_mix" in c), "every committed inflow mix adds up to 1")
 check(all(abs(v) <= 0.5 for c in cs.values() for v in c.get("attrition", {}).get("by_fuel", {}).values()),
       "per-fuel figures beyond +-50 % (scope mismatch) are left out")
+check(all(abs(sum(b) - 1) < 2e-3 for c in cs.values() for b in c.get("age_bands", {}).values()),
+      "every committed age-band row adds up to 1")
+check(sum("age_bands" in c for c in cs.values()) >= 20 and {"Norway", "Germany"} <= {k for k, c in cs.items() if "mileage" in c},
+      "age bands for 20+ countries; own mileage for Norway and Germany")
+check(all(bc.KM_MIN <= v <= bc.KM_MAX for c in cs.values() for k, v in c.get("mileage", {}).items()
+          if k in bc.MILEAGE_STOCK), "every committed km-per-car figure is plausible")
 check("generated_by" in doc and "T" not in json.dumps(doc.get("generated_at", "")),
       "the file carries no timestamp (a rebuild on unchanged data is a no-op)")
 

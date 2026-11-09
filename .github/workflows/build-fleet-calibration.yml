@@ -2,11 +2,16 @@ name: Build fleet calibration
 
 # Regenerates fleet/fleet_calibration.json — what the Fleet tab's projection is
 # calibrated against: each country's observed net attrition, the split of the
-# combustion side of its new registrations, and the yearly registrations behind
-# the age profiles. Derived only from files already in the repo
-# (fleet/fleet_initial.csv + data/<Country>.csv) by
-# scripts/build_fleet_calibration.py; see
+# combustion side of its new registrations, its age structure and its mileage —
+# and fleet/survival_fit.csv, the fit behind the default Weibull shape. Derived
+# only from files already in the repo (fleet/*.csv + data/<Country>.csv) by
+# scripts/build_fleet_calibration.py and scripts/fit_fleet_survival.py; see
 # docs/architecture/37-fleet-data-harmonization.md §7.
+#
+# refresh-fleet-data.yml (the 9th) fetches the fleet/*.csv inputs and rebuilds
+# both files itself; this workflow covers the other two ways an input changes:
+# the registration data (monthly drift of the 12-month inflow mix) and a push
+# that touches a fleet input or one of the scripts.
 #
 # Monthly is enough: the attrition rate only moves when a new stock year
 # arrives (once a year per country), and the 12-month inflow mix drifts slowly.
@@ -25,7 +30,11 @@ on:
     branches: [master]
     paths:
       - 'fleet/fleet_initial.csv'
+      - 'fleet/fleet_age.csv'
+      - 'fleet/registrations_history.csv'
+      - 'fleet/mileage.csv'
       - 'scripts/build_fleet_calibration.py'
+      - 'scripts/fit_fleet_survival.py'
       - '.github/workflows/build-fleet-calibration.yml'
   workflow_dispatch: {}
 
@@ -48,13 +57,19 @@ jobs:
       - name: Build fleet calibration
         run: python3 scripts/build_fleet_calibration.py
 
+      # Needs the calibration (it reads each country's net attrition).
+      - name: Fit the survival curve
+        run: python3 scripts/fit_fleet_survival.py
+
       - name: Print the calibration table
         run: python3 scripts/build_fleet_calibration.py --report
 
       - name: Commit if changed
         uses: EndBug/add-and-commit@v10
         with:
-          add: 'fleet/fleet_calibration.json'
+          add: |
+            fleet/fleet_calibration.json
+            fleet/survival_fit.csv
           message: 'chore: rebuild fleet calibration (CI)'
           default_author: github_actions
           # Rebase over anything (a fetcher, manifest/source-page CI) that

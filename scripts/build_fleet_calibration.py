@@ -38,6 +38,20 @@ fact observable per country, by lining the stock series in
    is neither a plug-in nor a full hybrid. The page turns them into an age
    distribution for whichever year the projection starts from.
 
+4. **Observed age bands.** ``fleet/fleet_age.csv`` (Eurostat) says what share
+   of each country's stock is under 5, 5-10, 10-20 and over 20 years old. Where
+   it exists the page starts from it instead of inferring the age structure.
+   ``fleet/registrations_history.csv`` (Eurostat, from 1970) extends the
+   ``COMBUSTION`` registration series backwards past what ``data/`` holds.
+
+5. **Mileage.** ``fleet/mileage.csv`` holds what statistics offices publish:
+   km per vehicle and total km by fuel. Their per-vehicle average is over every
+   vehicle on the road at some point in the year, about 7 % more vehicles than
+   the year-end stock here, so the page needs **km per stock car**: total km
+   divided by the stock in ``fleet/fleet_initial.csv``. Where a fuel has no
+   published total, its published average is scaled by the ratio the ALL row
+   shows between the two.
+
 Usage
 -----
     python scripts/build_fleet_calibration.py           # rewrite the JSON
@@ -61,6 +75,15 @@ ROOT = Path(__file__).resolve().parent.parent
 FLEET_CSV = ROOT / "fleet" / "fleet_initial.csv"
 DATA_DIR = ROOT / "data"
 OUT_PATH = ROOT / "fleet" / "fleet_calibration.json"
+AGE_CSV = ROOT / "fleet" / "fleet_age.csv"
+REG_HISTORY_CSV = ROOT / "fleet" / "registrations_history.csv"
+MILEAGE_CSV = ROOT / "fleet" / "mileage.csv"
+
+MAX_GAP = 6                      # longest hole in a registration history that is interpolated
+KM_MIN, KM_MAX = 1000, 60000     # a km-per-car figure outside this is a scope mismatch
+# mileage.csv fuel -> key of the stock row (read_stock) it is divided by.
+MILEAGE_STOCK = {"ALL": "TOTAL", "PETROL": "PETROL", "DIESEL": "DIESEL",
+                 "BEV": "BEV", "PHEV": "PHEV+", "HEV": "HEV+"}
 
 WINDOW = 5      # stock years the published attrition rate is the median of
 MIN_YEARS = 3   # ...and how many of them must exist for a rate to be published
@@ -105,6 +128,7 @@ def read_stock(path: Path = FLEET_CSV) -> dict[str, dict[int, dict]]:
             row["TOTAL"] = total
             # The fleet model's classes, folded the way the page folds them.
             row["PHEV+"] = (row["PHEV"] or 0) + (row["EREV"] or 0)
+            row["HEV+"] = (row["HEV"] or 0) + (row["MHEV"] or 0)
             out[country][year] = row
     return out
 
@@ -277,8 +301,112 @@ def reg_by_year(reg: dict[int, dict]) -> dict:
     return out
 
 
-def build(fleet_csv: Path = FLEET_CSV, data_dir: Path = DATA_DIR) -> dict:
+def _rows(path: Path | None) -> list[dict]:
+    if not path or not Path(path).exists():
+        return []
+    with Path(path).open(newline="", encoding="utf-8") as fh:
+        return list(csv.DictReader(fh))
+
+
+def read_age_bands(path: Path | None = AGE_CSV) -> dict[str, dict[str, list[float]]]:
+    """country -> year -> shares of the stock [under 5, 5-10, 10-20, over 20 years].
+
+    The two youngest published bands are merged: their boundary is not applied
+    uniformly (Germany's "under 2" holds about 2.7 years of registrations).
+    """
+    out: dict[str, dict[str, list[float]]] = defaultdict(dict)
+    for r in _rows(path):
+        v = [num(r.get(k)) for k in ("lt2", "y2_5", "y5_10", "y10_20", "gt20")]
+        if any(x is None for x in v) or sum(v) <= 0:
+            continue
+        bands = [v[0] + v[1], v[2], v[3], v[4]]
+        out[r["country"]][str(int(r["year"]))] = [round(b / sum(bands), 4) for b in bands]
+    return out
+
+
+def read_registration_history(path: Path | None = REG_HISTORY_CSV) -> dict[str, dict[int, float]]:
+    """country -> year -> all new passenger cars, short gaps interpolated."""
+    raw: dict[str, dict[int, float]] = defaultdict(dict)
+    for r in _rows(path):
+        v = num(r.get("new_registrations"))
+        if v:
+            raw[r["country"]][int(r["year"])] = v
+    out = {}
+    for country, s in raw.items():
+        ys = sorted(s)
+        full = dict(s)
+        for lo, hi in zip(ys, ys[1:]):
+            if 1 < hi - lo <= MAX_GAP:
+                for y in range(lo + 1, hi):
+                    full[y] = s[lo] + (s[hi] - s[lo]) * (y - lo) / (hi - lo)
+        out[country] = full
+    return out
+
+
+def extend_combustion(ages: dict, history: dict[int, float]) -> None:
+    """Prepend the long Eurostat history to a country's COMBUSTION series.
+
+    Only for years BEFORE the first year the country's own data covers, and
+    only as far back as the two series join without a hole. Those years are
+    all new cars rather than combustion cars only, which before the 2010s is
+    the same number to within a percent or two.
+    """
+    own = ages.get("COMBUSTION")
+    if not own or not history:
+        return
+    first = min(int(y) for y in own)
+    y, older = first - 1, {}
+    while y in history:
+        older[str(y)] = round(history[y])
+        y -= 1
+    if older:
+        ages["COMBUSTION"] = {**dict(sorted(older.items())), **own}
+
+
+def mileage(country: str, stock: dict[int, dict], rows: list[dict]) -> dict | None:
+    """km per car of the YEAR-END STOCK, by fuel, for the latest year that has
+    both a published total for all cars and a stock row."""
+    by_year: dict[int, dict[str, dict]] = defaultdict(dict)
+    for r in rows:
+        if r.get("country") == country and r.get("fuel") in MILEAGE_STOCK:
+            by_year[int(r["year"])][r["fuel"]] = r
+    for year in sorted(by_year, reverse=True):
+        fuels, st = by_year[year], stock.get(year)
+        every = fuels.get("ALL")
+        if not st or not every or not num(every.get("total_mkm")) or not st.get("TOTAL"):
+            continue
+        all_km = num(every["total_mkm"]) * 1e6 / st["TOTAL"]
+        # How much larger the office's vehicle base is than our stock.
+        basis = all_km / num(every["km_per_car"]) if num(every.get("km_per_car")) else None
+        out = {"year": year, "source": every.get("source", ""), "ALL": round(all_km)}
+        derived = []
+        for fuel, key in MILEAGE_STOCK.items():
+            r = fuels.get(fuel)
+            if fuel == "ALL" or not r:
+                continue
+            cars, total, avg = st.get(key), num(r.get("total_mkm")), num(r.get("km_per_car"))
+            if total and cars and cars >= MIN_STOCK:
+                km = total * 1e6 / cars
+            elif avg and basis:
+                km = avg * basis
+                derived.append(fuel)
+            else:
+                continue
+            if KM_MIN <= km <= KM_MAX:
+                out[fuel] = round(km)
+        if derived:
+            out["scaled_from_average"] = derived
+        if basis:
+            out["basis_ratio"] = round(basis, 3)
+        return out
+    return None
+
+
+def build(fleet_csv: Path = FLEET_CSV, data_dir: Path = DATA_DIR,
+          age_csv: Path | None = AGE_CSV, history_csv: Path | None = REG_HISTORY_CSV,
+          mileage_csv: Path | None = MILEAGE_CSV) -> dict:
     stock = read_stock(fleet_csv)
+    bands, history, km_rows = read_age_bands(age_csv), read_registration_history(history_csv), _rows(mileage_csv)
     countries = {}
     for country in sorted(stock):
         reg, rows = read_registrations(country, data_dir)
@@ -291,7 +419,13 @@ def build(fleet_csv: Path = FLEET_CSV, data_dir: Path = DATA_DIR) -> dict:
             entry["inflow_mix"] = m
         ages = reg_by_year(reg)
         if ages:
+            extend_combustion(ages, history.get(country, {}))
             entry["reg_by_year"] = ages
+        if country in bands:
+            entry["age_bands"] = dict(sorted(bands[country].items()))
+        km = mileage(country, stock[country], km_rows)
+        if km:
+            entry["mileage"] = km
         if entry:
             countries[country] = entry
     return {
@@ -301,7 +435,11 @@ def build(fleet_csv: Path = FLEET_CSV, data_dir: Path = DATA_DIR) -> dict:
                  "passenger-car stock per year (scrappage + exports - used imports); "
                  "inflow_mix = split of the non-plug-in side of the last 12 months "
                  "of registrations; reg_by_year = yearly registrations used as the "
-                 "age profile of the stock (COMBUSTION = TOTAL - BEV - PHEV - HEV)."),
+                 "age profile of the stock (COMBUSTION = TOTAL - BEV - PHEV - HEV, "
+                 "extended backwards with all new cars from fleet/registrations_history.csv); "
+                 "age_bands = observed shares of the stock under 5 / 5-10 / 10-20 / over 20 "
+                 "years (fleet/fleet_age.csv); mileage = km per car of the year-end stock "
+                 "(fleet/mileage.csv totals divided by the stock)."),
         "window_years": WINDOW,
         "min_years": MIN_YEARS,
         "countries": countries,
