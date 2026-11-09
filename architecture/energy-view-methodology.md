@@ -137,16 +137,18 @@ first and sums afterwards.
 - Grid mix and CO2e intensity **per country and year** (Ember, §6a); plant
   efficiencies (IEA)
 
+- **Mileage by fuel** — per country where a statistics office publishes it
+  (§6b), Germany's figures as the default elsewhere
+
 **Documented inputs** (each with a source in `energy_factors.csv`)
 - Real-world consumption per powertrain — not type approval; the gap is large
-- Annual mileage per powertrain — diesel cars drive markedly more than petrol,
-  BEVs more than petrol, which matters as much as consumption per km
 
 **Assumptions**
-- Consumption, mileage and tank-to-wheel efficiency are **one fleet-average value
-  per powertrain for every country and every year** (mileage from Germany's KBA
-  survey). A country that drives more, or whose cars are larger, is not
-  distinguished. This is now the largest uncalibrated layer of the view.
+- Consumption and tank-to-wheel efficiency are **one fleet-average value per
+  powertrain for every country and every year**. A country whose cars are
+  larger, or older and thirstier, is not distinguished. With mileage now
+  sourced (§6b) this is the largest uncalibrated layer of the view.
+- Mileage outside Norway and Germany is Germany's (§6b).
 - Grid **mix** held at the last year on record for all future years. Deliberate: it
   credits the power sector with no future improvement, so in the energy Sankey
   electrified transport is shown at its worst. (The emissions strip has scenarios,
@@ -195,6 +197,57 @@ average of their grids.
 generates. A country that imports much of its electricity (Luxembourg, also
 Lithuania or Hungary in some years) consumes a different mix. Ember publishes no
 consumption-based series for all fleet countries; this is noted on the page.
+
+---
+
+## 6b. Mileage — by fuel, by country, and held per car
+
+Energy is cars × km × consumption, and the km were five global numbers (petrol
+11,000, diesel 17,500, hybrid 13,000, PHEV 15,000, battery 14,000) attributed to
+KBA but well off KBA's current figures. `fleet/mileage.csv` now holds what
+statistics offices that read odometers at inspection publish, by fuel:
+
+| km per car of the year-end stock, 2025 | all | petrol | diesel | battery | PHEV | HEV |
+|---|---|---|---|---|---|---|
+| Norway (SSB 12577) | 12,294 | 8,065 | 12,958 | 13,994 | 14,241 | 11,974 |
+| Germany (KBA VK) | 11,363 | 9,083 | 14,871 | 12,108 | — | 14,477 |
+
+**Basis.** The figure the page needs is `total km of a fuel ÷ cars of that fuel
+in fleet/fleet_initial.csv`, because that is what it is multiplied back by. The
+offices' own averages (Norway 11,350, Germany 10,616 for all cars) divide by
+every vehicle that was on the road at some point in the year, about 7 % more
+vehicles. `scripts/build_fleet_calibration.py` does the division; a fuel
+without a published total takes its published average scaled by that ratio.
+
+**Defaults.** A country without rows uses the `km_*` rows of
+`energy_factors.csv`, which are now Germany's 2025 figures on this basis
+(`km_phev` is an assumption: no KBA figure found). The old petrol and diesel
+values overstated fuel use by about a fifth: Germany's 2025 well-to-wheel
+figure fell from 131 Mt to 112 Mt.
+
+**Why the fuels differ: age, not drivetrain.** SSB table 12578 splits the same
+figures by vehicle age (2025, km per vehicle):
+
+| age | all | petrol | diesel | battery |
+|---|---|---|---|---|
+| 0–4 years | 13,927 | 11,594 | 14,825 | 13,812 |
+| 5–9 | 13,035 | 10,629 | 13,997 | 13,573 |
+| 10–14 | 10,875 | 8,983 | 12,045 | 8,864 |
+| 15–19 | 9,167 | 7,260 | 9,885 | 3,308 |
+| 25 and over | 3,768 | 3,410 | 5,155 | 1,833 |
+
+Age for age a battery car does the fleet average. The petrol fleet is old, and
+an old car is driven little; that is most of the gap between 8,065 and 13,994.
+
+**Consequence for projections.** Applied unchanged to a fleet that turns
+electric, per-fuel mileages would add driving that nobody does (+14 % per car in
+Norway, +7 % in Germany for a fully electric fleet). `buildFleetEnergy()`
+therefore holds each country's fleet-average km per car at its last observed
+value: every projected year gets one factor per country (`kmScale`) that
+restores the average, and the fuels keep their proportions. Observed years use
+the figures as they are. What this does *not* model: travel demand changing
+(cheaper electric km, population), and mileage by age inside the projection —
+the vintage model knows each car's age, so that is the natural next refinement.
 
 ---
 
@@ -299,9 +352,11 @@ converging the rate.
 1. **Grid trajectory** — per country and with three scenarios on the
    **emissions** side (§6a, §7), but the mix is still held for **energy** (§6). A
    physical-energy grid trajectory would need the mix itself to evolve.
-1a. **Per-country mileage and consumption** — the largest remaining
-   one-size-fits-all layer (§6). Mileage in particular differs by a factor of two
-   between countries.
+1a. **Mileage for more countries** (§6b) — Sweden, the Netherlands, the UK,
+   Denmark and Finland publish km by fuel; each is one block in
+   `scripts/fetch_fleet_mileage.py`. **Per-country consumption** has no such
+   source and stays one value per powertrain.
+1c. **Mileage by age inside the projection** (§6b) instead of a held average.
 1b. **Consumption-based grid** for net importers (§6a).
 2. **Rest-of-world context band** — prototyped (an optional hatched band sized
    from a published world total, off by default). Not carried into the sub-tab,

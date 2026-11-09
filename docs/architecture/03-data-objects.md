@@ -522,8 +522,11 @@ Two generated companions sit next to the stock file (never hand-edit them):
 
 | File | Written by | What it holds |
 |---|---|---|
-| `fleet/fleet_calibration.json` | `scripts/build_fleet_calibration.py` (monthly, `build-fleet-calibration.yml`) | Per country, from `fleet_initial.csv` × `data/<Country>.csv`: observed **net attrition** of the passenger-car stock (median of the last five years of `stock[Y-1] + registrations[Y] − stock[Y]`), the 12-month **inflow mix** of the combustion side, and yearly registrations for the **age profiles**. The projection is calibrated to it by default. |
-| `fleet/grid_mix.csv` | `scripts/fetch_grid_mix.py` (by hand, yearly) | Per country and year from 2010, plus `World`: CO2e intensity of electricity (gCO2e/kWh generated) and generation shares by source (Ember via Our World in Data). The Energy view charges each country's electric cars from its own grid. |
+| `fleet/fleet_calibration.json` | `scripts/build_fleet_calibration.py` (monthly, `build-fleet-calibration.yml`) | Per country, from `fleet_initial.csv` × `data/<Country>.csv`: observed **net attrition** of the passenger-car stock (median of the last five years of `stock[Y-1] + registrations[Y] − stock[Y]`), the 12-month **inflow mix** of the combustion side, yearly registrations and observed **age bands** for the age structure, and **km per stock car** by fuel. The projection is calibrated to it by default. |
+| `fleet/fleet_age.csv`, `fleet/registrations_history.csv` | `scripts/fetch_fleet_age.py` | Eurostat: stock by age band (2013–) and all new passenger cars per year (1970–). The observed age structure the projection starts from, and what the survival curve is fitted against. |
+| `fleet/mileage.csv` | `scripts/fetch_fleet_mileage.py` (Norway, SSB) + curated rows (Germany, KBA) | km per vehicle and total km by fuel. The one mixed file: the fetcher only replaces rows carrying its own `source`. |
+| `fleet/survival_fit.csv` | `scripts/fit_fleet_survival.py` | Weibull shape and scale fitted per country; the median of the usable fits is the page's default shape (2.5). |
+| `fleet/grid_mix.csv` | `scripts/fetch_grid_mix.py` (monthly, `refresh-fleet-data.yml`) | Per country and year from 2010, plus `World`: CO2e intensity of electricity (gCO2e/kWh generated) and generation shares by source (Ember via Our World in Data). The Energy view charges each country's electric cars from its own grid. |
 
 Contract, method, caveats and how to quote a projection: `37-fleet-data-harmonization.md` §7 (calibration) and `architecture/energy-view-methodology.md` §6a (grid). The attrition figure is a **net registry** figure (scrappage + exports − used imports), not a vehicle lifetime — do not quote it as one.
 
