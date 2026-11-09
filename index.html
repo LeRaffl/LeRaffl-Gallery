@@ -2672,7 +2672,7 @@ a:focus-visible{
 .fe-sub{font-size:.72em;vertical-align:-.15em}
 .fe-co2-scen{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:11.5px;color:var(--muted)}
 .fe-co2-scen-lbl{text-transform:uppercase;letter-spacing:.08em;font-weight:700;font-size:10px}
-.fe-co2-scen label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.fe-co2-scen label{display:inline-flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap}
 .fe-co2-scen input{accent-color:var(--accent);margin:0}
 #feCo2Chart{margin-top:10px}
 .fe-co2-grid{stroke:rgba(120,130,150,.18);stroke-width:1}
@@ -4951,7 +4951,7 @@ const VIEW_START_YEAR = 2015;
 <div class="fc-section" style="margin: 8px 0 0;">
   <div class="fc-section-head" style="cursor:pointer; user-select:none;" onclick="fcToggle('fcBodyHazard','fcBtnHazard')">
     <span class="fc-section-title">Hazard &amp; attrition</span>
-    <span class="fc-section-hint">How many vehicles leave the fleet each year as they age</span>
+    <span class="fc-section-hint">How many vehicles leave the fleet each year, calibrated per country</span>
     <button class="fc-collapse-btn" id="fcBtnHazard" tabindex="-1">▸ show</button>
   </div>
   <div id="fcBodyHazard" class="fc-collapsible-body fc-body-hidden">
@@ -4961,7 +4961,7 @@ const VIEW_START_YEAR = 2015;
       <div style="display:flex; align-items:center; gap:6px;">
         <label>Hazard model</label>
         <span class="info-tip"
-          data-tip="Two ways of computing how the fleet shrinks. Per-vintage Weibull (default) tracks each model year individually and gives a realistic bathtub-shaped survival curve. Linear age curve is a single global rate that climbs after a knee year — simpler, but less realistic for projections beyond ~15 years.">i</span>
+          data-tip="Two ways of computing how cars leave the fleet. Per-vintage Weibull (default) tracks each model year on its own: a young car almost never leaves, an old one leaves fast, so a young battery-car fleet keeps nearly all its cars for years. Constant rate removes the same share of every category every year whatever its age: simpler, but it retires young battery cars as fast as old petrol cars.">i</span>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
         <label class="chip">
@@ -4970,11 +4970,23 @@ const VIEW_START_YEAR = 2015;
         </label>
         <label class="chip">
           <input type="radio" name="hazardMode" value="linear">
-          Linear age curve
+          Constant rate
         </label>
       </div>
     </div>
+    <div class="field" style="min-width:240px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <label for="fleetCalibrate">Calibration</label>
+        <span class="info-tip"
+          data-tip="On (default): the rates below are scaled, country by country, so that the fleet loses the share it has actually been losing. That share is observed, not assumed: last year's stock plus the year's new registrations minus this year's stock, as a median over the last five years. It is a NET figure (scrappage and exports minus used imports), so it is high for countries that export young used cars and close to zero for countries that import them. The boxes then only set how the categories differ from each other. Off: the rates apply as typed, the same for every country.">i</span>
+      </div>
+      <label class="chip">
+        <input type="checkbox" id="fleetCalibrate" checked>
+        Match each country&#39;s observed turnover
+      </label>
+    </div>
   </div>
+  <div class="small" id="fleetCalibrationStatus" style="margin:10px 0 0;"></div>
 
   <!-- Sub-card: Weibull-only setting (shape) -->
   <div class="fc-sub" id="fcSubWeibull">
@@ -4989,7 +5001,7 @@ const VIEW_START_YEAR = 2015;
         <div style="display:flex; align-items:center; gap:6px;">
           <label for="weibullShape">Weibull shape</label>
           <span class="info-tip"
-            data-tip="Controls how sharply the hazard rises with vehicle age in Weibull mode. shape = 1 means constant hazard (= linear mode with slope 0). shape = 3 (default) gives a realistic bathtub: very low hazards for young vehicles, climbing past the median age. Higher values give a sharper end-of-life cliff. Ignored in Linear mode.">i</span>
+            data-tip="How sharply the chance of leaving the fleet rises with a car's age. shape = 1 means age does not matter (the Constant rate mode). shape = 3 (default): almost no exits in the first years, most of them around and after the average lifetime. Higher values give a sharper end-of-life cliff. Ignored in Constant rate mode.">i</span>
         </div>
         <input id="weibullShape" type="number" min="0.5" max="10" step="0.1" value="3.0">
       </div>
@@ -4997,9 +5009,9 @@ const VIEW_START_YEAR = 2015;
   </div>
 
   <div class="small" style="margin:14px 0 8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-    <span>Annual hazard / attrition by category</span>
+    <span>Annual turnover by category</span>
     <span class="info-tip"
-      data-tip="In Linear mode: the constant annual share of each category that leaves the fleet (before the age curve kicks in). In Weibull mode: the equivalent constant hazard that would produce the same median fleet life — the actual per-vintage hazards are derived from this number plus the global Weibull shape, so a young vehicle has a much lower hazard and an old one a much higher hazard. The first projection year behaves similarly in both modes; they diverge over longer horizons.">i</span>
+      data-tip="The share of a mature fleet of each type that leaves per year, the same meaning in both modes. 0.045 = 4.5% a year, an average life of about 22 years in the registry. In Weibull mode a fleet younger than that (battery cars today) loses far less, because its cars have not reached the age at which cars leave. With calibration on, the level is set per country from its own record and these boxes only set how the categories differ: by default diesels leave about 1.1 times as fast as everything else, and battery cars are given the petrol rate because no battery fleet is old enough to show otherwise.">i</span>
   </div>
 
 <div id="fleetHazardGrid" style="
@@ -5011,86 +5023,86 @@ const VIEW_START_YEAR = 2015;
     <div style="display:flex; align-items:center; gap:6px;">
       <label for="hazBEV">BEV</label>
       <span class="info-tip"
-            data-tip="Annual attrition applied to the BEV fleet. Example: 0.02 means 2% of BEVs leave the fleet each year.">
+            data-tip="Share of a mature BEV fleet that leaves per year. Example: 0.045 means 4.5% a year.">
         i
       </span>
     </div>
-    <input id="hazBEV" type="number" min="0" max="0.5" step="0.001" value="0.035">
+    <input id="hazBEV" type="number" min="0" max="0.5" step="0.001" value="0.045">
   </div>
 
   <div class="field">
     <div style="display:flex; align-items:center; gap:6px;">
       <label for="hazPHEV">PHEV</label>
       <span class="info-tip"
-            data-tip="Annual attrition applied to the PHEV fleet. Example: 0.02 means 2% of PHEVs leave the fleet each year.">
+            data-tip="Share of a mature PHEV fleet that leaves per year. Example: 0.045 means 4.5% a year.">
         i
       </span>
     </div>
-    <input id="hazPHEV" type="number" min="0" max="0.5" step="0.001" value="0.040">
+    <input id="hazPHEV" type="number" min="0" max="0.5" step="0.001" value="0.045">
   </div>
 
   <div class="field">
     <div style="display:flex; align-items:center; gap:6px;">
       <label for="hazHEV">HEV</label>
       <span class="info-tip"
-            data-tip="Annual attrition applied to the HEV fleet. Example: 0.02 means 2% of HEVs leave the fleet each year.">
+            data-tip="Share of a mature HEV fleet that leaves per year. Example: 0.045 means 4.5% a year.">
         i
       </span>
     </div>
-    <input id="hazHEV" type="number" min="0" max="0.5" step="0.001" value="0.042">
+    <input id="hazHEV" type="number" min="0" max="0.5" step="0.001" value="0.045">
   </div>
 
   <div class="field">
     <div style="display:flex; align-items:center; gap:6px;">
       <label for="hazHYBRID">HYBRID</label>
       <span class="info-tip"
-            data-tip="Annual attrition applied to the HYBRID fleet. Example: 0.02 means 2% of HYBRIDs leave the fleet each year.">
+            data-tip="Share of a mature HYBRID fleet that leaves per year. Example: 0.045 means 4.5% a year.">
         i
       </span>
     </div>
-    <input id="hazHYBRID" type="number" min="0" max="0.5" step="0.001" value="0.041">
+    <input id="hazHYBRID" type="number" min="0" max="0.5" step="0.001" value="0.045">
   </div>
 
   <div class="field">
     <div style="display:flex; align-items:center; gap:6px;">
       <label for="hazPETROL">PETROL</label>
       <span class="info-tip"
-            data-tip="Annual attrition applied to the PETROL fleet. Example: 0.02 means 2% of PETROL vehicles leave the fleet each year.">
+            data-tip="Share of a mature PETROL fleet that leaves per year. Example: 0.045 means 4.5% a year.">
         i
       </span>
     </div>
-    <input id="hazPETROL" type="number" min="0" max="0.5" step="0.001" value="0.050">
+    <input id="hazPETROL" type="number" min="0" max="0.5" step="0.001" value="0.045">
   </div>
 
   <div class="field">
     <div style="display:flex; align-items:center; gap:6px;">
       <label for="hazDIESEL">DIESEL</label>
       <span class="info-tip"
-            data-tip="Annual attrition applied to the DIESEL fleet. Example: 0.02 means 2% of DIESEL vehicles leave the fleet each year.">
+            data-tip="Share of a mature DIESEL fleet that leaves per year. Example: 0.045 means 4.5% a year.">
         i
       </span>
     </div>
-    <input id="hazDIESEL" type="number" min="0" max="0.5" step="0.001" value="0.055">
+    <input id="hazDIESEL" type="number" min="0" max="0.5" step="0.001" value="0.050">
   </div>
 
   <div class="field">
     <div style="display:flex; align-items:center; gap:6px;">
       <label for="hazOTHERS">OTHERS/UNCATEGORIZED</label>
       <span class="info-tip"
-            data-tip="Annual attrition applied to the OTHERS fleet. Example: 0.02 means 2% of OTHERS leave the fleet each year.">
+            data-tip="Share of a mature OTHERS fleet that leaves per year. Example: 0.045 means 4.5% a year.">
         i
       </span>
     </div>
-    <input id="hazOTHERS" type="number" min="0" max="0.5" step="0.001" value="0.06">
+    <input id="hazOTHERS" type="number" min="0" max="0.5" step="0.001" value="0.045">
   </div>
 </div>
 
   <!-- Sub-card: Linear-only setting (knee + slope) -->
   <div class="fc-sub" id="fcSubLinearCurve">
     <div class="fc-sub-head">
-      <span>Linear age curve settings</span>
+      <span>Constant rate: optional age curve</span>
       <span class="info-tip"
-        data-tip="Only used when the Linear age curve hazard model is selected. Hazards above stay constant until projection_age = knee, then climb at slope per year. Effective rate = base + slope × max(0, projection_age − knee).">i</span>
+        data-tip="Only used in Constant rate mode, and off by default (slope = 0). With a slope, the rates above stay constant until the projection is knee years old, then climb by slope per year: rate = base + slope × max(0, years projected − knee). It follows projection time, not the age of the cars, so use it as a stress test rather than a forecast.">i</span>
       <span class="fc-sub-status" id="fcSubLinearCurveStatus">off</span>
     </div>
     <div class="fc-row" id="fleetHazardCurveGrid">
@@ -5098,7 +5110,7 @@ const VIEW_START_YEAR = 2015;
         <div style="display:flex; align-items:center; gap:6px;">
           <label for="hazardKneeYear">Knee (years into projection)</label>
           <span class="info-tip"
-            data-tip="Number of projection years before the hazard rate starts climbing above the base. Default 12: a fleet snapshot ages roughly 12 years before scrappage hazard rises noticeably.">i</span>
+            data-tip="Number of projection years before the rates start climbing. Only has an effect when the slope is above 0.">i</span>
         </div>
         <input id="hazardKneeYear" type="number" min="0" max="50" step="1" value="12">
       </div>
@@ -5106,9 +5118,9 @@ const VIEW_START_YEAR = 2015;
         <div style="display:flex; align-items:center; gap:6px;">
           <label for="hazardSlope">Slope (per year past knee)</label>
           <span class="info-tip"
-            data-tip="Annual increase added to every category's hazard once the projection age passes the knee. Default 0.004 = +0.4 percentage points per year past the knee. Set to 0 to disable the curve and keep hazards static.">i</span>
+            data-tip="Annual increase added to every category's rate once the projection passes the knee. 0 (default) keeps the rates constant. 0.004 = +0.4 percentage points per year past the knee.">i</span>
         </div>
-        <input id="hazardSlope" type="number" min="0" max="0.05" step="0.001" value="0.004">
+        <input id="hazardSlope" type="number" min="0" max="0.05" step="0.001" value="0">
       </div>
     </div>
   </div>
@@ -5159,8 +5171,9 @@ const VIEW_START_YEAR = 2015;
     </div>
     <div class="fe-co2-scen" id="feGridScen">
       <span class="fe-co2-scen-lbl">Power grid</span>
-      <label><input type="radio" name="feGridScen" value="linear" checked> decarbonises (IEA&nbsp;NZE &rarr; 2040)</label>
-      <label><input type="radio" name="feGridScen" value="constant"> today&#39;s grid held</label>
+      <label title="Each country's own grid, its ten-year trend in CO2e per kWh continued"><input type="radio" name="feGridScen" value="trend" checked> recent trend continues</label>
+      <label title="Linear to about 20 gCO2e/kWh by 2040, the IEA Net Zero by 2050 path. A normative scenario, not a forecast."><input type="radio" name="feGridScen" value="nze"> net-zero path (IEA&nbsp;NZE &rarr; 2040)</label>
+      <label title="Each country's last observed grid, held forever"><input type="radio" name="feGridScen" value="constant"> today&#39;s grid held</label>
     </div>
     <div id="feCo2Chart" data-theme="light"></div>
     <div id="feCo2Legend" class="fe-legend"></div>
@@ -5176,27 +5189,33 @@ const VIEW_START_YEAR = 2015;
     <br><br>
     <b>Nothing here is inferred behaviour.</b> Energy is conserved and every conversion step has a
     measured efficiency, so the chart balances by construction. Accounting follows the
-    <b>IEA physical energy content</b> method. The grid mix is held constant, which credits the
-    power sector with no future improvement &mdash; electrified transport is therefore shown at
-    its worst. Factors and their sources live in <code>energy_factors.csv</code>; the method is
-    written up in <code>architecture/energy-view-methodology.md</code>.
+    <b>IEA physical energy content</b> method. Electric cars are charged from <b>their own
+    country's grid</b>: the generation mix of each year on record (Ember, in
+    <code>fleet/grid_mix.csv</code>), and after the last year on record that mix is held, which
+    credits the power sector with no future improvement &mdash; in this chart electrified
+    transport is shown at its worst. Consumption, mileage and efficiency are single
+    fleet-average values for every country; they and their sources live in
+    <code>energy_factors.csv</code>, and the method is written up in
+    <code>architecture/energy-view-methodology.md</code>.
     <br><br>
     <b>The emissions strip</b> reads the same fleet as CO<span class="fe-sub">2</span> equivalent,
     <b>well-to-wheel</b>: the greenhouse gas of getting the fuel or electricity to the car and using it,
     stacked by source across the years so you can watch it develop as the fleet electrifies. Fuels use JEC
-    well-to-wheel CO<span class="fe-sub">2</span>e. For the <b>power grid</b> you pick the scenario:
-    <b>decarbonises</b> &mdash; the grid falls linearly from today's world average (Ember, ~480&nbsp;gCO<span class="fe-sub">2</span>e/kWh)
-    to a net-zero target (IEA Net Zero by 2050, ~2040) &mdash; or <b>today's grid held</b>, the honest worst
-    case for the electrified side. Both endpoints are single sourced values in <code>energy_factors.csv</code>,
-    so the trajectory is easy to check or swap. It counts the <b>use phase only</b> &mdash; building the car or
-    its battery is a separate, embodied question.
+    well-to-wheel CO<span class="fe-sub">2</span>e. Electricity is counted at each country's own grid
+    intensity (Ember: about 30&nbsp;gCO<span class="fe-sub">2</span>e/kWh in Norway, 330 in Germany, 525 in China),
+    year by year as far as the record goes. For the years after it you pick the scenario:
+    <b>recent trend continues</b> &mdash; each grid keeps improving at its own pace of the last ten years, no faster;
+    <b>net-zero path</b> &mdash; every grid falls linearly to about 20&nbsp;g by 2040, the IEA Net Zero by 2050
+    scenario, which is a target and not a forecast; or <b>today's grid held</b>, the worst case for the
+    electrified side. It counts the <b>use phase only</b> &mdash; building the car or its battery is a
+    separate, embodied question.
   </p>
 </div>
 
 </div>
 
 <p class="small" style="margin-top:12px;">
-  Observed fleet stock (on the road) by drivetrain. Projections use modeled inflow &amp; attrition (see controls above).
+  Observed fleet stock (on the road) by drivetrain. Projections use modeled inflow &amp; attrition (see controls above); by default attrition is calibrated to each country's own record of the last five years.
   <br>When multiple countries are selected they are stacked by category. If a country lacks a PHEV/HEV split, both appear under HYBRID; if PETROL/DIESEL detail is missing they appear under OTHERS.
 </p>
 </div>
@@ -5355,6 +5374,8 @@ const fleetState = {
   countries: [],
   params: [],
   weights: {},
+  calibration: {},   // fleet/fleet_calibration.json -> countries
+  grid: {},          // fleet/grid_mix.csv -> country -> [{year, g, mix}]
   supportLoaded: false
 };
 
@@ -11282,17 +11303,27 @@ function safeNum(x, fallback = 0){
 }
 
 function readFleetHazards(){
-  // Base (year-zero) hazard per category. The age curve below scales these
-  // up as the projection runs forward. Defaults match the HTML `value=`
-  // attributes, not the older 0.01-style numbers — those are stale.
+  // Annual turnover per category: the share of a mature fleet of that type
+  // that leaves per year. Defaults match the HTML `value=` attributes.
+  //
+  // Why these numbers. 0.045 sits in the middle of what fleet/
+  // fleet_calibration.json observes for the large registries that are not
+  // dominated by used imports (Germany 5.1 %, UK 4.5 %, Norway 4.4 %, Austria
+  // 4.0 %, France 3.7 %); it only matters for a country WITHOUT an observed rate, because
+  // calibration rescales the level per country. What the boxes always set is
+  // how the categories differ, and there the evidence supports one
+  // distinction only: diesels leave western fleets faster than petrol cars
+  // (exported east), about 1.1x. Battery cars get the petrol rate - there is
+  // no fleet old enough to show that they last longer or shorter, and the
+  // earlier 0.035 vs 0.050 asserted a 40 % longer life without a source.
   return {
-    BEV:    safeNum(document.getElementById('hazBEV')?.value, 0.035),
-    PHEV:   safeNum(document.getElementById('hazPHEV')?.value, 0.040),
-    HEV:    safeNum(document.getElementById('hazHEV')?.value, 0.042),
-    HYBRID: safeNum(document.getElementById('hazHYBRID')?.value, 0.041),
-    PETROL: safeNum(document.getElementById('hazPETROL')?.value, 0.050),
-    DIESEL: safeNum(document.getElementById('hazDIESEL')?.value, 0.055),
-    OTHERS: safeNum(document.getElementById('hazOTHERS')?.value, 0.060)
+    BEV:    safeNum(document.getElementById('hazBEV')?.value, 0.045),
+    PHEV:   safeNum(document.getElementById('hazPHEV')?.value, 0.045),
+    HEV:    safeNum(document.getElementById('hazHEV')?.value, 0.045),
+    HYBRID: safeNum(document.getElementById('hazHYBRID')?.value, 0.045),
+    PETROL: safeNum(document.getElementById('hazPETROL')?.value, 0.045),
+    DIESEL: safeNum(document.getElementById('hazDIESEL')?.value, 0.050),
+    OTHERS: safeNum(document.getElementById('hazOTHERS')?.value, 0.045)
   };
 }
 
@@ -11306,12 +11337,15 @@ function readFleetHazards(){
 // where `age` = projection year - snapshot year. Capped at 0.5 so a
 // pathological slope can never wipe a category in a single year.
 //
-// Set slope = 0 in the UI to recover the previous static behaviour.
+// slope = 0 (the default) keeps every rate constant. The curve is tied to
+// PROJECTION time, not vehicle age, so with a steady inflow of new cars a
+// non-zero slope makes the fleet shed cars ever faster for no physical reason;
+// it is kept as an opt-in stress test, not as a default.
 function readHazardCurve(){
   return {
     base: readFleetHazards(),
     kneeYear: Math.max(0, safeNum(document.getElementById('hazardKneeYear')?.value, 12)),
-    slope:    Math.max(0, safeNum(document.getElementById('hazardSlope')?.value, 0.004))
+    slope:    Math.max(0, safeNum(document.getElementById('hazardSlope')?.value, 0))
   };
 }
 
@@ -11384,29 +11418,44 @@ function shiftSharesForDecay(bevShare, iceShare, decayMult){
 // The annual probability that a vehicle of age `a` lives to age `a+1` is
 // S(a+1)/S(a) = exp( -((a+1)^shape - a^shape) / scale^shape ).
 //
-// We do not ask the user for `scale` directly. Instead they keep editing the
-// existing 7 hazBEV...hazOTHERS boxes and we re-interpret each box as the
-// "constant hazard that would produce the same median fleet life as this
-// Weibull". That keeps the 7 inputs intuitive and ~comparable across modes.
-// For input h0 the derivation is:
+// We do not ask the user for `scale` directly. They edit the seven
+// hazBEV...hazOTHERS boxes, and each box means ONE thing in both hazard modes:
+// the share of a MATURE fleet of that type that leaves per year. A mature
+// (stationary) fleet is one whose age mix has settled, so that it holds
+// S(a) cars of age a for every car registered per year. It loses
 //
-//   median(constant h0) = ln(2) / h0
-//   median(Weibull)     = scale * (ln 2)^(1/shape)
+//   exits / stock = 1 / sum_a S(a)
 //
-// Setting them equal:
+// per year, so the scale is the one that makes that sum equal 1 / h0. That is
+// directly comparable with an observed turnover statistic ("4.5 % of the
+// fleet left last year"), which the earlier median-life definition was not:
+// it made a mature fleet lose 1.43 x the number typed into the box.
 //
-//   scale = ln(2) / ( h0 * (ln 2)^(1/shape) )
-//
-// At shape = 1 the Weibull degenerates to an exponential with constant hazard
-// h0, so the two modes coincide exactly. At shape = 3 (default) young
-// vehicles have hazards near zero and old ones spike past the median age,
-// while the first projection year still loses roughly h0 of the fleet.
-const VINTAGE_AGE_CAP = 50;
+// At shape = 1 the Weibull degenerates to a constant hazard; at shape = 3
+// (default) young vehicles almost never leave and old ones leave fast.
+const VINTAGE_AGE_CAP = 120;
 
+function weibullSurvival(a, scale, shape){
+  if (!isFinite(scale) || scale <= 0) return 1;
+  return Math.exp(-Math.pow(a / scale, shape));
+}
+
+// Scale such that a mature fleet loses exactly `h0` of its cars per year.
 function deriveWeibullScale(h0, shape){
   if (!(h0 > 0)) return Infinity;
-  const ln2 = Math.log(2);
-  return ln2 / (h0 * Math.pow(ln2, 1 / shape));
+  const target = 1 / h0;
+  const sum = sc => {
+    let s = 0;
+    for (let a = 0; a <= VINTAGE_AGE_CAP; a++) s += weibullSurvival(a, sc, shape);
+    return s;
+  };
+  let lo = 0.05, hi = 4000;
+  if (sum(hi) < target) return hi;   // slower than the age cap can represent
+  for (let i = 0; i < 44; i++) {
+    const mid = (lo + hi) / 2;
+    if (sum(mid) < target) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
 }
 
 // One-step Weibull survival from age `a` to age `a+1`.
@@ -11424,24 +11473,88 @@ function emptyVintageBuckets(){
   return out;
 }
 
-// Initial vintage distribution from a snapshot row. We do NOT know the real
-// age distribution at the snapshot year, so we use option (a) from the
-// design discussion: spread each category's count uniformly over the ages
-// 0..floor(scale[cat]). The mean assumed age is then ~scale/2, which scales
-// naturally with the category's expected lifetime — BEVs (low h0 -> long
-// scale) get a wider, younger spread than DIESEL (higher h0 -> shorter
-// scale). For young real-world fleets like Norwegian BEVs this is mildly
-// pessimistic; for older real-world fleets like German Diesel it is mildly
-// optimistic. Both biases push the projection in the conservative direction.
-function initVintageBuckets(startRow, scaleByCat){
+// Age profile of a YOUNG category at the end of `startYear`, as shares by age,
+// from the country's own yearly registrations (fleet_calibration.json):
+// the cars registered in startYear are age 0, the year before age 1, and so on.
+// Electrified stock is far younger than a mature fleet - most battery cars on
+// the road were registered in the last five years - and assuming otherwise
+// retires them a decade early. Returns null where the registration history
+// cannot say (no data, or nothing registered in the last two years).
+function fleetAgeProfile(country, cat, startYear){
+  const reg = fleetCalibration(country)?.reg_by_year;
+  if (!reg) return null;
+  const sources = cat === 'HYBRID' ? ['PHEV', 'HEV'] : [cat];
+  const w = new Float64Array(VINTAGE_AGE_CAP + 1);
+  let total = 0;
+  for (let a = 0; a <= VINTAGE_AGE_CAP; a++) {
+    let v = 0;
+    sources.forEach(s => { v += safeNum(reg[s]?.[String(startYear - a)], 0); });
+    w[a] = v; total += v;
+  }
+  if (!(total > 0) || !(w[0] + w[1] > 0)) return null;
+  for (let a = 0; a <= VINTAGE_AGE_CAP; a++) w[a] /= total;
+  return w;
+}
+
+// The combustion side's registration history as cars per age at the end of
+// `startYear`: [registered in startYear, the year before, ...], as far back as
+// the yearly record is unbroken. null with fewer than five years.
+function fleetCombustionHistory(country, startYear){
+  const reg = fleetCalibration(country)?.reg_by_year?.COMBUSTION;
+  if (!reg) return null;
+  const out = [];
+  for (let a = 0; a <= VINTAGE_AGE_CAP; a++) {
+    const v = reg[String(startYear - a)];
+    if (!(v >= 0) || v === '' || v == null) break;
+    out.push(Number(v));
+  }
+  return out.length >= 5 ? out : null;
+}
+
+// Initial vintage distribution from a snapshot row. Three sources, best first:
+//  * `profiles[cat]` (shares by age, from fleetAgeProfile) for the young
+//    categories;
+//  * `history` (fleetCombustionHistory) for the others: the category's share
+//    of each registered year, thinned by its own survival curve, fills the
+//    young ages; whatever stock is left over is older than the record and
+//    takes the mature shape beyond it. A fleet that grew fast (China) comes
+//    out young and loses few cars now and more later; a steady one (Germany)
+//    comes out close to mature. Where the record alone already exceeds the
+//    stock (a country that exports its used cars) it is scaled down to fit;
+//  * otherwise mature: S(a) cars of age a, the age mix the hazard boxes are
+//    defined against.
+function initVintageBuckets(startRow, scaleByCat, shape, profiles, history){
   const v = emptyVintageBuckets();
-  getFleetCategories().forEach(cat => {
+  const cats = getFleetCategories();
+  const usesHistory = cat => history && !(profiles && profiles[cat]);
+  const historyStock = cats.reduce((s, cat) =>
+    s + (usesHistory(cat) ? Math.max(0, safeNum(startRow[cat], 0)) : 0), 0);
+  cats.forEach(cat => {
     const total = safeNum(startRow[cat], 0);
     if (total <= 0) return;
-    const sc = scaleByCat[cat];
-    const cap = Math.max(1, Math.min(VINTAGE_AGE_CAP, Math.floor(isFinite(sc) ? sc : 15)));
-    const perAge = total / (cap + 1);
-    for (let a = 0; a <= cap; a++) v[cat][a] = perAge;
+    const arr = v[cat], sc = scaleByCat[cat];
+    const prof = profiles && profiles[cat];
+    if (prof) {
+      for (let a = 0; a <= VINTAGE_AGE_CAP; a++) arr[a] = total * prof[a];
+      return;
+    }
+    let from = 0, left = total;
+    if (history) {
+      const share = total / historyStock;
+      let known = 0;
+      for (let a = 0; a < history.length; a++) {
+        arr[a] = share * history[a] * weibullSurvival(a, sc, shape);
+        known += arr[a];
+      }
+      let tail = 0;
+      for (let a = history.length; a <= VINTAGE_AGE_CAP; a++) tail += weibullSurvival(a, sc, shape);
+      if (known >= total || !(tail > 1e-9)) {
+        if (known > 0) { for (let a = 0; a < history.length; a++) arr[a] *= total / known; return; }
+      } else { from = history.length; left = total - known; }
+    }
+    let sum = 0;
+    for (let a = from; a <= VINTAGE_AGE_CAP; a++) { arr[a] = weibullSurvival(a, sc, shape); sum += arr[a]; }
+    for (let a = from; a <= VINTAGE_AGE_CAP; a++) arr[a] *= left / sum;
   });
   return v;
 }
@@ -11469,6 +11582,39 @@ function stepVintageBuckets(prev, inflowByCat, scaleByCat, shape){
     nextArr[0] = inflowByCat[cat] || 0;
   });
   return next;
+}
+
+// ----- Per-country calibration -----
+//
+// fleet/fleet_calibration.json (scripts/build_fleet_calibration.py) holds what
+// each country's own stock and registration series say about its fleet: the
+// net attrition rate, the split of the combustion side of new registrations,
+// and the yearly registrations behind the age profiles above.
+function fleetCalibration(country){
+  const all = fleetState.calibration || {};
+  for (const c of getCountryCandidates(country)) if (all[c]) return all[c];
+  return null;
+}
+
+// Bounds on the turnover the survival model is asked to reproduce. Below the
+// floor the remainder is booked as net used imports (see fleetTurnover).
+const FLEET_TURNOVER_FLOOR = 0.01, FLEET_TURNOVER_CAP = 0.15;
+
+// What the projection is calibrated to for one country:
+//   exitRate - share of the fleet the survival model retires per year
+//   usedRate - net used imports, as a share of the fleet per year
+// Observed net attrition = exitRate - usedRate. Where a country takes in more
+// used cars than it scraps (Lithuania, Romania) the observed figure is at or
+// below zero, which no survival curve can produce: the model keeps a floor of
+// real retirements and books the rest as used cars arriving in the current
+// fleet mix. null when calibration is off or the country has no observed rate.
+function fleetTurnover(country, options){
+  if (!options || !options.calibrate) return null;
+  const a = fleetCalibration(country)?.attrition;
+  if (!a || !isFinite(a.rate)) return null;
+  const exitRate = Math.min(FLEET_TURNOVER_CAP, Math.max(FLEET_TURNOVER_FLOOR, a.rate));
+  return { observed: a.rate, exitRate, usedRate: Math.max(0, exitRate - a.rate),
+           from: a.from, to: a.to, n: a.n };
 }
 
 function getFleetCategories(){
@@ -11591,6 +11737,16 @@ async function loadFleetSupportData(){
   // caching, so the Fleet tab's lookups never hit duplicate rows.
   fleetState.params   = paramsText  ? applyV1Recovery(dedupeParamRows(parseCSV(paramsText)))  : [];
   fleetState.weights  = weightsText ? buildWeightMap(parseCSV(weightsText)) : {};
+
+  // Per-country calibration and grid data. Both are optional: without them the
+  // projection runs on the typed-in rates and the Energy view on the world
+  // grid in energy_factors.csv, as it did before these files existed.
+  const calText = await loadText(['./fleet/fleet_calibration.json']);
+  try { fleetState.calibration = calText ? (JSON.parse(calText).countries || {}) : {}; }
+  catch { fleetState.calibration = {}; }
+  const gridText = await loadText(['./fleet/grid_mix.csv']);
+  fleetState.grid = gridText ? parseGridMix(parseCSV(gridText)) : {};
+  fleetProjectionCache.clear();
   fleetState.supportLoaded = true;
 
   if (debug) {
@@ -11728,6 +11884,8 @@ function modeledIceShareForYear(country, year){
   return clamp01(iceShareIndex(x, v1, v2, t0));
 }
 
+// Which stock bucket takes the plug-in hybrid inflow: PHEV where the country's
+// stock separates plug-ins, the combined HYBRID bucket where it does not.
 function inferNonBevTargetBucket(startRow){
   if (safeNum(startRow.PHEV) > 0) {
     return 'PHEV';
@@ -11753,91 +11911,159 @@ function inferNonBevSplit(startRow){
   };
 }
 
+// How the COMBUSTION side of new registrations lands in the stock buckets.
+// The S-curve model's "ICE" share is everything that is not BEV / PHEV / EREV
+// (R/data.R), so it holds full hybrids, petrol, diesel and gas. It used to be
+// booked wholesale into OTHERS, which the Energy view reads as LPG/CNG: every
+// projected petrol and diesel car was charged as a gas car.
+//
+// Returns shares (summing to 1) over the buckets this country's stock has:
+//  * from the last 12 months of registrations where the source reports its own
+//    petrol / diesel split (fleet_calibration.json `inflow_mix`). A class the
+//    stock does not carry goes where the stock keeps those cars: full hybrids
+//    into the combined HYBRID bucket, else into PETROL; petrol / diesel into
+//    OTHERS where the stock has no such split (China).
+//  * otherwise in proportion to the stock itself. That overstates diesel,
+//    whose share of sales has fallen faster than its share of the fleet, but
+//    it keeps the cars in the right family.
+function fleetIceSplit(country, startRow){
+  const has = k => safeNum(startRow[k], 0) > 0;
+  const out = { HEV:0, HYBRID:0, PETROL:0, DIESEL:0, OTHERS:0 };
+  const mix = fleetCalibration(country)?.inflow_mix;
+  if (mix && (has('PETROL') || has('DIESEL'))) {
+    const petrolBucket = has('PETROL') ? 'PETROL' : 'OTHERS';
+    out[has('HEV') ? 'HEV' : has('HYBRID') ? 'HYBRID' : petrolBucket] += safeNum(mix.HEV, 0);
+    out[petrolBucket] += safeNum(mix.PETROL, 0);
+    out[has('DIESEL') ? 'DIESEL' : 'OTHERS'] += safeNum(mix.DIESEL, 0);
+    out.OTHERS += safeNum(mix.OTHERS, 0);
+  } else {
+    // The combined HYBRID bucket is left out: it already takes the plug-ins.
+    const cats = ['HEV', 'PETROL', 'DIESEL', 'OTHERS'];
+    cats.forEach(k => { out[k] = safeNum(startRow[k], 0); });
+  }
+  const sum = Object.values(out).reduce((a, b) => a + b, 0);
+  if (!(sum > 0)) return { HEV:0, HYBRID:0, PETROL:0, DIESEL:0, OTHERS:1 };
+  Object.keys(out).forEach(k => { out[k] /= sum; });
+  return out;
+}
+
+// New registrations of one projection year, per stock bucket. Shared by both
+// hazard modes so they can only differ in how cars LEAVE the fleet.
+function fleetYearInflow(country, year, startRow, options, splitInfo, iceSplit){
+  const decayMult = inflowDecayMultiplier(options.inflowDecay
+    || { floor: 1, startYear: 2030, lambda: 0 }, year);
+  const annualInflow = getCountryAnnualInflow(country)
+    * safeNum(options.inflowMultiplier, 1) * decayMult;
+  const shifted = shiftSharesForDecay(
+    modeledBevShareForYear(country, year + 0.5),
+    modeledIceShareForYear(country, year + 0.5), decayMult);
+  const bevShare = shifted.bevShare, iceShare = shifted.iceShare;
+
+  const inflow = { BEV:0, PHEV:0, HEV:0, HYBRID:0, DIESEL:0, PETROL:0, OTHERS:0 };
+  let combustion = annualInflow;
+  if (isFinite(bevShare)) {
+    inflow.BEV = annualInflow * bevShare;
+    // Plug-in hybrids: what is left between the BEV and the ICE curve. Without
+    // an ICE curve, the plug-in bucket's share of today's non-BEV stock.
+    let plugIn = isFinite(iceShare)
+      ? annualInflow * clamp01(1 - bevShare - iceShare)
+      : annualInflow * Math.max(0, 1 - bevShare) * (splitInfo.pRatio || 0);
+    if (!splitInfo.targetBucket) plugIn = 0;   // no bucket: stays on the combustion side
+    else inflow[splitInfo.targetBucket] += plugIn;
+    combustion = Math.max(0, annualInflow - inflow.BEV - plugIn);
+  }
+  Object.keys(iceSplit).forEach(k => { inflow[k] += combustion * iceSplit[k]; });
+  return inflow;
+}
+
+// Net imports entered by hand (Inflow section), applied after the year's
+// ageing and inflow. `scaleBuckets(cat, factor)` lets the vintage model shrink
+// its age buckets in step; positive imports arrive as a new vintage.
+function applyFleetNetImports(next, options, addNew, scaleCat){
+  const netImports = safeNum(options.netImportsPerYear, 0);
+  const bevImportShare = clamp01(options.bevImportShare);
+  if (netImports >= 0) {
+    const bevImports = netImports * bevImportShare;
+    addNew('BEV', bevImports);
+    addNew('OTHERS', netImports - bevImports);
+    return;
+  }
+  // Negative net imports (= net exports): mirrors the positive split.
+  // bevImportShare of the export volume is removed from BEV; the remainder is
+  // removed from all non-BEV categories in proportion to their current mix.
+  const exportAbs = Math.abs(netImports);
+  const bevRemoval = exportAbs * bevImportShare;
+  if (next.BEV > 0) scaleCat('BEV', Math.max(0, (next.BEV - bevRemoval) / next.BEV));
+  const restRemoval = exportAbs * (1 - bevImportShare);
+  const nonBevCats = ['PHEV','HEV','HYBRID','DIESEL','PETROL','OTHERS'];
+  const nonBevTotal = nonBevCats.reduce((s, c) => s + Math.max(0, next[c]), 0);
+  if (nonBevTotal > 0 && restRemoval > 0) {
+    for (const cat of nonBevCats) {
+      if (next[cat] > 0) {
+        const removal = restRemoval * (next[cat] / nonBevTotal);
+        scaleCat(cat, Math.max(0, (next[cat] - removal) / next[cat]));
+      }
+    }
+  }
+}
+
+// Projections are pure functions of (country, years, options, loaded data) and
+// every redraw asks for the same one several times (chart, energy view,
+// compare lines), so they are memoised. Cleared whenever data is (re)loaded.
+const fleetProjectionCache = new Map();
+function cachedFleetProjection(kind, country, startYear, endYear, options, compute){
+  const key = kind + '|' + country + '|' + startYear + '|' + endYear + '|' + JSON.stringify(options);
+  if (fleetProjectionCache.has(key)) return fleetProjectionCache.get(key);
+  if (fleetProjectionCache.size > 400) fleetProjectionCache.clear();
+  const out = compute();
+  fleetProjectionCache.set(key, out);
+  return out;
+}
+
+// Constant-rate projection ("Constant rate" mode): every category loses its
+// rate per year, whatever the age of its cars.
 function projectCountryFleet(country, startYear, endYear, options){
+  return cachedFleetProjection('linear', country, startYear, endYear, options,
+    () => projectCountryFleetLinear(country, startYear, endYear, options));
+}
+
+function projectCountryFleetLinear(country, startYear, endYear, options){
   const startRow = getObservedRow(country, startYear);
   if(!startRow) return [];
-  // `hazardCurve` is the new age-aware form: { base, kneeYear, slope }.
+  // `hazardCurve` is the age-aware form: { base, kneeYear, slope }.
   // `options.hazards` (the old flat map) is still accepted as a fallback
   // so external callers — and tests — keep working without changes.
   const hazardCurve = options.hazardCurve
     || { base: options.hazards || {}, kneeYear: 0, slope: 0 };
-  // Inflow decay: { floor, startYear, lambda }. Defaults to floor=1
-  // (= disabled) so existing callers without the field stay unchanged.
-  const inflowDecay = options.inflowDecay
-    || { floor: 1, startYear: 2030, lambda: 0 };
-  const inflowMultiplier = options.inflowMultiplier;
-  const netImports = options.netImportsPerYear;
-  const bevImportShare = clamp01(options.bevImportShare);
   const splitInfo = inferNonBevSplit(startRow);
+  const iceSplit = fleetIceSplit(country, startRow);
+
+  // Calibration: scale every rate by one factor so the start fleet loses the
+  // country's observed share in its first year.
+  const turnover = fleetTurnover(country, options);
+  let k = 1;
+  if (turnover) {
+    const stock = rowTotal(startRow);
+    const exits = getFleetCategories().reduce((s, cat) =>
+      s + safeNum(startRow[cat], 0) * effectiveHazard(hazardCurve, cat, 1), 0);
+    if (stock > 0 && exits > 0) k = turnover.exitRate * stock / exits;
+  }
+
   const series = [{ ...startRow, projected:false, country }];
   let prev = { ...startRow };
   for(let year = startYear + 1; year <= endYear; year++){
     const projectionAge = year - startYear;
     const next = emptyFleetRow(year);
     getFleetCategories().forEach(cat => {
-      const prevVal = safeNum(prev[cat], 0);
-      const hz = effectiveHazard(hazardCurve, cat, projectionAge);
-      next[cat] = prevVal * (1 - hz);
+      const hz = Math.min(0.5, effectiveHazard(hazardCurve, cat, projectionAge) * k);
+      next[cat] = safeNum(prev[cat], 0) * (1 - hz);
+      if (turnover) next[cat] += safeNum(prev[cat], 0) * turnover.usedRate;
     });
-    const annualInflowBase = getCountryAnnualInflow(country);
-    const decayMult = inflowDecayMultiplier(inflowDecay, year);
-    const annualInflow = annualInflowBase * inflowMultiplier * decayMult;
-    const rawBevShare = modeledBevShareForYear(country, year + 0.5);
-    const rawIceShare = modeledIceShareForYear(country, year + 0.5);
-    const shifted = shiftSharesForDecay(rawBevShare, rawIceShare, decayMult);
-    const bevShare = shifted.bevShare;
-    const iceShare = shifted.iceShare;
-    let inflowBEV = 0;
-    let inflowNonBEV = 0;
-    let inflowOthers = 0;
-    if (isFinite(bevShare)) {
-      inflowBEV = annualInflow * bevShare;
-      if (isFinite(iceShare)) {
-        const nonBevNonIceShare = clamp01(1 - bevShare - iceShare);
-        inflowNonBEV = annualInflow * nonBevNonIceShare;
-        inflowOthers = Math.max(0, annualInflow - inflowBEV - inflowNonBEV);
-      } else {
-        const pRatio = splitInfo.pRatio || 0;
-        inflowNonBEV = annualInflow * Math.max(0, 1 - bevShare) * pRatio;
-        inflowOthers = Math.max(0, annualInflow - inflowBEV - inflowNonBEV);
-      }
-    } else {
-      inflowOthers = annualInflow;
-    }
-        next.BEV += inflowBEV;
-
-    if (splitInfo.targetBucket) {
-      next[splitInfo.targetBucket] += inflowNonBEV;
-    } else {
-      next.OTHERS += inflowNonBEV;
-    }
-
-    next.OTHERS += inflowOthers;
-
-    if (netImports >= 0) {
-      const bevImports = netImports * bevImportShare;
-      const otherImports = netImports - bevImports;
-
-      next.BEV += bevImports;
-      next.OTHERS += otherImports;
-    } else {
-      // Negative net imports (= net exports): mirrors the positive split.
-      // bevImportShare of the export volume is removed from BEV;
-      // the remainder is removed proportionally from all non-BEV categories
-      // (PHEV, HEV, HYBRID, DIESEL, PETROL, OTHERS) based on their current mix.
-      const exportAbs = Math.abs(netImports);
-      const bevRemoval = exportAbs * bevImportShare;
-      next.BEV = Math.max(0, next.BEV - bevRemoval);
-
-      const restRemoval = exportAbs * (1 - bevImportShare);
-      const nonBevCats = ['PHEV','HEV','HYBRID','DIESEL','PETROL','OTHERS'];
-      const nonBevTotal = nonBevCats.reduce((s, c) => s + Math.max(0, next[c]), 0);
-      if (nonBevTotal > 0 && restRemoval > 0) {
-        for (const cat of nonBevCats) {
-          next[cat] = Math.max(0, next[cat] - restRemoval * (Math.max(0, next[cat]) / nonBevTotal));
-        }
-      }
-    }
+    const inflow = fleetYearInflow(country, year, startRow, options, splitInfo, iceSplit);
+    getFleetCategories().forEach(cat => { next[cat] += inflow[cat]; });
+    applyFleetNetImports(next, options,
+      (cat, n) => { next[cat] += n; },
+      (cat, f) => { next[cat] *= f; });
     next.projected = true;
     next.country = country;
     series.push(next);
@@ -11851,112 +12077,92 @@ function projectCountryFleet(country, startYear, endYear, options){
 // its own cohort and applies the Weibull step survival to it. The first
 // row is the observed snapshot, identical to the static version.
 function projectCountryFleetVintage(country, startYear, endYear, options){
+  return cachedFleetProjection('vintage', country, startYear, endYear, options,
+    () => projectCountryFleetVintageRun(country, startYear, endYear, options));
+}
+
+function projectCountryFleetVintageRun(country, startYear, endYear, options){
   const startRow = getObservedRow(country, startYear);
   if (!startRow) return [];
 
   const hazardCurve = options.hazardCurve
     || { base: options.hazards || {}, kneeYear: 0, slope: 0 };
-  const inflowDecay = options.inflowDecay
-    || { floor: 1, startYear: 2030, lambda: 0 };
-  const inflowMultiplier = options.inflowMultiplier;
-  const netImports = options.netImportsPerYear;
-  const bevImportShare = clamp01(options.bevImportShare);
   const shape = Math.max(0.5, safeNum(options.weibullShape, 3));
   const splitInfo = inferNonBevSplit(startRow);
+  const iceSplit = fleetIceSplit(country, startRow);
+  const cats = getFleetCategories();
+  const stock = rowTotal(startRow);
 
-  // Derive a Weibull scale per category from the user's h0 input.
-  const scaleByCat = {};
-  getFleetCategories().forEach(cat => {
-    const h0 = Math.max(0.0001, safeNum(hazardCurve.base?.[cat], 0.04));
-    scaleByCat[cat] = deriveWeibullScale(h0, shape);
+  // Young categories start from their registration history, the rest as mature.
+  const profiles = {};
+  ['BEV', 'PHEV', 'HEV', 'HYBRID'].forEach(cat => {
+    if (safeNum(startRow[cat], 0) > 0) profiles[cat] = fleetAgeProfile(country, cat, startYear);
   });
 
-  // Spread the snapshot uniformly across young vintages (option a).
-  let buckets = initVintageBuckets(startRow, scaleByCat);
+  const history = fleetCombustionHistory(country, startYear);
+
+  const h0 = {};
+  cats.forEach(cat => { h0[cat] = Math.max(0.0001, safeNum(hazardCurve.base?.[cat], 0.045)); });
+  const scalesFor = k => {
+    const sc = {};
+    cats.forEach(cat => { sc[cat] = deriveWeibullScale(h0[cat] * k, shape); });
+    return sc;
+  };
+  // Share of the start fleet that leaves in the first projection year.
+  const firstYearExit = scaleByCat => {
+    const b = initVintageBuckets(startRow, scaleByCat, shape, profiles, history);
+    let exits = 0;
+    cats.forEach(cat => {
+      for (let a = 0; a <= VINTAGE_AGE_CAP; a++)
+        exits += b[cat][a] * (1 - (a < VINTAGE_AGE_CAP ? weibullStepSurvival(a, scaleByCat[cat], shape) : 0));
+    });
+    return stock > 0 ? exits / stock : 0;
+  };
+
+  // Calibration: one factor on all seven rates so that first-year exits match
+  // the country's observed turnover. The boxes then set how the categories
+  // differ from each other; the country's own record sets the level.
+  const turnover = fleetTurnover(country, options);
+  let k = 1;
+  if (turnover && stock > 0) {
+    let lo = 0.02, hi = 50;
+    for (let i = 0; i < 36; i++) {
+      const mid = Math.sqrt(lo * hi);
+      if (firstYearExit(scalesFor(mid)) < turnover.exitRate) lo = mid; else hi = mid;
+    }
+    k = Math.sqrt(lo * hi);
+  }
+  const scaleByCat = scalesFor(k);
+
+  let buckets = initVintageBuckets(startRow, scaleByCat, shape, profiles, history);
   const series = [{ ...startRow, projected: false, country }];
 
   for (let year = startYear + 1; year <= endYear; year++) {
-    // Compute new inflow per category for this year (same logic as the
-    // static version, including inflow decay).
-    const annualInflowBase = getCountryAnnualInflow(country);
-    const decayMult = inflowDecayMultiplier(inflowDecay, year);
-    const annualInflow = annualInflowBase * inflowMultiplier * decayMult;
-    const rawBevShare = modeledBevShareForYear(country, year + 0.5);
-    const rawIceShare = modeledIceShareForYear(country, year + 0.5);
-    const shifted = shiftSharesForDecay(rawBevShare, rawIceShare, decayMult);
-    const bevShare = shifted.bevShare;
-    const iceShare = shifted.iceShare;
+    const inflowByCat = fleetYearInflow(country, year, startRow, options, splitInfo, iceSplit);
 
-    let inflowBEV = 0, inflowNonBEV = 0, inflowOthers = 0;
-    if (isFinite(bevShare)) {
-      inflowBEV = annualInflow * bevShare;
-      if (isFinite(iceShare)) {
-        const nonBevNonIceShare = clamp01(1 - bevShare - iceShare);
-        inflowNonBEV = annualInflow * nonBevNonIceShare;
-        inflowOthers = Math.max(0, annualInflow - inflowBEV - inflowNonBEV);
-      } else {
-        const pRatio = splitInfo.pRatio || 0;
-        inflowNonBEV = annualInflow * Math.max(0, 1 - bevShare) * pRatio;
-        inflowOthers = Math.max(0, annualInflow - inflowBEV - inflowNonBEV);
-      }
-    } else {
-      inflowOthers = annualInflow;
+    // Net used imports (calibration): arrive in the current fleet's own mix
+    // and age structure, before this year's ageing.
+    if (turnover && turnover.usedRate > 0) {
+      cats.forEach(cat => {
+        for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets[cat][a] *= 1 + turnover.usedRate;
+      });
     }
-
-    const inflowByCat = { BEV:0, PHEV:0, HEV:0, HYBRID:0, DIESEL:0, PETROL:0, OTHERS:0 };
-    inflowByCat.BEV = inflowBEV;
-    if (splitInfo.targetBucket) {
-      inflowByCat[splitInfo.targetBucket] = inflowNonBEV;
-    } else {
-      inflowByCat.OTHERS = inflowNonBEV;
-    }
-    inflowByCat.OTHERS += inflowOthers;
 
     // Age the cohorts and add the new vintage 0.
     buckets = stepVintageBuckets(buckets, inflowByCat, scaleByCat, shape);
 
     const next = emptyFleetRow(year);
-    getFleetCategories().forEach(cat => { next[cat] = vintageTotal(buckets, cat); });
+    cats.forEach(cat => { next[cat] = vintageTotal(buckets, cat); });
 
     // Net imports — added/removed AFTER ageing. Positive imports go in as a
     // brand-new vintage (age 0). Negative imports are removed proportionally
     // from each vintage so the age distribution is preserved.
-    if (netImports >= 0) {
-      const bevImports = netImports * bevImportShare;
-      const otherImports = netImports - bevImports;
-      buckets.BEV[0] += bevImports;
-      buckets.OTHERS[0] += otherImports;
-      next.BEV += bevImports;
-      next.OTHERS += otherImports;
-    } else {
-      // Negative net imports: same split logic as positive, applied as removal.
-      // bevImportShare from BEV (vintage buckets scaled accordingly);
-      // remainder proportional across all non-BEV categories + their buckets.
-      const exportAbs = Math.abs(netImports);
-
-      const bevRemoval = exportAbs * bevImportShare;
-      if (next.BEV > 0) {
-        const factor = Math.max(0, (next.BEV - bevRemoval) / next.BEV);
-        for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets.BEV[a] *= factor;
-        next.BEV = Math.max(0, next.BEV - bevRemoval);
-      }
-
-      const restRemoval = exportAbs * (1 - bevImportShare);
-      const nonBevCats = ['PHEV','HEV','HYBRID','DIESEL','PETROL','OTHERS'];
-      const nonBevTotal = nonBevCats.reduce((s, c) => s + Math.max(0, next[c]), 0);
-      if (nonBevTotal > 0 && restRemoval > 0) {
-        for (const cat of nonBevCats) {
-          if (next[cat] > 0) {
-            const removal = restRemoval * (Math.max(0, next[cat]) / nonBevTotal);
-            const factor = Math.max(0, (next[cat] - removal) / next[cat]);
-            if (buckets[cat]) {
-              for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets[cat][a] *= factor;
-            }
-            next[cat] = Math.max(0, next[cat] - removal);
-          }
-        }
-      }
-    }
+    applyFleetNetImports(next, options,
+      (cat, n) => { buckets[cat][0] += n; next[cat] += n; },
+      (cat, f) => {
+        for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets[cat][a] *= f;
+        next[cat] *= f;
+      });
 
     next.projected = true;
     next.country = country;
@@ -12014,7 +12220,11 @@ async function loadFleetObserved() {
     if (debug) debug.textContent += "Content length: " + text.length + " characters\n";
     const rows = parseCSV(text);
     if (rows.length === 0) throw new Error("CSV empty or header only");
-    fleetState.observed = rows.map(r => {
+    // The stock file is keyed (country, variant, year). Only passenger cars
+    // (`Whole`, EU class M1) are modelled today; a row of another variant
+    // (Vans, HDV, Buses) must not be read as a second passenger-car row.
+    const isCars = r => { const v = String(r.variant || '').trim().toLowerCase(); return !v || v === 'whole'; };
+    fleetState.observed = rows.filter(isCars).map(r => {
       const n = k => Number(r[k]) || 0;
       const bev    = n('BEV');
       const phev   = n('PHEV') + n('EREV');   // EREV folds into PHEV
@@ -12078,6 +12288,36 @@ async function loadFleetObserved() {
     const plotArea = document.getElementById("fleetPlot");
     if (plotArea) plotArea.innerHTML = '<div style="color:#ff9999; padding:30px; text-align:center;">No data - see Debug above</div>';
   }
+}
+
+/* One line under the calibration switch: what each selected country is
+   calibrated to, so the number behind the projection is on the page. */
+function updateFleetCalibrationStatus(countries, options){
+  const box = document.getElementById('fleetCalibrationStatus');
+  if (!box) return;
+  const pct = v => (v * 100).toFixed(1) + '%';
+  const have = [], none = [];
+  countries.forEach(c => {
+    const a = fleetCalibration(c)?.attrition;
+    if (a && isFinite(a.rate)) have.push({ c, a }); else none.push(c);
+  });
+  if (!options.calibrate) {
+    box.textContent = 'Calibration off: the rates below apply as typed, the same for every country.';
+    return;
+  }
+  const shown = have.slice(0, 6).map(({ c, a }) => {
+    const t = fleetTurnover(c, options);
+    const used = t && t.usedRate > 0
+      ? ` (modelled as ${pct(t.exitRate)} leaving, ${pct(t.usedRate)} net used imports)` : '';
+    return `${fleetDisplayName(c)} ${pct(a.rate)}${used}`;
+  });
+  const span = have.length ? `${Math.min(...have.map(h => h.a.from))}\u2013${Math.max(...have.map(h => h.a.to))}` : '';
+  let txt = have.length
+    ? `Observed net attrition per year, ${span}: ${shown.join(' \u00b7 ')}`
+      + (have.length > 6 ? ` \u00b7 +${have.length - 6} more` : '') + '.'
+    : '';
+  if (none.length) txt += (txt ? ' ' : '') + `No observed rate for ${none.map(fleetDisplayName).join(', ')}: the typed rates apply.`;
+  box.textContent = txt;
 }
 
 /* Display label only (data keys stay as they are): the rest of the site says "UK". */
@@ -12244,9 +12484,9 @@ const FE_EXPL = {
  "Petrol":"Petrol in the tank, after refining and distribution.",
  "Diesel":"Diesel in the tank.",
  "Gas fuel":"LPG/CNG in the tank.",
- "Electricity":"Electricity in the battery, after grid losses and charging losses.",
+ "Electricity":"Electricity at the charging point, after grid losses. Charging and battery losses happen in the car and are part of its conversion loss.",
  "Supply loss":"Energy spent GETTING the fuel to the car — refining crude, burning coal or gas in a power station, grid transmission, charging losses. It is gone before the key is turned. For electricity this is the big one on a thermal grid: a coal plant throws away about 62% of the coal as waste heat at the chimney.",
- "Conversion loss":"Energy the car itself wastes turning fuel into motion — almost all of it heat out of the engine and radiator. A combustion engine loses roughly three quarters of the fuel in the tank this way; an electric motor loses about a fifth. This single bar is why electrification changes the picture.",
+ "Conversion loss":"Energy the car itself wastes turning fuel into motion — almost all of it heat out of the engine and radiator. A combustion engine loses roughly three quarters of the fuel in the tank this way; an electric car loses about a fifth, charging included. This single bar is why electrification changes the picture.",
  "Work at the wheel":"What is left to actually move the car: the mechanical energy arriving at the wheels.",
  "Air drag":"Pushing air aside. Dominates at motorway speed and rises with the cube of it.",
  "Rolling resistance":"Tyres deforming against the road. Roughly constant per kilometre.",
@@ -12255,28 +12495,82 @@ const FE_EXPL = {
 };
 FE_KEYS.forEach(k => { FE_EXPL[FE_LAB[k]] = "Energy entering cars of this type."; });
 
-function feGridFactor(){
- const m = {coal:FE_F.mix_coal,gas:FE_F.mix_gas,nuclear:FE_F.mix_nuclear,other:FE_F.mix_other,
-            renew:FE_F.mix_hydro+FE_F.mix_wind+FE_F.mix_solar};
- return {mix:m, factor: m.coal/FE_F.eff_coal_plant + m.gas/FE_F.eff_gas_plant
-   + m.nuclear/FE_F.eff_nuclear_iea + m.other/FE_F.eff_other_plant + m.renew};
+/* fleet/grid_mix.csv -> country -> [{year, g, mix}] sorted by year.
+   g is kgCO2e per kWh generated; mix is shares of generation folded onto the
+   five sources the Sankey draws (oil and biomass plants are "other"). */
+function parseGridMix(rows){
+ const out = {};
+ rows.forEach(r => {
+  const c = String(r.country || '').trim(), y = Number(r.year), g = Number(r.gco2_kwh);
+  if (!c || !isFinite(y) || String(r.gco2_kwh || '').trim() === '' || !isFinite(g)) return;
+  const p = k => Math.max(0, Number(r[k]) || 0);
+  const mix = {coal:p('coal'), gas:p('gas'), nuclear:p('nuclear'), other:p('oil')+p('bio'),
+               renew:p('hydro')+p('wind')+p('solar')+p('other_renew')};
+  const tot = Object.values(mix).reduce((a,b) => a+b, 0);
+  if (!(tot > 0)) return;
+  Object.keys(mix).forEach(k => { mix[k] /= tot; });
+  (out[c] = out[c] || []).push({year:y, g:g/1000, mix});
+ });
+ Object.values(out).forEach(a => a.sort((x,y) => x.year - y.year));
+ return out;
 }
-/* Grid CO2e intensity in kgCO2e per kWh GENERATED, at `year`, under one of two
-   sourced scenarios (values in energy_factors.csv):
-     'linear'   — linear from grid_co2_now (the last actual grid figure, at
-                  grid_co2_base_year) to grid_co2_target at grid_co2_target_year,
-                  flat after. The realistic forward view.
-     'constant' — today's grid held forever: the worst case for the electrified
-                  side, and the "keep today's grid mix" what-if.
-   Applies to the emissions timeline only; the energy Sankey holds the mix
-   constant by design (see methodology). */
-function feGridCO2At(year, scenario){
- const now = FE_F.grid_co2_now, tgt = FE_F.grid_co2_target;
- if (scenario !== 'linear') return now;
- const by = FE_F.grid_co2_base_year, ty = FE_F.grid_co2_target_year;
- if (year <= by) return now;
- if (year >= ty) return tgt;
- return now + (tgt - now) * (year - by) / (ty - by);
+/* The world mix in energy_factors.csv: the fallback when grid_mix.csv is not
+   there at all. With the file loaded, a country without its own rows falls
+   back to the file's World series instead. */
+function feWorldMix(){
+ return {coal:FE_F.mix_coal, gas:FE_F.mix_gas, nuclear:FE_F.mix_nuclear, other:FE_F.mix_other,
+         renew:FE_F.mix_hydro+FE_F.mix_wind+FE_F.mix_solar};
+}
+function feGridSeries(country){
+ const all = fleetState.grid || {};
+ if (country) for (const c of getCountryCandidates(country)) if (all[c] && all[c].length) return all[c];
+ return all.World && all.World.length ? all.World : null;
+}
+/* Recent trend of a grid's CO2e intensity, kg/kWh per year: least-squares slope
+   over the last ten data years. Never positive - a grid that got dirtier is
+   held, not extrapolated upwards. */
+function feGridTrend(ser){
+ const last = ser[ser.length-1].year, pts = ser.filter(r => r.year > last - 10);
+ if (pts.length < 5) return 0;
+ const mx = pts.reduce((a,r) => a+r.year, 0)/pts.length, my = pts.reduce((a,r) => a+r.g, 0)/pts.length;
+ let sxy = 0, sxx = 0;
+ pts.forEach(r => { sxy += (r.year-mx)*(r.g-my); sxx += (r.year-mx)*(r.year-mx); });
+ return sxx > 0 ? Math.min(0, sxy/sxx) : 0;
+}
+/* One country's grid in `year`: {g, mix}. g = kgCO2e per kWh GENERATED.
+   Up to the last data year both are the country's own record (Ember, via
+   fleet/grid_mix.csv), so observed fleet years meet the grid they actually
+   ran on. Beyond it the MIX is held - the Sankey credits the power sector with
+   no future change - and the intensity follows one of three scenarios:
+     'trend'    - the country's own ten-year trend continues, down to the
+                  net-zero residual at most. The default: no acceleration and
+                  no stall assumed.
+     'nze'      - linear to grid_co2_target by grid_co2_target_year (IEA Net
+                  Zero by 2050), flat after. A normative path, not a forecast.
+     'constant' - the last observed grid held forever: the worst case for the
+                  electrified side. */
+function feGridAt(country, year, scenario){
+ const tgt = FE_F.grid_co2_target, ty = FE_F.grid_co2_target_year;
+ const path = (g0, y0) => {
+  const floor = Math.min(g0, tgt);
+  if (year <= y0 || scenario === 'constant' || !scenario) return g0;
+  if (scenario === 'nze') return year >= ty || ty <= y0 ? floor : g0 + (floor-g0)*(year-y0)/(ty-y0);
+  return null;   // 'trend': needs the series
+ };
+ const ser = feGridSeries(country);
+ if (!ser){
+  const g = path(FE_F.grid_co2_now, FE_F.grid_co2_base_year);
+  return {g: g == null ? FE_F.grid_co2_now : g, mix: feWorldMix()};
+ }
+ const last = ser[ser.length-1];
+ if (year <= last.year){
+  let hit = ser[0];
+  for (const r of ser){ if (r.year <= year) hit = r; else break; }
+  return {g: hit.g, mix: hit.mix};
+ }
+ let g = path(last.g, last.year);
+ if (g == null) g = Math.max(Math.min(last.g, tgt), last.g + feGridTrend(ser)*(year-last.year));
+ return {g, mix: last.mix};
 }
 /* Per-vehicle annual energy in kWh: carrier (at tank/wall), and useful work. */
 function fePerVehicle(pt){
@@ -12317,13 +12611,16 @@ function feNormalise(row){
  };
 }
 
-/* A fleet row (cars by fuel) -> Sankey links in TWh/yr. Energy is conserved:
+/* One year of the fleet -> Sankey links in TWh/yr. Energy is conserved:
    primary = work + supply loss + conversion loss, by construction.
-   `year` and `gridScen` only affect the CO2e figures (grid decarbonisation);
-   the energy chain itself is year-independent. */
-function feChain(row, year, gridScen){
+   `entry` = {row, year, parts}: `row` is the fleet summed over the selected
+   countries (cars by fuel), `parts` the same per country. Fuel is fuel
+   wherever it is burned, but electricity is not: each country's electric cars
+   are charged from that country's own grid (feGridAt), which is what `parts`
+   is for. `gridScen` only moves the CO2e of future years. */
+function feChain(entry, gridScen){
+ const row = entry.row, year = entry.year;
  const TWH = 1e9, L = [], add = (s,t,v) => { if (v > 1e6) L.push({s,t,v:v/TWH}); };
- const G = feGridFactor();
  let cp=0, cd=0, cg=0, ce=0, W=0, primary=0, cars=0;
  FE_KEYS.forEach(pt => {
   const n = safeNum(row[pt], 0); if (!n) return;
@@ -12345,24 +12642,35 @@ function feChain(row, year, gridScen){
  primary += oil;
  if (cg > 0){ const g = cg*FE_F.wtt_gasfuel;
   add('Natural gas','Gas fuel',cg); add('Natural gas','Supply loss', g-cg); primary += g; }
- const gen = ce/(1-FE_F.grid_td_loss);
+ // Electricity: generated per country on that country's grid, then summed.
+ const genBy = {coal:0, gas:0, nuclear:0, other:0, renew:0};
+ let gen = 0, co2ElecKg = 0;
+ const parts = entry.parts && entry.parts.length ? entry.parts : [{country:null, row}];
+ parts.forEach(p => {
+  let cel = 0;
+  FE_KEYS.forEach(pt => { const n = safeNum(p.row[pt], 0); if (n) cel += fePerVehicle(pt).carrierElec*n; });
+  if (!(cel > 0)) return;
+  const gp = cel/(1-FE_F.grid_td_loss), G = feGridAt(p.country, year, gridScen || 'constant');
+  Object.keys(genBy).forEach(k => { genBy[k] += gp*G.mix[k]; });
+  gen += gp; co2ElecKg += gp*G.g;
+ });
  [['Coal','coal',FE_F.eff_coal_plant],['Gas','gas',FE_F.eff_gas_plant],
   ['Nuclear','nuclear',FE_F.eff_nuclear_iea],['Other','other',FE_F.eff_other_plant],
   ['Renewables','renew',1]].forEach(([lab,key,eff]) => {
-   const sh = G.mix[key], p = gen*sh/eff, dl = gen*sh*(1-FE_F.grid_td_loss);
+   const g = genBy[key], p = g/eff, dl = g*(1-FE_F.grid_td_loss);
    add(lab,'Electricity',dl); add(lab,'Supply loss', p-dl); primary += p; });
  [['res_air','Air drag'],['res_roll','Rolling resistance'],
   ['res_brake','Braking'],['res_aux','Auxiliaries']].forEach(([k,lab]) =>
    add('Work at the wheel', lab, W*FE_F[k]));
  // Well-to-wheel CO2e in Mt/yr, split by primary source. Reuses the carrier
- // totals already accumulated above; grid CO2 uses the same mix as the energy
- // chain. Use-phase only — building the car or battery is out of scope.
+ // totals already accumulated above. Use-phase only — building the car or
+ // battery is out of scope.
  const MT = 1e9; // kg -> Mt
- const gco2 = feGridCO2At(year ?? FE_F.grid_co2_base_year, gridScen || 'constant');
  const co2Oil  = (cp*FE_F.ghg_petrol + cd*FE_F.ghg_diesel) / MT;
  const co2Gas  = (cg*FE_F.ghg_gasfuel) / MT;
- const co2Elec = (gen*gco2) / MT;
+ const co2Elec = co2ElecKg / MT;
  return {links:L, primary:primary/TWH, work:W/TWH, cars,
+   gridG: gen > 0 ? co2ElecKg/gen : null,   // kgCO2e/kWh, generation-weighted
    co2:{oil:co2Oil, gas:co2Gas, elec:co2Elec, total:co2Oil+co2Gas+co2Elec}};
 }
 function feSvg(links, unit, W, H){
@@ -12397,13 +12705,13 @@ function feSvg(links, unit, W, H){
 let feSeries = [], feCo2Data = [], feTimer = null;
 function feRender(idx){
  const r = feSeries[idx]; if (!r) return;
- const ch = feChain(r.row);
+ const ch = feChain(r);
  document.getElementById('feYear').textContent = r.year;
  const b = document.getElementById('feBadge');
  b.textContent = r.projected ? 'modelled' : 'observed';
  b.className = 'fe-badge' + (r.projected ? ' is-proj' : '');
  let scale = 0;
- feSeries.forEach(x => { const c = feChain(x.row), by = {};
+ feSeries.forEach(x => { const c = feChain(x), by = {};
   c.links.forEach(l => { by[FE_COLS[l.s]] = (by[FE_COLS[l.s]]||0) + l.v; });
   scale = Math.max(scale, ...Object.values(by)); });
  const H = 430, unit = (H - 38 - 9*7)/Math.max(scale, 1e-9);
@@ -12487,24 +12795,23 @@ function feRenderCO2(idx){
  const tPerCar = cur.cars > 0 ? cur.co2.total*1e9/cur.cars/1000 : 0; // Mt*1e9 kg / cars / 1000 = t/car
  document.getElementById('feCo2Meta').innerHTML =
   feFmt(tPerCar) +
-  ' t per car &middot; ' + cur.year + (cur.projected ? ' &middot; modelled' : '');
+  ' t per car &middot; ' + cur.year + (cur.projected ? ' &middot; modelled' : '') +
+  (cur.gridG != null ? ' &middot; grid ' + Math.round(cur.gridG*1000) + ' g/kWh' : '');
 }
-/* Which grid-emission scenario the emissions chart uses. Default: the grid
-   decarbonises (linear to the sourced target). The alternative holds today's
-   grid — the honest worst case for the electrified side. */
+/* Which grid scenario the emissions chart uses for the years after the last
+   grid data year - see feGridAt. Default: each country's own trend continues. */
 function feGridScenario(){
- return document.querySelector('input[name="feGridScen"]:checked')?.value || 'linear';
+ return document.querySelector('input[name="feGridScen"]:checked')?.value || 'trend';
 }
 /* Recompute the emissions series (per year, under the chosen grid scenario) and
    refresh the CO2 legend note. Cheap enough to call on every scenario switch. */
 function feBuildCo2(){
  const scen = feGridScenario();
- feCo2Data = feSeries.map(s => { const c = feChain(s.row, s.year, scen);
-   return {year: s.year, projected: s.projected, co2: c.co2, cars: c.cars}; });
- const g = k => Math.round(FE_F[k]*1000);
- const note = scen === 'linear'
-   ? `grid decarbonises ${g('grid_co2_now')} → ${g('grid_co2_target')} gCO2e/kWh by ${FE_F.grid_co2_target_year} (IEA NZE)`
-   : `today's grid held at ${g('grid_co2_now')} gCO2e/kWh (Ember)`;
+ feCo2Data = feSeries.map(s => { const c = feChain(s, scen);
+   return {year: s.year, projected: s.projected, co2: c.co2, cars: c.cars, gridG: c.gridG}; });
+ const note = scen === 'trend' ? "each country's own grid, its ten-year trend continued"
+   : scen === 'nze' ? `each country's own grid, to ${Math.round(FE_F.grid_co2_target*1000)} gCO2e/kWh by ${FE_F.grid_co2_target_year} (IEA NZE)`
+   : "each country's own grid, held at its last observed year";
  const leg = document.getElementById('feCo2Legend');
  if (leg) leg.innerHTML = FE_CO2_LAYERS
    .map(l => `<span><i style="background:${l.c}"></i>${l.lab}</span>`).join('')
@@ -12516,23 +12823,23 @@ function buildFleetEnergy(countries, commonYears, lastObservedYear, endYear, pro
  const add = (acc, row) => { FE_KEYS.forEach(k => acc[k] = (acc[k] || 0) + safeNum(row[k], 0)); return acc; };
  const blank = () => Object.fromEntries(FE_KEYS.map(k => [k, 0]));
  const byYear = new Map();
+ // Each year keeps the summed row AND the per-country rows: electricity is
+ // charged from each country's own grid (feChain).
+ const put = (year, country, row, projected) => {
+  if (!byYear.has(year)) byYear.set(year, {row: blank(), parts: [], projected});
+  const e = byYear.get(year), n = feNormalise(row);
+  add(e.row, n); e.parts.push({country, row: n});
+ };
  countries.forEach(c => {
-  commonYears.forEach(y => {
-   const r = getObservedRow(c, y); if (!r) return;
-   if (!byYear.has(y)) byYear.set(y, {row: blank(), projected: false});
-   add(byYear.get(y).row, feNormalise(r));
-  });
+  commonYears.forEach(y => { const r = getObservedRow(c, y); if (r) put(y, c, r, false); });
   if (endYear > lastObservedYear){
    (projectFn(c, lastObservedYear, endYear, options) || [])
     .filter(r => r.year > lastObservedYear)
-    .forEach(r => {
-     if (!byYear.has(r.year)) byYear.set(r.year, {row: blank(), projected: true});
-     add(byYear.get(r.year).row, feNormalise(r));
-    });
+    .forEach(r => put(r.year, c, r, true));
   }
  });
  feSeries = [...byYear.entries()].sort((a,b) => a[0]-b[0])
-   .map(([year, v]) => ({year, row: v.row, projected: v.projected}));
+   .map(([year, v]) => ({year, row: v.row, parts: v.parts, projected: v.projected}));
  // Precompute the emissions series once per rebuild (under the current grid
  // scenario) so the slider stays cheap.
  feBuildCo2();
@@ -12612,6 +12919,7 @@ function buildFleetPlot() {
 
   const options = {
     hazardCurve: readHazardCurve(),
+    calibrate: document.getElementById('fleetCalibrate')?.checked ?? true,
     inflowDecay: readInflowDecay(),
     weibullShape: safeNum(document.getElementById('weibullShape')?.value, 3),
     inflowMultiplier: safeNum(document.getElementById('fleetInflowMultiplier')?.value, 1),
@@ -12630,6 +12938,7 @@ function buildFleetPlot() {
   const showOTHERS = document.getElementById("fleetShowOTHERS")?.checked ?? false;
 
   const commonYears = getCommonFleetYears(countries);
+  updateFleetCalibrationStatus(countries, options);
 
   // Start year (#288): a view filter only, default VIEW_START_YEAR (2015).
   // Empty = every observed year.
@@ -13020,7 +13329,7 @@ function syncFleetSubStates(){
     weib.classList.toggle('is-inactive', !weibActive);
   }
   if (weibStatus) {
-    weibStatus.textContent = weibActive ? 'active' : 'off (Linear mode)';
+    weibStatus.textContent = weibActive ? 'active' : 'off (Constant rate mode)';
   }
   if (lin) {
     lin.classList.toggle('is-active', !weibActive);
@@ -13039,6 +13348,9 @@ document.getElementById("fleetBuild")?.addEventListener("click", updateFleetPlot
 document.querySelectorAll('input[name="fleetMode"]').forEach(radio => {
   radio.addEventListener('change', updateFleetPlot);
 });
+
+// Calibration on/off -> immediate redraw.
+document.getElementById('fleetCalibrate')?.addEventListener('change', updateFleetPlot);
 
 // Hazard mode radio (linear vs Weibull) -> immediate redraw + sub-card sync.
 document.querySelectorAll('input[name="hazardMode"]').forEach(radio => {
@@ -13234,52 +13546,56 @@ const FAQ_DATA = [
     answers: ['Technology adoption typically follows an S-curve: slow at first, then accelerating as barriers fall, and eventually slowing again as saturation is approached. This acceleration is gradual, not tied to a specific moment. The model visualizes this continuous process rather than a discrete tipping point.'] },
 
   // ----- FLEET -----
-  { tag: 'model', label: 'Model', q: 'What is the hazard rate, in one sentence?',
+  { tag: 'model', label: 'Model', q: 'What is the turnover (hazard) rate, in one sentence?',
     answers: [
-      'The hazard rate is the share of a category that disappears from the fleet in one year (scrappage, accidents, deregistrations).',
-      'Example: a BEV hazard of 0.035 means that without any new inflow, 3.5% of the BEV fleet leaves every year, so 96.5% survive into the next year.'
+      'It is the share of a mature fleet that leaves the registry in one year: scrappage, accidents and exports, minus used cars coming in.',
+      'Example: 0.045 means a fleet whose age mix has settled loses 4.5% of its cars a year, an average life of about 22 years in the registry.'
     ] },
-  { tag: 'model', label: 'Model', q: 'What is the formula for the hazard rate?',
+  { tag: 'model', label: 'Model', q: 'Where do the turnover rates come from?',
     answers: [
-      'For each category (BEV, PHEV, HEV, HYBRID, PETROL, DIESEL, OTHERS) the effective hazard at projection year <i>age</i> is:',
-      '<b>hz_eff(cat, age) = base[cat] + slope \u00d7 max(0, age \u2212 knee)</b>',
-      'where <i>age</i> = projection year \u2212 snapshot year (the last observed year), and the result is capped at 0.5 so a single year can never wipe more than half of a category.',
-      'The seven number inputs in the Fleet tab are the <b>base[cat]</b> values \u2014 the hazard at year 0. The two extra inputs <b>knee</b> (default 12) and <b>slope</b> (default 0.004) describe how the hazard climbs as the fleet ages.',
-      'Setting <b>slope = 0</b> turns the function into a constant: every category keeps its base rate forever. That is the previous (static) behaviour, exactly.'
+      'From each country’s own record. Stock is a balance: <b>stock this year = stock last year + new registrations − net exits</b>. The repo holds both the stock series and the registration series, so the net exits of every past year can be read off, and the share of the fleet they represent is the country’s observed net attrition. The Fleet tab uses the median of the last five years (<code>fleet/fleet_calibration.json</code>).',
+      'The differences are large, which is why one global number cannot be right: about 5% a year in Germany, 4.5% in the UK, 4.4% in Norway, 2.6% in Italy, 1.2% in Finland and below zero in Lithuania or Romania.',
+      'It is a <b>net</b> figure and describes the registry, not how long a car physically lasts. Countries that export their young used cars (Luxembourg, Belgium, Germany) show high values. Countries that import used cars show values near or below zero, because the cars arriving offset the cars scrapped.'
     ] },
-  { tag: 'model', label: 'Model', q: 'Why does the hazard rate change over time?',
+  { tag: 'model', label: 'Model', q: 'What does “Match each country’s observed turnover” do?',
     answers: [
-      'Real vehicles do not have a constant scrappage probability. A 2-year-old car almost never gets scrapped; a 15-year-old car frequently does. The longer the projection runs, the older the average vehicle in the fleet, so the average yearly attrition naturally rises.',
-      'The linear age curve fakes this without tracking each vintage individually: the base rate applies for the first <b>knee</b> years (default 12), and after that the rate climbs by <b>slope</b> per year. So a BEV with base 0.035, knee 12, slope 0.004 still has a 3.5% hazard up to projection year 12, then 3.9% at year 13, 4.3% at year 14, and so on.',
-      '<b>Caveat:</b> real survival curves are roughly bathtub-shaped (very low hazard for the first few years, a long plateau, then a steeper rise around 15\u201320 years), and they eventually plateau again rather than rising forever. A straight line is a deliberate simplification \u2014 it is more realistic than a constant rate and stays useful for projection horizons up to ~15 years, but for very long horizons (25+ years) it understates the middle years and overstates the tail. A per-vintage tracking model would be the next step up.',
-      'The same curve is also applied uniformly to every category, even though in practice the average age of a Diesel fleet today is several years above the average age of a BEV fleet. That difference is not modelled here \u2014 the projection treats every category as if its current snapshot were "year 0".'
+      'With the switch on (default), the seven rates are multiplied by one factor per country so that the first projected year loses exactly the share that country has been losing. The boxes then only set how the categories differ from each other; the level comes from the data.',
+      'Where the observed figure is below 1% a year, no survival curve can reproduce it. The model then retires 1% of the fleet and books the rest as net used imports arriving in the current fleet’s own mix. The line under the switch says so for each such country.',
+      'With the switch off, the rates apply exactly as typed, the same for every country. For a country without an observed rate that is always the case.',
+      '<b>Limits.</b> The calibration assumes the recent turnover carries on. For a fleet that has been growing fast it is a trend, not a saturation model: over long horizons such a fleet keeps growing in the projection.'
     ] },
   { tag: 'model', label: 'Model', q: 'What is the per-vintage Weibull mode?',
     answers: [
-      'The Fleet tab now offers two ways of computing how the fleet shrinks: <b>Linear age curve</b> (the original) and <b>Per-vintage Weibull</b> (the new default). The radio buttons above the hazard inputs switch between them.',
-      'The linear curve treats every car in a category the same. The Weibull mode tracks each model year (vintage) of every category individually and applies a realistic survival function to each cohort: very young cars have a hazard close to zero, the hazard climbs gently up to the median age of that category, and rises sharply after that.',
-      'Both modes share the same seven hazard input boxes \u2014 in linear mode they are constants, in Weibull mode they are interpreted as the equivalent constant hazard that would produce the same median fleet life. The first projection year behaves similarly in both modes; they only diverge over longer horizons.'
+      'The Fleet tab offers two ways of computing how cars leave the fleet: <b>Per-vintage Weibull</b> (the default) and <b>Constant rate</b>.',
+      'The Weibull mode tracks each model year (vintage) of every category on its own and applies a survival curve to it: a young car almost never leaves, and the chance rises steeply around the average lifetime. A young fleet such as today’s battery cars therefore keeps nearly all its cars for years, and only starts to shed them when its first big vintages get old.',
+      'Constant rate removes the same share of every category every year, whatever the age of its cars. It is simpler and easy to check by hand, but it retires three-year-old battery cars as fast as fifteen-year-old petrol cars.',
+      'Both modes read the same seven boxes with the same meaning, and with the calibration switch on both lose the same number of cars in the first projected year. They diverge after that.'
     ] },
   { tag: 'model', label: 'Model', q: 'What is the formula for the Weibull survival?',
     answers: [
       'For each category we use the standard two-parameter Weibull survival function:',
-      '<b>S(age) = exp( \u2212 (age / scale)^shape )</b>',
-      'The probability that a vehicle of age <i>a</i> survives one more year is <b>S(a+1) / S(a)</b>, and the annual hazard for that vintage is <b>1 \u2212 S(a+1) / S(a)</b>. There is one global <b>shape</b> input (default 3.0) and a per-category <b>scale</b> derived from the seven hazard boxes:',
-      '<b>scale = ln(2) / ( h0 \u00d7 (ln 2)^(1/shape) )</b>',
-      'This is chosen so that the median life of the Weibull equals the median life of a constant-hazard model with rate <i>h0</i>. Worked example for the BEV default (<i>h0</i> = 0.035, shape = 3):<br>scale = 0.693 / (0.035 \u00d7 0.885) \u2248 22.4 years.<br>Annual hazards: ~0% at age 0, ~2% at age 15, ~6% at age 22, ~22% at age 30.',
-      'Setting <b>shape = 1</b> turns the Weibull into a pure exponential with constant hazard <i>h0</i> \u2014 i.e. the linear-mode behaviour with slope = 0, exactly.'
+      '<b>S(age) = exp( − (age / scale)^shape )</b>',
+      'The probability that a vehicle of age <i>a</i> survives one more year is <b>S(a+1) / S(a)</b>. There is one global <b>shape</b> input (default 3.0) and a per-category <b>scale</b> derived from the seven rate boxes.',
+      'The scale is chosen so that a mature fleet loses exactly the typed rate per year. A mature fleet holds S(a) cars of age <i>a</i> for every car registered per year, so it loses 1 / Σ S(a) of its cars a year; the scale is the one for which that equals the rate <i>h</i>. To a good approximation <b>average life ≈ 1 / h</b>, and for shape 3 <b>scale ≈ 1.09 / h</b>. Worked example for 0.045: average life about 22 years, scale about 24 years; yearly exit chance about 0.05% at age 1, 2% at age 10, 8% at age 20, 18% at age 30.',
+      'Setting <b>shape = 1</b> makes the exit chance independent of age, which is the Constant rate mode.'
     ] },
-  { tag: 'model', label: 'Model', q: 'How is the initial vintage distribution chosen?',
+  { tag: 'model', label: 'Model', q: 'How is the initial age distribution chosen?',
     answers: [
-      'The model does not know the real age distribution of today\u2019s fleet, so the snapshot count is spread <b>uniformly across the ages 0 to floor(scale)</b> for each category. Mean assumed age is then ~scale/2, which scales naturally with the category\u2019s expected lifetime: BEV (low <i>h0</i> \u2192 long scale) gets a wider, younger spread than DIESEL (higher <i>h0</i> \u2192 shorter scale).',
-      'For young real-world fleets like Norwegian BEVs this is mildly pessimistic (the average BEV in Norway today is younger than the model assumes). For older real-world fleets like German Diesel it is mildly optimistic. Both biases push projections in the conservative direction \u2014 the real transition tends to be slightly faster than the model shows.',
-      'A more elaborate option would be to reconstruct the vintage distribution from historical year-over-year inflows. That is on the roadmap but not implemented today.'
+      'From the registration history wherever there is one. The cars registered in the start year are age 0, those of the year before age 1, and so on.',
+      '<b>BEV, PHEV and HEV:</b> the stock is spread over the ages in proportion to the country’s own yearly registrations of that type. In Norway most battery cars on the road were registered in the last five years, and the model starts them that young.',
+      '<b>Petrol, diesel and other combustion cars:</b> the registration history of the combustion side fills the young ages, thinned by the survival curve. Whatever stock is left over is older than the record and takes the mature age shape beyond it. A fleet that grew fast (China) therefore starts young, loses few cars now and more as it ages; a fleet replaced at a steady pace for decades (Germany) starts close to mature.',
+      'Where there is no usable history, a category starts with the mature age mix its rate is defined against.'
     ] },
-  { tag: 'model', label: 'Model', q: 'How does each year\u2019s fleet shrink (worked example)?',
+  { tag: 'model', label: 'Model', q: 'Why do battery cars get the same rate as petrol cars?',
     answers: [
-      'Take the BEV count for the previous year and multiply by (1 \u2212 hz_eff). Then add this year\u2019s new BEV inflow. That\u2019s it.',
-      'Norway BEV at end of 2025: 945,182. With base 0.035 and projection age 1 (so hz_eff still = 0.035):<br>2026 survivors = 945,182 \u00d7 (1 \u2212 0.035) = 912,101.<br>Add new inflow on top, and you have the 2026 BEV count.',
-      'The same step is applied to every category every year. The model just repeats this loop until it reaches the end year you set.'
+      'Because no battery fleet is old enough to show a different lifetime, and the earlier defaults (BEV 0.035, petrol 0.050) asserted a 40% longer life without evidence. The one difference the stock data does support is that diesels leave western fleets faster than petrol cars, mostly through export, which is why the diesel default is about 1.1 times the others.',
+      'The rates are inputs: if you expect battery cars to last longer or shorter, change the BEV box and the projection follows.'
+    ] },
+  { tag: 'model', label: 'Model', q: 'What is the optional age curve in Constant rate mode?',
+    answers: [
+      'An opt-in stress test, off by default (slope = 0). With a slope, every rate stays constant until the projection is <b>knee</b> years old and then climbs:',
+      '<b>rate(cat, t) = base[cat] + slope × max(0, t − knee)</b>, capped at 0.5, where <i>t</i> = projection year − last observed year.',
+      'It follows projection time, not the age of the cars. With a steady inflow of new cars a fleet does not keep ageing, so a rising rate has no physical basis as a default; it was switched off for that reason. The Weibull mode is the one that models ageing.'
     ] },
   { tag: 'model', label: 'Model', q: 'What is the inflow decay (robotaxi scenario)?',
     answers: [
@@ -13308,21 +13624,26 @@ const FAQ_DATA = [
     answers: ['Fleet projections combine the last observed fleet composition with modeled inflow of new vehicles and category-specific attrition rates.'] },
   { tag: 'model', label: 'Model', q: 'How are fleet projections calculated in detail?',
     answers: [
-      'The model projects the fleet forward year by year using three components: (1) the existing fleet from the previous year, (2) category-specific retirement ("hazard") rates that climb with projection age, and (3) the annual inflow of newly registered vehicles.',
-      'Example starting fleet (2025):<br>BEV: 945,182<br>PHEV: 208,467<br>HEV: 162,422<br>DIESEL: 942,780<br>PETROL: 676,614<br>OTHERS: 270',
-      'Example BASE hazard rates (year 0):<br>BEV: 0.035<br>PHEV: 0.040<br>HEV: 0.042<br>HYBRID: 0.041<br>DIESEL: 0.055<br>PETROL: 0.050<br>OTHERS: 0.060',
-      'Hazard age curve: hz_eff(cat, age) = base[cat] + slope \u00d7 max(0, age \u2212 knee).<br>Defaults: knee = 12 years, slope = 0.004 per year.<br>Example: a BEV at projection year 15 has hz_eff = 0.035 + 0.004 \u00d7 (15 \u2212 12) = 0.047.<br>Set slope = 0 to keep hazards static.',
-      'Assume:<br>Annual new vehicle inflow: 150,000<br>Inflow multiplier: 1<br>Net imports: 0',
-      'Step 1 \u2013 Apply the effective hazard rate for this projection year (vehicles leaving the fleet).<br>Each category loses a fraction of its vehicles according to its current hz_eff.<br>Example:<br>2026 BEV survivors = 945,182 \u00d7 (1 \u2212 0.035)',
-      'Step 2 \u2013 Add new vehicle inflow.<br>The annual inflow is distributed using the modeled BEV share for the middle of the projection year (year + 0.5).',
-      'Example:<br>2026 BEV fleet = 945,182 \u00d7 (1 \u2212 0.035) + 150,000 \u00d7 BEV_share(2026.5)',
-      'Step 3 \u2013 Assign the remaining inflow.<br>Non-BEV inflow is assigned as follows:<br>\u2022 If PHEV exists \u2192 to PHEV<br>\u2022 Else if HYBRID exists \u2192 to HYBRID<br>\u2022 Else \u2192 to OTHERS',
+      'The model projects each country’s fleet forward year by year from its last observed stock, with three components: (1) the cars already in the fleet, by type and age, (2) the cars that leave, and (3) the newly registered cars.',
+      '<b>Step 1 – cars leave.</b> In Weibull mode every vintage of every category loses the share its age implies; in Constant rate mode every category loses its rate. With calibration on, the level is set so that the first year loses the country’s observed share of the fleet.',
+      'Worked example, Norway (start 2025, 2,935,735 cars, observed net attrition 4.4%): the first projected year loses 0.044 × 2,935,735 ≈ 129,500 cars. Almost all of them are old petrol and diesel cars; the battery cars are too young to leave in numbers.',
+      '<b>Step 2 – new cars arrive.</b> The annual volume is the country’s registrations of the last 12 months (× the inflow multiplier). The modelled BEV share for the middle of the year (year + 0.5) gives the battery cars; the modelled ICE share gives the combustion side; what lies between the two curves is plug-in hybrids.',
+      '<b>Step 3 – the combustion side is split.</b> The ICE curve covers full hybrids, petrol, diesel and gas. It is split in the proportions of the country’s last 12 months of registrations (for example Germany: about 46% full hybrid, 34% petrol, 19% diesel) and each part goes to its own stock category.',
       'The process repeats each year, using the updated fleet as the new baseline.'
     ] },
   { tag: 'model', label: 'Model', q: 'How are new vehicle registrations assigned to fleet categories in the projections?',
-    answers: ['Annual inflow is split using the modeled BEV and ICE shares at the midpoint of the projection year (year + 0.5). BEV inflow goes to BEV. The remaining non-BEV inflow is assigned to PHEV if available, otherwise to HYBRID, and only falls back to OTHERS if neither category exists.'] },
-  { tag: 'model', label: 'Model', q: 'Why do some countries show inflow into PHEV or HYBRID instead of OTHERS?',
-    answers: ['The model follows the category structure of the underlying dataset. If PHEV exists, non-BEV inflow is assigned there. If not, but HYBRID exists, it is assigned to HYBRID. This ensures consistency between projected and observed fleet categories.'] }
+    answers: [
+      'Battery cars go to BEV. Plug-in hybrids go to PHEV, or to the combined HYBRID bucket where the country’s stock does not separate plug-ins.',
+      'The combustion side (full hybrids, petrol, diesel, gas) is split by the country’s last 12 months of registrations and booked to HEV, PETROL, DIESEL and OTHERS. A type the stock does not carry goes where that stock keeps those cars: full hybrids into HYBRID or, failing that, PETROL; petrol and diesel into OTHERS where the stock has no such split (China).',
+      'Where the registration source has no petrol/diesel split, the combustion side is split in proportion to the stock itself. That overstates diesel somewhat, because diesel’s share of sales has fallen faster than its share of the fleet.',
+      'Until this was introduced, all combustion registrations were booked to OTHERS, which the Energy view counts as LPG/CNG cars.'
+    ] },
+  { tag: 'model', label: 'Model', q: 'Which electricity grid does the Energy view use?',
+    answers: [
+      'Each country’s own. The generation mix and the CO₂e per kWh come from Ember’s yearly electricity data (<code>fleet/grid_mix.csv</code>), year by year as far as the record goes, so an observed fleet year meets the grid it actually ran on. Several countries selected together are each charged from their own grid and then summed.',
+      'For future years the emissions chart offers three scenarios: each grid’s own ten-year trend continued (default), a linear path to about 20 g/kWh by 2040 (IEA Net Zero by 2050, a target rather than a forecast), or the last observed grid held.',
+      'The figure is the mix a country <b>generates</b>. For a country that imports much of its electricity (Luxembourg) the mix it consumes can differ.'
+    ] }
 ];
 
 function renderFaq(){
