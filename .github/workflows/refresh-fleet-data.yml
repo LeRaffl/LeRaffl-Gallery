@@ -8,7 +8,7 @@ name: Refresh fleet data
 #   fleet/fleet_initial.csv            stock by fuel, 22 countries   Eurostat road_eqs_carpda
 #   fleet/fleet_age.csv                stock by age band             Eurostat road_eqs_carage
 #   fleet/registrations_history.csv    new cars per year from 1970   Eurostat road_eqr_carmot
-#   fleet/mileage.csv                  km per car by fuel (Norway)   SSB 12577
+#   fleet/mileage.csv                  vehicle-km by fuel            Eurostat road_tf_vehage / road_tf_veh, SSB 12577
 #   fleet/grid_mix.csv                 electricity mix and CO2e      Ember via Our World in Data
 #   fleet/fleet_calibration.json       derived (build_fleet_calibration.py)
 #   fleet/survival_fit.csv             derived (fit_fleet_survival.py)
@@ -58,7 +58,7 @@ jobs:
         continue-on-error: true
         run: python3 scripts/fetch_fleet_age.py
 
-      - name: Mileage by fuel (SSB)
+      - name: Vehicle-km by fuel (Eurostat, SSB)
         id: mileage
         continue-on-error: true
         run: python3 scripts/fetch_fleet_mileage.py

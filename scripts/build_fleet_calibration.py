@@ -50,7 +50,9 @@ fact observable per country, by lining the stock series in
    the year-end stock here, so the page needs **km per stock car**: total km
    divided by the stock in ``fleet/fleet_initial.csv``. Where a fuel has no
    published total, its published average is scaled by the ratio the ALL row
-   shows between the two.
+   shows between the two. ``mileage_default`` (top level) is the median over
+   the countries that report petrol and diesel separately: what a country
+   without figures of its own is given.
 
 Usage
 -----
@@ -83,7 +85,9 @@ MAX_GAP = 6                      # longest hole in a registration history that i
 KM_MIN, KM_MAX = 1000, 60000     # a km-per-car figure outside this is a scope mismatch
 # mileage.csv fuel -> key of the stock row (read_stock) it is divided by.
 MILEAGE_STOCK = {"ALL": "TOTAL", "PETROL": "PETROL", "DIESEL": "DIESEL",
-                 "BEV": "BEV", "PHEV": "PHEV+", "HEV": "HEV+"}
+                 "BEV": "BEV", "PHEV": "PHEV+", "HEV": "HEV+", "HYBRID": "HYBRID+"}
+MILEAGE_MIN_YEAR = 2021          # mileage older than this is not published
+REL_MIN, REL_MAX = 0.4, 1.8      # a fuel's km per car, relative to the country's all-car figure
 
 WINDOW = 5      # stock years the published attrition rate is the median of
 MIN_YEARS = 3   # ...and how many of them must exist for a rate to be published
@@ -129,6 +133,7 @@ def read_stock(path: Path = FLEET_CSV) -> dict[str, dict[int, dict]]:
             # The fleet model's classes, folded the way the page folds them.
             row["PHEV+"] = (row["PHEV"] or 0) + (row["EREV"] or 0)
             row["HEV+"] = (row["HEV"] or 0) + (row["MHEV"] or 0)
+            row["HYBRID+"] = row["PHEV+"] + row["HEV+"]
             out[country][year] = row
     return out
 
@@ -364,18 +369,28 @@ def extend_combustion(ages: dict, history: dict[int, float]) -> None:
 
 
 def mileage(country: str, stock: dict[int, dict], rows: list[dict]) -> dict | None:
-    """km per car of the YEAR-END STOCK, by fuel, for the latest year that has
-    both a published total for all cars and a stock row."""
+    """km per car of the YEAR-END STOCK, by fuel, for the latest usable year.
+
+    A year is usable when it has a published total for all cars and a stock
+    row, and is not older than ``MILEAGE_MIN_YEAR``: a figure from the
+    pandemic year, from before the battery fleet, or from a series that has
+    ended (the UK's stops in 2020) is worse than the cross-country default.
+    Per-fuel figures are published only within ``REL_MIN``..``REL_MAX`` of the
+    country's own all-car figure: outside that, the fuel classes of the km and
+    of the stock do not match.
+    """
     by_year: dict[int, dict[str, dict]] = defaultdict(dict)
     for r in rows:
         if r.get("country") == country and r.get("fuel") in MILEAGE_STOCK:
             by_year[int(r["year"])][r["fuel"]] = r
-    for year in sorted(by_year, reverse=True):
+    for year in sorted((y for y in by_year if y >= MILEAGE_MIN_YEAR), reverse=True):
         fuels, st = by_year[year], stock.get(year)
         every = fuels.get("ALL")
         if not st or not every or not num(every.get("total_mkm")) or not st.get("TOTAL"):
             continue
         all_km = num(every["total_mkm"]) * 1e6 / st["TOTAL"]
+        if not KM_MIN <= all_km <= KM_MAX:
+            continue
         # How much larger the office's vehicle base is than our stock.
         basis = all_km / num(every["km_per_car"]) if num(every.get("km_per_car")) else None
         out = {"year": year, "source": every.get("source", ""), "ALL": round(all_km)}
@@ -387,19 +402,46 @@ def mileage(country: str, stock: dict[int, dict], rows: list[dict]) -> dict | No
             cars, total, avg = st.get(key), num(r.get("total_mkm")), num(r.get("km_per_car"))
             if total and cars and cars >= MIN_STOCK:
                 km = total * 1e6 / cars
-            elif avg and basis:
+            elif avg and basis and fuel != "HYBRID":
                 km = avg * basis
                 derived.append(fuel)
             else:
                 continue
-            if KM_MIN <= km <= KM_MAX:
-                out[fuel] = round(km)
+            if not (KM_MIN <= km <= KM_MAX and REL_MIN * all_km <= km <= REL_MAX * all_km):
+                if fuel in derived:
+                    derived.remove(fuel)
+                continue
+            out[fuel] = round(km)
+        # Full and plug-in hybrids reported together: one figure for both,
+        # unless the source has them apart.
+        combined = out.pop("HYBRID", None)
+        if combined is not None:
+            shared = [f for f in ("PHEV", "HEV") if f not in out]
+            for f in shared:
+                out[f] = combined
+            if shared:
+                out["hybrids_combined"] = shared
         if derived:
             out["scaled_from_average"] = derived
         if basis:
             out["basis_ratio"] = round(basis, 3)
         return out
     return None
+
+
+def mileage_default(countries: dict) -> dict | None:
+    """What a country without figures of its own is given: per class, the
+    median over the countries that report petrol and diesel separately."""
+    have = {c: e["mileage"] for c, e in countries.items()
+            if "PETROL" in e.get("mileage", {}) and "DIESEL" in e["mileage"]}
+    if len(have) < MIN_YEARS:
+        return None
+    out = {"countries": sorted(have)}
+    for cls in ("ALL", "PETROL", "DIESEL", "BEV", "PHEV", "HEV"):
+        vals = [m[cls] for m in have.values() if cls in m]
+        if len(vals) >= MIN_YEARS:
+            out[cls] = round(statistics.median(vals))
+    return out
 
 
 def build(fleet_csv: Path = FLEET_CSV, data_dir: Path = DATA_DIR,
@@ -442,6 +484,7 @@ def build(fleet_csv: Path = FLEET_CSV, data_dir: Path = DATA_DIR,
                  "(fleet/mileage.csv totals divided by the stock)."),
         "window_years": WINDOW,
         "min_years": MIN_YEARS,
+        **({"mileage_default": d} if (d := mileage_default(countries)) else {}),
         "countries": countries,
     }
 

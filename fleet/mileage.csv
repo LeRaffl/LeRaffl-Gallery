@@ -1,9 +1,305 @@
 country,year,fuel,km_per_car,total_mkm,source,notes
-Germany,2025,ALL,10616,562300,"KBA Verkehr in Kilometern 2025 (Inlaenderfahrleistung, press release 38/2026)",figures as reported in the release and its coverage; primary tables not machine-read (kba.de needs the relay)
-Germany,2025,PETROL,8406,266530,"KBA Verkehr in Kilometern 2025 (Inlaenderfahrleistung, press release 38/2026)","total = KBA share of 562.3 bn km (petrol 47.4 %, diesel 35.4 %)"
-Germany,2025,DIESEL,,199054,"KBA Verkehr in Kilometern 2025 (Inlaenderfahrleistung, press release 38/2026)","total = KBA share of 562.3 bn km (petrol 47.4 %, diesel 35.4 %); no published per-car average found"
-Germany,2025,BEV,11312,,"KBA Verkehr in Kilometern 2025 (Inlaenderfahrleistung, press release 38/2026)",no published total; scaled by the ALL row in the build
-Germany,2025,HEV,13526,,"KBA Verkehr in Kilometern 2025 (Inlaenderfahrleistung, press release 38/2026)",hybrids without plug; no published total; scaled by the ALL row in the build
+Belgium,2015,ALL,,84225,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2015,PETROL,,19327,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2015,DIESEL,,64513,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2015,BEV,,50,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2016,ALL,,84306,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2016,PETROL,,20894,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2016,DIESEL,,63000,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2016,BEV,,82,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2017,ALL,,84095,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2017,PETROL,,22911,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2017,DIESEL,,60706,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2017,BEV,,123,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Belgium,2017,HYBRID,,112,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2015,ALL,,19444,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2015,PETROL,,7778,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2015,DIESEL,,10702,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2015,BEV,,2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2015,HYBRID,,25,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2016,ALL,,20809,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2016,PETROL,,7591,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2016,DIESEL,,12166,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2016,BEV,,3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2016,HYBRID,,38,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2017,ALL,,21473,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2017,PETROL,,7315,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2017,DIESEL,,13090,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2017,BEV,,6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2017,HYBRID,,52,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2018,ALL,,22322,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2018,PETROL,,7163,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2018,DIESEL,,14118,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2018,BEV,,8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2018,HYBRID,,87,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2019,ALL,,21463,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2019,PETROL,,6657,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2019,DIESEL,,13895,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2019,BEV,,19,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2019,HYBRID,,118,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2020,ALL,,20740,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2020,PETROL,,6216,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2020,DIESEL,,13535,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2020,BEV,,41,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2020,HYBRID,,212,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2021,ALL,,21875,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2021,PETROL,,6340,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2021,DIESEL,,14236,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2021,BEV,,63,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2021,HYBRID,,422,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2022,ALL,,23381,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2022,PETROL,,6700,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2022,DIESEL,,15122,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2022,BEV,,112,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2022,HYBRID,,677,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2023,ALL,,24598,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2023,PETROL,,6906,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2023,DIESEL,,15693,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2023,BEV,,141,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2023,HYBRID,,1135,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Croatia,2024,ALL,,25617,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2024,PETROL,,7057,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2024,DIESEL,,15985,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2024,BEV,,174,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Croatia,2024,HYBRID,,1727,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Czechia,2022,ALL,,67594.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2022,PETROL,,30289.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2022,DIESEL,,35030.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2022,BEV,,169,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2022,HYBRID,,268.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Czechia,2023,ALL,,67318.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2023,PETROL,,29651.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2023,DIESEL,,35128.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2023,BEV,,255.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2023,HYBRID,,410.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Czechia,2024,ALL,,70485.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2024,PETROL,,31190.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2024,DIESEL,,36020.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2024,BEV,,445.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Czechia,2024,HYBRID,,619.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Denmark,2015,ALL,,38604,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Denmark,2016,ALL,,39858,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Denmark,2017,ALL,,40569,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Denmark,2018,ALL,,41223,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Denmark,2019,ALL,,41882,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Denmark,2020,ALL,,38704,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Denmark,2021,ALL,,40313,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Denmark,2022,ALL,,41221,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Denmark,2023,ALL,,42210,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Denmark,2024,ALL,,42528,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Estonia,2015,ALL,,8476,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2016,ALL,,8670.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2017,ALL,,8876.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2018,ALL,,8924.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2019,ALL,,9397.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2020,ALL,,9263.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2021,ALL,,9393.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2022,ALL,,9705.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2023,ALL,,6396,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2023,PETROL,,2272,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2023,DIESEL,,3771,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2023,BEV,,57,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Estonia,2023,HYBRID,,257,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Finland,2018,ALL,,40718,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2019,ALL,,40718,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2020,ALL,,39092,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2021,ALL,,38771,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2022,ALL,,38385,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2023,ALL,,38592,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2024,ALL,,38619,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2024,PETROL,,20199,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2024,DIESEL,,13165,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2024,BEV,,1981,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Finland,2024,HYBRID,,2900,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2015,ALL,,472077.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2015,PETROL,,107486.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2015,DIESEL,,358617.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2015,BEV,,366,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2015,HYBRID,,3133.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2016,ALL,,479454.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2016,PETROL,,111504.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2016,DIESEL,,360866.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2016,BEV,,571.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2016,HYBRID,,4145.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2017,ALL,,477750.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2017,PETROL,,114140.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2017,DIESEL,,355477.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2017,BEV,,732.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2017,HYBRID,,5197.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2018,ALL,,475501.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2018,PETROL,,121137.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2018,DIESEL,,344737.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2018,BEV,,980.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2018,HYBRID,,6554.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2019,ALL,,478131.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2019,PETROL,,131076.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2019,DIESEL,,335412.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2019,BEV,,1395.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2019,HYBRID,,8219.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2020,ALL,,387719.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2020,PETROL,,110323.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2020,DIESEL,,265629.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2020,BEV,,1747.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2020,HYBRID,,8301.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2021,ALL,,427431.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2021,PETROL,,128253.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2021,DIESEL,,278627.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2021,BEV,,3493.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2021,HYBRID,,14646.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2022,ALL,,463797.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2022,PETROL,,142232.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2022,DIESEL,,287877.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2022,BEV,,6251.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2022,HYBRID,,23673.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2023,ALL,,457307,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2023,PETROL,,141625.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2023,DIESEL,,269004.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2023,BEV,,9320.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2023,HYBRID,,31511.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+France,2024,ALL,,458271.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2024,PETROL,,140408.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2024,DIESEL,,255694.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2024,BEV,,13441.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+France,2024,HYBRID,,41415.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Germany,2015,ALL,,619099,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2016,ALL,,625915,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2017,ALL,,630837,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2018,ALL,,630843,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2019,ALL,,627950,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2020,ALL,,622728,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2020,PETROL,,319536,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2020,DIESEL,,282245,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2021,ALL,,606795,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2021,PETROL,,306429,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2021,DIESEL,,265923,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2022,ALL,,594477,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2022,PETROL,,292927,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2022,DIESEL,,249677,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2023,ALL,,591132,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2023,PETROL,,287040,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2023,DIESEL,,238106,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2024,ALL,,594136,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2024,PETROL,,283219,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Germany,2024,DIESEL,,230189,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Ireland,2015,ALL,,35874,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Ireland,2016,ALL,,37488,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Ireland,2017,ALL,,38039,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Ireland,2018,ALL,,36817,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Ireland,2019,ALL,,36300,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Ireland,2020,ALL,,26654,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Ireland,2021,ALL,,30677,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Ireland,2022,ALL,,35583,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Ireland,2023,ALL,,35820,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2015,ALL,,9673.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2016,ALL,,9925.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2016,PETROL,,2771.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2016,DIESEL,,6312.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2016,BEV,,3.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2016,HYBRID,,0.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Latvia,2017,ALL,,10699.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2017,PETROL,,2824.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2017,DIESEL,,7029.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2017,BEV,,10.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2017,HYBRID,,1.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Latvia,2018,ALL,,10897.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2018,PETROL,,2756.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2018,DIESEL,,7375.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2018,BEV,,7.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2018,HYBRID,,2.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Latvia,2019,ALL,,11072,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2019,PETROL,,2813.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2019,DIESEL,,7544.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2019,BEV,,9.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2019,HYBRID,,2.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Latvia,2020,ALL,,10553.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2020,PETROL,,2405.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2020,DIESEL,,7507.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2020,BEV,,20.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2020,HYBRID,,4.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Latvia,2021,ALL,,9596.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2021,PETROL,,2054,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2021,DIESEL,,6866,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2021,BEV,,25.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2021,HYBRID,,5.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Latvia,2022,ALL,,9067.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2022,PETROL,,1911.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2022,DIESEL,,6653.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2022,BEV,,44.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2022,HYBRID,,10.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Latvia,2023,ALL,,9573.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2023,PETROL,,1993,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2023,DIESEL,,7053.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2023,BEV,,64.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2023,HYBRID,,15.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Latvia,2024,ALL,,9699.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2024,PETROL,,2064.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2024,DIESEL,,7102,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2024,BEV,,112,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Latvia,2024,HYBRID,,27.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Lithuania,2015,ALL,,13196.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Lithuania,2016,ALL,,14049.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Lithuania,2017,ALL,,16822.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Lithuania,2018,ALL,,17487,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2015,ALL,,2132,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2015,PETROL,,1342,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2015,DIESEL,,779.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2015,BEV,,0.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2015,HYBRID,,2.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Malta,2016,ALL,,2681.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2016,PETROL,,1564.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2016,DIESEL,,1096.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2016,BEV,,0.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2016,HYBRID,,7.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Malta,2017,ALL,,2744.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2017,PETROL,,1567.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2017,DIESEL,,1151.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2017,BEV,,0.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2017,HYBRID,,5.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Malta,2018,ALL,,2622.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2018,PETROL,,1498.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2018,DIESEL,,1093.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2018,BEV,,3.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2018,HYBRID,,7.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Malta,2019,ALL,,2408.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2019,PETROL,,1381,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2019,DIESEL,,991.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2019,BEV,,4.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2019,HYBRID,,11.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Malta,2020,ALL,,1878.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2020,PETROL,,1157.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2020,DIESEL,,689,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2020,BEV,,7.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2020,HYBRID,,8.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Malta,2021,ALL,,2290.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2021,PETROL,,1293.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2021,DIESEL,,921.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2021,BEV,,11.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2021,HYBRID,,43.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Malta,2022,ALL,,2321,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2022,PETROL,,1314.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2022,DIESEL,,924.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2022,BEV,,8.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2022,HYBRID,,52.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Malta,2023,ALL,,2391.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2023,PETROL,,1347.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2023,DIESEL,,937,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2023,BEV,,12,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2023,HYBRID,,72.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Malta,2024,ALL,,2349.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2024,PETROL,,1335.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2024,DIESEL,,866.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2024,BEV,,17.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Malta,2024,HYBRID,,108.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Netherlands,2015,ALL,,115913,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Netherlands,2016,ALL,,118725,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Netherlands,2017,ALL,,120026,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Netherlands,2018,ALL,,120339,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Netherlands,2019,ALL,,121232,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Netherlands,2020,ALL,,99651,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Netherlands,2021,ALL,,105425,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Netherlands,2022,ALL,,114617,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Netherlands,2023,ALL,,119552,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Netherlands,2024,ALL,,121957,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
 Norway,2005,ALL,13108,28708.4,SSB 12577 (all passenger cars),
 Norway,2005,PETROL,12196,22487.1,SSB 12577 (all passenger cars),
 Norway,2005,DIESEL,18004,6211.1,SSB 12577 (all passenger cars),
@@ -54,57 +350,230 @@ Norway,2016,DIESEL,15059,20424.7,SSB 12577 (all passenger cars),
 Norway,2016,BEV,11788,1163.2,SSB 12577 (all passenger cars),
 Norway,2016,PHEV,9652,314,SSB 12577 (all passenger cars),
 Norway,2016,HEV,12614,717.5,SSB 12577 (all passenger cars),
+Norway,2016,HYBRID,,1084,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
 Norway,2017,ALL,12148,35406.6,SSB 12577 (all passenger cars),
 Norway,2017,PETROL,9210,11498.7,SSB 12577 (all passenger cars),
 Norway,2017,DIESEL,14829,20443.8,SSB 12577 (all passenger cars),
 Norway,2017,BEV,11818,1652.4,SSB 12577 (all passenger cars),
 Norway,2017,PHEV,11375,721,SSB 12577 (all passenger cars),
 Norway,2017,HEV,12835,999.7,SSB 12577 (all passenger cars),
+Norway,2017,HYBRID,,1893,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
 Norway,2018,ALL,12139,35988.2,SSB 12577 (all passenger cars),
 Norway,2018,PETROL,9034,10721,SSB 12577 (all passenger cars),
 Norway,2018,DIESEL,14527,20136.7,SSB 12577 (all passenger cars),
 Norway,2018,BEV,12171,2401.9,SSB 12577 (all passenger cars),
 Norway,2018,PHEV,14353,1312.2,SSB 12577 (all passenger cars),
 Norway,2018,HEV,13572,1283.7,SSB 12577 (all passenger cars),
+Norway,2018,HYBRID,,2722,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
 Norway,2019,ALL,11883,35504.3,SSB 12577 (all passenger cars),
 Norway,2019,PETROL,8809,9802.8,SSB 12577 (all passenger cars),
 Norway,2019,DIESEL,13936,19175.2,SSB 12577 (all passenger cars),
 Norway,2019,BEV,12631,3331.3,SSB 12577 (all passenger cars),
 Norway,2019,PHEV,14074,1578.3,SSB 12577 (all passenger cars),
 Norway,2019,HEV,12893,1458.9,SSB 12577 (all passenger cars),
+Norway,2019,HYBRID,,3188,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
 Norway,2020,ALL,11152,33872.7,SSB 12577 (all passenger cars),
 Norway,2020,PETROL,8159,8605.5,SSB 12577 (all passenger cars),
 Norway,2020,DIESEL,12816,17393.8,SSB 12577 (all passenger cars),
 Norway,2020,BEV,12193,4206.7,SSB 12577 (all passenger cars),
 Norway,2020,PHEV,13403,1890.2,SSB 12577 (all passenger cars),
 Norway,2020,HEV,12501,1588.6,SSB 12577 (all passenger cars),
+Norway,2020,HYBRID,,3661,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
 Norway,2021,ALL,11288,35097.6,SSB 12577 (all passenger cars),
 Norway,2021,PETROL,8117,7995,SSB 12577 (all passenger cars),
 Norway,2021,DIESEL,12665,16744.3,SSB 12577 (all passenger cars),
 Norway,2021,BEV,12772,5972.6,SSB 12577 (all passenger cars),
 Norway,2021,PHEV,13378,2401.6,SSB 12577 (all passenger cars),
 Norway,2021,HEV,12481,1750.2,SSB 12577 (all passenger cars),
+Norway,2021,HYBRID,,4380,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
 Norway,2022,ALL,11097,35310.2,SSB 12577 (all passenger cars),
 Norway,2022,PETROL,7765,7174.3,SSB 12577 (all passenger cars),
 Norway,2022,DIESEL,11995,15324.7,SSB 12577 (all passenger cars),
 Norway,2022,BEV,12953,7994.8,SSB 12577 (all passenger cars),
 Norway,2022,PHEV,13866,2704,SSB 12577 (all passenger cars),
 Norway,2022,HEV,12161,1848.4,SSB 12577 (all passenger cars),
+Norway,2022,HYBRID,,4809,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
 Norway,2023,ALL,11274,35675.7,SSB 12577 (all passenger cars),
 Norway,2023,PETROL,7566,6474.7,SSB 12577 (all passenger cars),
 Norway,2023,DIESEL,11651,14147.2,SSB 12577 (all passenger cars),
 Norway,2023,BEV,13913,9947.9,SSB 12577 (all passenger cars),
 Norway,2023,PHEV,14111,2880.6,SSB 12577 (all passenger cars),
 Norway,2023,HEV,12266,1947.7,SSB 12577 (all passenger cars),
+Norway,2023,HYBRID,,5099,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
 Norway,2024,ALL,11215,35442.9,SSB 12577 (all passenger cars),
 Norway,2024,PETROL,7417,5943.4,SSB 12577 (all passenger cars),
 Norway,2024,DIESEL,11460,13202.9,SSB 12577 (all passenger cars),
 Norway,2024,BEV,13521,11074.7,SSB 12577 (all passenger cars),
 Norway,2024,PHEV,14367,2971,SSB 12577 (all passenger cars),
 Norway,2024,HEV,11989,1972.5,SSB 12577 (all passenger cars),
+Norway,2024,HYBRID,,5217,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
 Norway,2025,ALL,11350,36091.1,SSB 12577 (all passenger cars),
 Norway,2025,PETROL,7622,5457.2,SSB 12577 (all passenger cars),
 Norway,2025,DIESEL,11196,12216.6,SSB 12577 (all passenger cars),
 Norway,2025,BEV,13453,13227,SSB 12577 (all passenger cars),
 Norway,2025,PHEV,14267,2968.7,SSB 12577 (all passenger cars),
 Norway,2025,HEV,11805,1944.9,SSB 12577 (all passenger cars),
+Slovenia,2015,ALL,,16356,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2015,PETROL,,6331,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2015,DIESEL,,9831,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2015,BEV,,2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2015,HYBRID,,21,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Slovenia,2016,ALL,,15990,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2016,PETROL,,6113,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2016,DIESEL,,9650,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2016,BEV,,5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2016,HYBRID,,35,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Slovenia,2017,ALL,,16593,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2017,PETROL,,6019,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2017,DIESEL,,10311,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2017,BEV,,8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2017,HYBRID,,54,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Slovenia,2018,ALL,,16976,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2018,PETROL,,5923,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2018,DIESEL,,10756,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2018,BEV,,14,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2018,HYBRID,,84,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Slovenia,2019,ALL,,17263,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2019,PETROL,,5840,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2019,DIESEL,,11093,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2019,BEV,,22,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2019,HYBRID,,123,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Slovenia,2020,ALL,,14202,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2020,PETROL,,4813,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2020,DIESEL,,9077,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2020,BEV,,30,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2020,HYBRID,,142,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Slovenia,2021,ALL,,15245,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2021,PETROL,,5024,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2021,DIESEL,,9792,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2021,BEV,,52,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2021,HYBRID,,238,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Slovenia,2022,ALL,,16606,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2022,PETROL,,5447,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2022,DIESEL,,10508,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2022,BEV,,87,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2022,HYBRID,,415,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Slovenia,2023,ALL,,17543,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2023,PETROL,,5827,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2023,DIESEL,,10744,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2023,BEV,,152,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2023,HYBRID,,675,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Slovenia,2024,ALL,,18029,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2024,PETROL,,5977,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2024,DIESEL,,10710,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2024,BEV,,217,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Slovenia,2024,HYBRID,,988,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2015,ALL,,65312,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2015,PETROL,,33658,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2015,DIESEL,,26408,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2015,BEV,,49,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2015,HYBRID,,827,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2016,ALL,,67176,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2016,PETROL,,32643,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2016,DIESEL,,29161,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2016,BEV,,87,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2016,HYBRID,,1099,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2017,ALL,,68082,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2017,PETROL,,31270,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2017,DIESEL,,31270,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2017,BEV,,136,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2017,HYBRID,,1473,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2018,ALL,,68664,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2018,PETROL,,30029,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2018,DIESEL,,32712,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2018,BEV,,199,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2018,HYBRID,,2026,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2019,ALL,,67142,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2019,PETROL,,28737,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2019,DIESEL,,32103,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2019,BEV,,356,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2019,HYBRID,,2531,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2020,ALL,,62823.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2020,PETROL,,26705.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2020,DIESEL,,29682.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2020,BEV,,579.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2020,HYBRID,,2886.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2021,ALL,,63850.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2021,PETROL,,27100.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2021,DIESEL,,28956.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2021,BEV,,1119.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2021,HYBRID,,3929.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2022,ALL,,64851.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2022,PETROL,,26893.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2022,DIESEL,,28144.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2022,BEV,,2273.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2022,HYBRID,,4899.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2023,ALL,,65057.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2023,PETROL,,26241.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2023,DIESEL,,26562.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2023,BEV,,3953.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2023,HYBRID,,5801.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Sweden,2024,ALL,,66146.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2024,PETROL,,24211,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2024,DIESEL,,25566.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2024,BEV,,5560.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Sweden,2024,HYBRID,,8404.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Switzerland,2015,ALL,,48802,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Switzerland,2016,ALL,,49595,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Switzerland,2017,ALL,,50268,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Switzerland,2018,ALL,,50553,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Switzerland,2019,ALL,,50717,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Switzerland,2020,ALL,,43684,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Switzerland,2021,ALL,,45971,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Switzerland,2022,ALL,,48107,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Switzerland,2023,ALL,,49502,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Switzerland,2024,ALL,,49912,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+Türkiye,2015,ALL,,135694.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2015,PETROL,,28038.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2015,DIESEL,,59466.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2015,BEV,,8.3,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2015,HYBRID,,4.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Türkiye,2016,ALL,,148294.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2016,PETROL,,29205.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2016,DIESEL,,68177,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2016,BEV,,9.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2016,HYBRID,,8.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Türkiye,2017,ALL,,160336.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2017,PETROL,,30264.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2017,DIESEL,,76924.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2017,BEV,,12.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2017,HYBRID,,9.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Türkiye,2018,ALL,,165751.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2018,PETROL,,29502.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2018,DIESEL,,80010,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2018,BEV,,13.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2018,HYBRID,,31.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Türkiye,2019,ALL,,162483.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2019,PETROL,,29770.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2019,DIESEL,,77678.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2019,BEV,,21.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2019,HYBRID,,147.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Türkiye,2020,ALL,,160231.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2020,PETROL,,29202.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2020,DIESEL,,76510.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2020,BEV,,17.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2020,HYBRID,,335,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Türkiye,2021,ALL,,172843.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2021,PETROL,,34289.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2021,DIESEL,,82090.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2021,BEV,,64.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2021,HYBRID,,1146.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Türkiye,2022,ALL,,191777.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2022,PETROL,,43734.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2022,DIESEL,,87070.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2022,BEV,,152.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2022,HYBRID,,2260.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Türkiye,2023,ALL,,199814.1,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2023,PETROL,,50151.9,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2023,DIESEL,,83849.6,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2023,BEV,,647.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2023,HYBRID,,3551.7,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+Türkiye,2024,ALL,,218061.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2024,PETROL,,60874.2,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2024,DIESEL,,85998.4,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2024,BEV,,2181.5,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+Türkiye,2024,HYBRID,,6777.8,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",full and plug-in hybrids together
+United Kingdom,2015,ALL,,397711,"Eurostat road_tf_veh (national vehicles, national territory only)",km abroad not included
+United Kingdom,2016,ALL,,397711,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+United Kingdom,2019,ALL,,447077,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+United Kingdom,2020,ALL,,336726,"Eurostat road_tf_vehage (national vehicles, national and foreign territory)",

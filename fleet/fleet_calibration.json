@@ -3,6 +3,28 @@
  "note": "Generated from fleet/fleet_initial.csv and data/<Country>.csv. Do not hand-edit. attrition.rate = median net exit share of the passenger-car stock per year (scrappage + exports - used imports); inflow_mix = split of the non-plug-in side of the last 12 months of registrations; reg_by_year = yearly registrations used as the age profile of the stock (COMBUSTION = TOTAL - BEV - PHEV - HEV, extended backwards with all new cars from fleet/registrations_history.csv); age_bands = observed shares of the stock under 5 / 5-10 / 10-20 / over 20 years (fleet/fleet_age.csv); mileage = km per car of the year-end stock (fleet/mileage.csv totals divided by the stock).",
  "window_years": 5,
  "min_years": 3,
+ "mileage_default": {
+  "countries": [
+   "Croatia",
+   "Czechia",
+   "Estonia",
+   "Finland",
+   "France",
+   "Germany",
+   "Latvia",
+   "Malta",
+   "Norway",
+   "Slovenia",
+   "Sweden",
+   "Türkiye"
+  ],
+  "ALL": 12168,
+  "PETROL": 9088,
+  "DIESEL": 14358,
+  "BEV": 12532,
+  "PHEV": 16080,
+  "HEV": 16080
+ },
  "countries": {
   "Albania": {
    "attrition": {
@@ -972,6 +994,14 @@
      0.4284,
      0.1901
     ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 12891,
+    "PETROL": 9357,
+    "DIESEL": 14400,
+    "BEV": 17322
    }
   },
   "Cyprus": {
@@ -1249,6 +1279,20 @@
      0.6005,
      0.0
     ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 10618,
+    "PETROL": 8238,
+    "DIESEL": 14316,
+    "BEV": 12256,
+    "PHEV": 16396,
+    "HEV": 16396,
+    "hybrids_combined": [
+     "PHEV",
+     "HEV"
+    ]
    }
   },
   "Denmark": {
@@ -1445,6 +1489,11 @@
      0.3494,
      0.0802
     ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_veh (national vehicles, national territory only)",
+    "ALL": 14844
    }
   },
   "Estonia": {
@@ -1619,6 +1668,20 @@
      0.1712,
      0.3564,
      0.3474
+    ]
+   },
+   "mileage": {
+    "year": 2023,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 7388,
+    "PETROL": 4962,
+    "DIESEL": 10471,
+    "BEV": 9834,
+    "PHEV": 6553,
+    "HEV": 6553,
+    "hybrids_combined": [
+     "PHEV",
+     "HEV"
     ]
    }
   },
@@ -1796,6 +1859,20 @@
      0.1805,
      0.3288,
      0.3631
+    ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 10282,
+    "PETROL": 7957,
+    "DIESEL": 14623,
+    "BEV": 16299,
+    "PHEV": 16813,
+    "HEV": 16813,
+    "hybrids_combined": [
+     "PHEV",
+     "HEV"
     ]
    }
   },
@@ -2009,6 +2086,20 @@
      0.2616,
      0.4,
      0.1246
+    ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 11532,
+    "PETROL": 8820,
+    "DIESEL": 13317,
+    "BEV": 11872,
+    "PHEV": 14246,
+    "HEV": 14246,
+    "hybrids_combined": [
+     "PHEV",
+     "HEV"
     ]
    }
   },
@@ -2346,18 +2437,11 @@
     ]
    },
    "mileage": {
-    "year": 2025,
-    "source": "KBA Verkehr in Kilometern 2025 (Inlaenderfahrleistung, press release 38/2026)",
-    "ALL": 11363,
-    "PETROL": 9083,
-    "DIESEL": 14871,
-    "BEV": 12108,
-    "HEV": 14477,
-    "scaled_from_average": [
-     "BEV",
-     "HEV"
-    ],
-    "basis_ratio": 1.07
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 12042,
+    "PETROL": 9466,
+    "DIESEL": 16645
    }
   },
   "Hungary": {
@@ -2731,6 +2815,11 @@
      "2024": 64478,
      "2025": 52742
     }
+   },
+   "mileage": {
+    "year": 2023,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 14899
    }
   },
   "Italy": {
@@ -3019,6 +3108,14 @@
      0.4696,
      0.2839
     ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 12307,
+    "PETROL": 10713,
+    "DIESEL": 13723,
+    "BEV": 12129
    }
   },
   "Lithuania": {
@@ -3569,6 +3666,19 @@
      0.3955,
      0.2702
     ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 7109,
+    "PETROL": 6255,
+    "DIESEL": 9315,
+    "PHEV": 7356,
+    "HEV": 7356,
+    "hybrids_combined": [
+     "PHEV",
+     "HEV"
+    ]
    }
   },
   "Netherlands": {
@@ -3765,6 +3875,11 @@
      0.382,
      0.0902
     ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 13345
    }
   },
   "New Zealand": {
@@ -4567,6 +4682,20 @@
      0.4123,
      0.1324
     ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 14417,
+    "PETROL": 10514,
+    "DIESEL": 17775,
+    "BEV": 12807,
+    "PHEV": 18460,
+    "HEV": 18460,
+    "hybrids_combined": [
+     "PHEV",
+     "HEV"
+    ]
    }
   },
   "Spain": {
@@ -4977,6 +5106,20 @@
      0.3421,
      0.1261
     ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 13291,
+    "PETROL": 10358,
+    "DIESEL": 16415,
+    "BEV": 15521,
+    "PHEV": 16080,
+    "HEV": 16080,
+    "hybrids_combined": [
+     "PHEV",
+     "HEV"
+    ]
    }
   },
   "Switzerland": {
@@ -5181,6 +5324,11 @@
      0.3631,
      0.0943
     ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_veh (national vehicles, national territory only)",
+    "ALL": 10176
    }
   },
   "Türkiye": {
@@ -5351,6 +5499,20 @@
      0.177,
      0.2856,
      0.2639
+    ]
+   },
+   "mileage": {
+    "year": 2024,
+    "source": "Eurostat road_tf_vehage (national vehicles, national and foreign territory)",
+    "ALL": 13434,
+    "PETROL": 12403,
+    "DIESEL": 15519,
+    "BEV": 11870,
+    "PHEV": 17321,
+    "HEV": 17321,
+    "hybrids_combined": [
+     "PHEV",
+     "HEV"
     ]
    }
   },

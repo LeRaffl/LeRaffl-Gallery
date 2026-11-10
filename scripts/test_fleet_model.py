@@ -50,7 +50,7 @@ const check = (ok, msg) => out.push([!!ok, msg]);
 const near = (a, b, tol) => Math.abs(a - b) <= tol;
 
 // ---- stubs for what the page loads -------------------------------------
-const fleetState = { observed: [], calibration: {}, grid: {} };
+const fleetState = { observed: [], calibration: {}, grid: {}, mileageDefault: null };
 const getCountryCandidates = c => [String(c || '')];
 let INFLOW = 0, BEV_SHARE = 0.2, ICE_SHARE = 0.7;
 const getCountryAnnualInflow = () => INFLOW;
@@ -245,7 +245,12 @@ check(near(feGridAt('Clean', 2024, 'constant').mix.renew, 0.98, 1e-9), 'mix is f
   const m = feMileage('Far'), d = feMileage('Nowhere');
   check(m.PETROL === 20000 && m.BEV === 25000 && m.GASFUEL === 20000, "a country's own km per car are used (gas cars as petrol)");
   check(near(m.PHEV, FE_F.km_phev * 22800 / FE_F.km_all, 1e-9), 'a class the office does not report: the default at the country level');
-  check(d.PETROL === FE_F.km_petrol && d.BEV === FE_F.km_bev, 'no figures: the defaults');
+  check(d.PETROL === FE_F.km_petrol && d.BEV === FE_F.km_bev, 'no figures and no calibration file: the fallback factors');
+  fleetState.mileageDefault = { ALL: 12000, PETROL: 9000, DIESEL: 14000, BEV: 12500 };
+  const d2 = feMileage('Nowhere'), m2 = feMileage('Far');
+  check(d2.PETROL === 9000 && d2.BEV === 12500 && d2.GASFUEL === 9000 && d2.HEV === FE_F.km_hybrid, 'no figures of its own: the cross-country median, class by class');
+  check(near(m2.PHEV, FE_F.km_phev * 22800 / 12000, 1e-9) && m2.PETROL === 20000, '...and an unreported class is scaled against the median level');
+  fleetState.mileageDefault = null;
   check(near(fePerVehicle('BEV', 25000).carrierElec, FE_F.cons_bev / 100 * 25000, 1e-9) && fePerVehicle('BEV').km === FE_F.km_bev, 'energy per car scales with its km');
   const cars = n => ({ BEV: n.BEV || 0, PHEV: 0, HEV: 0, DIESEL: 0, PETROL: n.PETROL || 0, GASFUEL: 0 });
   const far = feChain({ year: 2024, row: cars({ PETROL: 1e6 }), parts: [{ country: 'Far', row: cars({ PETROL: 1e6 }) }] });
@@ -316,6 +321,13 @@ def main():
                    "three grid scenarios are offered"))
     checks.append(("rows.filter(isCars)" in html and "v === 'whole'" in html,
                    "only passenger-car (Whole) rows of the stock file are read"))
+    cal = json.loads((ROOT / "fleet" / "fleet_calibration.json").read_text(encoding="utf-8"))
+    fe_f = json.loads(re.search(r"const FE_F = (\{.*?\});", html, re.S).group(1))
+    dflt = cal.get("mileage_default", {})
+    for k, f in (("ALL", "km_all"), ("PETROL", "km_petrol"), ("DIESEL", "km_diesel"), ("BEV", "km_bev"),
+                 ("HEV", "km_hybrid"), ("PHEV", "km_phev")):
+        checks.append((k in dflt and abs(fe_f[f] - dflt[k]) <= 0.05 * dflt[k],
+                       f"fallback {f} = {fe_f[f]:.0f} is within 5% of the derived median {dflt.get(k)}"))
     for f in ("fleet/fleet_calibration.json", "fleet/grid_mix.csv"):
         checks.append((f"./{f}" in html and (ROOT / f).exists(), f"the page loads {f} and the file exists"))
 

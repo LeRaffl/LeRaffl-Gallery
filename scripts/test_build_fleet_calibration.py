@@ -150,6 +150,31 @@ check(km["year"] == 2025 and km["ALL"] == 12000 and abs(km["basis_ratio"] - 1.2)
 check(km["PETROL"] == 10000, f"a fuel with a total: total / that fuel's stock (600,000), got {km.get('PETROL')}")
 check(km["BEV"] == 15600 and km["scaled_from_average"] == ["BEV"], f"a fuel without a total: its average x the ALL ratio, got {km.get('BEV')}")
 check("DIESEL" not in km, "an impossible figure (scope mismatch) is left out")
+# Hybrids reported together, a fuel whose classes do not match, a stale year.
+fleet_h = [fleet_row("Aland", y, 100000, 500000, 300000, phev=40000, hev=60000) for y in range(2019, 2026)]
+(d / "fleet_h.csv").write_text(FLEET_HEADER + "\n" + "\n".join(fleet_h) + "\n", encoding="utf-8")
+(d / "km_h.csv").write_text("country,year,fuel,km_per_car,total_mkm,source,notes\n"
+                            "Aland,2024,ALL,,12000,office,\nAland,2024,PETROL,,4500,office,\n"
+                            "Aland,2024,DIESEL,,9000,office,\nAland,2024,HYBRID,,1500,office,\n"
+                            "Aland,2024,BEV,,1300,office,\nAland,2025,ALL,,0,office,\n", encoding="utf-8")
+h = bc.build(d / "fleet_h.csv", d / "data", None, None, d / "km_h.csv")["countries"]["Aland"]["mileage"]
+check(h["year"] == 2024 and h["ALL"] == 12000 and h["PETROL"] == 9000 and h["BEV"] == 13000, f"latest year WITH a total is used: {h}")
+check(h["PHEV"] == 15000 and h["HEV"] == 15000 and h["hybrids_combined"] == ["PHEV", "HEV"],
+      "hybrids reported together: total / (PHEV + HEV stock), given to both")
+check("DIESEL" not in h, "a fuel at 2.5x the all-car figure is a class mismatch and is left out (30,000 vs 12,000)")
+(d / "km_old.csv").write_text("country,year,fuel,km_per_car,total_mkm,source,notes\nAland,2020,ALL,,12000,office,\n", encoding="utf-8")
+old_only = bc.build(d / "fleet_h.csv", d / "data", None, None, d / "km_old.csv")["countries"].get("Aland", {})
+check("mileage" not in old_only, f"nothing before {bc.MILEAGE_MIN_YEAR} is published (pandemic year, ended series)")
+md = bc.mileage_default({c: {"mileage": m} for c, m in {
+    "A": {"ALL": 10000, "PETROL": 8000, "DIESEL": 14000, "BEV": 12000},
+    "B": {"ALL": 12000, "PETROL": 9000, "DIESEL": 15000, "BEV": 13000},
+    "C": {"ALL": 14000, "PETROL": 10000, "DIESEL": 16000},
+    "D": {"ALL": 99999}}.items()})
+check(md["countries"] == ["A", "B", "C"] and md["ALL"] == 12000 and md["PETROL"] == 9000 and md["DIESEL"] == 15000,
+      f"default = median over the countries that report petrol and diesel: {md}")
+check("BEV" not in md, "a class fewer than three of them report gets no default")
+check(bc.mileage_default({"A": {"mileage": {"ALL": 1, "PETROL": 1, "DIESEL": 1}}}) is None, "too few countries: no default at all")
+
 none = bc.build(d / "fleet.csv", d / "data", None, None, None)["countries"]["Aland"]
 check("age_bands" not in none and "mileage" not in none and "attrition" in none, "without the optional files the core calibration still builds")
 
@@ -164,8 +189,15 @@ check(all(abs(v) <= 0.5 for c in cs.values() for v in c.get("attrition", {}).get
       "per-fuel figures beyond +-50 % (scope mismatch) are left out")
 check(all(abs(sum(b) - 1) < 2e-3 for c in cs.values() for b in c.get("age_bands", {}).values()),
       "every committed age-band row adds up to 1")
-check(sum("age_bands" in c for c in cs.values()) >= 20 and {"Norway", "Germany"} <= {k for k, c in cs.items() if "mileage" in c},
-      "age bands for 20+ countries; own mileage for Norway and Germany")
+check(sum("age_bands" in c for c in cs.values()) >= 20 and sum("mileage" in c for c in cs.values()) >= 12
+      and {"Norway", "Germany", "Sweden", "France"} <= {k for k, c in cs.items() if "mileage" in c},
+      "age bands for 20+ countries; own mileage for 12+")
+dflt = doc.get("mileage_default", {})
+check(len(dflt.get("countries", [])) >= 8 and dflt["PETROL"] < dflt["ALL"] < dflt["DIESEL"],
+      f"committed default mileage: petrol below the average, diesel above: {dflt}")
+check(all(c["mileage"]["year"] >= bc.MILEAGE_MIN_YEAR for c in cs.values() if "mileage" in c), "no committed mileage is older than the minimum year")
+no = cs["Norway"]["mileage"]
+check(no["PHEV"] != no["HEV"] and "hybrids_combined" not in no, "Norway keeps plug-in and full hybrids apart (SSB)")
 check(all(bc.KM_MIN <= v <= bc.KM_MAX for c in cs.values() for k, v in c.get("mileage", {}).items()
           if k in bc.MILEAGE_STOCK), "every committed km-per-car figure is plausible")
 check("generated_by" in doc and "T" not in json.dumps(doc.get("generated_at", "")),

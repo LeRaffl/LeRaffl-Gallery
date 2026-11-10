@@ -5193,9 +5193,9 @@ const VIEW_START_YEAR = 2015;
     country's grid</b>: the generation mix of each year on record (Ember, in
     <code>fleet/grid_mix.csv</code>), and after the last year on record that mix is held, which
     credits the power sector with no future improvement &mdash; in this chart electrified
-    transport is shown at its worst. <b>Mileage</b> is by fuel and, where a statistics office
-    publishes it, by country (<code>fleet/mileage.csv</code>: Norway, Germany; Germany's figures
-    stand in for the rest); each country's kilometres per car are held constant in the
+    transport is shown at its worst. <b>Mileage</b> is by fuel and by country where Eurostat or
+    the national office publishes it (<code>fleet/mileage.csv</code>: 16 countries, the median of
+    those reporting by fuel for the rest); each country's kilometres per car are held constant in the
     projection, so electrification does not add driving. Consumption and efficiency are single
     fleet-average values for every country. Factors and their sources live in
     <code>energy_factors.csv</code>, and the method is written up in
@@ -5378,6 +5378,7 @@ const fleetState = {
   params: [],
   weights: {},
   calibration: {},   // fleet/fleet_calibration.json -> countries
+  mileageDefault: null,   // ...and its cross-country median km per car
   grid: {},          // fleet/grid_mix.csv -> country -> [{year, g, mix}]
   supportLoaded: false
 };
@@ -11823,8 +11824,11 @@ async function loadFleetSupportData(){
   // projection runs on the typed-in rates and the Energy view on the world
   // grid in energy_factors.csv, as it did before these files existed.
   const calText = await loadText(['./fleet/fleet_calibration.json']);
-  try { fleetState.calibration = calText ? (JSON.parse(calText).countries || {}) : {}; }
-  catch { fleetState.calibration = {}; }
+  try {
+    const cal = calText ? JSON.parse(calText) : {};
+    fleetState.calibration = cal.countries || {};
+    fleetState.mileageDefault = cal.mileage_default || null;
+  } catch { fleetState.calibration = {}; fleetState.mileageDefault = null; }
   const gridText = await loadText(['./fleet/grid_mix.csv']);
   fleetState.grid = gridText ? parseGridMix(parseCSV(gridText)) : {};
   fleetProjectionCache.clear();
@@ -12514,7 +12518,7 @@ const container = document.getElementById('fleetCategoryContainer');
    country selection, hazard settings and projection that buildFleetPlot()
    already computed, then converts vehicles into energy. One model, two views —
    so the two panels can never drift apart.                                  */
-const FE_F = {"lhv_petrol":8.94,"lhv_diesel":9.97,"wtt_petrol":1.19,"wtt_diesel":1.16,"grid_td_loss":0.08,"charging_loss":0.1,"mix_coal":0.35,"mix_gas":0.23,"mix_nuclear":0.09,"mix_hydro":0.14,"mix_wind":0.08,"mix_solar":0.07,"mix_other":0.04,"eff_coal_plant":0.38,"eff_gas_plant":0.5,"eff_nuclear_iea":0.33,"eff_other_plant":0.4,"cons_petrol":7.5,"cons_diesel":6.5,"cons_hybrid":5.5,"cons_phev_fuel":5.9,"cons_phev_elec":6.0,"cons_bev":19.0,"ttw_ice":0.23,"ttw_hybrid":0.3,"ttw_bev":0.8,"km_all":11400.0,"km_petrol":9100.0,"km_diesel":14900.0,"km_hybrid":14500.0,"km_phev":12300.0,"km_bev":12100.0,"res_air":0.37,"res_roll":0.33,"res_brake":0.23,"res_aux":0.07,"wtt_gasfuel":1.12,"world_cars_2018":1050000000.0,"world_cars_2025":1230000000.0,"ghg_petrol":0.32,"ghg_diesel":0.328,"ghg_gasfuel":0.252,"grid_co2_now":0.48,"grid_co2_target":0.02,"grid_co2_base_year":2023.0,"grid_co2_target_year":2040.0};
+const FE_F = {"lhv_petrol":8.94,"lhv_diesel":9.97,"wtt_petrol":1.19,"wtt_diesel":1.16,"grid_td_loss":0.08,"charging_loss":0.1,"mix_coal":0.35,"mix_gas":0.23,"mix_nuclear":0.09,"mix_hydro":0.14,"mix_wind":0.08,"mix_solar":0.07,"mix_other":0.04,"eff_coal_plant":0.38,"eff_gas_plant":0.5,"eff_nuclear_iea":0.33,"eff_other_plant":0.4,"cons_petrol":7.5,"cons_diesel":6.5,"cons_hybrid":5.5,"cons_phev_fuel":5.9,"cons_phev_elec":6.0,"cons_bev":19.0,"ttw_ice":0.23,"ttw_hybrid":0.3,"ttw_bev":0.8,"km_all":12200.0,"km_petrol":9100.0,"km_diesel":14400.0,"km_hybrid":16100.0,"km_phev":16100.0,"km_bev":12500.0,"res_air":0.37,"res_roll":0.33,"res_brake":0.23,"res_aux":0.07,"wtt_gasfuel":1.12,"world_cars_2018":1050000000.0,"world_cars_2025":1230000000.0,"ghg_petrol":0.32,"ghg_diesel":0.328,"ghg_gasfuel":0.252,"grid_co2_now":0.48,"grid_co2_target":0.02,"grid_co2_base_year":2023.0,"grid_co2_target_year":2040.0};
 const FE_KEYS = ['BEV','PHEV','HEV','DIESEL','PETROL','GASFUEL'];
 const FE_COLS = {"Crude oil":0,"Natural gas":0,"Coal":0,"Gas":0,"Nuclear":0,"Other":0,"Renewables":0,
  "Petrol":1,"Diesel":1,"Gas fuel":1,"Electricity":1,"Supply loss":1,
@@ -12654,17 +12658,22 @@ function feGridAt(country, year, scenario){
  if (g == null) g = Math.max(Math.min(last.g, tgt), last.g + feGridTrend(ser)*(year-last.year));
  return {g, mix: last.mix};
 }
-/* km per car and year, by energy class, for one country. From the country's
-   own statistics where fleet/mileage.csv has them (built into the calibration
-   file as km per car of the year-end stock); a class the office does not
-   report takes the default scaled to the country's overall level; a country
-   without any figures takes the defaults in energy_factors.csv. */
+/* km per car and year, by energy class, for one country: km per car of the
+   year-end stock, from Eurostat / national vehicle-km statistics via the
+   calibration file. A class the country does not report takes the default
+   scaled to the country's overall level. The default is the cross-country
+   median in the calibration file (`mileage_default`); the km_* rows of
+   energy_factors.csv only stand in when that file cannot be loaded. */
 function feMileage(country){
- const def = {PETROL:FE_F.km_petrol, DIESEL:FE_F.km_diesel, HEV:FE_F.km_hybrid,
-              PHEV:FE_F.km_phev, BEV:FE_F.km_bev, GASFUEL:FE_F.km_petrol};
+ const d = fleetState.mileageDefault || {};
+ const pick = (k, f) => d[k] > 0 ? d[k] : FE_F[f];
+ const def = {PETROL:pick('PETROL','km_petrol'), DIESEL:pick('DIESEL','km_diesel'), HEV:pick('HEV','km_hybrid'),
+              PHEV:pick('PHEV','km_phev'), BEV:pick('BEV','km_bev')};
+ def.GASFUEL = def.PETROL;
  const m = country ? fleetCalibration(country)?.mileage : null;
  if (!m) return def;
- const level = m.ALL > 0 && FE_F.km_all > 0 ? m.ALL / FE_F.km_all : 1;
+ const defAll = pick('ALL','km_all');
+ const level = m.ALL > 0 && defAll > 0 ? m.ALL / defAll : 1;
  const out = {};
  Object.keys(def).forEach(k => {
   const own = k === 'GASFUEL' ? m.PETROL : m[k];
@@ -13784,10 +13793,11 @@ const FAQ_DATA = [
     ] },
   { tag: 'model', label: 'Model', q: 'How many kilometres does a car drive in the Energy view?',
     answers: [
-      'As many as the statistics say, by fuel. Offices that read odometers at inspection publish the kilometres driven per fuel: in Norway in 2025 a petrol car did about 8,100 km, a diesel 13,000 and a battery car 14,000; in Germany a petrol car 9,100, a diesel 14,900 and a battery car 12,100 (<code>fleet/mileage.csv</code>). Norway and Germany use their own figures; every other country uses Germany\u2019s as the default until its own are added.',
-      'These are kilometres per car of the year-end stock: total kilometres divided by the cars in the stock file. The offices\u2019 own per-vehicle averages are about 7% lower, because they divide by every vehicle that was on the road at some point in the year.',
+      'As many as the statistics say, by country and by fuel. Eurostat publishes the kilometres each country\u2019s cars drive per fuel, measured mostly from odometer readings at inspection (<code>fleet/mileage.csv</code>). In 2024 a petrol car did about 8,300 km in Norway, 8,800 in France, 9,500 in Germany and 10,400 in Sweden; a diesel 13,100 to 16,600; a battery car 11,900 in France and 15,500 in Sweden. Estonian cars do 7,400 km on average, Slovenian ones 14,400.',
+      'Sixteen countries use their own figures, twelve of them by fuel. Every other country uses the median of those twelve: 9,100 km for a petrol car, 14,400 for a diesel, 12,500 for a battery car, 12,200 overall.',
+      'These are kilometres per car of the year-end stock: total kilometres divided by the cars in the stock file, so that cars times kilometres gives the kilometres actually driven.',
       '<b>Battery cars are not driven further because they are electric.</b> Age for age they do about the fleet average: in Norway, cars up to four years old do 13,800 km as battery cars, 11,600 as petrol cars and 14,800 as diesels. The gap between the fuels is mostly age. Petrol cars are old, and an old car is driven little (3,800 km at 25 years and over).',
-      'So the projection does not let electrification add driving. Each country\u2019s kilometres per car are held at their last observed value; the fuels keep their proportions to each other. Without that step, a fully electric fleet would appear to drive 14% more per car in Norway and 7% more in Germany.',
+      'So the projection does not let electrification add driving. Each country\u2019s kilometres per car are held at their last observed value; the fuels keep their proportions to each other. Without that step, a fully electric fleet would appear to drive 14% more per car in Norway and 17% more in Sweden.',
       'Until this was introduced the view used 11,000 km for every petrol car and 17,500 for every diesel in every country, which overstated fuel use by roughly a fifth.'
     ] }
 ];

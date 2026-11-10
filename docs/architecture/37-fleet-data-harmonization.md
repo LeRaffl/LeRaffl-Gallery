@@ -612,14 +612,16 @@ wrong in ways that were visible in the default chart:
 | `fleet/fleet_initial.csv` | source of truth | `fetch_fleet_germany.py`, `fetch_fleet_eurostat.py`, curated | stock by fuel |
 | `fleet/fleet_age.csv` | fetched | `fetch_fleet_age.py` | stock by age band (Eurostat `road_eqs_carage`, 2013–) |
 | `fleet/registrations_history.csv` | fetched | `fetch_fleet_age.py` | all new passenger cars per year (Eurostat `road_eqr_carmot`, 1970–) |
-| `fleet/mileage.csv` | fetched + curated | `fetch_fleet_mileage.py` (Norway); Germany by hand | km per vehicle and total km, by fuel |
+| `fleet/mileage.csv` | fetched | `fetch_fleet_mileage.py` | total km by fuel (Eurostat `road_tf_vehage` / `road_tf_veh`; SSB 12577 for Norway) |
 | `fleet/grid_mix.csv` | fetched | `fetch_grid_mix.py` | electricity mix and CO2e intensity |
 | `fleet/fleet_calibration.json` | **derived** | `build_fleet_calibration.py` | everything the page reads per country (§7.1) |
 | `fleet/survival_fit.csv` | **derived** | `fit_fleet_survival.py` | Weibull fit per country (§7.2) |
 
-Fetched and derived files are never hand-edited. `mileage.csv` is the one
-mixed file: the fetcher owns the rows whose `source` it writes and leaves
-every other row alone.
+Fetched and derived files are never hand-edited. `mileage.csv` accepts curated
+rows from a source the fetcher does not know (a national office without an
+API): it only replaces rows carrying one of its own `source` labels, and never
+overwrites another source's row for the same country, year and fuel. There are
+none today.
 
 ### 7.1 `fleet/fleet_calibration.json`
 
@@ -689,13 +691,17 @@ merged: their boundary is not applied uniformly (Germany's "under 2 years"
 holds about 2.7 years of registrations).
 
 **`mileage`** — km per car **of the year-end stock**, by fuel, for the latest
-year with both a published total and a stock row. Built from
-`fleet/mileage.csv`: `total km of the fuel / stock of the fuel`. The offices'
-own per-vehicle averages are *not* used directly — they divide by every vehicle
-on the road at some point in the year, about 7 % more than the year-end stock
-(`basis_ratio`: Germany 1.07, Norway 1.08). A fuel without a published total
-takes its published average × that ratio and is listed under
-`scaled_from_average`. Today: Norway (SSB, fetched) and Germany (KBA, curated).
+year (2021 or later) with both a published total and a stock row. Built from
+`fleet/mileage.csv`: `total km of the fuel / stock of the fuel`. Sixteen
+countries, twelve of them by fuel. `hybrids_combined` lists the classes that
+share one figure because the source reports full and plug-in hybrids together;
+`scaled_from_average` a fuel that had no total and took the office's own
+average × `basis_ratio`. Sources, gates and the table of values:
+`architecture/energy-view-methodology.md` §6b.
+
+**`mileage_default`** (top level, not per country) — the median of those
+figures over the countries that report petrol and diesel separately. What a
+country without figures of its own is given.
 
 ### 7.2 How the page uses it
 
@@ -798,18 +804,16 @@ petrol/diesel → OTHERS where the stock has no split, i.e. China). Without an
   question (a scope change, a revised stock year), not a model question.
 - `refresh-fleet-data.yml` (monthly, the 9th) re-fetches every open-API input
   — stock by fuel (`fetch_fleet_eurostat.py`), stock by age and the registration
-  history (`fetch_fleet_age.py`), mileage (`fetch_fleet_mileage.py`), the grid
+  history (`fetch_fleet_age.py`), vehicle-km by fuel (`fetch_fleet_mileage.py`:
+  Eurostat and SSB), the grid
   (`fetch_grid_mix.py`) — then rebuilds the calibration and the survival fit and
   commits `fleet/`. A source that is down does not block the others; the run is
   marked failed after committing what worked. Until 2026-11 the Eurostat stock
   refresh was a once-a-year manual step.
-- **Adding a country's mileage** is the cheapest way to improve the Energy view:
-  a block in `scripts/fetch_fleet_mileage.py` (or curated rows with a `source`)
-  for an office that publishes km by fuel — Sweden (Trafikanalys), the
-  Netherlands (CBS), the UK (MOT data), Denmark, Finland. The Germany rows are
-  curated from the KBA release because kba.de is only reachable through the
-  relay; they should be re-read against the KBA tables when the relay is at
-  hand (`notes` column says so).
+- **Adding a country's mileage by fuel** where Eurostat only has its total
+  (the Netherlands, the UK, Denmark, Ireland, Switzerland) or nothing (anything
+  outside Europe): a block in `scripts/fetch_fleet_mileage.py` for the national
+  office, ordered before the Eurostat rows so it takes precedence.
 - `fleet/hazard_defaults.csv`, `fleet/fleet_observed.csv` and
   `fleet/fleet_meta.json` predate the harmonized dataset and are **not read by
   the page**. `hazard_defaults.csv` still feeds `R/energy_flows.R`. Their rates
