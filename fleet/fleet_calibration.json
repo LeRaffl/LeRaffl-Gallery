@@ -176,10 +176,10 @@
     }
    },
    "inflow_mix": {
-    "window": "2025-10..2026-09",
-    "HEV": 0.4649,
-    "PETROL": 0.3865,
-    "DIESEL": 0.1485,
+    "window": "2025-11..2026-10",
+    "HEV": 0.4699,
+    "PETROL": 0.3825,
+    "DIESEL": 0.1476,
     "OTHERS": 0.0
    },
    "reg_by_year": {
