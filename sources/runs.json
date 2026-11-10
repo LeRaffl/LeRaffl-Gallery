@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-09T13:19:03Z",
+ "generated": "2026-11-10T12:57:07Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7688,6 +7688,102 @@
    "slug": "uruguay_vans",
    "period": "2026-10",
    "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "Australia",
+   "base": "Australia",
+   "slug": "australia",
+   "period": "2026-10",
+   "flag": "🇦🇺"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "Belgium",
+   "base": "Belgium",
+   "slug": "belgium",
+   "period": "2026-10",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "Belgium (Buses)",
+   "base": "Belgium",
+   "slug": "belgium_buses",
+   "period": "2026-10",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "Belgium (HDV)",
+   "base": "Belgium",
+   "slug": "belgium_hdv",
+   "period": "2026-10",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "Belgium (Industry)",
+   "base": "Belgium",
+   "slug": "belgium_industry",
+   "period": "2026-10",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "Belgium (Private)",
+   "base": "Belgium",
+   "slug": "belgium_private",
+   "period": "2026-10",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "Belgium (Vans)",
+   "base": "Belgium",
+   "slug": "belgium_vans",
+   "period": "2026-10",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "China",
+   "base": "China",
+   "slug": "china",
+   "period": "2026-10",
+   "flag": "🇨🇳"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "New Zealand",
+   "base": "New Zealand",
+   "slug": "new_zealand",
+   "period": "2026-10",
+   "flag": "🇳🇿"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "New Zealand (HDV)",
+   "base": "New Zealand",
+   "slug": "new_zealand_hdv",
+   "period": "2026-10",
+   "flag": "🇳🇿"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "New Zealand (Used)",
+   "base": "New Zealand",
+   "slug": "new_zealand_used",
+   "period": "2026-10",
+   "flag": "🇳🇿"
+  },
+  {
+   "date": "2026-11-09",
+   "label": "New Zealand (Vans)",
+   "base": "New Zealand",
+   "slug": "new_zealand_vans",
+   "period": "2026-10",
+   "flag": "🇳🇿"
   }
  ]
 }

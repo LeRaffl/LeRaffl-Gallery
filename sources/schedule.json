@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-09T13:19:03Z",
- "today": "2026-11-09",
+ "generated": "2026-11-10T12:57:07Z",
+ "today": "2026-11-10",
  "countries": [
   {
    "country": "Albania",
@@ -11,10 +11,10 @@
    "cadence_text": "daily 07:00 UTC, 10th–28th, commit-gated",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -195,7 +195,7 @@
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-11-05",
+   "last_render": "2026-11-09",
    "flag": "🇦🇺",
    "variants": [
     {
@@ -305,11 +305,11 @@
    "source_url": "https://mobilit.belgium.be/nl/documenten/open-data/wegverkeer/inschrijvingen-van-voertuigen",
    "cadence_text": "daily at 17:10 UTC on the 2nd–20th; DIV writes a month's file on the 2nd of the following month (~16:00 UTC)",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -353,54 +353,54 @@
     ],
     "workflow": ".github/workflows/fetch-belgium.yml"
    },
-   "last_render": "2026-11-02",
+   "last_render": "2026-11-09",
    "flag": "🇧🇪",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2013-01",
-     "rows": 165,
+     "rows": 166,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2013-01",
-     "rows": 165,
+     "rows": 166,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2013-01",
-     "rows": 165,
+     "rows": 166,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2013-01",
-     "rows": 165,
+     "rows": 166,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2013-01",
-     "rows": 165,
+     "rows": 166,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2013-01",
-     "rows": 165,
+     "rows": 166,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -415,10 +415,10 @@
    "cadence_text": "monthly cron on the 10th, 08:50 UTC",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -670,11 +670,11 @@
    "source_url": "https://www.cpcaauto.com/news.php?types=csjd&anid=129&nid=24",
    "cadence_text": "daily cron 11:00 UTC; CPCA publishes the prior month around the 8th–11th",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -730,22 +730,22 @@
     ],
     "workflow": ".github/workflows/fetch-china.yml"
    },
-   "last_render": "2026-10-26",
+   "last_render": "2026-11-09",
    "flag": "🇨🇳",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2010-01",
-     "rows": 201,
+     "rows": 202,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Wholesale",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2024-09",
-     "rows": 25,
+     "rows": 26,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1964,10 +1964,10 @@
    "cadence_text": "daily 09:35 UTC, 10th–EOM (GAIKINDO publishes ~10th–15th)",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2140,8 +2140,8 @@
    "cadence_text": "daily 08:00 UTC, 10th–20th of the month; self-throttles once the previous month is in",
    "interval": "monthly",
    "latest_period": "2026-10",
-   "expected_period": "2026-09",
-   "behind": -1,
+   "expected_period": "2026-10",
+   "behind": 0,
    "behind_now": 0,
    "status": "current",
    "automated": true,
@@ -2993,11 +2993,11 @@
    "source_url": "https://opendata-nzta.opendata.arcgis.com/datasets/NZTA::motor-vehicle-register-1/about",
    "cadence_text": "twice daily on the 3rd–20th, 04:55 and 18:55 UTC — NZTA reloads the register once a month, accurate to the end of the previous month (September 2026 was loaded on 6 October)",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3041,38 +3041,38 @@
     ],
     "workflow": ".github/workflows/fetch-new-zealand.yml"
    },
-   "last_render": "2026-10-10",
+   "last_render": "2026-11-09",
    "flag": "🇳🇿",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2012-01",
-     "rows": 177,
+     "rows": 178,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3746,10 +3746,10 @@
    "cadence_text": "daily on the 10th–31st of February, May, August and November, 12:25 UTC — naamsa publishes the review 7–8 weeks after the quarter ends (2024–2026 between the 15th and the 27th)",
    "interval": "quarterly",
    "latest_period": "2026-05",
-   "expected_period": "2026-05",
-   "behind": 0,
+   "expected_period": "2026-08",
+   "behind": 3,
    "behind_now": 5,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4479,10 +4479,10 @@
    "cadence_text": "daily from the 10th to the end of the month, 10:30 UTC — ANL publishes about 6–7 weeks after the month (the Aug-2026 PDF is dated 17 Sep 2026)",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
