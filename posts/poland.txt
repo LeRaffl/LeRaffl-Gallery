@@ -1,11 +1,9 @@
-🇵🇱 Poland - September 26 - BEV Trajectory
+🇵🇱 Poland - October 26 - BEV Trajectory
 6.2% BEV
-8.8% PHEV
-85.0% ICE (of which 48.6%p were HEV)
+8.5% PHEV
+85.4% ICE (of which 49.2%p were HEV)
 
 Trailing 12 months are:
-6.6% BEV
-8.4% PHEV
-85.0% ICE (of which 47.0%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+6.3% BEV
+8.6% PHEV
+85.1% ICE (of which 47.5%p were HEV)

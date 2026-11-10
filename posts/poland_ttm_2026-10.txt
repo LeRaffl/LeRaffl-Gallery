@@ -1,0 +1,7 @@
+🇵🇱 Poland - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++0.6pp  BEV   (5.7% → 6.3%)
++3.7pp  PHEV  (4.9% → 8.6%)
++1.2pp  HEV   (46.4% → 47.5%)
+−5.4pp  ICE   (43.1% → 37.6%)
