@@ -9,10 +9,13 @@ fills a single theme-aware HTML template, and writes one page per country to
 
 Explainer pages: any other `docs/architecture/*.md` whose front-matter sets
 `explainer: true` (e.g. 61-tag-system.md → `sources/tags.html`, "How the tags
-work") is rendered with the same flow / decision-tree (BPMN-style) renderer
-from its `processing:` block, plus optional `sections:` and live widgets
-(`boxplots: true` mounts assets/tag_boxplots.js on top of
-assets/fit_core.js + assets/tag_system.js). They are not countries, so
+work"; 65-fleet-model.md → `sources/fleet.html`, "How the Fleet tab is
+calculated") is rendered with the same flow / decision-tree (BPMN-style)
+renderer from its `processing:` block, plus optional `sections:` and live
+widgets (`boxplots: true` mounts assets/tag_boxplots.js on top of
+assets/fit_core.js + assets/tag_system.js; `figures: fleet` mounts
+assets/fleet_figures.js, and a section's `figure:` names the chart drawn
+under it). `flow_heading` / `flow_position: top` title and place the flow. They are not countries, so
 they never appear in sources.json or the directory.
 
 The pages are served straight from the repo by GitHub Pages, so the generated
@@ -2144,10 +2147,11 @@ EXPLAINER_TEMPLATE = """<!doctype html>
   <a class="back" href="../">← Gallery</a>
   <h1>{title}</h1>
   <p class="lead">{summary}</p>
+  {flow_top}
   {sections}
-  <section><h2>How a tag is decided</h2>
-  {flow}</section>
+  {flow_bottom}
   {boxplots}
+  {figures}
   <div class="footer">
     <p>Specification (for developers): {doc}</p>
   </div>
@@ -2242,7 +2246,15 @@ def build_explainer_page(fm: dict, doc_name: str) -> str:
             continue
         text = sec.get("text") or []
         paras = "".join(f"<p>{esc(t)}</p>" for t in ([text] if isinstance(text, str) else text))
-        sections.append(f'<section><h2>{esc(sec.get("heading", ""))}</h2>{paras}</section>')
+        # Optional extras: a bullet list, and a live figure drawn by the
+        # page's figure script into this mount point (see `figures:` below).
+        items = sec.get("list") or []
+        bullets = ("<ul>" + "".join(f"<li>{esc(t)}</li>" for t in items) + "</ul>") if items else ""
+        fig = (f'<div data-fleet-fig="{esc(sec["figure"])}"></div>' if sec.get("figure") else "")
+        after = sec.get("after") or []
+        tail = "".join(f"<p>{esc(t)}</p>" for t in ([after] if isinstance(after, str) else after))
+        anchor = f' id="{esc(sec["id"])}"' if sec.get("id") else ""
+        sections.append(f'<section{anchor}><h2>{esc(sec.get("heading", ""))}</h2>{paras}{bullets}{fig}{tail}</section>')
     box = ""
     if fm.get("boxplots"):
         box = ('<section><h2>Where the cut-offs sit today</h2>'
@@ -2255,10 +2267,19 @@ def build_explainer_page(fm: dict, doc_name: str) -> str:
                '<script src="../assets/tag_boxplots.js"></script>'
                '<script>TagBoxplots.mount(document.getElementById("tagBoxplots"),'
                '{params:"../params.csv"});</script>')
+    # `figures: fleet` mounts assets/fleet_figures.js, which fills every
+    # section's figure mount point from the live fleet/ data files.
+    figures = ""
+    if fm.get("figures") == "fleet":
+        figures = ('<script src="../assets/fleet_figures.js"></script>'
+                   '<script>FleetFigures.mount(document,{base:"../"});</script>')
+    flow = (f'<section><h2>{esc(fm.get("flow_heading") or "How a tag is decided")}</h2>'
+            '<div class="flow">' + "".join(nodes) + "</div></section>")
+    top = fm.get("flow_position") == "top"
     return EXPLAINER_TEMPLATE.format(
         theme_href=THEME_HREF, css=BASE_CSS, title=esc(fm["title"]),
-        summary=esc(fm["summary"]), flow='<div class="flow">' + "".join(nodes) + "</div>",
-        sections="".join(sections), boxplots=box,
+        summary=esc(fm["summary"]), flow_top=flow if top else "", flow_bottom="" if top else flow,
+        sections="".join(sections), boxplots=box, figures=figures,
         doc=f'<a href="{GH_BLOB}/docs/architecture/{esc(doc_name)}"><code>docs/architecture/{esc(doc_name)}</code></a>')
 
 

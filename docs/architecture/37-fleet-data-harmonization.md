@@ -591,6 +591,10 @@ These are the only gaps between this spec and a mechanical yearly refresh.
 
 ## 7 · Calibration — what the projection is fitted to
 
+> The public, illustrated version of this section is `sources/fleet.html`
+> ("How the Fleet tab is calculated", source `65-fleet-model.md`). This section
+> is the specification behind it.
+
 Until 2026-11 the Fleet tab's projection ran on seven global attrition rates
 typed into the page (BEV 0.035 … OTHERS 0.060), one age assumption, and one rule
 for where new cars go. A review against the repo's own data found all three

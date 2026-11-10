@@ -2658,6 +2658,9 @@ a:focus-visible{
  stroke-width:2.8px;stroke-linejoin:round}
 .fe-nv{fill:var(--muted);font-weight:500}
 .fe-hd{font-size:9px;letter-spacing:.09em;text-transform:uppercase;fill:var(--muted);font-weight:700}
+/* Links in the Fleet tab (to its explainer page): the accent, like every other link. */
+#tab-fleet a{color:var(--accent);text-underline-offset:2px}
+#tab-fleet a:hover{color:var(--accent-deep)}
 .fe-intro{margin-top:14px;line-height:1.65}
 .fe-intro code{font-size:.92em;opacity:.85}
 /* CO2e emissions timeline (hand-rolled SVG, same aesthetic as the Sankey) */
@@ -4791,6 +4794,11 @@ const VIEW_START_YEAR = 2015;
         <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
       </span>
     </h2>
+    <p class="small" id="fleetHowLine" style="margin:-4px 0 12px;">
+      Cars on the road by drivetrain, projected forward and converted into energy and CO<span class="fe-sub">2</span>.
+      Every input is observed per country where statistics exist.
+      <a href="sources/fleet.html" id="fleetHowLink">How this is calculated &rarr;</a>
+    </p>
     <!-- Fleet errors -->
     <div id="fleetErrors"
          class="error"
@@ -4987,6 +4995,7 @@ const VIEW_START_YEAR = 2015;
     </div>
   </div>
   <div class="small" id="fleetCalibrationStatus" style="margin:10px 0 0;"></div>
+  <div class="small" style="margin:4px 0 0;"><a href="sources/fleet.html#turnover">Where these rates come from, with every country&#39;s figure &rarr;</a></div>
 
   <!-- Sub-card: Weibull-only setting (shape) -->
   <div class="fc-sub" id="fcSubWeibull">
@@ -5198,7 +5207,10 @@ const VIEW_START_YEAR = 2015;
     those reporting by fuel for the rest); each country's kilometres per car are held constant in the
     projection, so electrification does not add driving. Consumption and efficiency are single
     fleet-average values for every country. Factors and their sources live in
-    <code>energy_factors.csv</code>, and the method is written up in
+    <code>energy_factors.csv</code>. The whole calculation, with the data behind each step, is on
+    <a href="sources/fleet.html">How the Fleet tab is calculated</a> (kilometres:
+    <a href="sources/fleet.html#mileage">by country and fuel</a>; electricity:
+    <a href="sources/fleet.html#grid">by country</a>); the developer write-up is
     <code>architecture/energy-view-methodology.md</code>.
     <br><br>
     <b>The emissions strip</b> reads the same fleet as CO<span class="fe-sub">2</span> equivalent,
@@ -13685,6 +13697,11 @@ const FAQ_DATA = [
     answers: ['Technology adoption typically follows an S-curve: slow at first, then accelerating as barriers fall, and eventually slowing again as saturation is approached. This acceleration is gradual, not tied to a specific moment. The model visualizes this continuous process rather than a discrete tipping point.'] },
 
   // ----- FLEET -----
+  { tag: 'model', label: 'Model', q: 'Where is the Fleet tab\u2019s calculation explained in full?',
+    answers: [
+      'On its own page: <a href="sources/fleet.html">How the Fleet tab is calculated</a>. It walks through the calculation step by step, with the decisions the model takes, and shows the data behind each step as a chart with the numbers underneath: each country\u2019s observed turnover, the age of its cars, the survival curve, what its new cars are, how far its cars are driven and how clean its electricity is. It also lists what the projection assumes.',
+      'The questions below go into the individual pieces.'
+    ] },
   { tag: 'model', label: 'Model', q: 'What is the turnover (hazard) rate, in one sentence?',
     answers: [
       'It is the share of a mature fleet that leaves the registry in one year: scrappage, accidents and exports, minus used cars coming in.',

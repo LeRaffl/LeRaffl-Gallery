@@ -19,6 +19,7 @@ on:
     paths:
       - 'docs/architecture/*-source-*.md'
       - 'docs/architecture/61-tag-system.md'   # explainer page sources/tags.html
+      - 'docs/architecture/65-fleet-model.md'  # explainer page sources/fleet.html
       - 'docs/architecture/country_source_stubs.yaml'
       - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
@@ -34,6 +35,7 @@ on:
     paths:
       - 'docs/architecture/*-source-*.md'
       - 'docs/architecture/61-tag-system.md'   # explainer page sources/tags.html
+      - 'docs/architecture/65-fleet-model.md'  # explainer page sources/fleet.html
       - 'docs/architecture/country_source_stubs.yaml'
       - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
