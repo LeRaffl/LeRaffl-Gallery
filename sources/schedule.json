@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-10T12:57:07Z",
+ "generated": "2026-11-10T20:14:15Z",
  "today": "2026-11-10",
  "countries": [
   {
@@ -216,11 +216,11 @@
    "source_url": "https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-neuzulassungen",
    "cadence_text": "daily cron, 8th–22nd, 09:25 UTC",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -260,30 +260,30 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-10-26",
+   "last_render": "2026-11-10",
    "flag": "🇦🇹",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2012-01",
-     "rows": 177,
+     "rows": 178,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2024",
-     "rows": 22,
+     "rows": 23,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2024",
-     "rows": 22,
+     "rows": 23,
      "cadence": "monthly",
      "in_repo": true
     },
@@ -3320,11 +3320,11 @@
    "source_url": "https://www1.pzpm.org.pl/pl/Elektromobilnosc/eRejestracje",
    "cadence_text": "twice-daily cron, 6th–10th, 09:30 & 13:30 UTC",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3355,38 +3355,38 @@
     ],
     "workflow": ".github/workflows/fetch-poland.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-10",
    "flag": "🇵🇱",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2011-01",
-     "rows": 189,
+     "rows": 190,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2021-07",
-     "rows": 25,
+     "rows": 26,
      "cadence": "quarterly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2021-07",
-     "rows": 25,
+     "rows": 26,
      "cadence": "quarterly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2021-07",
-     "rows": 25,
+     "rows": 26,
      "cadence": "quarterly",
      "in_repo": true
     }

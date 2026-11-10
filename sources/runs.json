@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-10T12:57:07Z",
+ "generated": "2026-11-10T20:14:15Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7784,6 +7784,38 @@
    "slug": "new_zealand_vans",
    "period": "2026-10",
    "flag": "🇳🇿"
+  },
+  {
+   "date": "2026-11-10",
+   "label": "Austria",
+   "base": "Austria",
+   "slug": "austria",
+   "period": "2026-10",
+   "flag": "🇦🇹"
+  },
+  {
+   "date": "2026-11-10",
+   "label": "Austria (HDV)",
+   "base": "Austria",
+   "slug": "austria_hdv",
+   "period": "2026-10",
+   "flag": "🇦🇹"
+  },
+  {
+   "date": "2026-11-10",
+   "label": "Austria (Vans)",
+   "base": "Austria",
+   "slug": "austria_vans",
+   "period": "2026-10",
+   "flag": "🇦🇹"
+  },
+  {
+   "date": "2026-11-10",
+   "label": "Poland",
+   "base": "Poland",
+   "slug": "poland",
+   "period": "2026-10",
+   "flag": "🇵🇱"
   }
  ]
 }
