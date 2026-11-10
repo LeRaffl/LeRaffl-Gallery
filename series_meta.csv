@@ -4,8 +4,8 @@ Albania,Buses,2026-09,BEV,false,false,,false,false
 Albania,HDV,2026-09,BEV,false,false,,false,false
 Albania,Whole,2026-09,BEV,false,false,,true,true
 Australia,Whole,2026-10,BEV,false,false,,true,true
-Austria,Vans,2026-09,BEV,false,false,,false,false
-Austria,Whole,2026-09,BEV,false,false,,true,true
+Austria,Vans,2026-10,BEV,false,false,,false,false
+Austria,Whole,2026-10,BEV,false,false,,true,true
 Belgium,Whole,2026-10,BEV,false,false,,true,true
 Brazil,Whole,2026-09,BEV,false,false,,true,true
 Bulgaria,Whole,2026-09,BEV,false,false,,true,true
@@ -92,7 +92,7 @@ Uruguay,Buses,2026-10,BEV,false,false,,true,true
 Uruguay,HDV,2026-10,BEV,false,false,,true,true
 Uruguay,Vans,2026-10,BEV,false,false,,true,true
 Uruguay,Whole,2026-10,BEV,false,false,,true,true
-Austria,HDV,2026-09,BEV,false,false,,false,false
+Austria,HDV,2026-10,BEV,false,false,,false,false
 Belgium,Vans,2026-10,BEV,false,false,,true,true
 Belgium,HDV,2026-10,BEV,false,false,,true,true
 Belgium,Buses,2026-10,BEV,false,false,,true,true

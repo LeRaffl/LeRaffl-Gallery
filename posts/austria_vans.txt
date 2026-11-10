@@ -1,11 +1,9 @@
-🇦🇹 Austria (Vans) - September 26 - BEV Trajectory
-11.2% BEV
-4.3% Hybrid
-84.5% ICE
+🇦🇹 Austria (Vans) - October 26 - BEV Trajectory
+19.1% BEV
+5.5% Hybrid
+75.5% ICE
 
 Trailing 12 months are:
-13.7% BEV
-3.3% Hybrid
-82.9% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+14.2% BEV
+3.6% Hybrid
+82.1% ICE
