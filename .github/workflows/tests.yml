@@ -19,6 +19,8 @@ on:
       - 'R/**'
       - 'assets/**'
       - 'index.html'
+      - 'fleet/**'
+      - 'energy_factors.csv'
       - 'sources/**'
       - 'docs/architecture/**'
       - 'params.csv'

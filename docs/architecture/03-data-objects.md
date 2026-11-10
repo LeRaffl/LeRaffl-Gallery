@@ -512,11 +512,23 @@ The document also carries `kind: "backtest"`, a `headline` (*"What the model sai
 
 ### Where
 
-`fleet/fleet_initial.csv`, `fleet/fleet_observed.csv`, `fleet/fleet_meta.json`, `fleet/hazard_defaults.csv`.
+`fleet/fleet_initial.csv` (the stock, source of truth), `fleet/fleet_calibration.json` and `fleet/grid_mix.csv` (both **generated**), plus the legacy `fleet/fleet_observed.csv`, `fleet/fleet_meta.json`, `fleet/hazard_defaults.csv` (not read by the page).
 
 ### What it is
 
 A **separate** dataset and model — vehicle fleet (stock) projections, not new-registrations. Driven by a hazard-rate retirement model. Has its own tab in the static page.
+
+Two generated companions sit next to the stock file (never hand-edit them):
+
+| File | Written by | What it holds |
+|---|---|---|
+| `fleet/fleet_calibration.json` | `scripts/build_fleet_calibration.py` (monthly, `build-fleet-calibration.yml`) | Per country, from `fleet_initial.csv` × `data/<Country>.csv`: observed **net attrition** of the passenger-car stock (median of the last five years of `stock[Y-1] + registrations[Y] − stock[Y]`), the 12-month **inflow mix** of the combustion side, yearly registrations and observed **age bands** for the age structure, and **km per stock car** by fuel. The projection is calibrated to it by default. |
+| `fleet/fleet_age.csv`, `fleet/registrations_history.csv` | `scripts/fetch_fleet_age.py` | Eurostat: stock by age band (2013–) and all new passenger cars per year (1970–). The observed age structure the projection starts from, and what the survival curve is fitted against. |
+| `fleet/mileage.csv` | `scripts/fetch_fleet_mileage.py` | Total vehicle-km of passenger cars by fuel (Eurostat `road_tf_vehage` / `road_tf_veh`; SSB 12577 for Norway). Divided by the stock it gives km per car: 16 countries, 12 by fuel. |
+| `fleet/survival_fit.csv` | `scripts/fit_fleet_survival.py` | Weibull shape and scale fitted per country; the median of the usable fits is the page's default shape (2.5). |
+| `fleet/grid_mix.csv` | `scripts/fetch_grid_mix.py` (monthly, `refresh-fleet-data.yml`) | Per country and year from 2010, plus `World`: CO2e intensity of electricity (gCO2e/kWh generated) and generation shares by source (Ember via Our World in Data). The Energy view charges each country's electric cars from its own grid. |
+
+Contract, method, caveats and how to quote a projection: `37-fleet-data-harmonization.md` §7 (calibration) and `architecture/energy-view-methodology.md` §6a (grid). The attrition figure is a **net registry** figure (scrappage + exports − used imports), not a vehicle lifetime — do not quote it as one.
 
 ### Why separate from the main pipeline?
 
@@ -524,7 +536,7 @@ Different units (stock vs flow), different time-resolution (year-of-vintage coho
 
 ### Owner / lifecycle
 
-Maintainer-curated, now partly automated. `fleet/fleet_initial.csv` uses the harmonized schema (`docs/architecture/37-fleet-data-harmonization.md`): `country,variant,year,source,` the full fuel template, `TOTAL,notes`. **Germany** is fetched automatically by `scripts/fetch_fleet_germany.py` + `.github/workflows/fetch-fleet-germany.yml` (KBA FZ 13.2.1, annual, monthly cron); **22 more countries** come from Eurostat `road_eqs_carpda` via `scripts/fetch_fleet_eurostat.py` (run by hand once a year, no workflow; doc 37 §4c); the other 11 countries remain maintainer-curated for now. No public submit path yet. No automatic render — fleet visualisations are computed in-browser from the static CSVs.
+Maintainer-curated, now partly automated. `fleet/fleet_initial.csv` uses the harmonized schema (`docs/architecture/37-fleet-data-harmonization.md`): `country,variant,year,source,` the full fuel template, `TOTAL,notes`. **Germany** is fetched automatically by `scripts/fetch_fleet_germany.py` + `.github/workflows/fetch-fleet-germany.yml` (KBA FZ 13.2.1, annual, monthly cron); **22 more countries** come from Eurostat `road_eqs_carpda` via `scripts/fetch_fleet_eurostat.py` (run by hand once a year, no workflow; doc 37 §4c); the other 11 countries remain maintainer-curated for now. No public submit path yet. No automatic render — fleet visualisations are computed in-browser from the static CSVs. The stock file is keyed `(country, variant, year)`; only `Whole` (passenger cars) exists and is read today — Vans / HDV / Buses are the planned next step (doc 37 §5).
 
 ---
 

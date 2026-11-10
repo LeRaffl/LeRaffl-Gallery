@@ -1,0 +1,97 @@
+name: Refresh fleet data
+
+# Refreshes everything the Fleet tab reads that comes from an open API, then
+# rebuilds what is derived from it. All of it is annual data; a monthly run
+# catches each source's release without anyone remembering its date, and every
+# step is idempotent (unchanged source -> unchanged file -> no commit).
+#
+#   fleet/fleet_initial.csv            stock by fuel, 22 countries   Eurostat road_eqs_carpda
+#   fleet/fleet_age.csv                stock by age band             Eurostat road_eqs_carage
+#   fleet/registrations_history.csv    new cars per year from 1970   Eurostat road_eqr_carmot
+#   fleet/mileage.csv                  vehicle-km by fuel            Eurostat road_tf_vehage / road_tf_veh, SSB 12577
+#   fleet/grid_mix.csv                 electricity mix and CO2e      Ember via Our World in Data
+#   fleet/fleet_calibration.json       derived (build_fleet_calibration.py)
+#   fleet/survival_fit.csv             derived (fit_fleet_survival.py)
+#
+# Germany's stock has its own workflow (fetch-fleet-germany.yml, the 8th: KBA
+# needs the relay). This one runs on the 9th so the calibration it rebuilds
+# already sees a new KBA year.
+#
+# A source that is down must not block the others: each fetch may fail on its
+# own, the derived files are rebuilt from whatever is on disk, the result is
+# committed, and only then is the run marked failed. No render, no dispatch:
+# the Fleet tab reads these files directly.
+#
+# docs/architecture/37-fleet-data-harmonization.md §7 and §8.
+
+on:
+  schedule:
+    - cron: '30 6 9 * *'   # 9th of each month, 06:30 UTC
+  workflow_dispatch: {}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    concurrency:
+      group: fleet-data-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Stock by fuel (Eurostat)
+        id: stock
+        continue-on-error: true
+        run: python3 scripts/fetch_fleet_eurostat.py
+
+      - name: Stock by age and registration history (Eurostat)
+        id: age
+        continue-on-error: true
+        run: python3 scripts/fetch_fleet_age.py
+
+      - name: Vehicle-km by fuel (Eurostat, SSB)
+        id: mileage
+        continue-on-error: true
+        run: python3 scripts/fetch_fleet_mileage.py
+
+      - name: Electricity mix and CO2e intensity (Ember via OWID)
+        id: grid
+        continue-on-error: true
+        run: python3 scripts/fetch_grid_mix.py
+
+      - name: Rebuild the calibration and the survival fit
+        run: |
+          python3 scripts/build_fleet_calibration.py
+          python3 scripts/fit_fleet_survival.py
+          python3 scripts/build_fleet_calibration.py --report
+
+      - name: Commit if changed
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: 'fleet'
+          message: 'chore: refresh fleet data (CI)'
+          default_author: github_actions
+          # Rebase over anything (a fetcher, manifest/source-page CI) that
+          # landed on the branch while this job ran, instead of failing the
+          # push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
+
+      - name: Fail the run if a source could not be fetched
+        if: ${{ steps.stock.outcome == 'failure' || steps.age.outcome == 'failure' || steps.mileage.outcome == 'failure' || steps.grid.outcome == 'failure' }}
+        run: |
+          echo "::error::at least one fleet source could not be fetched (stock=$STOCK age=$AGE mileage=$MILEAGE grid=$GRID)"
+          exit 1
+        env:
+          STOCK: ${{ steps.stock.outcome }}
+          AGE: ${{ steps.age.outcome }}
+          MILEAGE: ${{ steps.mileage.outcome }}
+          GRID: ${{ steps.grid.outcome }}

@@ -17,8 +17,12 @@ wtt_diesel,1.16,kWh_primary/kWh_fuel,literature,"JEC WTT v5 - ~86% chain efficie
 grid_td_loss,0.08,share,measured,"IEA - transmission & distribution losses, world average"
 charging_loss,0.10,share,literature,"AC charging incl. onboard charger + battery losses"
 #
-# --- electricity generation mix (world, latest full year) ---
-# Used with the IEA physical method to derive primary energy per kWh generated.
+# --- electricity generation mix (world) - FALLBACK ONLY ---
+# The Fleet tab charges each country's electric cars from that country's own
+# grid, year by year: fleet/grid_mix.csv (Ember via Our World in Data, written
+# by scripts/fetch_grid_mix.py). These seven rows are used only when that file
+# cannot be loaded, and by R/energy_flows.R. The plant efficiencies below apply
+# to both.
 mix_coal,0.35,share,measured,"IEA Electricity - world generation mix"
 mix_gas,0.23,share,measured,"IEA Electricity - world generation mix"
 mix_nuclear,0.09,share,measured,"IEA Electricity - world generation mix"
@@ -42,14 +46,32 @@ cons_bev,19.0,kWh/100km,literature,"real-world at the wall incl. charging losses
 # --- tank/battery-to-wheel efficiency ---
 ttw_ice,0.23,share,literature,"real-world average over mixed driving"
 ttw_hybrid,0.30,share,literature,"incl. recuperation and load-point shifting"
-ttw_bev,0.80,share,literature,"battery to wheel incl. drivetrain"
+ttw_bev,0.80,share,literature,"charging point to wheel: charging and battery losses (~10%) times drivetrain (~89%); applied to cons_bev, which is measured at the wall"
 #
-# --- annual mileage ---
-km_petrol,11000,km/yr,measured,"KBA Fahrleistungserhebung - petrol cars"
-km_diesel,17500,km/yr,measured,"KBA - diesel cars drive markedly more"
-km_hybrid,13000,km/yr,literature,"between petrol and diesel"
-km_phev,15000,km/yr,literature,"company-car skew"
-km_bev,14000,km/yr,literature,"KBA / real-world telematics"
+# --- annual mileage: km per car of the YEAR-END STOCK - FALLBACK ONLY ---
+# The page takes mileage per country and fuel from fleet/fleet_calibration.json
+# (built from fleet/mileage.csv: Eurostat vehicle-km by fuel, SSB for Norway),
+# and for a country without figures of its own the cross-country median in the
+# same file (mileage_default). These rows are used only when that file cannot
+# be loaded, and by R/energy_flows.R. They are that median, rounded
+# (12 countries, 2023-2025); scripts/test_fleet_model.py fails if they drift
+# more than 5 % from it.
+#
+# They replace 11,000 / 17,500 / 14,000 km, which overstated petrol and diesel
+# driving by about a fifth.
+#
+# Battery cars are not driven further because they are electric. Age for age
+# they do about the fleet average (SSB table 12578, cars up to 4 years old:
+# battery 13,812 km, petrol 11,594, diesel 14,825, all 13,927); petrol cars are
+# simply old, and old cars are driven little. In projections the page therefore
+# holds each country's km per car constant and lets the fuels differ only in
+# proportion (index.html: buildFleetEnergy).
+km_all,12200,km/yr,measured,"median over 12 countries - Eurostat road_tf_vehage / SSB 12577, total km / year-end stock"
+km_petrol,9100,km/yr,measured,"median over 12 countries - Eurostat road_tf_vehage / SSB 12577"
+km_diesel,14400,km/yr,measured,"median over 12 countries - Eurostat road_tf_vehage / SSB 12577"
+km_hybrid,16100,km/yr,measured,"median over 9 countries - Eurostat reports full and plug-in hybrids together"
+km_phev,16100,km/yr,measured,"median over 9 countries - Eurostat reports full and plug-in hybrids together"
+km_bev,12500,km/yr,measured,"median over 10 countries - Eurostat road_tf_vehage / SSB 12577"
 #
 # --- split of useful work at the wheel (softest layer, cycle dependent) ---
 res_air,0.37,share,literature,"mixed cycle mid-size car - aerodynamic drag"
@@ -83,15 +105,20 @@ ghg_petrol,0.320,kgCO2e/kWh_fuel,literature,"JEC WTW v5 - petrol ~89 gCO2e/MJ WT
 ghg_diesel,0.328,kgCO2e/kWh_fuel,literature,"JEC WTW v5 - diesel ~91 gCO2e/MJ WTW"
 ghg_gasfuel,0.252,kgCO2e/kWh_fuel,literature,"JEC WTW v5 - LPG/CNG ~70 gCO2e/MJ WTW; less carbon per kWh than petrol"
 #
-# Electricity: grid CO2e intensity per kWh GENERATED, as a directly SOURCED value
-# with a decarbonisation trajectory. The emissions timeline offers two scenarios:
-#   "linear"   - linear from grid_co2_now (at grid_co2_base_year, the last actual
-#                grid figure) to grid_co2_target (at grid_co2_target_year), flat
-#                after. The realistic forward view.
-#   "constant" - today's grid held forever: the honest worst case for the
-#                electrified side, and the "keep today's grid mix" what-if.
-# One sourced value now, one sourced target - so the whole trajectory is citeable
-# and easy to swap for a different scenario (change the four rows below).
+# Electricity: grid CO2e intensity per kWh GENERATED. Per country and per year
+# from fleet/grid_mix.csv (see the mix rows above); beyond the last data year
+# the emissions timeline offers three scenarios:
+#   "trend"    - the country's own ten-year trend continues, never below
+#                grid_co2_target. The default: no acceleration, no stall.
+#   "nze"      - linear from the last observed value to grid_co2_target at
+#                grid_co2_target_year, flat after. IEA Net Zero by 2050: a
+#                normative path, not a forecast, which is why it is not the
+#                default any more.
+#   "constant" - the last observed grid held forever: the worst case for the
+#                electrified side.
+# grid_co2_target and grid_co2_target_year feed "nze" and floor "trend".
+# grid_co2_now and grid_co2_base_year are the fallback when fleet/grid_mix.csv
+# cannot be loaded.
 grid_co2_now,0.480,kgCO2e/kWh_gen,measured,"Ember Global Electricity Review 2024 - world average ~480 gCO2/kWh (2023)"
 grid_co2_target,0.020,kgCO2e/kWh_gen,scenario,"IEA Net Zero by 2050 (NZE) - global electricity ~net-zero by 2040, ~20 gCO2/kWh residual"
 grid_co2_base_year,2023,year,measured,"data year for grid_co2_now (Ember)"

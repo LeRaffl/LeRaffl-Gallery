@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the Fleet tab is calculated · BEV Trajectories</title>
+<meta name="description" content="The Fleet tab shows how many cars of each drivetrain are on the road, projects that stock forward year by year, and converts it into the energy the cars need and the CO2 they cause. Every input is observed per country where a statistics office publishes it. This page walks through the calculation, shows the data behind each step, and says what is assumed.">
+<link rel="stylesheet" href="../assets/theme.css">
+<style>
+.wrap{max-width:820px;margin:0 auto;padding:28px 18px 64px}
+.back{display:inline-block;margin-bottom:18px;color:var(--muted);font-size:14px}
+h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.lead{color:var(--muted);font-size:16px;margin:0 0 22px}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
+  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent);
+  border:1px solid transparent}
+/* Acquisition-method chips — tinted background reads on both themes; text is a
+   mid-tone that stays legible over light and dark. */
+.chip--api{background:rgba(56,139,222,.16);color:#3b8fdd;border-color:rgba(56,139,222,.4)}
+.chip--scrape{background:rgba(139,92,246,.16);color:#9a7cf0;border-color:rgba(139,92,246,.4)}
+.chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
+.chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
+.chip--viable{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--deferred,.chip--lead{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
+.chip--shelved,.chip--no-source{background:transparent;color:var(--muted);border-color:var(--border)}
+.dir-grid--cand .dir-card{background:transparent;border-style:dashed}
+.banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
+.stat{flex:1 1 140px;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px}
+.stat .n{font-size:22px;font-weight:700}
+.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.source-btn{display:inline-block;margin:6px 0 4px;padding:10px 16px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--border);font-weight:600}
+.flow{display:flex;flex-direction:column;align-items:stretch;gap:2px;margin:8px 0}
+.flow-node{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px}
+.flow-title{font-weight:700;font-size:13px;color:var(--accent)}
+.flow-sub{font-size:14px;color:var(--text)}
+.flow-sub p{margin:4px 0}
+table.steps{width:100%;border-collapse:collapse;margin:6px 0 2px}
+table.steps th,table.steps td{text-align:left;vertical-align:top;padding:5px 8px;
+  border-bottom:1px solid var(--border);font-size:13px}
+table.steps th{color:var(--muted);font-weight:600}
+table.steps td.num{width:22px;color:var(--muted)}
+/* Decision trees (build_decision): gateway question, labelled branches. */
+.dt{margin:8px 0 4px}
+.dt-q{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px;
+  border:1px solid var(--accent);border-radius:8px;padding:4px 10px;background:var(--chip-bg)}
+.dt-gw{width:10px;height:10px;flex:none;border:2px solid var(--accent);transform:rotate(45deg)}
+.dt-br{list-style:none;margin:2px 0 0 12px;padding:0}
+.dt-br>li{position:relative;padding:5px 0 3px 22px}
+.dt-br>li::before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:2px solid var(--border)}
+.dt-br>li:last-child::before{bottom:auto;height:17px}
+.dt-br>li::after{content:"";position:absolute;left:0;top:17px;width:16px;border-top:2px solid var(--border)}
+.dt-leaf{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.dt-when{font-size:13px;color:var(--text)}
+.dt-arrow,.dt-sep{color:var(--muted)}
+.dt-note{font-size:12px;color:var(--muted);margin-top:1px}
+.dt-var{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:700;
+  border:1.5px solid var(--accent);color:var(--accent)}
+.dt-none{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;
+  border:1.5px dashed var(--border);color:var(--muted)}
+.dt-res{display:inline-block;padding:2px 9px;border-radius:6px;font-size:12.5px;
+  background:var(--chip-bg);color:var(--text)}
+.flow-arrow{text-align:center;color:var(--muted);font-size:14px;line-height:1}
+table.defs{width:100%;border-collapse:collapse}
+table.defs th,table.defs td{text-align:left;vertical-align:top;padding:9px 10px;
+  border-bottom:1px solid var(--border);font-size:15px}
+table.defs th{width:190px;color:var(--muted);font-weight:600}
+.map{display:flex;flex-direction:column;gap:4px}
+.map-pair{display:flex;align-items:center;gap:8px}
+.map-arrow{color:var(--muted)}
+.caveats{margin:0;padding-left:20px}
+.caveats li{margin:6px 0}
+.footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--border);
+  color:var(--muted);font-size:14px}
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.dir-card{display:block;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:16px}
+.dir-card:hover{border-color:var(--accent)}
+.dir-top{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
+.dir-sub{color:var(--muted);font-size:14px;min-height:40px}
+.dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+.dir-mkt{margin-top:8px}
+.mkt-chip{display:inline-block;padding:2px 9px;border-radius:10px;font-size:12px;
+  font-weight:600;background:var(--ok-wash);color:var(--ok-tx);
+  border:1px solid transparent}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+/* The page is light-only now (index.html sets `color-scheme:light`), so the
+   old prefers-color-scheme override for this cell is gone — --ok-tx already
+   resolves to the light-theme green. */
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+
+/* Market breakdown + powertrain classification (derived fuel splits). */
+details{margin:10px 0;border:1px solid var(--border);border-radius:10px;
+  padding:8px 12px;background:var(--panel)}
+details>summary{cursor:pointer;font-weight:600;padding:4px 0}
+table.grid{border-collapse:collapse;font-size:14px;width:100%;table-layout:fixed;
+  min-width:calc(34px + var(--n) * 150px)}
+table.grid col.c-rank{width:34px}
+table.grid col.c-val{width:54px}
+table.grid td.num,table.grid th.num{padding-left:2px;padding-right:7px}
+table.grid .ln{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+table.grid .br{font-size:12px;color:var(--muted);display:flex;gap:4px;align-items:center}
+table.grid .bn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.cls.tag{font-size:10px;padding:0 4px;flex:none}
+table.grid th .cls{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  vertical-align:middle}
+.grid-cap{font-size:13px;color:var(--muted);margin:14px 0 6px}
+table.grid th,table.grid td{padding:6px 6px;border-bottom:1px solid var(--border);
+  text-align:left;vertical-align:top}
+table.grid th{background:var(--panel)}
+table.grid th.num{color:var(--muted);font-weight:400}
+table.grid .nm{border-left:1px solid var(--border);padding-left:8px;padding-right:4px}
+table.grid--few{max-width:calc(34px + var(--n) * 260px)}
+table.grid tr.rest td{color:var(--muted);font-size:13px;border-bottom:0}
+.v-u{display:none}
+.units .v-u{display:inline}.units .v-s{display:none}
+.mkt-toggle{margin-left:12px;white-space:nowrap}
+.mkt-toggle button{font:inherit;font-size:13px;padding:5px 10px;cursor:pointer;
+  border:1px solid var(--border);background:var(--panel);color:var(--muted)}
+.mkt-toggle button:first-child{border-radius:8px 0 0 8px}
+.mkt-toggle button:last-child{border-radius:0 8px 8px 0;border-left:0}
+.mkt-toggle button[aria-pressed="true"]{color:var(--text);font-weight:600;background:var(--chip-bg)}
+.mkt-view .scroll{margin:0 0 12px}
+/* A grid wider than the text column (six classes need ~930 px) breaks out of
+   it, centred, as far as the window allows; on a phone it scrolls instead. */
+.mkt-view .scroll{width:max(100%,min(calc(34px + var(--n) * 150px),calc(100vw - 32px)));
+  position:relative;left:50%;transform:translateX(-50%)}
+.mkt-pick select{padding:6px 8px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;background:var(--panel);color:var(--text)}
+table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
+table.rules th,table.rules td,table.mapping th,table.mapping td{
+  text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--border)}
+table.rules th,table.mapping th{color:var(--muted);font-weight:600;
+  position:sticky;top:0;background:var(--panel)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.recon{width:100%;border-collapse:collapse;font-size:14px}
+table.recon th,table.recon td{text-align:left;vertical-align:top;padding:7px 9px;
+  border-bottom:1px solid var(--border)}
+table.recon th{color:var(--muted);font-weight:600}
+table.recon th.num,table.recon td.num{text-align:right}
+table.recon tr.strong td{font-weight:700;border-top:2px solid var(--border)}
+table.recon .rnote{font-size:12.5px;font-weight:400;margin-top:2px}
+table.recon td.chk{white-space:nowrap}
+.chk--ok{color:#2e7d32}.chk--warn{color:#b26a00}.chk--bad{color:#c62828}
+.chk--miss{color:var(--muted)}
+table.rules td:nth-child(2){min-width:140px}
+table.rules td:nth-child(3){min-width:150px;max-width:190px}
+table.rules td:nth-child(4){min-width:220px}
+table.rules th,table.rules td{padding:7px 6px}
+table.mapping td:nth-child(5) code{white-space:nowrap}
+table.rules .rid code{word-break:normal;white-space:nowrap}
+table.rules .pat code{word-break:break-all}
+table.rules code,table.mapping code{font-size:12.5px;word-break:break-word}
+.rid{margin-top:4px}.pat{margin-top:4px}.ev{font-size:13px;margin-top:4px}
+.tall{max-height:560px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+input.filter{padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;min-width:260px;background:var(--panel);color:var(--text)}
+tr:target{outline:2px solid var(--accent);outline-offset:-2px}
+/* Class badges always carry their text label — colour is only a second cue. */
+.cls{display:inline-block;padding:1px 7px;border-radius:999px;font-size:12px;
+  font-weight:700;border:1px solid var(--border);letter-spacing:.02em}
+.cls--bev{background:rgba(0,190,90,.14);color:#0a7a3e}
+.cls--phev{background:rgba(0,150,230,.14);color:#086aa6}
+.cls--erev{background:rgba(25,90,200,.14);color:#1d4f9e}
+.cls--hev{background:rgba(240,190,0,.20);color:#7a5b00}
+.cls--mhev{background:rgba(180,150,30,.16);color:#6b5a14}
+.cls--ice{background:rgba(110,60,20,.12);color:#6b3a14}
+.cls--all{background:rgba(90,90,110,.14);color:#3d3d55}
+.cls--petrol{background:rgba(200,90,20,.13);color:#9a4310}
+.cls--diesel{background:rgba(60,60,60,.13);color:#454545}
+/* Dark mode (assets/theme.css follows prefers-color-scheme): the badge inks
+   above are dark-on-wash and vanish on a dark page, so lift them. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .cls--bev{color:#6fd39a}
+  :root:not([data-theme="light"]) .cls--phev{color:#6cc0f0}
+  :root:not([data-theme="light"]) .cls--erev{color:#8fb4ee}
+  :root:not([data-theme="light"]) .cls--hev{color:#e8c95a}
+  :root:not([data-theme="light"]) .cls--mhev{color:#d6c27a}
+  :root:not([data-theme="light"]) .cls--ice{color:#d9a27a}
+  :root:not([data-theme="light"]) .cls--all{color:#b4b4cc}
+  :root:not([data-theme="light"]) .cls--petrol{color:#eba270}
+  :root:not([data-theme="light"]) .cls--diesel{color:#bdbdbd}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Gallery</a>
+  <h1>How the Fleet tab is calculated</h1>
+  <p class="lead">The Fleet tab shows how many cars of each drivetrain are on the road, projects that stock forward year by year, and converts it into the energy the cars need and the CO2 they cause. Every input is observed per country where a statistics office publishes it. This page walks through the calculation, shows the data behind each step, and says what is assumed.</p>
+  <section><h2>The calculation, step by step</h2><div class="flow"><div class="flow-node"><div class="flow-title">1 · Start from the cars that are registered today</div><div class="flow-sub"><p>The starting point is each country&#x27;s stock of passenger cars by drivetrain at the end of the last year on record (battery, plug-in hybrid, full hybrid, petrol, diesel, other). It comes from the national register or from Eurostat. Nothing about it is modelled.</p></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">2 · Work out how old those cars are</div><div class="flow-sub"><p>A fleet of old cars loses many cars next year, a fleet of young cars almost none. So the first thing the model needs is the age of the stock.</p><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Does Eurostat publish this country&#x27;s stock by age band?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">yes (27 countries)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">use the observed shares under 5, 5–10, 10–20 and over 20 years; battery cars and hybrids are placed by their own registration years first</span></div></li><li><span class="dt-when">no</span><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Is there an unbroken registration history of at least five years?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">yes</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">each year&#x27;s registrations, thinned by the survival curve, fill the young ages; the rest of the stock is older than the record</span></div></li><li><div class="dt-leaf"><span class="dt-when">no</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">assume a mature fleet (the age mix that a steady stream of registrations settles into)</span></div></li></ul></div></li></ul></div></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">3 · Set how many cars leave each year</div><div class="flow-sub"><p>The share of the stock that leaves per year is not assumed. It is read off each country&#x27;s own record — last year&#x27;s stock plus this year&#x27;s new registrations minus this year&#x27;s stock — as a median over the last five years.</p><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Is &quot;Match each country&#x27;s observed turnover&quot; switched on (the default)?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">no</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">the seven rates typed into the Hazard section apply as they are, the same for every country</span></div></li><li><span class="dt-when">yes</span><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Does the country have an observed rate?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">no</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">the typed rates apply</span></div></li><li><div class="dt-leaf"><span class="dt-when">yes, 1% a year or more</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">all seven rates are scaled by one factor so the first projected year loses exactly that share</span></div></li><li><div class="dt-leaf"><span class="dt-when">yes, below 1% (more used cars arrive than are scrapped)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">1% of the fleet leaves, and the difference is booked as used cars arriving</span></div></li></ul></div></li></ul></div></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">4 · Decide which cars leave</div><div class="flow-sub"><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Which hazard model is selected?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">Per-vintage Weibull (the default)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">every model year is tracked on its own; a young car almost never leaves, an old one leaves fast</span></div></li><li><div class="dt-leaf"><span class="dt-when">Constant rate</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">every category loses the same share each year whatever its age</span></div></li></ul></div></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">5 · Add the new cars</div><div class="flow-sub"><p>The number of new cars per year is the country&#x27;s registrations of the last 12 months. How they split is taken from the gallery&#x27;s own fitted curves and from the country&#x27;s recent registrations.</p><div class="scroll"><table class="steps"><tr><th>#</th><th>Part of the new cars</th><th>Goes to</th></tr><tr><td class="num">1</td><td>battery cars — the fitted BEV curve for that year</td><td><span class="cls cls--bev">BEV</span></td></tr><tr><td class="num">2</td><td>plug-in hybrids — what lies between the BEV curve and the combustion curve</td><td>PHEV (or the combined hybrid band where the stock does not separate plug-ins)</td></tr><tr><td class="num">3</td><td>the combustion side — split by the last 12 months of registrations</td><td>full hybrid / petrol / diesel / gas and other</td></tr></table></div></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">6 · Repeat for every year up to the end year</div><div class="flow-sub"><p>Steps 4 and 5 are repeated year by year. Each year&#x27;s result is the next year&#x27;s starting fleet, one year older.</p></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">7 · Convert cars into energy</div><div class="flow-sub"><p>Energy is cars × kilometres per car × consumption per kilometre, traced back to what comes out of the ground.</p><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Are the kilometres driven published for this country?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">yes, by fuel (12 countries)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">each fuel&#x27;s own kilometres per car</span></div></li><li><div class="dt-leaf"><span class="dt-when">yes, for all cars only (4 countries)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">the cross-country pattern between the fuels, scaled to that country&#x27;s level</span></div></li><li><div class="dt-leaf"><span class="dt-when">no</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">the median of the countries that report by fuel</span></div></li></ul></div><p class="dim">In projected years each country&#x27;s kilometres per car are held at the last observed value, so a fleet that turns electric does not appear to drive more.</p></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">8 · Convert energy into CO2</div><div class="flow-sub"><p>Fuel is counted well-to-wheel (getting it to the car and burning it). Electricity is counted at the intensity of the grid in the country where the car is charged.</p><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Is the year within the grid data on record?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">yes</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">that year&#x27;s own grid, so an observed fleet year meets the grid it ran on</span></div></li><li><span class="dt-when">no — a future year</span><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Which grid scenario is selected?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">recent trend continues (the default)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">the grid keeps improving at its own pace of the last ten years, no faster</span></div></li><li><div class="dt-leaf"><span class="dt-when">net-zero path</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">linear to about 20 g per kWh by 2040 (IEA Net Zero by 2050 — a target, not a forecast)</span></div></li><li><div class="dt-leaf"><span class="dt-when">today&#x27;s grid held</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">the last observed grid, unchanged</span></div></li></ul></div></li></ul></div></div></div></div></section>
+  <section><h2>What this is, and what it is not</h2><p>It is a stock-and-flow model. Cars on the road are a stock; registrations flow in and scrapped or exported cars flow out. Given the stock today, how many cars leave and how many arrive, next year&#x27;s stock follows by arithmetic. The only genuinely uncertain inputs are how many cars will be registered and what they will be, and those come from the gallery&#x27;s fitted adoption curves.</p><p>It is not an official forecast. The adoption curves are this project&#x27;s own model, and the projection holds several things constant that will change (listed at the end). Read it as &quot;what follows if recent behaviour continues&quot;, country by country.</p></section><section><h2>Why it was rebuilt in November 2026</h2><p>A review compared the tab&#x27;s defaults with the data. The defaults were global guesses, and several were visibly wrong in the default chart.</p><ul><li>One attrition level for every country made growing fleets shrink. With the old defaults Finland&#x27;s fleet halved by 2035 and China&#x27;s fell by a fifth. Neither fleet is shrinking.</li><li>Battery fleets, whose cars are mostly under five years old, were treated as if they were as old as the rest of the fleet and started losing cars at once.</li><li>Battery cars were given a 40% longer life than petrol cars, without a source. No battery fleet is old enough to show a difference either way.</li><li>Every new petrol and diesel car was booked under &quot;Other&quot;, which the Energy view counts as a gas car. By 2035 almost a quarter of Germany&#x27;s projected fleet was a gas car.</li><li>Every petrol car in every country was assumed to drive 11,000 km a year and every diesel 17,500. The measured median is about 9,100 and 14,400.</li><li>Every electric car was charged from one world-average grid. Norway&#x27;s grid emits about 30 g of CO2 per kWh, the world average about 460.</li><li>The default grid scenario was a net-zero target rather than a continuation of what grids have been doing.</li></ul></section><section id="turnover"><h2>How many cars leave — observed per country</h2><p>Stock is a balance. If a country had 49.3 million cars at the end of one year, registered 2.9 million new ones and had 49.5 million at the end of the next, then 2.7 million cars left — 5.5% of the stock. That is all the calculation is, repeated for the last five years, and the median is used.</p><p>It is a net figure, and it describes the register rather than the car. It counts scrappage and exports and subtracts used cars coming in. Countries that export their young used cars sit at the top of the chart; countries that import used cars sit at the bottom, some below zero because more used cars arrive than are scrapped.</p><div data-fleet-fig="turnover"></div><p>This is why one global number could not be right. The projection matches each country&#x27;s first projected year to its own bar. After that the rate drifts as the fleet&#x27;s age structure changes — a model effect, not a forecast of policy.</p></section><section id="age"><h2>How old the fleet is — observed per country</h2><p>The same turnover means different things for a young fleet and an old one. Eurostat publishes the stock by age band for 27 of the fleet countries, and the projection starts from exactly those shares.</p><div data-fleet-fig="ages"></div><p>Battery cars and hybrids are placed first, by the years they were actually registered in, because they are far younger than the rest. What is left of each band is shared among petrol, diesel and other cars.</p></section><section id="survival"><h2>Which cars leave — the survival curve</h2><p>Inside the model every model year loses cars according to a Weibull survival curve. It has two numbers. The scale sets how long cars last and is calibrated per country (previous two sections). The shape sets how sharply the chance of leaving rises with age.</p><p>The shape used to be 3.0 by convention. It is now fitted. Eurostat has each country&#x27;s new registrations back to 1970, so a survival curve applied to them must reproduce the observed age bands. For the registers that are neither fed by used imports nor drained by exports, the best shape lies between about 2 and 3, and the median is the default.</p><div data-fleet-fig="survival"></div><p>The three curves share the same average life and differ only in shape. A lower shape spreads departures over more ages; a higher one bunches them around the average life.</p><p>Where the curve is wrong whatever its shape is the tail. Fitted curves leave 5 to 7% of a fleet over 20 years old where 9 to 12% is observed, because some cars are kept far longer than any smooth curve allows. That is one reason the projection starts from the observed age bands and not from the fitted curve. The table under the chart shows both shares per country.</p></section><section id="inflow"><h2>What the new cars are</h2><p>The gallery&#x27;s fitted curves give the battery share and the combustion share of future registrations; plug-in hybrids are what lies between the two. &quot;Combustion&quot; there means everything without a plug, so it contains full hybrids, petrol, diesel and gas cars. That side is split the way each country&#x27;s last 12 months of registrations were split.</p><div data-fleet-fig="inflow"></div><p>Countries whose source does not report petrol and diesel separately are not in the chart; for them the split follows the existing stock. The split is held constant in the projection, which overstates future diesel where diesel is still losing share.</p></section><section id="mileage"><h2>How far cars are driven</h2><p>Kilometres per car come from odometer readings at inspection, published by Eurostat by country and by fuel. They are divided by the stock, so that cars times kilometres gives the kilometres actually driven.</p><div data-fleet-fig="mileage"></div><p>Battery cars are driven more than petrol cars, but not because they are electric. Norway publishes the same figures by the age of the car. Cars up to four years old do about 13,800 km a year as battery cars and 13,900 on average across all fuels; cars of 25 years and over do under 4,000. Petrol cars are mostly old, and old cars are driven little.</p><p>For that reason the projection does not let electrification add driving. Each country&#x27;s kilometres per car stay at their last observed value, and the fuels keep their proportions to each other.</p><p>A country&#x27;s per-fuel figures are only used where Eurostat&#x27;s table shows that petrol and diesel are not hiding the hybrids. Otherwise only its all-car figure is used.</p></section><section id="grid"><h2>How clean the electricity is</h2><p>An electric car is as clean as the grid it is charged from. The Energy view uses each country&#x27;s own generation mix and CO2 intensity, year by year as far as the record goes (Ember&#x27;s yearly electricity data).</p><div data-fleet-fig="grid"></div><p>The figure is the electricity a country generates. A country that imports much of its electricity consumes a different mix; Luxembourg is the clearest case.</p></section><section><h2>What the projection assumes — read before quoting a number</h2><ul><li>Turnover stays at its recent level. There is no saturation — a fleet that has been growing keeps growing. Over ten years that is the recent trend; over twenty-five it is an extrapolation.</li><li>The number of new cars per year stays at the last 12 months.</li><li>The split of the combustion side between hybrid, petrol and diesel stays as it is today.</li><li>One turnover level per country, not per fuel. Countries that export young battery cars keep them in the projection.</li><li>Used cars that arrive are assumed to look like the fleet they arrive in.</li><li>One survival-curve shape for every country and every drivetrain.</li><li>Consumption per kilometre is one fleet-average value per drivetrain for every country. This is the least well-founded input left.</li><li>Countries without mileage statistics of their own use a median of European countries. That includes China, India and Canada.</li><li>Emissions cover fuel and electricity in use, well-to-wheel. Building the car and its battery is not included.</li><li>Passenger cars only. Vans, trucks and buses are not in the Fleet tab yet.</li></ul></section><section><h2>Where the numbers come from</h2><p>Every file is fetched or derived by a script and refreshed monthly. Nothing is typed in by hand.</p><ul><li>Stock by drivetrain — national registers (Germany&#x27;s KBA and others) and Eurostat, &quot;Passenger cars by type of motor energy&quot;.</li><li>Stock by age and new registrations since 1970 — Eurostat, &quot;Passenger cars by age&quot; and &quot;New passenger cars&quot;.</li><li>New registrations and the fitted adoption curves — the gallery&#x27;s own country data.</li><li>Kilometres driven by fuel — Eurostat, &quot;Road traffic performance by age of vehicle, type of vehicle and motor energy&quot;; Statistics Norway for Norway.</li><li>Electricity mix and CO2 intensity — Ember&#x27;s yearly electricity data, via Our World in Data.</li><li>Fuel energy content and well-to-wheel CO2 — the JEC well-to-wheels study (JRC, EUCAR, Concawe).</li><li>Real-world consumption per drivetrain — single values from the literature, listed with their sources in energy_factors.csv.</li></ul></section>
+  
+  
+  <script src="../assets/fleet_figures.js"></script><script>FleetFigures.mount(document,{base:"../"});</script>
+  <div class="footer">
+    <p>Specification (for developers): <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/65-fleet-model.md"><code>docs/architecture/65-fleet-model.md</code></a></p>
+  </div>
+</div>
+</body>
+</html>
