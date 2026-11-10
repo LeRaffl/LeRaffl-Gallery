@@ -3,135 +3,259 @@
  "country": "Austria",
  "variant": "Whole",
  "source": "Statistik Austria",
- "as_of": "2026-09",
+ "as_of": "2026-10",
  "window": {
   "from": "2026-01",
-  "to": "2026-09",
-  "months": 9
+  "to": "2026-10",
+  "months": 10
  },
- "total_registrations": 241108,
+ "total_registrations": 265282,
  "unit": "registrations (Statistik Austria top-10 BEV makes and types; the rest is counted, not ranked)",
  "classes": {
   "BEV": {
-   "units": 63172,
-   "share_of_market": 0.26201,
+   "units": 71606,
+   "share_of_market": 0.26992,
    "brands": [
     {
      "brand": "BMW",
-     "units": 6383,
-     "share_of_class": 0.101
+     "units": 7296,
+     "share_of_class": 0.1019
     },
     {
      "brand": "SKODA",
-     "units": 6210,
-     "share_of_class": 0.0983
-    },
-    {
-     "brand": "TESLA",
-     "units": 5947,
-     "share_of_class": 0.0941
+     "units": 6779,
+     "share_of_class": 0.0947
     },
     {
      "brand": "BYD",
-     "units": 5762,
-     "share_of_class": 0.0912
+     "units": 6573,
+     "share_of_class": 0.0918
+    },
+    {
+     "brand": "TESLA",
+     "units": 6111,
+     "share_of_class": 0.0853
     },
     {
      "brand": "VW",
-     "units": 5184,
-     "share_of_class": 0.0821
-    },
-    {
-     "brand": "KIA",
-     "units": 3089,
-     "share_of_class": 0.0489
-    },
-    {
-     "brand": "MERCEDES",
-     "units": 2953,
-     "share_of_class": 0.0467
+     "units": 5875,
+     "share_of_class": 0.082
     },
     {
      "brand": "CUPRA",
-     "units": 2888,
-     "share_of_class": 0.0457
+     "units": 3531,
+     "share_of_class": 0.0493
+    },
+    {
+     "brand": "KIA",
+     "units": 3482,
+     "share_of_class": 0.0486
+    },
+    {
+     "brand": "MERCEDES",
+     "units": 3430,
+     "share_of_class": 0.0479
     },
     {
      "brand": "AUDI",
-     "units": 2699,
-     "share_of_class": 0.0427
+     "units": 3019,
+     "share_of_class": 0.0422
     },
     {
-     "brand": "FORD",
-     "units": 2303,
-     "share_of_class": 0.0365
+     "brand": "LEAPMOTOR",
+     "units": 2643,
+     "share_of_class": 0.0369
     }
    ],
    "models": [
     {
      "brand": "TESLA",
      "model": "MODEL Y",
-     "units": 4109,
-     "share_of_class": 0.065
+     "units": 4255,
+     "share_of_class": 0.0594
     },
     {
      "brand": "SKODA",
      "model": "ENYAQ",
-     "units": 3151,
-     "share_of_class": 0.0499
+     "units": 3422,
+     "share_of_class": 0.0478
     },
     {
      "brand": "SKODA",
      "model": "ELROQ",
-     "units": 2893,
-     "share_of_class": 0.0458
+     "units": 3086,
+     "share_of_class": 0.0431
     },
     {
      "brand": "BMW",
      "model": "X3",
-     "units": 2155,
-     "share_of_class": 0.0341
+     "units": 2504,
+     "share_of_class": 0.035
     },
     {
      "brand": "BYD",
      "model": "ATTO",
-     "units": 1968,
-     "share_of_class": 0.0312
+     "units": 2340,
+     "share_of_class": 0.0327
     },
     {
      "brand": "BMW",
      "model": "X1",
-     "units": 1911,
-     "share_of_class": 0.0303
+     "units": 2126,
+     "share_of_class": 0.0297
     },
     {
      "brand": "BYD",
      "model": "SEALION",
-     "units": 1806,
-     "share_of_class": 0.0286
-    },
-    {
-     "brand": "TESLA",
-     "model": "MODEL 3",
-     "units": 1788,
-     "share_of_class": 0.0283
-    },
-    {
-     "brand": "VW",
-     "model": "ID.7",
-     "units": 1689,
-     "share_of_class": 0.0267
+     "units": 2020,
+     "share_of_class": 0.0282
     },
     {
      "brand": "CUPRA",
      "model": "BORN",
-     "units": 1642,
-     "share_of_class": 0.026
+     "units": 1955,
+     "share_of_class": 0.0273
+    },
+    {
+     "brand": "VW",
+     "model": "ID.7",
+     "units": 1883,
+     "share_of_class": 0.0263
+    },
+    {
+     "brand": "TESLA",
+     "model": "MODEL 3",
+     "units": 1806,
+     "share_of_class": 0.0252
     }
    ]
   }
  },
  "months": [
+  {
+   "period": "2026-10",
+   "total_registrations": 24174,
+   "classes": {
+    "BEV": {
+     "units": 8434,
+     "share_of_market": 0.34889,
+     "brands": [
+      {
+       "brand": "BMW",
+       "units": 913,
+       "share_of_class": 0.1083
+      },
+      {
+       "brand": "BYD",
+       "units": 811,
+       "share_of_class": 0.0962
+      },
+      {
+       "brand": "VW",
+       "units": 691,
+       "share_of_class": 0.0819
+      },
+      {
+       "brand": "CUPRA",
+       "units": 643,
+       "share_of_class": 0.0762
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "units": 640,
+       "share_of_class": 0.0759
+      },
+      {
+       "brand": "SKODA",
+       "units": 569,
+       "share_of_class": 0.0675
+      },
+      {
+       "brand": "MERCEDES",
+       "units": 477,
+       "share_of_class": 0.0566
+      },
+      {
+       "brand": "KIA",
+       "units": 393,
+       "share_of_class": 0.0466
+      },
+      {
+       "brand": "OPEL",
+       "units": 341,
+       "share_of_class": 0.0404
+      },
+      {
+       "brand": "AUDI",
+       "units": 320,
+       "share_of_class": 0.0379
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "ATTO",
+       "units": 372,
+       "share_of_class": 0.0441
+      },
+      {
+       "brand": "BMW",
+       "model": "X3",
+       "units": 349,
+       "share_of_class": 0.0414
+      },
+      {
+       "brand": "OPEL",
+       "model": "FRONTERA",
+       "units": 316,
+       "share_of_class": 0.0375
+      },
+      {
+       "brand": "CUPRA",
+       "model": "BORN",
+       "units": 313,
+       "share_of_class": 0.0371
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "model": "B10",
+       "units": 291,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "SKODA",
+       "model": "ENYAQ",
+       "units": 271,
+       "share_of_class": 0.0321
+      },
+      {
+       "brand": "CUPRA",
+       "model": "RAVAL",
+       "units": 243,
+       "share_of_class": 0.0288
+      },
+      {
+       "brand": "BMW",
+       "model": "X1",
+       "units": 215,
+       "share_of_class": 0.0255
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION",
+       "units": 214,
+       "share_of_class": 0.0254
+      },
+      {
+       "brand": "VW",
+       "model": "ID.4",
+       "units": 209,
+       "share_of_class": 0.0248
+      }
+     ]
+    }
+   }
+  },
   {
    "period": "2026-09",
    "total_registrations": 28968,
