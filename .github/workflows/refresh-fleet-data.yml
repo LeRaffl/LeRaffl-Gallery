@@ -6,6 +6,7 @@ name: Refresh fleet data
 # step is idempotent (unchanged source -> unchanged file -> no commit).
 #
 #   fleet/fleet_initial.csv            stock by fuel, 22 countries   Eurostat road_eqs_carpda
+#                                      vans / trucks / buses, Norway SSB 11823
 #   fleet/fleet_age.csv                stock by age band             Eurostat road_eqs_carage
 #   fleet/registrations_history.csv    new cars per year from 1970   Eurostat road_eqr_carmot
 #   fleet/mileage.csv                  vehicle-km by fuel            Eurostat road_tf_vehage / road_tf_veh, SSB 12577
@@ -53,6 +54,11 @@ jobs:
         continue-on-error: true
         run: python3 scripts/fetch_fleet_eurostat.py
 
+      - name: Stock of vans, trucks and buses (Norway, SSB)
+        id: norway
+        continue-on-error: true
+        run: python3 scripts/fetch_fleet_norway.py
+
       - name: Stock by age and registration history (Eurostat)
         id: age
         continue-on-error: true
@@ -86,7 +92,7 @@ jobs:
           pull: '--rebase --autostash'
 
       - name: Fail the run if a source could not be fetched
-        if: ${{ steps.stock.outcome == 'failure' || steps.age.outcome == 'failure' || steps.mileage.outcome == 'failure' || steps.grid.outcome == 'failure' }}
+        if: ${{ steps.stock.outcome == 'failure' || steps.norway.outcome == 'failure' || steps.age.outcome == 'failure' || steps.mileage.outcome == 'failure' || steps.grid.outcome == 'failure' }}
         run: |
           echo "::error::at least one fleet source could not be fetched (stock=$STOCK age=$AGE mileage=$MILEAGE grid=$GRID)"
           exit 1
