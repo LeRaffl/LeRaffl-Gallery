@@ -96,11 +96,12 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2025-11,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),118.0,1.0,,0.0,694.0,,3.0,816.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2025-12,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),128.0,0.0,,0.0,477.0,,0.0,605.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-01,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),136.0,1.0,,0.0,1130.0,,18.0,1285.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
-2026-02,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),82.0,1.0,,0.0,822.0,,6.0,911.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
+2026-02,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),82.0,1.0,,0.0,823.0,,6.0,912.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-03,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),127.0,2.0,,0.0,1065.0,,2.0,1196.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-04,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),123.0,2.0,,0.0,886.0,,7.0,1018.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-05,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),106.0,0.0,,0.0,785.0,,6.0,897.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-06,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),166.0,0.0,,0.0,2327.0,,73.0,2566.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-07,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),117.0,1.0,,0.0,422.0,,20.0,560.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-08,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),89.0,0.0,,0.0,393.0,,7.0,489.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
-2026-09,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),132.0,2.0,,0.0,559.0,,8.0,701.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
+2026-09,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),132.0,2.0,,0.0,558.0,,8.0,700.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
+2026-10,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),184.0,4.0,,0.0,649.0,,9.0,846.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
