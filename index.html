@@ -8091,23 +8091,33 @@ function dedupeParamRows(rows){
   return [...byKey.values()].map(v => v.row);
 }
 
+// One display-label map for every variant (keys lower-case). Chart titles use
+// the same vocabulary via VEHICLE_LABELS in R/plots.R ("Cars", "Vans", …) —
+// keep the two in step, and the variant table in docs/architecture/09-glossary.md.
+const VARIANT_DISPLAY = {
+  whole: 'New Cars',
+  used: 'Used Imports',
+  'used imports': 'Used Cars (imported)',
+  resale: 'Used Cars (all registrations)',
+  private: 'New Cars (Private)',
+  industry: 'New Cars (Industry)',
+  rental: 'New Cars (Rental)',
+  nonrental: 'New Cars (Non-rental)',
+  vans: 'New Vans',
+  hdv: 'New HDV',
+  buses: 'New Buses',
+  bus: 'New Buses',
+  pickups: 'New Pickups',
+  '2-wheelers': 'New 2-Wheelers',
+  '3-wheelers': 'New 3-Wheelers'
+};
+
 function displayLabelFromBase(base){
   const n = normalizeBase(base);
   const raw = String(base || '').trim();
-  const map = {
-    whole: 'New Cars',
-    used: 'Used Imports',
-    'used imports': 'Used Cars (imported)',
-    resale: 'Used Cars (all registrations)',
-    private: 'New Cars (Private)',
-    industry: 'New Cars (Industry)',
-    hdv: 'New HDV',
-    buses: 'New Buses',
-    vans: 'New Vans',
-    '4-wheelers': '4-Wheelers (legacy model)'
-  };
-  if (map[n]) return map[n];
-  if (map[raw.toLowerCase()]) return map[raw.toLowerCase()];
+  if (n === '4-wheelers' || raw.toLowerCase() === '4-wheelers') return '4-Wheelers (legacy model)';
+  if (VARIANT_DISPLAY[n]) return VARIANT_DISPLAY[n];
+  if (VARIANT_DISPLAY[raw.toLowerCase()]) return VARIANT_DISPLAY[raw.toLowerCase()];
   return raw
     .replace(/\s+/g,' ')
     .trim()
@@ -8115,19 +8125,7 @@ function displayLabelFromBase(base){
 }
   
 function displayVariantLabel(v){
-  const map = {
-    "Whole": "New Cars",
-    "Used": "Used Imports",
-    "Used Imports": "Used Cars (imported)",
-    "Resale": "Used Cars (all registrations)",
-    "Private": "New Cars (Private)",
-    "Industry": "New Cars (Industry)",
-    "Vans": "New Vans",
-    "HDV": "New HDV",
-    "Buses": "New Buses",
-    "Bus": "New Buses"
-  };
-  return map[v] || v;
+  return VARIANT_DISPLAY[String(v == null ? '' : v).toLowerCase()] || v;
 }
 function yearsIndexToDate(xYears, baseline_date, baseline_year){ 
   if(!isFinite(xYears)) return ""; 

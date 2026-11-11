@@ -46,6 +46,34 @@ reg_Noun <- function(meta) if (is.null(meta$reg_Noun)) "Registration" else meta$
 # everywhere — only the *displayed* text changes.
 bev_label <- function(meta) if (is.null(meta$bev_label)) "BEV" else meta$bev_label
 
+# Which kind of vehicle a chart shows, spelled out IN THE TITLE ("Austria:
+# Cars", "Austria: Vans") instead of leaving it to the footnote — requested
+# by a reader, and the headline (Whole) series used to carry no label at all.
+# One map for every variant; keep it in step with displayVariantLabel() in
+# index.html and the variant table in docs/architecture/09-glossary.md.
+# Unknown variants fall back to their own name.
+VEHICLE_LABELS <- c(
+  Whole = "Cars", Private = "Cars (private)", Industry = "Cars (industry)",
+  Rental = "Cars (rental)", NonRental = "Cars (non-rental)",
+  Vans = "Vans", HDV = "HDV", Buses = "Buses", Pickups = "Pickups",
+  `2-Wheelers` = "2-Wheelers", `3-Wheelers` = "3-Wheelers", `4-Wheelers` = "4-Wheelers",
+  Used = "Used imports", Resale = "Used cars (all registrations)"
+)
+vehicle_label <- function(variant) {
+  if (variant %in% names(VEHICLE_LABELS)) unname(VEHICLE_LABELS[variant]) else variant
+}
+
+# "Austria: Cars" for the chart title. with_reg = TRUE is for titles that
+# already say what is counted ("… share of used-import registrations in …"):
+# Used/Resale then read "Cars", otherwise the title says "used" twice.
+# Without meta$vehicle_label (older callers) it is just the country label.
+title_scope <- function(meta, with_reg = FALSE) {
+  if (is.null(meta$vehicle_label)) return(meta$country_label)
+  lab <- if (with_reg && !is.null(meta$variant) && meta$variant %in% c("Used", "Resale"))
+    "Cars" else meta$vehicle_label
+  paste0(meta$country, ": ", lab)
+}
+
 # Does this country/variant's source actually split plug-in hybrids out?
 #
 # The same principle as bev_label() above, applied to the other end of the
@@ -124,7 +152,7 @@ plot_ttm_shares <- function(ttm_long, meta) {
                        sec.axis = sec_axis(~ ., name = "Trailing 12 Months Market Share",
                                            labels = scales::percent_format(scale = 100))) +
     scale_fill_manual(name = "Fuel Type", values = TTM_FUEL_COLORS, drop = FALSE) +
-    labs(title = paste0("12-Month Trailing Market Shares by Fuel Type in ", meta$country_label),
+    labs(title = paste0("12-Month Trailing Market Shares by Fuel Type in ", title_scope(meta)),
          y = "Trailing 12 Months Market Share", x = "Jahre",
          caption = meta$entire_caption) +
     theme_minimal() +
@@ -149,7 +177,7 @@ plot_timer <- function(fit, meta) {
       labels = function(x) paste0("Jan ", x + 1)
     ) +
     scale_y_continuous(name = "Number of years expected", limits = c(0, ymax_top)) +
-    labs(title = paste0("Time expectation for ", meta$country_label, " transition time using historical data"),
+    labs(title = paste0("Transition time expectation in ", title_scope(meta), ", using historical data"),
          subtitle = "Each point in time marks what the expectation was at the time",
          caption = meta$social_caption, x = " ") +
     theme_minimal() +
@@ -205,7 +233,7 @@ plot_bev_trajectory <- function(fit, meta) {
                        labels = function(x) paste0("Jan ", x + 1),
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
-    labs(title = paste0(bev_label(meta), " share in ", reg_word(meta), " ", reg_noun(meta), " in ", meta$country_label, " - an Extrapolation"),
+    labs(title = paste0(bev_label(meta), " share in ", reg_word(meta), " ", reg_noun(meta), " in ", title_scope(meta, with_reg = TRUE), " - an Extrapolation"),
          subtitle = paste0("expected time for ", bev_label(meta), " to rise from 20% to 80%: ",
                            floor(fit$time_20_to_80), " years ",
                            round(12 * (fit$time_20_to_80 - floor(fit$time_20_to_80)), 0), " months"),
@@ -283,7 +311,7 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
     labs(title = paste0(bev_label(meta), if (show_phev) " / ICE / PHEV" else " / ICE",
-                        " share of ", reg_word(meta), " ", reg_noun(meta), " in ", meta$country_label, " - an Extrapolation"),
+                        " share of ", reg_word(meta), " ", reg_noun(meta), " in ", title_scope(meta, with_reg = TRUE), " - an Extrapolation"),
          subtitle = paste0("expected time for ICE to drop from 80% to 20%: ",
                            floor(fit$time_80_to_20), " years ",
                            round(12 * (fit$time_80_to_20 - floor(fit$time_80_to_20)), 0), " months"),

@@ -77,6 +77,15 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 | `Rental` | Passenger cars registered to the **short-/long-term rental channel**. | M1 | **Italy** ("noleggio": `Rental = Whole − al netto del noleggio` from the UNRAE PDF; real from `2019-06`, **estimated before that** and flagged in `notes`) and **Spain** (registry-side: `SERVICIO = A01 alquiler sin conductor` or `RENTING = S`). `Rental + NonRental = Whole` in both. |
 | `NonRental` | Passenger cars registered **outside** the rental channel (private + company + self-registration). | M1 | **Italy** (the UNRAE "al netto del noleggio" block, read directly — `Rental` is the derived complement) and **Spain** (the exact complement of `Rental`). Note this is *not* a private-persons slice: no per-fuel private-only split exists in either source. |
 
+> **Variant names in chart titles and the UI.** Every chart title names the
+> vehicle kind, not just the country: "… in Austria: Cars", "… in Austria:
+> Vans" (`VEHICLE_LABELS` in `R/plots.R`; `Whole` = "Cars", `Used` = "Used
+> imports", `Resale` = "Used cars (all registrations)"; the two used variants
+> read "Cars" in titles that already say "used-import registrations"). The
+> gallery UI uses the same vocabulary with a "New" prefix (`VARIANT_DISPLAY`
+> in `index.html`: "New Cars", "New Vans", …). Add a variant → add it to both
+> maps. Charts are only re-labelled when re-rendered.
+
 > **Italy estimated history.** Both `Rental` and `NonRental` are *real* from
 > `2019-06` (first UNRAE bulletin with the rental block) and **modelled** for
 > `2015-01 … 2019-05` by applying the 2019-H2 per-fuel rental share to `Whole`.

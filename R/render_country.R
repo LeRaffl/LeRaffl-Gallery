@@ -220,6 +220,7 @@ reg_legend_val <- if (is_first_reg) "First Registrations" else
 
 meta <- list(
   country = country, country_label = country_label,
+  variant = variant, vehicle_label = vehicle_label(variant),
   reg_word = reg_word_lc, reg_Word = reg_word_uc, reg_ice_Word = reg_ice_uc,
   reg_legend = reg_legend_val,
   reg_noun = reg_noun_lc, reg_Noun = reg_noun_uc,
