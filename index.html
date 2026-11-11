@@ -4805,6 +4805,14 @@ const VIEW_START_YEAR = 2015;
          style="white-space:pre-wrap; display:none; margin-bottom:10px;">
     </div>
     
+<div class="field" hidden style="margin:0 0 12px;">
+  <div style="display:flex; align-items:center; gap:6px;">
+    <label>Vehicle class</label>
+    <span class="info-tip" data-tip="One class at a time. Cars = passenger cars (EU class M1), Vans = goods vehicles up to 3.5 t (N1), Trucks = goods vehicles over 3.5 t (N2 + N3), Buses = M2 + M3. The number is how many countries have stock data for the class. Stock, new registrations, the fitted curves and the observed turnover are all read for the class you pick. Energy and CO2 are calculated for cars only so far.">i</span>
+  </div>
+  <div id="fleetVariantChips" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+</div>
+
 <div class="toolbar settings-strip" style="gap: 20px; flex-wrap: wrap; align-items: flex-start;">
   <!-- Zeile 1: Countries – schmal & fix (max 340px) -->
   <div class="field settings-block is-primary" style="flex: 1 1 360px; max-width: 460px;">
@@ -5389,6 +5397,8 @@ const fleetState = {
   countries: [],
   params: [],
   weights: {},
+  variant: 'whole',  // vehicle class shown: whole (cars) | vans | hdv | buses
+  observedAll: [],   // every stock row; `observed` holds the current class only
   calibration: {},   // fleet/fleet_calibration.json -> countries
   mileageDefault: null,   // ...and its cross-country median km per car
   grid: {},          // fleet/grid_mix.csv -> country -> [{year, g, mix}]
@@ -11686,8 +11696,75 @@ function stepVintageBuckets(prev, inflowByCat, scaleByCat, shape){
 // and the yearly registrations behind the age profiles above.
 function fleetCalibration(country){
   const all = fleetState.calibration || {};
-  for (const c of getCountryCandidates(country)) if (all[c]) return all[c];
+  for (const c of getCountryCandidates(country)) {
+    if (!all[c]) continue;
+    if (fleetState.variant === 'whole') return all[c];
+    // Another vehicle class: its own block under `variants`.
+    const key = Object.keys(all[c].variants || {}).find(k => normalizeBase(k) === fleetState.variant);
+    return key ? all[c].variants[key] : null;
+  }
   return null;
+}
+
+// ----- Vehicle classes -----
+//
+// The tab shows one class at a time: a van and a car do not stack. Stock,
+// fitted curves, registration volume and calibration are all read for the
+// current class; a class is offered only if some country has stock rows for
+// it. The Energy view is built for passenger cars (consumption, mileage and
+// efficiency are per-class quantities) and is switched off for the others
+// until those factors are sourced.
+const FLEET_VARIANTS = [['whole', 'Cars'], ['vans', 'Vans'], ['hdv', 'Trucks'], ['buses', 'Buses']];
+function fleetVariantCountries(variant){
+  return new Set(fleetState.observedAll.filter(r => r.variant === variant).map(r => r.country));
+}
+function applyFleetVariant(variant){
+  fleetState.variant = FLEET_VARIANTS.some(v => v[0] === variant) ? variant : 'whole';
+  fleetState.observed = fleetState.observedAll.filter(r => r.variant === fleetState.variant);
+  fleetProjectionCache.clear();
+}
+// Chips for the classes that have data, and the country list narrowed to the
+// countries of the current class.
+function syncFleetVariantUI(){
+  const box = document.getElementById('fleetVariantChips');
+  if (box) {
+    const avail = FLEET_VARIANTS.filter(v => fleetVariantCountries(v[0]).size > 0);
+    box.parentElement.hidden = avail.length < 2;
+    box.innerHTML = avail.map(([v, label]) =>
+      `<label class="chip"><input type="radio" name="fleetVariant" value="${v}"${v === fleetState.variant ? ' checked' : ''}> ${label}`
+      + (v === 'whole' ? '' : ` <span class="small">(${fleetVariantCountries(v).size})</span>`) + '</label>').join('');
+    box.querySelectorAll('input').forEach(r => r.addEventListener('change', () => setFleetVariant(r.value)));
+  }
+  const sel = document.getElementById('fleetCountries');
+  if (sel) {
+    const have = fleetVariantCountries(fleetState.variant);
+    [...sel.options].forEach(o => {
+      if (!o.value) return;
+      const ok = have.has(o.value);
+      o.hidden = !ok; o.disabled = !ok;
+      if (!ok) o.selected = false;
+    });
+    if (![...sel.selectedOptions].some(o => o.value)) {
+      const first = [...sel.options].find(o => o.value && !o.disabled && (o.value === 'Norway')) || [...sel.options].find(o => o.value && !o.disabled);
+      if (first) first.selected = true;
+    }
+  }
+  const cars = fleetState.variant === 'whole';
+  const energyBtn = document.querySelector('#fleetSubnav .fsub[data-view="energy"]');
+  if (energyBtn) {
+    energyBtn.disabled = !cars;
+    energyBtn.title = cars ? '' : 'The energy and CO2 view covers passenger cars only for now';
+    if (!cars && energyBtn.classList.contains('is-on')) document.querySelector('#fleetSubnav .fsub[data-view="vehicles"]')?.click();
+  }
+  const hint = document.querySelector('#fleetSubnav .fsub-hint');
+  if (hint) hint.textContent = cars
+    ? 'Same countries, same projection settings \u2014 counted as cars, or as the energy they need.'
+    : 'Vehicles only: energy and CO\u2082 are calculated for passenger cars so far.';
+}
+function setFleetVariant(variant){
+  applyFleetVariant(variant);
+  syncFleetVariantUI();
+  document.getElementById('fleetCountries')?.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 // Bounds on the turnover the survival model is asked to reproduce. Below the
@@ -11915,7 +11992,7 @@ function getCountryWholeParam(country){
   for (const c of candidates) {
     const row = fleetState.params.find(r =>
       String(r.country || '').trim() === c &&
-      normalizeBase(r.variant) === 'whole'
+      normalizeBase(r.variant) === fleetState.variant
     );
     if (row) return row;
   }
@@ -11928,7 +12005,7 @@ function getCountryAnnualInflow(country){
   const candidates = getCountryCandidates(country);
 
   for (const c of candidates) {
-    const wWhole = fleetState.weights[`${c}|whole`];
+    const wWhole = fleetState.weights[`${c}|${fleetState.variant}`];
     if (wWhole !== undefined) return Number(wWhole) || 0;
     //4-wheelers are now legacy
     //const w4 = fleetState.weights[`${c}|4-wheelers`];
@@ -12109,7 +12186,7 @@ function applyFleetNetImports(next, options, addNew, scaleCat){
 // compare lines), so they are memoised. Cleared whenever data is (re)loaded.
 const fleetProjectionCache = new Map();
 function cachedFleetProjection(kind, country, startYear, endYear, options, compute){
-  const key = kind + '|' + country + '|' + startYear + '|' + endYear + '|' + JSON.stringify(options);
+  const key = kind + '|' + fleetState.variant + '|' + country + '|' + startYear + '|' + endYear + '|' + JSON.stringify(options);
   if (fleetProjectionCache.has(key)) return fleetProjectionCache.get(key);
   if (fleetProjectionCache.size > 400) fleetProjectionCache.clear();
   const out = compute();
@@ -12321,8 +12398,11 @@ async function loadFleetObserved() {
     // The stock file is keyed (country, variant, year). Only passenger cars
     // (`Whole`, EU class M1) are modelled today; a row of another variant
     // (Vans, HDV, Buses) must not be read as a second passenger-car row.
-    const isCars = r => { const v = String(r.variant || '').trim().toLowerCase(); return !v || v === 'whole'; };
-    fleetState.observed = rows.filter(isCars).map(r => {
+    // Every row is kept with its class; `observed` is the slice of the class
+    // the tab currently shows (applyFleetVariant), so a van is never counted
+    // as a car.
+    const classOf = r => normalizeBase(r.variant || 'whole') || 'whole';
+    fleetState.observedAll = rows.map(r => {
       const n = k => Number(r[k]) || 0;
       const bev    = n('BEV');
       const phev   = n('PHEV') + n('EREV');   // EREV folds into PHEV
@@ -12361,6 +12441,7 @@ async function loadFleetObserved() {
 
       return {
         country: (r.country || '').trim(),
+        variant: classOf(r),
         year: Number(r.year) || 0,
         // Kept so the UI can flag a combined bucket even after it is folded
         // into a shared band (the maintainer's visibility requirement).
@@ -12370,7 +12451,11 @@ async function loadFleetObserved() {
       };
     }).filter(r => r.country && r.year > 1900 && r.year < 2100);
 
+    // The picker lists every country with passenger-car stock; classes with
+    // fewer countries hide the rest (syncFleetVariantUI).
+    fleetState.observed = fleetState.observedAll.filter(r => r.variant === 'whole');
     fleetState.countries = [...new Set(fleetState.observed.map(r => r.country))].sort();
+    applyFleetVariant(fleetState.variant);
     if (debug) {
       debug.textContent += "Success! Loaded " + fleetState.observed.length + " data sets\n";
       debug.textContent += "Countries: " + (fleetState.countries.join(", ") || "none") + "\n";
@@ -12469,6 +12554,7 @@ function populateFleetCountries() {
   });
 
   enhanceCountryMultiSelect(sel, { placeholder: 'Search fleet countries', searchLabel: 'Search fleet countries', regions: true });
+  syncFleetVariantUI();
   sel.dispatchEvent(new Event('change', { bubbles: true }));
 
   // Build the category toggle row for whatever country is now selected
@@ -13040,7 +13126,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function buildFleetPlot() {
   const sel = document.getElementById("fleetCountries");
-  const countries = [...(sel?.selectedOptions || [])].map(o => o.value).filter(Boolean);
+  const inClass = fleetVariantCountries(fleetState.variant);
+  const countries = [...(sel?.selectedOptions || [])].map(o => o.value).filter(c => c && inClass.has(c));
   if (!countries.length) return;
 
   // Plotly can be absent if its CDN script was blocked or timed out.
@@ -13103,7 +13190,7 @@ function buildFleetPlot() {
   if (mode === 'compare') {
     // Per-country lines need no common years. The Energy sub-tab keeps its
     // combined view, so it is still refreshed whenever there are common years.
-    if (commonYears.length) {
+    if (commonYears.length && fleetState.variant === 'whole') {
       const lastCommon = Math.max(...commonYears);
       try {
         buildFleetEnergy(countries, commonYears, lastCommon,
@@ -13141,7 +13228,7 @@ function buildFleetPlot() {
   // PER-COUNTRY rows, not the aggregate: whether OTHERS means "the whole
   // combustion fleet" or "LPG/CNG" is only decidable per country, and the
   // aggregate mixes both cases together.
-  try {
+  if (fleetState.variant === 'whole') try {
     buildFleetEnergy(countries, commonYears, lastObservedYear,
                      projectionEnabled && endYear > lastObservedYear ? endYear : lastObservedYear,
                      projectFn, options);
@@ -13701,6 +13788,12 @@ const FAQ_DATA = [
     answers: [
       'On its own page: <a href="sources/fleet.html">How the Fleet tab is calculated</a>. It walks through the calculation step by step, with the decisions the model takes, and shows the data behind each step as a chart with the numbers underneath: each country\u2019s observed turnover, the age of its cars, the survival curve, what its new cars are, how far its cars are driven and how clean its electricity is. It also lists what the projection assumes.',
       'The questions below go into the individual pieces.'
+    ] },
+  { tag: 'model', label: 'Model', q: 'Does the Fleet tab cover vans, trucks and buses?',
+    answers: [
+      'Where a country publishes their stock by fuel, yes: the <b>Vehicle class</b> selector at the top of the tab switches between cars, vans (up to 3.5 t), trucks (over 3.5 t) and buses. Norway is the first country with all four.',
+      'Each class is projected the same way as cars, from its own stock, its own new registrations and fitted curves, and its own observed turnover. In Norway about 4.5% of vans leave the register per year, 7% of buses and 9.5% of trucks, against 4.4% of cars.',
+      'Energy and CO\u2082 are calculated for cars only so far. A truck burns several times a car\u2019s fuel per kilometre and drives several times as far, so those views need their own sourced factors per class before they are switched on.'
     ] },
   { tag: 'model', label: 'Model', q: 'What is the turnover (hazard) rate, in one sentence?',
     answers: [

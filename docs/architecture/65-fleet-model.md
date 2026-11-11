@@ -168,7 +168,7 @@ sections:
   - Consumption per kilometre is one fleet-average value per drivetrain for every country. This is the least well-founded input left.
   - Countries without mileage statistics of their own use a median of European countries. That includes China, India and Canada.
   - Emissions cover fuel and electricity in use, well-to-wheel. Building the car and its battery is not included.
-  - Passenger cars only. Vans, trucks and buses are not in the Fleet tab yet.
+  - Energy and CO2 are calculated for passenger cars only. Vans, trucks and buses can be picked as a vehicle class where a country publishes their stock by fuel (Norway so far); for them the tab shows vehicles, with turnover observed the same way, but not yet energy.
 - heading: Where the numbers come from
   text:
   - Every file is fetched or derived by a script and refreshed monthly. Nothing is typed in by hand.
