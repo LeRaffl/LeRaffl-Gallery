@@ -178,6 +178,16 @@ check(bc.mileage_default({"A": {"mileage": {"ALL": 1, "PETROL": 1, "DIESEL": 1}}
 none = bc.build(d / "fleet.csv", d / "data", None, None, None)["countries"]["Aland"]
 check("age_bands" not in none and "mileage" not in none and "attrition" in none, "without the optional files the core calibration still builds")
 
+# --- 12. other vehicle classes ------------------------------------------------
+fleet_x = fleet + [fleet_row("Aland", y, 100, 0, 49900 - 0, variant="HDV") for y in range(2019, 2026)]
+reg_hdv = [f"{y}-07,yearly,HDV,src,50,,,0,4950,0,5000," for y in range(2020, 2026)]
+xv = world(fleet_x, {"Aland": (REG_HEADER, reg), "Aland_HDV": (REG_HEADER, reg_hdv)})["Aland"]
+check(abs(xv["attrition"]["rate"] - 0.06) < 1e-9, "a truck stock next to the car stock leaves the car calibration unchanged")
+hv = xv.get("variants", {}).get("HDV", {})
+check(abs(hv.get("attrition", {}).get("rate", 0) - 0.1) < 1e-9, f"trucks: 5,000 registered on a flat stock of 50,000 = 10% a year, from data/<Country>_HDV.csv: {hv.get('attrition')}")
+check("Vans" not in xv["variants"] and "age_bands" not in hv and "mileage" not in hv, "only classes with stock rows get a block; age bands and mileage are car inputs")
+check("variants" not in world(fleet, {"Aland": (REG_HEADER, reg)})["Aland"], "no other class in the stock file: no variants key")
+
 doc = json.loads(bc.OUT_PATH.read_text(encoding="utf-8"))
 cs = doc["countries"]
 check(len(cs) >= 30, f"committed calibration covers the fleet countries, got {len(cs)}")
@@ -200,6 +210,9 @@ no = cs["Norway"]["mileage"]
 check(no["PHEV"] != no["HEV"] and "hybrids_combined" not in no, "Norway keeps plug-in and full hybrids apart (SSB)")
 check(all(bc.KM_MIN <= v <= bc.KM_MAX for c in cs.values() for k, v in c.get("mileage", {}).items()
           if k in bc.MILEAGE_STOCK), "every committed km-per-car figure is plausible")
+nv = cs["Norway"].get("variants", {})
+check(set(nv) == {"Vans", "HDV", "Buses"} and all("attrition" in b for b in nv.values()), "committed: Norway has vans, trucks and buses, each with an observed turnover")
+check(nv["HDV"]["attrition"]["rate"] > cs["Norway"]["attrition"]["rate"], "committed: Norway's trucks turn over faster than its cars")
 check("generated_by" in doc and "T" not in json.dumps(doc.get("generated_at", "")),
       "the file carries no timestamp (a rebuild on unchanged data is a no-op)")
 
