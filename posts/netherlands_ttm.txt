@@ -1,9 +1,6 @@
 🇳🇱 Netherlands - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+7.9pp  BEV   (37.3% → 45.2%)
-+1.6pp  PHEV  (17.8% → 19.4%)
-+0.0pp  HEV   (0.0% → 0.0%)
-−9.5pp  ICE   (45.0% → 35.5%)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+Nov24–Oct25  vs  Nov25–Oct26
++8.6pp  BEV   (37.9% → 46.5%)
++1.0pp  PHEV  (18.1% → 19.1%)
+−9.6pp  ICE   (44.0% → 34.4%)

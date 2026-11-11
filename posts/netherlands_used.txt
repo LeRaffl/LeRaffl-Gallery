@@ -1,11 +1,9 @@
-🇳🇱 Netherlands (Used) - September 26 - BEV Trajectory
-11.8% BEV
-34.6% PHEV
-53.6% ICE
+🇳🇱 Netherlands (Used) - October 26 - BEV Trajectory
+12.6% BEV
+34.0% PHEV
+53.4% ICE
 
 Trailing 12 months are:
-7.2% BEV
-33.8% PHEV
-59.0% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+7.9% BEV
+33.9% PHEV
+58.2% ICE

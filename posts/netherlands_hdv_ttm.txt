@@ -1,11 +1,9 @@
 🇳🇱 Netherlands (HDV) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+6.4pp  BEV   (5.5% → 11.9%)
-−0.0pp  PHEV  (0.1% → 0.1%)
-+0.0pp  HEV   (0.0% → 0.0%)
-−6.4pp  ICE   (94.4% → 88.0%)
+Nov24–Oct25  vs  Nov25–Oct26
++6.7pp  BEV   (6.0% → 12.7%)
++0.0pp  PHEV  (0.1% → 0.1%)
+−6.7pp  ICE   (93.9% → 87.2%)
 
-PHEV peaked at 0.2% in 2024-10 (declining for 23 months).
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+PHEV peaked at 0.1% in 2024-11 (declining for 23 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2036-09.
