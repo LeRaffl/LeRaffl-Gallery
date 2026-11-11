@@ -55,9 +55,9 @@ bev_label <- function(meta) if (is.null(meta$bev_label)) "BEV" else meta$bev_lab
 VEHICLE_LABELS <- c(
   Whole = "Cars", Private = "Cars (private)", Industry = "Cars (industry)",
   Rental = "Cars (rental)", NonRental = "Cars (non-rental)",
-  Vans = "Vans", HDV = "HDV", Buses = "Buses", Pickups = "Pickups",
+  Vans = "Vans", HDV = "Heavy Trucks", Buses = "Buses", Pickups = "Pickups",
   `2-Wheelers` = "2-Wheelers", `3-Wheelers` = "3-Wheelers", `4-Wheelers` = "4-Wheelers",
-  Used = "Used imports", Resale = "Used cars (all registrations)"
+  Used = "Used Cars (imports)", Resale = "Used Cars (all registrations)"
 )
 vehicle_label <- function(variant) {
   if (variant %in% names(VEHICLE_LABELS)) unname(VEHICLE_LABELS[variant]) else variant

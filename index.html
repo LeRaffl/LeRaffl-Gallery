@@ -4543,7 +4543,7 @@ const VIEW_START_YEAR = 2015;
               "4-Wheelers").
             -->
             <!-- <option value="4-wheelers" >4-Wheelers</option> -->
-            <option value="hdv">HDV</option>
+            <option value="hdv">Heavy Trucks</option>
             <option value="vans">Vans</option>
             <option value="buses">Buses</option>
           </select>
@@ -4649,7 +4649,7 @@ const VIEW_START_YEAR = 2015;
         <label for="compareVariant">Variant <span style="font-size:.85em">(groups)</span></label>
         <select id="compareVariant">
           <option value="whole" selected>New Cars</option>
-          <option value="hdv">HDV</option>
+          <option value="hdv">Heavy Trucks</option>
           <option value="vans">Vans</option>
           <option value="buses">Buses</option>
         </select>
@@ -8096,15 +8096,15 @@ function dedupeParamRows(rows){
 // keep the two in step, and the variant table in docs/architecture/09-glossary.md.
 const VARIANT_DISPLAY = {
   whole: 'New Cars',
-  used: 'Used Imports',
-  'used imports': 'Used Cars (imported)',
+  used: 'Used Cars (imports)',
+  'used imports': 'Used Cars (imports)',
   resale: 'Used Cars (all registrations)',
   private: 'New Cars (Private)',
   industry: 'New Cars (Industry)',
   rental: 'New Cars (Rental)',
   nonrental: 'New Cars (Non-rental)',
   vans: 'New Vans',
-  hdv: 'New HDV',
+  hdv: 'New Heavy Trucks',
   buses: 'New Buses',
   bus: 'New Buses',
   pickups: 'New Pickups',
@@ -9069,7 +9069,7 @@ renderTable();
   // double-bracket from displayVariantLabel. "whole" deliberately renders
   // with no suffix.
   const VARIANT_SHORT={
-    whole:'', private:'Private', industry:'Industry', hdv:'HDV', vans:'Vans',
+    whole:'', private:'Private', industry:'Industry', hdv:'Heavy Trucks', vans:'Vans',
     used:'Used imports','used imports':'Used (imports)',resale:'Used (all)','4-wheelers':'4-Wheelers'
   };
   // Fill style per variant. "solid" uses the region color flat; everything
@@ -14038,7 +14038,7 @@ function wmLoadData(){
           // Any variant here is drawn on the Cars scale (wmRender), so adding
           // one is just this list. Vans and Used imports added 2026-09.
           const allow = ['whole','vans','hdv','buses','used'];
-          const labels = { whole:'Cars', vans:'Vans', hdv:'HDV', buses:'Buses', used:'Used imports' };
+          const labels = { whole:'Cars', vans:'Vans', hdv:'Heavy Trucks', buses:'Buses', used:'Used Cars' };
           if (sel){
             const counts = new Map();
             rows.forEach(r => {
@@ -14426,7 +14426,7 @@ function wmRender(){
     ? `How long the fitted S-curve takes to move from ${pct}% to ${pct2}% BEV.`
     : `Fitted BEV share of new vehicles in ${shareYr}.`;
   const figureNote = 'Smoothed model · National statistical offices';
-  const varLabel = { whole: 'Cars', hdv: 'HDV', buses: 'Buses', vans: 'Vans', used: 'Used imports' };
+  const varLabel = { whole: 'Cars', hdv: 'Heavy Trucks', buses: 'Buses', vans: 'Vans', used: 'Used Cars' };
   const scaleNote = (!isRef && mode !== 'share')
     ? ` Colour scale fixed to ${varLabel[WM_REFERENCE_VARIANT]}, so ${varLabel[WORLDMAP_STATE.variant] || 'this variant'} compares directly.` : '';
 
