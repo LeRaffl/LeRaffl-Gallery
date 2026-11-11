@@ -77,15 +77,19 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 | `Rental` | Passenger cars registered to the **short-/long-term rental channel**. | M1 | **Italy** ("noleggio": `Rental = Whole − al netto del noleggio` from the UNRAE PDF; real from `2019-06`, **estimated before that** and flagged in `notes`) and **Spain** (registry-side: `SERVICIO = A01 alquiler sin conductor` or `RENTING = S`). `Rental + NonRental = Whole` in both. |
 | `NonRental` | Passenger cars registered **outside** the rental channel (private + company + self-registration). | M1 | **Italy** (the UNRAE "al netto del noleggio" block, read directly — `Rental` is the derived complement) and **Spain** (the exact complement of `Rental`). Note this is *not* a private-persons slice: no per-fuel private-only split exists in either source. |
 
-> **Variant names in chart titles and the UI.** Every chart title names the
-> vehicle kind, not just the country: "… in Austria: Cars", "… in Austria:
-> Vans" (`VEHICLE_LABELS` in `R/plots.R`; `Whole` = "Cars", `HDV` = "Heavy Trucks",
-> `Used` = "Used Cars (imports)", `Resale` = "Used Cars (all registrations)"; the two used variants
-> read "Cars" in titles that already say "used-import registrations"). The
-> gallery UI uses the same vocabulary with a "New" prefix (`VARIANT_DISPLAY`
-> in `index.html`: "New Cars", "New Vans", "New Heavy Trucks", …; selectors use the
-> short form). Keys, file names and `params.csv` rows stay `HDV` / `Used`. Add a variant → add it to both
-> maps. Charts are only re-labelled when re-rendered.
+> **Variant names in chart titles and the UI.** One vocabulary everywhere:
+> **New Cars**, **New Vans**, **New Heavy Trucks** (`HDV`), **New Buses**,
+> **Used Cars (imports)** (`Used`), **Used Cars (all registrations)**
+> (`Resale`); M1 sub-slices read "New Cars (Private)" etc. Every chart title
+> names it after the country ("… in Austria: New Cars"; `VEHICLE_LABELS` in
+> `R/plots.R`), the gallery UI uses the same strings (`VARIANT_DISPLAY` in
+> `index.html`; only the world map's segmented control uses short forms for
+> space). Two deliberate exceptions on the charts: titles that already
+> say what is counted ("BEV share in new registrations in Austria: Cars")
+> carry the bare kind, and first-registration sources (Georgia, Albania) drop
+> the "New". Keys, file names and `params.csv` rows stay `Whole` / `HDV` /
+> `Used`. Add a variant → add it to both maps. Charts are only re-labelled
+> when re-rendered.
 
 > **Italy estimated history.** Both `Rental` and `NonRental` are *real* from
 > `2019-06` (first UNRAE bulletin with the rental block) and **modelled** for

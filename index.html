@@ -4543,9 +4543,9 @@ const VIEW_START_YEAR = 2015;
               "4-Wheelers").
             -->
             <!-- <option value="4-wheelers" >4-Wheelers</option> -->
-            <option value="hdv">Heavy Trucks</option>
-            <option value="vans">Vans</option>
-            <option value="buses">Buses</option>
+            <option value="hdv">New Heavy Trucks</option>
+            <option value="vans">New Vans</option>
+            <option value="buses">New Buses</option>
           </select>
         </div>
         <div class="field settings-block is-compact">
@@ -4649,9 +4649,9 @@ const VIEW_START_YEAR = 2015;
         <label for="compareVariant">Variant <span style="font-size:.85em">(groups)</span></label>
         <select id="compareVariant">
           <option value="whole" selected>New Cars</option>
-          <option value="hdv">Heavy Trucks</option>
-          <option value="vans">Vans</option>
-          <option value="buses">Buses</option>
+          <option value="hdv">New Heavy Trucks</option>
+          <option value="vans">New Vans</option>
+          <option value="buses">New Buses</option>
         </select>
       </div>
       <div class="field settings-block is-compact">
@@ -14038,6 +14038,8 @@ function wmLoadData(){
           // Any variant here is drawn on the Cars scale (wmRender), so adding
           // one is just this list. Vans and Used imports added 2026-09.
           const allow = ['whole','vans','hdv','buses','used'];
+          // Short forms of VARIANT_DISPLAY: the full names wrap to three lines
+          // in the segmented control on a phone.
           const labels = { whole:'Cars', vans:'Vans', hdv:'Heavy Trucks', buses:'Buses', used:'Used Cars' };
           if (sel){
             const counts = new Map();
@@ -14426,7 +14428,7 @@ function wmRender(){
     ? `How long the fitted S-curve takes to move from ${pct}% to ${pct2}% BEV.`
     : `Fitted BEV share of new vehicles in ${shareYr}.`;
   const figureNote = 'Smoothed model · National statistical offices';
-  const varLabel = { whole: 'Cars', hdv: 'Heavy Trucks', buses: 'Buses', vans: 'Vans', used: 'Used Cars' };
+  const varLabel = { whole: 'New Cars', hdv: 'New Heavy Trucks', buses: 'New Buses', vans: 'New Vans', used: 'Used Cars (imports)' };
   const scaleNote = (!isRef && mode !== 'share')
     ? ` Colour scale fixed to ${varLabel[WM_REFERENCE_VARIANT]}, so ${varLabel[WORLDMAP_STATE.variant] || 'this variant'} compares directly.` : '';
 

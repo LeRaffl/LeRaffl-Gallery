@@ -47,30 +47,43 @@ reg_Noun <- function(meta) if (is.null(meta$reg_Noun)) "Registration" else meta$
 bev_label <- function(meta) if (is.null(meta$bev_label)) "BEV" else meta$bev_label
 
 # Which kind of vehicle a chart shows, spelled out IN THE TITLE ("Austria:
-# Cars", "Austria: Vans") instead of leaving it to the footnote — requested
-# by a reader, and the headline (Whole) series used to carry no label at all.
-# One map for every variant; keep it in step with displayVariantLabel() in
-# index.html and the variant table in docs/architecture/09-glossary.md.
-# Unknown variants fall back to their own name.
+# New Cars", "Austria: New Vans") instead of leaving it to the footnote —
+# requested by a reader; the headline (Whole) series used to carry no label.
+# The wording is the same as in the gallery UI: VARIANT_DISPLAY in index.html
+# ("New Cars", "New Heavy Trucks", "Used Cars (imports)", …). Keep the two in
+# step, and the variant table in docs/architecture/09-glossary.md.
+# This map holds the vehicle kind WITHOUT "New"; unknown variants (Custom,
+# Wholesale, …) fall back to their own name and never get a prefix.
 VEHICLE_LABELS <- c(
-  Whole = "Cars", Private = "Cars (private)", Industry = "Cars (industry)",
-  Rental = "Cars (rental)", NonRental = "Cars (non-rental)",
+  Whole = "Cars", Private = "Cars (Private)", Industry = "Cars (Industry)",
+  Rental = "Cars (Rental)", NonRental = "Cars (Non-rental)",
   Vans = "Vans", HDV = "Heavy Trucks", Buses = "Buses", Pickups = "Pickups",
-  `2-Wheelers` = "2-Wheelers", `3-Wheelers` = "3-Wheelers", `4-Wheelers` = "4-Wheelers",
-  Used = "Used Cars (imports)", Resale = "Used Cars (all registrations)"
+  `2-Wheelers` = "2-Wheelers", `3-Wheelers` = "3-Wheelers", `4-Wheelers` = "4-Wheelers"
 )
-vehicle_label <- function(variant) {
+USED_LABELS <- c(Used = "Used Cars (imports)", Resale = "Used Cars (all registrations)")
+
+# Vehicle kind without new/used wording: "Cars", "Vans" (Used/Resale: "Cars").
+vehicle_base <- function(variant) {
+  if (variant %in% names(USED_LABELS)) return("Cars")
   if (variant %in% names(VEHICLE_LABELS)) unname(VEHICLE_LABELS[variant]) else variant
 }
+# Full label as in the UI: "New Cars", "Used Cars (imports)". new_prefix =
+# FALSE drops the "New" for sources whose series are FIRST registrations
+# including imported used vehicles (FIRST_REG_SOURCES in render_country.R),
+# where "New Cars" would be wrong.
+vehicle_label <- function(variant, new_prefix = TRUE) {
+  if (variant %in% names(USED_LABELS)) return(unname(USED_LABELS[variant]))
+  if (new_prefix && variant %in% names(VEHICLE_LABELS)) paste("New", vehicle_base(variant)) else vehicle_base(variant)
+}
 
-# "Austria: Cars" for the chart title. with_reg = TRUE is for titles that
-# already say what is counted ("… share of used-import registrations in …"):
-# Used/Resale then read "Cars", otherwise the title says "used" twice.
+# "Austria: New Cars" for the chart title. with_reg = TRUE is for titles that
+# already say what is counted ("… share of new registrations in …", "… of
+# used-import registrations in …"): they get the bare kind ("Austria: Cars"),
+# otherwise the title says "new"/"used" twice.
 # Without meta$vehicle_label (older callers) it is just the country label.
 title_scope <- function(meta, with_reg = FALSE) {
   if (is.null(meta$vehicle_label)) return(meta$country_label)
-  lab <- if (with_reg && !is.null(meta$variant) && meta$variant %in% c("Used", "Resale"))
-    "Cars" else meta$vehicle_label
+  lab <- if (with_reg && !is.null(meta$vehicle_base)) meta$vehicle_base else meta$vehicle_label
   paste0(meta$country, ": ", lab)
 }
 
