@@ -1,0 +1,9 @@
+🇱🇺 Luxembourg (Vans) - October 26 - BEV Trajectory
+11.9% BEV
+0.9% PHEV
+87.3% ICE (of which 0.6%p were HEV)
+
+Trailing 12 months are:
+8.7% BEV
+1.0% PHEV
+90.3% ICE (of which 0.6%p were HEV)

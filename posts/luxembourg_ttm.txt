@@ -1,12 +1,9 @@
 🇱🇺 Luxembourg - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+4.4pp  BEV   (26.5% → 30.9%)
-−2.1pp  PHEV  (8.3% → 6.3%)
-+2.5pp  HEV   (28.8% → 31.2%)
-−4.8pp  ICE   (36.5% → 31.6%)
+Nov24–Oct25  vs  Nov25–Oct26
++6.4pp  BEV   (25.8% → 32.3%)
+−2.2pp  PHEV  (8.3% → 6.1%)
++1.8pp  HEV   (29.3% → 31.0%)
+−6.0pp  ICE   (36.6% → 30.6%)
 
-PHEV peaked at 8.5% in 2024-10 (declining for 23 months).
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-10.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+PHEV peaked at 8.4% in 2025-07 (declining for 15 months).
