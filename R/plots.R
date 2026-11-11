@@ -55,8 +55,8 @@ bev_label <- function(meta) if (is.null(meta$bev_label)) "BEV" else meta$bev_lab
 # This map holds the vehicle kind WITHOUT "New"; unknown variants (Custom,
 # Wholesale, …) fall back to their own name and never get a prefix.
 VEHICLE_LABELS <- c(
-  Whole = "Cars", Private = "Cars (Private)", Industry = "Cars (Industry)",
-  Rental = "Cars (Rental)", NonRental = "Cars (Non-rental)",
+  Whole = "Cars", Private = "Private Cars", Industry = "Company Cars",
+  Rental = "Rental Cars", NonRental = "Non-rental Cars",
   Vans = "Vans", HDV = "Heavy Trucks", Buses = "Buses", Pickups = "Pickups",
   `2-Wheelers` = "2-Wheelers", `3-Wheelers` = "3-Wheelers", `4-Wheelers` = "4-Wheelers"
 )

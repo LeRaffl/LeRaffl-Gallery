@@ -8100,10 +8100,10 @@ const VARIANT_DISPLAY = {
   used: 'Used Cars (imports)',
   'used imports': 'Used Cars (imports)',
   resale: 'Used Cars (all registrations)',
-  private: 'New Cars (Private)',
-  industry: 'New Cars (Industry)',
-  rental: 'New Cars (Rental)',
-  nonrental: 'New Cars (Non-rental)',
+  private: 'New Private Cars',
+  industry: 'New Company Cars',
+  rental: 'New Rental Cars',
+  nonrental: 'New Non-rental Cars',
   vans: 'New Vans',
   hdv: 'New Heavy Trucks',
   buses: 'New Buses',
@@ -9107,7 +9107,7 @@ renderTable();
   // double-bracket from displayVariantLabel. "whole" deliberately renders
   // with no suffix.
   const VARIANT_SHORT={
-    whole:'', private:'Private', industry:'Industry', hdv:'Heavy Trucks', vans:'Vans',
+    whole:'', private:'Private', industry:'Company', hdv:'Heavy Trucks', vans:'Vans',
     used:'Used imports','used imports':'Used (imports)',resale:'Used (all)','4-wheelers':'4-Wheelers'
   };
   // Fill style per variant. "solid" uses the region color flat; everything

@@ -80,7 +80,9 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 > **Variant names in chart titles and the UI.** One vocabulary everywhere:
 > **New Cars**, **New Vans**, **New Heavy Trucks** (`HDV`), **New Buses**,
 > **Used Cars (imports)** (`Used`), **Used Cars (all registrations)**
-> (`Resale`); M1 sub-slices read "New Cars (Private)" etc. Every chart title
+> (`Resale`); the M1 sub-slices read **New Private Cars** (`Private`), **New Company Cars**
+> (`Industry` — everything not registered to a private person, the state
+> included), **New Rental Cars**, **New Non-rental Cars**. Every chart title
 > names it after the country ("… in Austria: New Cars"; `VEHICLE_LABELS` in
 > `R/plots.R`), the gallery UI uses the same strings (`VARIANT_DISPLAY` in
 > `index.html`; only the world map's segmented control uses short forms for
