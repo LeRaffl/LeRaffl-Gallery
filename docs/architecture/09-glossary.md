@@ -86,10 +86,15 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 > names it after the country ("… in Austria: New Cars"; `VEHICLE_LABELS` in
 > `R/plots.R`), the gallery UI uses the same strings (`VARIANT_DISPLAY` in
 > `index.html`; only the world map's segmented control uses short forms for
-> space). Two deliberate exceptions on the charts: titles that already
-> say what is counted ("BEV share in new registrations in Austria: Cars")
-> carry the bare kind, and first-registration sources (Georgia, Albania) drop
-> the "New". Keys, file names and `params.csv` rows stay `Whole` / `HDV` /
+> space). On the charts the TTM and timer titles end with it
+> ("… by Fuel Type in Austria: New Cars", "Expected transition time in
+> Austria: New Cars"), while the two extrapolation titles, which name what is
+> counted, carry the kind inside that phrase in the singular
+> (`VEHICLE_SINGULAR`): "BEV share of new car registrations in Austria",
+> "… of new heavy truck registrations …", "… of used-import car registrations
+> …", "… of new car sales in USA". First-registration sources (Georgia,
+> Albania) drop the "New" ("Georgia: Cars", "first car registrations").
+> Keys, file names and `params.csv` rows stay `Whole` / `HDV` /
 > `Used`. Add a variant → add it to both maps. Charts are only re-labelled
 > when re-rendered.
 

@@ -76,15 +76,39 @@ vehicle_label <- function(variant, new_prefix = TRUE) {
   if (new_prefix && variant %in% names(VEHICLE_LABELS)) paste("New", vehicle_base(variant)) else vehicle_base(variant)
 }
 
-# "Austria: New Cars" for the chart title. with_reg = TRUE is for titles that
-# already say what is counted ("… share of new registrations in …", "… of
-# used-import registrations in …"): they get the bare kind ("Austria: Cars"),
-# otherwise the title says "new"/"used" twice.
+# "Austria: New Cars" — the scope at the END of a title, after a colon (TTM
+# and timer charts). with_reg = TRUE gives the bare kind ("Austria: Cars")
+# and is only the fallback of reg_scope() below.
 # Without meta$vehicle_label (older callers) it is just the country label.
 title_scope <- function(meta, with_reg = FALSE) {
   if (is.null(meta$vehicle_label)) return(meta$country_label)
   lab <- if (with_reg && !is.null(meta$vehicle_base)) meta$vehicle_base else meta$vehicle_label
   paste0(meta$country, ": ", lab)
+}
+
+# The extrapolation charts name what is counted, so the vehicle kind goes
+# INTO that phrase instead of behind a colon: "new car registrations in
+# Austria", "new heavy truck registrations in Germany", "used-import car
+# registrations in Netherlands", "new car sales in USA", "first car
+# registrations in Georgia". Singular forms, one per variant. Resale is ""
+# because its reg_word already is "used-car". A variant without an entry
+# (Custom, Wholesale, …) falls back to "new registrations in <Country>: <Variant>".
+VEHICLE_SINGULAR <- c(
+  Whole = "car", Private = "private car", Industry = "company car",
+  Rental = "rental car", NonRental = "non-rental car",
+  Vans = "van", HDV = "heavy truck", Buses = "bus", Pickups = "pickup",
+  `2-Wheelers` = "2-wheeler", `3-Wheelers` = "3-wheeler", `4-Wheelers` = "4-wheeler",
+  Used = "car", Resale = ""
+)
+vehicle_singular <- function(variant) {
+  if (variant %in% names(VEHICLE_SINGULAR)) unname(VEHICLE_SINGULAR[variant]) else NULL
+}
+reg_scope <- function(meta) {
+  kind <- meta$vehicle_singular
+  if (is.null(kind))
+    return(paste0(reg_word(meta), " ", reg_noun(meta), " in ", title_scope(meta, with_reg = TRUE)))
+  paste0(reg_word(meta), if (nzchar(kind)) paste0(" ", kind) else "", " ", reg_noun(meta),
+         " in ", meta$country)
 }
 
 # Does this country/variant's source actually split plug-in hybrids out?
@@ -190,7 +214,7 @@ plot_timer <- function(fit, meta) {
       labels = function(x) paste0("Jan ", x + 1)
     ) +
     scale_y_continuous(name = "Number of years expected", limits = c(0, ymax_top)) +
-    labs(title = paste0("Transition time expectation in ", title_scope(meta), ", using historical data"),
+    labs(title = paste0("Expected transition time in ", title_scope(meta)),
          subtitle = "Each point in time marks what the expectation was at the time",
          caption = meta$social_caption, x = " ") +
     theme_minimal() +
@@ -246,7 +270,7 @@ plot_bev_trajectory <- function(fit, meta) {
                        labels = function(x) paste0("Jan ", x + 1),
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
-    labs(title = paste0(bev_label(meta), " share in ", reg_word(meta), " ", reg_noun(meta), " in ", title_scope(meta, with_reg = TRUE), " - an Extrapolation"),
+    labs(title = paste0(bev_label(meta), " share of ", reg_scope(meta), " - an Extrapolation"),
          subtitle = paste0("expected time for ", bev_label(meta), " to rise from 20% to 80%: ",
                            floor(fit$time_20_to_80), " years ",
                            round(12 * (fit$time_20_to_80 - floor(fit$time_20_to_80)), 0), " months"),
@@ -324,7 +348,7 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
     labs(title = paste0(bev_label(meta), if (show_phev) " / ICE / PHEV" else " / ICE",
-                        " share of ", reg_word(meta), " ", reg_noun(meta), " in ", title_scope(meta, with_reg = TRUE), " - an Extrapolation"),
+                        " share of ", reg_scope(meta), " - an Extrapolation"),
          subtitle = paste0("expected time for ICE to drop from 80% to 20%: ",
                            floor(fit$time_80_to_20), " years ",
                            round(12 * (fit$time_80_to_20 - floor(fit$time_80_to_20)), 0), " months"),
