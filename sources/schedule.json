@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-11T12:06:59Z",
- "today": "2026-11-11",
+ "generated": "2026-11-12T13:12:21Z",
+ "today": "2026-11-12",
  "countries": [
   {
    "country": "Albania",
@@ -2609,11 +2609,11 @@
    "source_url": "https://lustat.statec.lu/",
    "cadence_text": "daily cron, 1st–15th, 06:45 UTC (STATEC publishes around the 6th)",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2653,30 +2653,30 @@
     ],
     "workflow": ".github/workflows/fetch-luxembourg.yml"
    },
-   "last_render": "2026-10-13",
+   "last_render": "2026-11-11",
    "flag": "🇱🇺",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2010-01",
-     "rows": 201,
+     "rows": 202,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2010-01",
-     "rows": 201,
+     "rows": 202,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2010-01",
-     "rows": 201,
+     "rows": 202,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2912,11 +2912,11 @@
    "source_url": "https://duurzamemobiliteit.databank.nl/",
    "cadence_text": "daily cron, 1st–15th of the month",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2956,30 +2956,30 @@
     ],
     "workflow": ".github/workflows/fetch-netherlands.yml"
    },
-   "last_render": "2026-10-08",
+   "last_render": "2026-11-11",
    "flag": "🇳🇱",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2011-01",
-     "rows": 189,
+     "rows": 190,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3810,10 +3810,10 @@
    "cadence_text": "twice daily on the 12th–25th, 03:35 and 09:35 UTC — MOTIR publishes around the 13th–20th of M+1 at 11:00 KST",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4160,10 +4160,10 @@
    "cadence_text": "twice daily on the 12th–28th, 01:45 and 09:45 UTC — MOTC publishes month M around the 15th of M+1 (August 2026 on September 15)",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,

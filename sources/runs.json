@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-11T12:06:59Z",
+ "generated": "2026-11-12T13:12:21Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7816,6 +7816,54 @@
    "slug": "poland",
    "period": "2026-10",
    "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-11-11",
+   "label": "Luxembourg",
+   "base": "Luxembourg",
+   "slug": "luxembourg",
+   "period": "2026-10",
+   "flag": "🇱🇺"
+  },
+  {
+   "date": "2026-11-11",
+   "label": "Luxembourg (HDV)",
+   "base": "Luxembourg",
+   "slug": "luxembourg_hdv",
+   "period": "2026-10",
+   "flag": "🇱🇺"
+  },
+  {
+   "date": "2026-11-11",
+   "label": "Luxembourg (Vans)",
+   "base": "Luxembourg",
+   "slug": "luxembourg_vans",
+   "period": "2026-10",
+   "flag": "🇱🇺"
+  },
+  {
+   "date": "2026-11-11",
+   "label": "Netherlands",
+   "base": "Netherlands",
+   "slug": "netherlands",
+   "period": "2026-10",
+   "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-11-11",
+   "label": "Netherlands (HDV)",
+   "base": "Netherlands",
+   "slug": "netherlands_hdv",
+   "period": "2026-10",
+   "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-11-11",
+   "label": "Netherlands (Used)",
+   "base": "Netherlands",
+   "slug": "netherlands_used",
+   "period": "2026-10",
+   "flag": "🇳🇱"
   }
  ]
 }
