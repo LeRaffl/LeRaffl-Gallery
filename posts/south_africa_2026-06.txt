@@ -5,5 +5,5 @@
 
 Trailing 4 quarters are:
 0.4% BEV
-1.0% PHEV
-98.6% ICE (of which 2.2%p were HEV)
+1.4% PHEV
+98.2% ICE (of which 1.8%p were HEV)

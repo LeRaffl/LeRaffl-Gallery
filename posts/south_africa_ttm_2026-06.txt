@@ -2,9 +2,9 @@
 
 Q3'24–Q2'25  vs  Q3'25–Q2'26
 +0.2pp  BEV   (0.2% → 0.4%)
-+0.8pp  PHEV  (0.2% → 1.0%)
-−0.3pp  HEV   (2.4% → 2.2%)
++0.5pp  PHEV  (0.9% → 1.4%)
++0.1pp  HEV   (1.7% → 1.8%)
 −0.8pp  ICE   (97.2% → 96.4%)
 
-HEV peaked at 2.6% in Q1'25 (declining for 5 quarters).
-If the changes from the last 6 quarters continued linearly, BEV would overtake HEV in Q4 2029.
+HEV peaked at 2.3% in Q3'24 (declining for 7 quarters).
+If the changes from the last 6 quarters continued linearly, BEV would overtake HEV in Q1 2034.
