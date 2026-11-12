@@ -188,11 +188,12 @@ Cross-check (Apr-2026), all matching the workbook to the unit:
 
 ## 4. Rendering
 
-Only **Whole** is auto-rendered on schedule (it has full history and is in
-`params.csv`). Vans/HDV/Buses are fetched and committed so their history
-accumulates, but **not** auto-rendered yet — the workbook carries no history, so
-they start at one month and grow over time (mirroring Portugal's commercials).
-Render them on demand via `render-country.yml` once enough months exist.
+Every variant whose CSV changed is auto-rendered on schedule. Vans, HDV and
+Buses used to be fetch-only because their history was thin; they now run from
+2021-07 (26 months through 2026-10) and are in `params.csv`. The workbook
+itself still carries only the current month, which is why the CSVs must keep
+accumulating. A missed month (for example October 2026, already in the CSV
+when this policy changed) still needs a one-off `render-country.yml` dispatch.
 
 ## 5. Gotchas
 
