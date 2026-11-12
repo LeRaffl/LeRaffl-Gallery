@@ -84,11 +84,16 @@ SOURCE = "naamsa.net"
 FUELS = ["BEV", "PHEV", "HEV", "ICE"]
 CSV_COLUMNS = ["period", "time_interval", "variant", "source", *FUELS, "TOTAL", "notes"]
 MEDIA_API = "https://naamsa.net/wp-json/wp/v2/media"
-# A normal run reads the newest four reviews of distinct quarters: their
-# current and year-ago columns always hold all four quarters of the last full
-# year, and from its Q1 review on also that year's annual column — so
-# reconcile() checks the year on every run, and a review that repeats the
-# Q4-2025 PHEV/HEV misprint cannot overwrite an already repaired row.
+# A normal run reads the newest four *successfully parsed* reviews of distinct
+# quarters: their current and year-ago columns always hold all four quarters
+# of the last full year, and from its Q1 review on also that year's annual
+# column — so reconcile() checks the year on every run, and a review that
+# repeats the Q4-2025 PHEV/HEV misprint cannot overwrite an already repaired
+# row. An unreadable newest review (2026-11-12: the Q3-2026 PDF's text layer
+# has no parseable section-7 sentence) is skipped and the window walks on to
+# older reviews; it must not shrink the window to three and let the typo
+# through. A quarter whose PHEV or HEV exceeds the annual column is also
+# swapped back even when the year is still incomplete.
 REPORTS_PER_RUN = 4
 # naamsa restates individual quarters by a few units; a year "adds up" when
 # every fuel is within max(5 units, 0.5 % of the annual value).
@@ -209,6 +214,9 @@ def reconcile(quarters: dict, annual: dict, log: list[str]) -> None:
     def gap(y):
         return {f: annual[y][f] - sum(quarters[(y, k)][f] for k in (1, 2, 3, 4)) for f in F}
 
+    def exceeds(qval, aval):
+        return qval > aval + max(TOLERANCE_UNITS, TOLERANCE_SHARE * aval)
+
     for y in sorted(annual):
         if not all((y, k) in quarters for k in (1, 2, 3, 4)):
             continue
@@ -229,6 +237,26 @@ def reconcile(quarters: dict, annual: dict, log: list[str]) -> None:
             quarters[(y, k)] = v
         if not fixed:
             log.append(f"{y}: quarters differ from the annual column by {g} — kept as published")
+
+    # Safety net when the year is incomplete (a review in the window failed
+    # to parse): a printed quarterly PHEV or HEV that exceeds its annual
+    # column cannot be right. The Q4-2025 typo is exactly that (2024-Q4
+    # PHEV 4,156 > annual 738; 2025-Q4 PHEV 3,452 > annual 2,810).
+    for y in sorted(annual):
+        for k in (1, 2, 3, 4):
+            key = (y, k)
+            if key not in quarters:
+                continue
+            v = quarters[key]
+            if not any(exceeds(v[f], annual[y][f]) for f in ("PHEV", "HEV")):
+                continue
+            swapped = {"BEV": v["BEV"], "PHEV": v["HEV"], "HEV": v["PHEV"]}
+            if any(exceeds(swapped[f], annual[y][f]) for f in ("PHEV", "HEV")):
+                continue
+            quarters[key] = swapped
+            log.append(f"{y}-Q{k}: PHEV/HEV printed in each other's rows "
+                       f"({v['PHEV']}/{v['HEV']}) — swapped back, "
+                       f"quarter no longer exceeds the {y} annual column")
 
 
 def build_rows(reviews: list[dict], log: list[str]) -> dict[str, dict]:
@@ -369,10 +397,11 @@ def quarter_from_name(name: str) -> tuple[int, int] | None:
     return int(years[-1]), int(m.group(1) or m.group(2))
 
 
-def newest_distinct(urls: list[str], n: int) -> list[str]:
-    """The newest `n` reviews of distinct quarters, oldest first (a review
-    re-uploaded on another date must not shrink the window). A name whose
-    quarter cannot be read counts as its own quarter."""
+def distinct_newest_first(urls: list[str]) -> list[str]:
+    """Every distinct-quarter review, newest first. A re-upload on another
+    date does not shrink the window: the newest upload of that quarter is
+    the one kept. A name whose quarter cannot be read counts as its own
+    quarter."""
     seen, out = set(), []
     for u in reversed(urls):
         q = quarter_from_name(u) or u
@@ -380,9 +409,27 @@ def newest_distinct(urls: list[str], n: int) -> list[str]:
             continue
         seen.add(q)
         out.append(u)
+    return out
+
+
+def newest_distinct(urls: list[str], n: int) -> list[str]:
+    """The newest `n` reviews of distinct quarters, oldest first."""
+    return distinct_newest_first(urls)[:n][::-1]
+
+
+def collect_parsed(candidates_newest_first, try_parse, n: int) -> list[dict]:
+    """Walk newest-first, keep successfully parsed reviews until `n`.
+    Unreadable files are skipped (try_parse returns None) so they cannot
+    shrink the reconciliation window."""
+    out: list[dict] = []
+    for item in candidates_newest_first:
+        rv = try_parse(item)
+        if rv is None:
+            continue
+        out.append(rv)
         if len(out) == n:
             break
-    return out[::-1]
+    return out
 
 
 def already_have(period: str) -> bool:
@@ -400,6 +447,21 @@ def pdf_text(data: bytes) -> str:
                               capture_output=True).stdout.decode("utf-8", "replace")
 
 
+def parse_pdf_blob(name: str, data: bytes, log: list[str]) -> dict | None:
+    """Parse one review PDF. On an unknown layout, log a note and return None."""
+    try:
+        try:
+            text = pdf_text(data)
+        except subprocess.CalledProcessError as e:
+            raise ValueError(f"pdftotext failed ({e.returncode})") from e
+        rv = parse_review(text)
+        rv["file"] = name
+        return rv
+    except ValueError as e:
+        log.append(f"{name}: not parsed ({e}) — scanned or new layout")
+        return None
+
+
 class SelfThrottle(Exception):
     pass
 
@@ -413,33 +475,41 @@ def load_reviews(args, log: list[str]) -> list[dict]:
         urls = list_reviews()
         if not urls:
             raise SystemExit("naamsa media library lists no quarterly review — layout change?")
-        if not args.backfill:
-            urls = newest_distinct(urls, REPORTS_PER_RUN)
-            q = quarter_from_name(urls[-1])
-            if q and already_have(period_of(*q)) and not args.force:
-                print(f"self-throttle: newest review ({urls[-1].rsplit('/', 1)[-1]}) is "
-                      f"{q[0]}-Q{q[1]}, already in the CSV — nothing to do")
-                raise SelfThrottle()
-        blobs = []
-        for u in urls:
+        def fetch_blob(u: str) -> tuple[str, bytes]:
             r = requests.get(u, headers=UA, timeout=120)
             r.raise_for_status()
-            blobs.append((u.rsplit("/", 1)[-1], r.content))
+            name, data = u.rsplit("/", 1)[-1], r.content
             if args.dump_dir:
                 Path(args.dump_dir).mkdir(parents=True, exist_ok=True)
-                (Path(args.dump_dir) / blobs[-1][0]).write_bytes(r.content)
+                (Path(args.dump_dir) / name).write_bytes(data)
+            return name, data
+
+        if not args.backfill:
+            candidates = distinct_newest_first(urls)
+            newest = candidates[0]
+            q = quarter_from_name(newest)
+            if q and already_have(period_of(*q)) and not args.force:
+                print(f"self-throttle: newest review ({newest.rsplit('/', 1)[-1]}) is "
+                      f"{q[0]}-Q{q[1]}, already in the CSV — nothing to do")
+                raise SelfThrottle()
+            def try_parse(u: str):
+                return parse_pdf_blob(*fetch_blob(u), log)
+            reviews = collect_parsed(candidates, try_parse, REPORTS_PER_RUN)
+        else:
+            reviews = []
+            for u in urls:
+                rv = parse_pdf_blob(*fetch_blob(u), log)
+                if rv is not None:
+                    reviews.append(rv)
+        if not reviews:
+            raise SystemExit("no review could be parsed")
+        return sorted(reviews, key=lambda r: r["quarter"])
+
     reviews = []
     for name, data in sorted(blobs):
-        try:
-            try:
-                text = pdf_text(data)
-            except subprocess.CalledProcessError as e:
-                raise ValueError(f"pdftotext failed ({e.returncode})") from e
-            rv = parse_review(text)
-            rv["file"] = name
+        rv = parse_pdf_blob(name, data, log)
+        if rv is not None:
             reviews.append(rv)
-        except ValueError as e:
-            log.append(f"{name}: not parsed ({e}) — scanned or new layout")
     if not reviews:
         raise SystemExit("no review could be parsed")
     return sorted(reviews, key=lambda r: r["quarter"])
