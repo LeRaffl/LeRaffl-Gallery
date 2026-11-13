@@ -1,0 +1,7 @@
+🇦🇹 Austria (Resale) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++1.8pp  BEV   (4.1% → 5.9%)
++0.9pp  PHEV  (3.0% → 4.0%)
++1.6pp  HEV   (7.9% → 9.5%)
+−4.3pp  ICE   (84.9% → 80.7%)
