@@ -1,0 +1,6 @@
+🇱🇹 Lithuania (Used) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++1.3pp  BEV     (2.9% → 4.2%)
++1.9pp  Hybrid  (10.9% → 12.9%)
+−3.2pp  ICE     (86.1% → 82.9%)
