@@ -1,10 +1,9 @@
 🇦🇱 Albania (Buses) - TTM Market Split
 
-Oct23–Sep24  vs  Oct24–Sep26
-+1.9pp  BEV     (0.7% → 2.5%)
+Nov23–Oct24  vs  Nov24–Oct26
++2.3pp  BEV     (0.7% → 3.0%)
 −2.2pp  Hybrid  (2.2% → 0.0%)
-+0.3pp  ICE     (97.2% → 97.5%)
+−0.1pp  ICE     (97.1% → 97.0%)
 
-Hybrid peaked at 2.4% in 2024-12 (declining for 9 months).
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+Hybrid peaked at 2.4% in 2024-12 (declining for 10 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2035-04.

@@ -1,11 +1,7 @@
-🇦🇱 Albania (Buses) - September 26 - BEV Trajectory
-12.2% BEV
-0.0% PHEV
-87.8% ICE
+🇦🇱 Albania (Buses) - October 26 - BEV Trajectory
+6.5% BEV
+93.5% ICE
 
 Trailing 12 months are:
-2.5% BEV
-0.0% PHEV
-97.5% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+3.0% BEV
+97.0% ICE

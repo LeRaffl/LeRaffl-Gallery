@@ -1,0 +1,9 @@
+🇦🇱 Albania - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++6.4pp  BEV   (6.0% → 12.4%)
++0.2pp  PHEV  (0.1% → 0.3%)
++0.3pp  HEV   (2.7% → 3.0%)
+−6.9pp  ICE   (91.3% → 84.4%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2036-06.
