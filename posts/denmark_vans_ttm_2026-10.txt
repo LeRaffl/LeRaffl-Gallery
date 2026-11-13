@@ -1,0 +1,9 @@
+🇩🇰 Denmark (Vans) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++14.9pp  BEV   (28.4% → 43.3%)
+−1.5pp  PHEV  (2.5% → 0.9%)
+−13.4pp  ICE   (69.1% → 55.7%)
+
+PHEV peaked at 3.0% in 2025-08 (declining for 14 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-03.

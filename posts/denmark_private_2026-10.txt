@@ -1,0 +1,9 @@
+🇩🇰 Denmark (Private) - October 26 - BEV Trajectory
+97.4% BEV
+0.0% PHEV
+2.5% ICE
+
+Trailing 12 months are:
+95.1% BEV
+0.6% PHEV
+4.3% ICE

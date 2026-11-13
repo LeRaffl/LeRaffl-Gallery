@@ -1,10 +1,7 @@
 🇩🇰 Denmark (HDV) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+7.8pp  BEV     (23.6% → 31.4%)
-+0.0pp  Hybrid  (0.0% → 0.0%)
-−7.8pp  ICE     (76.4% → 68.6%)
+Nov24–Oct25  vs  Nov25–Oct26
++7.3pp  BEV  (24.9% → 32.2%)
+−7.3pp  ICE  (75.1% → 67.8%)
 
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-08.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-02.
