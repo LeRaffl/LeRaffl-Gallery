@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-12T13:12:21Z",
- "today": "2026-11-12",
+ "generated": "2026-11-13T12:34:59Z",
+ "today": "2026-11-13",
  "countries": [
   {
    "country": "Albania",
@@ -2281,9 +2281,9 @@
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2017-05",
-     "rows": 94,
+     "rows": 95,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3355,7 +3355,7 @@
     ],
     "workflow": ".github/workflows/fetch-poland.yml"
    },
-   "last_render": "2026-11-10",
+   "last_render": "2026-11-12",
    "flag": "🇵🇱",
    "variants": [
     {
@@ -3788,7 +3788,7 @@
     ],
     "workflow": ".github/workflows/fetch-south-africa.yml"
    },
-   "last_render": "2026-10-26",
+   "last_render": "2026-11-12",
    "flag": "🇿🇦",
    "variants": [
     {

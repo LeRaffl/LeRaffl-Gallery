@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-12T13:12:21Z",
+ "generated": "2026-11-13T12:34:59Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -7864,6 +7864,38 @@
    "slug": "netherlands_used",
    "period": "2026-10",
    "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-11-12",
+   "label": "Poland (Buses)",
+   "base": "Poland",
+   "slug": "poland_buses",
+   "period": "2026-10",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-11-12",
+   "label": "Poland (HDV)",
+   "base": "Poland",
+   "slug": "poland_hdv",
+   "period": "2026-10",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-11-12",
+   "label": "Poland (Vans)",
+   "base": "Poland",
+   "slug": "poland_vans",
+   "period": "2026-10",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-11-12",
+   "label": "South Africa",
+   "base": "South Africa",
+   "slug": "south_africa",
+   "period": "2026-06",
+   "flag": "🇿🇦"
   }
  ]
 }
