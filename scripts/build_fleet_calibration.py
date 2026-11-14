@@ -113,12 +113,18 @@ def num(x):
     return v if v == v else None
 
 
-def read_stock(path: Path = FLEET_CSV) -> dict[str, dict[int, dict]]:
-    """country -> year -> {fuel: value|None, 'TOTAL': value}. Passenger cars only."""
+# Vehicle classes beyond passenger cars (`Whole`). A country's block for one of
+# them sits under its `variants` key and is built the same way from the stock
+# rows of that variant and data/<Country>_<Variant>.csv.
+VARIANTS = ("Vans", "HDV", "Buses")
+
+
+def read_stock(path: Path = FLEET_CSV, variant: str = "Whole") -> dict[str, dict[int, dict]]:
+    """country -> year -> {fuel: value|None, 'TOTAL': value}, for one variant."""
     out: dict[str, dict[int, dict]] = defaultdict(dict)
     with path.open(newline="", encoding="utf-8") as fh:
         for r in csv.DictReader(fh):
-            if (r.get("variant") or "Whole").strip() != "Whole":
+            if (r.get("variant") or "Whole").strip() != variant:
                 continue
             country = (r.get("country") or "").strip()
             try:
@@ -158,20 +164,23 @@ def months_covered(rows_in_year: list[dict]) -> int:
             + y * (12 if y <= 1 else 1))
 
 
-def read_registrations(country: str, data_dir: Path = DATA_DIR):
-    """(per-year sums, rows newest-last) for a country's passenger-car series.
+def read_registrations(country: str, data_dir: Path = DATA_DIR, variant: str = "Whole"):
+    """(per-year sums, rows newest-last) for a country's series of one variant
+    (``data/<Country>.csv`` for passenger cars, ``data/<Country>_<Variant>.csv``
+    otherwise).
 
     Per-year sums cover COMPLETE calendar years only. A class is None for a
     year when any row of that year leaves one of its columns blank where the
     column exists - a partial sum would understate registrations and inflate
     attrition. A class whose column the file does not have at all is None too.
     """
-    path = data_dir / f"{DATA_STEM.get(country, country)}.csv"
+    stem = DATA_STEM.get(country, country)
+    path = data_dir / (f"{stem}.csv" if variant == "Whole" else f"{stem}_{variant}.csv")
     if not path.exists():
         return {}, []
     with path.open(newline="", encoding="utf-8") as fh:
         rows = [r for r in csv.DictReader(fh)
-                if (r.get("variant") or "Whole").strip() == "Whole"
+                if (r.get("variant") or "Whole").strip() == variant
                 and len((r.get("period") or "")) >= 7]
     rows.sort(key=lambda r: r["period"])
     cols = set(rows[0].keys()) if rows else set()
@@ -470,6 +479,23 @@ def build(fleet_csv: Path = FLEET_CSV, data_dir: Path = DATA_DIR,
             entry["mileage"] = km
         if entry:
             countries[country] = entry
+    # Other vehicle classes: the same stock-flow identity, inflow mix and
+    # registration history, per (country, variant) that has stock rows.
+    for variant in VARIANTS:
+        for country, years in sorted(read_stock(fleet_csv, variant).items()):
+            reg, rows = read_registrations(country, data_dir, variant)
+            block = {}
+            a = attrition(years, reg)
+            if a:
+                block["attrition"] = a
+            m = inflow_mix(rows)
+            if m:
+                block["inflow_mix"] = m
+            ages = reg_by_year(reg)
+            if ages:
+                block["reg_by_year"] = ages
+            if block:
+                countries.setdefault(country, {}).setdefault("variants", {})[variant] = block
     return {
         "generated_by": "scripts/build_fleet_calibration.py",
         "note": ("Generated from fleet/fleet_initial.csv and data/<Country>.csv. "

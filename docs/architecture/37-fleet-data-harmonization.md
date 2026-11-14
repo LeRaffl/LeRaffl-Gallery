@@ -524,7 +524,8 @@ a row to the table above.
    it (like DE); otherwise on-demand/yearly with an agent.
 2. **Backfill `source` + flags** for the 11 not-yet-automated countries from §4
    (they migrated with values intact but mostly empty `source`/`TOTAL`).
-3. **Fleet variants (Vans / HDV / Buses)** — the next step after §7. What is
+3. **Fleet variants (Vans / HDV / Buses)** — started: the pilot is Norway (§8).
+   The plan as written before the pilot, for the remaining steps. What is
    already in place: the schema has `variant` (§2.1), the loader filters on it,
    the calibration builder reads `Whole` only, and the registration side already
    carries `data/<Country>_{Vans,HDV,Buses}.csv` with fitted curves in
@@ -823,3 +824,68 @@ petrol/diesel → OTHERS where the stock has no split, i.e. China). Without an
   the page**. `hazard_defaults.csv` still feeds `R/energy_flows.R`. Their rates
   (NL-based, borrowed for "EU" and "WORLD") are superseded by §7.1 and should
   not be quoted.
+
+---
+
+## 8 · Beyond cars — vans, trucks and buses
+
+**Status: pilot (Norway).** The Fleet tab has a *Vehicle class* selector:
+Cars (`Whole`, M1), Vans (N1), Trucks (`HDV`, N2+N3), Buses (M2+M3). A class is
+offered only where some country has stock rows for it; the country list
+narrows to those countries.
+
+### 8.1 What is class-aware
+
+| Piece | How |
+|---|---|
+| Stock | `fleet/fleet_initial.csv` rows with `variant` = `Vans` / `HDV` / `Buses` (§2.1). The page keeps every row with its class (`fleetState.observedAll`) and reads only the current one. |
+| Fitted curves, volume | `params.csv` / `weights.csv` rows of the same variant (`getCountryWholeParam`, `getCountryAnnualInflow`). |
+| Calibration | `fleet_calibration.json`: `countries[c].variants[V]` with `attrition`, `inflow_mix`, `reg_by_year`, built from the variant's stock rows and `data/<Country>_<Variant>.csv` by the same code as for cars. |
+| Projection | Unchanged: the same survival model, calibrated to the class's own turnover. |
+
+Not class-aware yet, on purpose:
+
+- **Energy and CO2.** Consumption, mileage and efficiency are per-class
+  quantities (an articulated lorry burns about four times a car's fuel per km
+  and drives several times as far). The Energy view is switched off for the
+  other classes rather than run on car factors. Mileage has a source
+  (Eurostat `road_tf_vehage` carries lorries by weight class, road tractors and
+  buses; SSB 12577 for Norway); consumption per class needs one.
+- **Age bands and the survival shape.** Eurostat's age table used in §7 is for
+  passenger cars. The other classes start from their registration history or
+  as mature, with the cars' fitted shape (2.5).
+- **Region chips** in the country picker still count car countries.
+
+### 8.2 Norway — the pilot source
+
+`scripts/fetch_fleet_norway.py`, SSB table 11823 (stock at 31 December by
+fuel, 2016–), run monthly by `refresh-fleet-data.yml`. Varebil → `Vans`,
+Lastebil → `HDV`, Buss → `Buses`; "combined vehicles" (Kombibil, about 7,500
+left) are in neither. The table's passenger-car rows equal the existing
+`Whole` rows to the vehicle, which is the check that the classes are cut from
+the same register.
+
+Observed net attrition, median of 2021–2025 (2022 is missing: the ACEA
+commercial-vehicle year is incomplete):
+
+| | stock end 2025 | battery share | net attrition per year |
+|---|---|---|---|
+| Vans | 522,951 | 9.5% | 4.5% |
+| Trucks | 65,528 | 3.9% | 9.5% |
+| Buses | 14,613 | 17.1% | 7.2% |
+| Cars, for comparison | 2,935,735 | 32.2% | 4.4% |
+
+Trucks leave the Norwegian register about twice as fast as cars; like the
+car figures this is net of exports.
+
+### 8.3 Adding countries
+
+1. Stock by fuel per class. Eurostat: `road_eqs_lormot` (lorries by motor
+   energy) and `road_eqs_busmot` (buses). **Check before writing rows** whether
+   the lorry table separates up to 3.5 t from above: `Vans` and `HDV` must not
+   be one row. National registers (KBA FZ 13 for Germany) where Eurostat does
+   not split.
+2. `python scripts/build_fleet_calibration.py` — the class appears under
+   `variants` if the country has `data/<Country>_<Variant>.csv`.
+3. Nothing in the page: the selector and the country list follow the data.
+
