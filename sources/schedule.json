@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-13T12:34:59Z",
- "today": "2026-11-13",
+ "generated": "2026-11-14T11:43:45Z",
+ "today": "2026-11-14",
  "countries": [
   {
    "country": "Albania",
@@ -10,11 +10,11 @@
    "source_url": "https://lookerstudio.google.com/reporting/233df2cc-6bd4-45fc-bf9b-e8ee4f83293e/page/VPWqB",
    "cadence_text": "daily 07:00 UTC, 10th–28th, commit-gated",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -58,38 +58,38 @@
     ],
     "workflow": ".github/workflows/fetch-albania.yml"
    },
-   "last_render": "2026-10-10",
+   "last_render": "2026-11-13",
    "flag": "🇦🇱",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2019-01",
-     "rows": 93,
+     "rows": 94,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2020-01",
-     "rows": 69,
+     "rows": 70,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2020-01",
-     "rows": 69,
+     "rows": 70,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "2-Wheelers",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2020-01",
-     "rows": 69,
+     "rows": 70,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -260,7 +260,7 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-11-10",
+   "last_render": "2026-11-13",
    "flag": "🇦🇹",
    "variants": [
     {
@@ -289,9 +289,9 @@
     },
     {
      "name": "Resale",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2019-01",
-     "rows": 93,
+     "rows": 94,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -603,10 +603,10 @@
    "cadence_text": "daily cron from the 14th, 08:20 UTC — runs are no-ops until both ANAC PDFs are out",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1053,11 +1053,11 @@
    "source_url": "https://www.statbank.dk/BIL53",
    "cadence_text": "daily cron, 1st–15th, 05:15 UTC",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1097,46 +1097,46 @@
     ],
     "workflow": ".github/workflows/fetch-denmark.yml"
    },
-   "last_render": "2026-10-09",
+   "last_render": "2026-11-13",
    "flag": "🇩🇰",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2014-01",
-     "rows": 153,
+     "rows": 154,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2021-01",
-     "rows": 69,
+     "rows": 70,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2495,11 +2495,11 @@
    "source_url": "https://www.regitra.lt/paslaugos/duomenu-teikimas/statistika/",
    "cadence_text": "twice daily (06:35 and 12:35 UTC); Regitra posts the year file for a month in the first ten days of the next one (August 2026 was up on 9 September) and restates the year on every update",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2556,22 +2556,22 @@
     ],
     "workflow": ".github/workflows/fetch-lithuania.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-13",
    "flag": "🇱🇹",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2017-01",
-     "rows": 117,
+     "rows": 118,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2024-01",
-     "rows": 33,
+     "rows": 34,
      "cadence": "monthly",
      "in_repo": true
     },
