@@ -4,15 +4,27 @@ name: Build series
 # Raw Data tab reads — plus the generated data-quality checklist in
 # docs/architecture/35b-raw-data-quality-todo.md.
 #
-# One path filter on data/** catches every writer: the 29 fetch workflows,
-# manual commits, and merged submission PRs. Chaining a dispatch into 29
-# workflow files would do the same job and rot the first time one is added.
+# One path filter on data/** catches every writer that can retrigger a
+# workflow: manual commits and merged submission PRs. Chaining a dispatch
+# into the 29 fetch workflows would do the same job and rot the first time
+# one is added, so we do not do that.
+#
+# Fetch commits are made with GITHUB_TOKEN (EndBug/add-and-commit). GitHub
+# does not fire push-triggered workflows for those commits, which is why
+# series/ last rebuilt on 8.11.2026 and then missed every fetch after that
+# (Austria, Belgium, China, Luxembourg, Netherlands, New Zealand, Poland,
+# and the 12.11 South Africa restatement). An hourly schedule closes that
+# gap without touching the fetch workflows. The job only commits when the
+# generated files actually changed.
 #
 # The artifact lives in the repo because GitHub Pages serves it directly, so it
 # must be committed to go live. This workflow does NOT trigger on series/**, so
 # its own commit cannot retrigger it.
 
 on:
+  schedule:
+    # 20 minutes past the hour, after most fetch crons (which sit on :00 / :25 / :30).
+    - cron: '20 * * * *'
   push:
     branches: [master]
     paths:
