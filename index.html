@@ -4527,7 +4527,7 @@ const VIEW_START_YEAR = 2015;
         <div class="field settings-block is-compact">
           <label for="builderWeightVariant">Weights variant</label>
           <select id="builderWeightVariant" multiple size="4">
-            <option value="whole" selected>New Cars</option>
+            <option value="whole" selected>&#x1F697;&nbsp;New Cars</option>
             <!--
               Legacy option intentionally kept as a disabled reminder, do NOT delete.
               Background: India used to expose its passenger cars under the non-
@@ -4543,9 +4543,9 @@ const VIEW_START_YEAR = 2015;
               "4-Wheelers").
             -->
             <!-- <option value="4-wheelers" >4-Wheelers</option> -->
-            <option value="hdv">HDV</option>
-            <option value="vans">Vans</option>
-            <option value="buses">Buses</option>
+            <option value="hdv">&#x1F69B;&nbsp;New Heavy Trucks</option>
+            <option value="vans">&#x1F690;&nbsp;New Vans</option>
+            <option value="buses">&#x1F68C;&nbsp;New Buses</option>
           </select>
         </div>
         <div class="field settings-block is-compact">
@@ -4648,10 +4648,10 @@ const VIEW_START_YEAR = 2015;
       <div class="field settings-block is-compact">
         <label for="compareVariant">Variant <span style="font-size:.85em">(groups)</span></label>
         <select id="compareVariant">
-          <option value="whole" selected>New Cars</option>
-          <option value="hdv">HDV</option>
-          <option value="vans">Vans</option>
-          <option value="buses">Buses</option>
+          <option value="whole" selected>&#x1F697;&nbsp;New Cars</option>
+          <option value="hdv">&#x1F69B;&nbsp;New Heavy Trucks</option>
+          <option value="vans">&#x1F690;&nbsp;New Vans</option>
+          <option value="buses">&#x1F68C;&nbsp;New Buses</option>
         </select>
       </div>
       <div class="field settings-block is-compact">
@@ -6553,7 +6553,8 @@ const QR = (() => {
     // Keep the focused checkbox alive when only its checked state changes.
     if (host.dataset.bands !== signature){
       host.dataset.bands = signature;
-      host.innerHTML = available.map((k,i)=>`<label class="rd-fuel-opt"><input type="checkbox"
+      host.innerHTML = available.map((k,i)=>`<label class="rd-fuel-opt"${
+        (window.ABBR_GLOSSARY||{})[String(k).toUpperCase()] ? ` title="${esc(window.ABBR_GLOSSARY[String(k).toUpperCase()])}"` : ''}><input type="checkbox"
         data-fuel="${esc(k)}">${esc(labels[i])}</label>`).join('');
     }
     host.querySelectorAll('input[data-fuel]').forEach(input=>{
@@ -8091,23 +8092,33 @@ function dedupeParamRows(rows){
   return [...byKey.values()].map(v => v.row);
 }
 
+// One display-label map for every variant (keys lower-case). Chart titles use
+// the same vocabulary via VEHICLE_LABELS in R/plots.R ("Cars", "Vans", …) —
+// keep the two in step, and the variant table in docs/architecture/09-glossary.md.
+const VARIANT_DISPLAY = {
+  whole: 'New Cars',
+  used: 'Used Cars (imports)',
+  'used imports': 'Used Cars (imports)',
+  resale: 'Used Cars (all registrations)',
+  private: 'New Private Cars',
+  industry: 'New Company Cars',
+  rental: 'New Rental Cars',
+  nonrental: 'New Non-rental Cars',
+  vans: 'New Vans',
+  hdv: 'New Heavy Trucks',
+  buses: 'New Buses',
+  bus: 'New Buses',
+  pickups: 'New Pickups',
+  '2-wheelers': 'New 2-Wheelers',
+  '3-wheelers': 'New 3-Wheelers'
+};
+
 function displayLabelFromBase(base){
   const n = normalizeBase(base);
   const raw = String(base || '').trim();
-  const map = {
-    whole: 'New Cars',
-    used: 'Used Imports',
-    'used imports': 'Used Cars (imported)',
-    resale: 'Used Cars (all registrations)',
-    private: 'New Cars (Private)',
-    industry: 'New Cars (Industry)',
-    hdv: 'New HDV',
-    buses: 'New Buses',
-    vans: 'New Vans',
-    '4-wheelers': '4-Wheelers (legacy model)'
-  };
-  if (map[n]) return map[n];
-  if (map[raw.toLowerCase()]) return map[raw.toLowerCase()];
+  if (n === '4-wheelers' || raw.toLowerCase() === '4-wheelers') return '4-Wheelers (legacy model)';
+  if (VARIANT_DISPLAY[n]) return VARIANT_DISPLAY[n];
+  if (VARIANT_DISPLAY[raw.toLowerCase()]) return VARIANT_DISPLAY[raw.toLowerCase()];
   return raw
     .replace(/\s+/g,' ')
     .trim()
@@ -8115,20 +8126,45 @@ function displayLabelFromBase(base){
 }
   
 function displayVariantLabel(v){
-  const map = {
-    "Whole": "New Cars",
-    "Used": "Used Imports",
-    "Used Imports": "Used Cars (imported)",
-    "Resale": "Used Cars (all registrations)",
-    "Private": "New Cars (Private)",
-    "Industry": "New Cars (Industry)",
-    "Vans": "New Vans",
-    "HDV": "New HDV",
-    "Buses": "New Buses",
-    "Bus": "New Buses"
-  };
-  return map[v] || v;
+  return VARIANT_DISPLAY[String(v == null ? '' : v).toLowerCase()] || v;
 }
+// A small pictogram per vehicle kind, for readers who do not know the
+// abbreviations. UI only: the PNG charts carry no emoji (no colour-emoji font
+// on the render runner). Used variants share the car, the label says "Used".
+const VARIANT_EMOJI = {
+  whole: '\u{1F697}', private: '\u{1F697}', industry: '\u{1F697}', rental: '\u{1F697}',
+  nonrental: '\u{1F697}', used: '\u{1F697}', 'used imports': '\u{1F697}', resale: '\u{1F697}',
+  vans: '\u{1F690}', hdv: '\u{1F69B}', buses: '\u{1F68C}', bus: '\u{1F68C}',
+  pickups: '\u{1F6FB}', '2-wheelers': '\u{1F6F5}', '3-wheelers': '\u{1F6FA}'
+};
+function variantEmoji(v){
+  return VARIANT_EMOJI[String(v == null ? '' : v).toLowerCase()] || '';
+}
+// Label with its pictogram in front — for table cells and selectors, not for
+// chart titles or exports.
+function displayVariantChip(v){
+  const e = variantEmoji(v), l = displayVariantLabel(v);
+  return e ? e + '\u00A0' + l : l;
+}
+// What the abbreviations stand for. One list: the FAQ entry "What do the
+// abbreviations mean?" is rendered from it, and controls use it for tooltips.
+const ABBR_GLOSSARY = {
+  BEV:   'Battery electric vehicle \u2014 runs on its battery only',
+  PHEV:  'Plug-in hybrid \u2014 a combustion engine plus a battery you can charge from a socket',
+  EREV:  'Extended-range electric vehicle \u2014 driven electrically, with a small engine that only recharges the battery',
+  HEV:   'Hybrid (full hybrid) \u2014 engine plus a small battery that cannot be plugged in',
+  MHEV:  'Mild hybrid \u2014 a combustion car with a small electric assist; it cannot drive electrically',
+  FCEV:  'Fuel-cell electric vehicle \u2014 runs on hydrogen',
+  ICE:   'Internal combustion engine \u2014 petrol, diesel and other fuel-burning cars',
+  EV:    'Electric vehicle \u2014 here BEV and PHEV together, where the source does not separate them',
+  HDV:   'Heavy-duty vehicle \u2014 heavy trucks above 3.5 t (shown as \u201cHeavy Trucks\u201d)',
+  TTM:   'Trailing twelve months \u2014 the last 12 months added together',
+  CI:    'Confidence interval \u2014 where the fitted curve itself could be',
+  PI:    'Prediction interval \u2014 where one more month could land',
+  TI:    'Tolerance interval \u2014 where 95% of all months land',
+  pp:    'Percentage points \u2014 the difference between two percentages'
+};
+window.ABBR_GLOSSARY = ABBR_GLOSSARY;
 function yearsIndexToDate(xYears, baseline_date, baseline_year){ 
   if(!isFinite(xYears)) return ""; 
   if(xYears>=1800 && xYears<3000){const y=Math.floor(xYears); const frac=xYears-y; const start=new Date(Date.UTC(y,0,1)); const end=new Date(Date.UTC(y+1,0,1)); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); }} 
@@ -8735,7 +8771,7 @@ function bodyHTML(){
     ${tdWithClass(r.val80, r._v80, true)}
     ${tdWithClass(r.custom, r._vc)}
     <td class="data-per-col">${r.data_per || ''}</td>
-    <td class="variant-col">${displayVariantLabel(r.variant)}</td>
+    <td class="variant-col">${displayVariantChip(r.variant)}</td>
     <td class="col-tags"><div class="tag-stack" data-tag-country="${key.replace(/"/g,'&quot;')}"></div></td>
   </tr>`;}).join('')}</tbody>`;
 }
@@ -8903,7 +8939,7 @@ renderTable();
         <td>${r.dC_text}</td>
         <td>${r.speed_text}</td>
         <td class="data-per-col">${r.data_per}</td>
-        <td class="variant-col">${displayVariantLabel(r.variant)}</td>
+        <td class="variant-col">${displayVariantChip(r.variant)}</td>
         <td class="col-tags"><div class="tag-stack" data-tag-country="${key.replace(/"/g,'&quot;')}"></div></td>
       </tr>`;}).join('')}</tbody>`; 
     }
@@ -9071,7 +9107,7 @@ renderTable();
   // double-bracket from displayVariantLabel. "whole" deliberately renders
   // with no suffix.
   const VARIANT_SHORT={
-    whole:'', private:'Private', industry:'Industry', hdv:'HDV', vans:'Vans',
+    whole:'', private:'Private', industry:'Company', hdv:'Heavy Trucks', vans:'Vans',
     used:'Used imports','used imports':'Used (imports)',resale:'Used (all)','4-wheelers':'4-Wheelers'
   };
   // Fill style per variant. "solid" uses the region color flat; everything
@@ -13625,6 +13661,9 @@ const FAQ_DATA = [
     answers: ['Because the observed data shows a slower transition shape or later acceleration.'] },
   { tag: 'general', label: 'General', q: 'Why does this matter?',
     answers: ['It makes different national transitions comparable with one consistent framework.'] },
+  { tag: 'general', label: 'General', q: 'What do the abbreviations mean (BEV, PHEV, ICE, TTM, \u2026)?',
+    answers: [Object.keys(ABBR_GLOSSARY).map(k => `<b>${k}</b> \u2014 ${ABBR_GLOSSARY[k].replace(' \u2014 ', ': ')}`).join('<br>'),
+      'Vehicle kinds: \u{1F697} cars \u00B7 \u{1F690} vans (light commercial vehicles up to 3.5 t) \u00B7 \u{1F69B} heavy trucks (above 3.5 t) \u00B7 \u{1F68C} buses and coaches.'] },
   { tag: 'general', label: 'General', q: 'What is BEV share?',
     answers: ['The percentage of newly registered vehicles that are battery-electric vehicles.'] },
   { tag: 'general', label: 'General', q: 'What is being compared across countries?',
@@ -14040,7 +14079,9 @@ function wmLoadData(){
           // Any variant here is drawn on the Cars scale (wmRender), so adding
           // one is just this list. Vans and Used imports added 2026-09.
           const allow = ['whole','vans','hdv','buses','used'];
-          const labels = { whole:'Cars', vans:'Vans', hdv:'HDV', buses:'Buses', used:'Used imports' };
+          // Short forms of VARIANT_DISPLAY: the full names wrap to three lines
+          // in the segmented control on a phone.
+          const labels = { whole:'Cars', vans:'Vans', hdv:'Heavy Trucks', buses:'Buses', used:'Used Cars' };
           if (sel){
             const counts = new Map();
             rows.forEach(r => {
@@ -14053,13 +14094,15 @@ function wmLoadData(){
               if (!counts.has(k)) return;
               const o = document.createElement('option');
               o.value = k;
-              o.textContent = labels[k];
+              const chip = (variantEmoji(k) ? variantEmoji(k) + '\u00A0' : '') + labels[k];
+              o.textContent = chip;
               sel.appendChild(o);
               if (seg){
                 const b = document.createElement('button');
                 b.type = 'button';
                 b.className = 'wm-var' + (k==='whole' ? ' is-on' : '');
-                b.textContent = labels[k];
+                b.textContent = chip;
+                b.title = displayVariantLabel(k);
                 b.dataset.variant = k;
                 b.addEventListener('click', () => {
                   sel.value = k;
@@ -14428,7 +14471,7 @@ function wmRender(){
     ? `How long the fitted S-curve takes to move from ${pct}% to ${pct2}% BEV.`
     : `Fitted BEV share of new vehicles in ${shareYr}.`;
   const figureNote = 'Smoothed model · National statistical offices';
-  const varLabel = { whole: 'Cars', hdv: 'HDV', buses: 'Buses', vans: 'Vans', used: 'Used imports' };
+  const varLabel = { whole: 'New Cars', hdv: 'New Heavy Trucks', buses: 'New Buses', vans: 'New Vans', used: 'Used Cars (imports)' };
   const scaleNote = (!isRef && mode !== 'share')
     ? ` Colour scale fixed to ${varLabel[WM_REFERENCE_VARIANT]}, so ${varLabel[WORLDMAP_STATE.variant] || 'this variant'} compares directly.` : '';
 

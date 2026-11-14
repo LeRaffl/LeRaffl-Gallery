@@ -46,6 +46,71 @@ reg_Noun <- function(meta) if (is.null(meta$reg_Noun)) "Registration" else meta$
 # everywhere — only the *displayed* text changes.
 bev_label <- function(meta) if (is.null(meta$bev_label)) "BEV" else meta$bev_label
 
+# Which kind of vehicle a chart shows, spelled out IN THE TITLE ("Austria:
+# New Cars", "Austria: New Vans") instead of leaving it to the footnote —
+# requested by a reader; the headline (Whole) series used to carry no label.
+# The wording is the same as in the gallery UI: VARIANT_DISPLAY in index.html
+# ("New Cars", "New Heavy Trucks", "Used Cars (imports)", …). Keep the two in
+# step, and the variant table in docs/architecture/09-glossary.md.
+# This map holds the vehicle kind WITHOUT "New"; unknown variants (Custom,
+# Wholesale, …) fall back to their own name and never get a prefix.
+VEHICLE_LABELS <- c(
+  Whole = "Cars", Private = "Private Cars", Industry = "Company Cars",
+  Rental = "Rental Cars", NonRental = "Non-rental Cars",
+  Vans = "Vans", HDV = "Heavy Trucks", Buses = "Buses", Pickups = "Pickups",
+  `2-Wheelers` = "2-Wheelers", `3-Wheelers` = "3-Wheelers", `4-Wheelers` = "4-Wheelers"
+)
+USED_LABELS <- c(Used = "Used Cars (imports)", Resale = "Used Cars (all registrations)")
+
+# Vehicle kind without new/used wording: "Cars", "Vans" (Used/Resale: "Cars").
+vehicle_base <- function(variant) {
+  if (variant %in% names(USED_LABELS)) return("Cars")
+  if (variant %in% names(VEHICLE_LABELS)) unname(VEHICLE_LABELS[variant]) else variant
+}
+# Full label as in the UI: "New Cars", "Used Cars (imports)". new_prefix =
+# FALSE drops the "New" for sources whose series are FIRST registrations
+# including imported used vehicles (FIRST_REG_SOURCES in render_country.R),
+# where "New Cars" would be wrong.
+vehicle_label <- function(variant, new_prefix = TRUE) {
+  if (variant %in% names(USED_LABELS)) return(unname(USED_LABELS[variant]))
+  if (new_prefix && variant %in% names(VEHICLE_LABELS)) paste("New", vehicle_base(variant)) else vehicle_base(variant)
+}
+
+# "Austria: New Cars" — the scope at the END of a title, after a colon (TTM
+# and timer charts). with_reg = TRUE gives the bare kind ("Austria: Cars")
+# and is only the fallback of reg_scope() below.
+# Without meta$vehicle_label (older callers) it is just the country label.
+title_scope <- function(meta, with_reg = FALSE) {
+  if (is.null(meta$vehicle_label)) return(meta$country_label)
+  lab <- if (with_reg && !is.null(meta$vehicle_base)) meta$vehicle_base else meta$vehicle_label
+  paste0(meta$country, ": ", lab)
+}
+
+# The extrapolation charts name what is counted, so the vehicle kind goes
+# INTO that phrase instead of behind a colon: "new car registrations in
+# Austria", "new heavy truck registrations in Germany", "used-import car
+# registrations in Netherlands", "new car sales in USA", "first car
+# registrations in Georgia". Singular forms, one per variant. Resale is ""
+# because its reg_word already is "used-car". A variant without an entry
+# (Custom, Wholesale, …) falls back to "new registrations in <Country>: <Variant>".
+VEHICLE_SINGULAR <- c(
+  Whole = "car", Private = "private car", Industry = "company car",
+  Rental = "rental car", NonRental = "non-rental car",
+  Vans = "van", HDV = "heavy truck", Buses = "bus", Pickups = "pickup",
+  `2-Wheelers` = "2-wheeler", `3-Wheelers` = "3-wheeler", `4-Wheelers` = "4-wheeler",
+  Used = "car", Resale = ""
+)
+vehicle_singular <- function(variant) {
+  if (variant %in% names(VEHICLE_SINGULAR)) unname(VEHICLE_SINGULAR[variant]) else NULL
+}
+reg_scope <- function(meta) {
+  kind <- meta$vehicle_singular
+  if (is.null(kind))
+    return(paste0(reg_word(meta), " ", reg_noun(meta), " in ", title_scope(meta, with_reg = TRUE)))
+  paste0(reg_word(meta), if (nzchar(kind)) paste0(" ", kind) else "", " ", reg_noun(meta),
+         " in ", meta$country)
+}
+
 # Does this country/variant's source actually split plug-in hybrids out?
 #
 # The same principle as bev_label() above, applied to the other end of the
@@ -124,7 +189,7 @@ plot_ttm_shares <- function(ttm_long, meta) {
                        sec.axis = sec_axis(~ ., name = "Trailing 12 Months Market Share",
                                            labels = scales::percent_format(scale = 100))) +
     scale_fill_manual(name = "Fuel Type", values = TTM_FUEL_COLORS, drop = FALSE) +
-    labs(title = paste0("12-Month Trailing Market Shares by Fuel Type in ", meta$country_label),
+    labs(title = paste0("12-Month Trailing Market Shares by Fuel Type in ", title_scope(meta)),
          y = "Trailing 12 Months Market Share", x = "Jahre",
          caption = meta$entire_caption) +
     theme_minimal() +
@@ -149,7 +214,7 @@ plot_timer <- function(fit, meta) {
       labels = function(x) paste0("Jan ", x + 1)
     ) +
     scale_y_continuous(name = "Number of years expected", limits = c(0, ymax_top)) +
-    labs(title = paste0("Time expectation for ", meta$country_label, " transition time using historical data"),
+    labs(title = paste0("Expected transition time in ", title_scope(meta)),
          subtitle = "Each point in time marks what the expectation was at the time",
          caption = meta$social_caption, x = " ") +
     theme_minimal() +
@@ -205,7 +270,7 @@ plot_bev_trajectory <- function(fit, meta) {
                        labels = function(x) paste0("Jan ", x + 1),
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
-    labs(title = paste0(bev_label(meta), " share in ", reg_word(meta), " ", reg_noun(meta), " in ", meta$country_label, " - an Extrapolation"),
+    labs(title = paste0(bev_label(meta), " share of ", reg_scope(meta), " - an Extrapolation"),
          subtitle = paste0("expected time for ", bev_label(meta), " to rise from 20% to 80%: ",
                            floor(fit$time_20_to_80), " years ",
                            round(12 * (fit$time_20_to_80 - floor(fit$time_20_to_80)), 0), " months"),
@@ -283,7 +348,7 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
     labs(title = paste0(bev_label(meta), if (show_phev) " / ICE / PHEV" else " / ICE",
-                        " share of ", reg_word(meta), " ", reg_noun(meta), " in ", meta$country_label, " - an Extrapolation"),
+                        " share of ", reg_scope(meta), " - an Extrapolation"),
          subtitle = paste0("expected time for ICE to drop from 80% to 20%: ",
                            floor(fit$time_80_to_20), " years ",
                            round(12 * (fit$time_80_to_20 - floor(fit$time_80_to_20)), 0), " months"),
