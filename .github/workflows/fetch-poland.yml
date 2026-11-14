@@ -3,9 +3,9 @@ name: Fetch Poland data (PZPM eRegistrations)
 # Fetches new registrations from PZPM's monthly eRegistrations workbook (CEP)
 # and upserts per-variant CSVs:
 #   * Whole — OSOBOWE (passenger cars)                       -> auto-render
-#   * Vans  — SAMOCHODY DOSTAWCZE (LCV <=3.5t)               -> fetch only
-#   * HDV   — SAMOCHODY CIĘŻAROWE POW. 3,5T (trucks >3.5t)   -> fetch only
-#   * Buses — AUTOBUSY                                       -> fetch only
+#   * Vans  — SAMOCHODY DOSTAWCZE (LCV <=3.5t)               -> auto-render
+#   * HDV   — SAMOCHODY CIĘŻAROWE POW. 3,5T (trucks >3.5t)   -> auto-render
+#   * Buses — AUTOBUSY                                       -> auto-render
 #
 # PZPM is the PRIMARY source for the Whole row (source := "PZPM"); it is the
 # CEP-based upstream behind ACEA's Poland numbers. The tables now live on
@@ -16,11 +16,11 @@ name: Fetch Poland data (PZPM eRegistrations)
 # on its conditional list) fills that month as a fallback WITHOUT overwriting a
 # PZPM row.
 #
-# IMPORTANT: only Whole is auto-rendered on schedule. The commercial variants
-# are fetched and committed (so their history accumulates — the workbook only
-# carries the current month, no history) but NOT auto-rendered, because their
-# history is still very thin (started 2026). Render them on demand via
-# render-country.yml once enough months have accumulated.
+# Every variant whose CSV changed is dispatched to render-country.yml. The
+# commercial variants used to be fetch-only because their history was thin
+# ("started 2026"); they now run from 2021-07 (26 months through 2026-10),
+# so that restriction no longer applies. The workbook still only carries the
+# current month, which is why the CSVs must keep accumulating.
 #
 # See scripts/fetch_poland.py and docs/architecture/22-source-poland.md.
 
@@ -63,17 +63,25 @@ jobs:
         env:
           FORCE: ${{ inputs.force == 'true' && '1' || '' }}
 
-      - name: Detect whether Whole changed
+      - name: Detect which variants changed
         id: changed
         run: |
-          # Only the Whole variant is auto-rendered. Commercials are committed
-          # but not rendered on schedule (thin history).
-          git add -N data/Poland.csv 2>/dev/null || true
-          if git diff --quiet -- data/Poland.csv; then
-            echo "whole=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "whole=true" >> "$GITHUB_OUTPUT"
-          fi
+          touched=()
+          for pair in "Whole:data/Poland.csv" \
+                     "Vans:data/Poland_Vans.csv" \
+                     "HDV:data/Poland_HDV.csv" \
+                     "Buses:data/Poland_Buses.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
 
       - name: Commit if changed
         id: commit
@@ -91,12 +99,17 @@ jobs:
           # failing the push with non-fast-forward and dropping the commit.
           pull: '--rebase --autostash'
 
-      - name: Trigger render (Whole only)
-        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.whole == 'true'
+      - name: Trigger render for changed variants
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
         run: |
+          if [ -z "$VARIANTS" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
           gh workflow run render-country.yml \
             --ref "${GITHUB_REF_NAME}" \
             -f country=Poland \
-            -f variant=Whole
+            -f variants="$VARIANTS"
