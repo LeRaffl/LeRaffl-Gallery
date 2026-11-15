@@ -458,3 +458,33 @@ Türkiye,Whole,2022,Eurostat road_eqs_carpda (31 Dec),14552,,,134662,,3817104,52
 Türkiye,Whole,2023,Eurostat road_eqs_carpda (31 Dec),80043,,,222328,,4362975,5425652,,26,5094725,,,35385,15221134,HEV = combined PHEV+HEV (source did not split); some cells imputed by Eurostat
 Türkiye,Whole,2024,Eurostat road_eqs_carpda (31 Dec),183776,0,,391296,,4908203,5541441,,26,5172445,,,35271,16232458,
 Türkiye,Whole,2025,Eurostat road_eqs_carpda (31 Dec),370591,,,697027,,5375736,5662760,,31,5232317,,,35119,17373581,HEV = combined PHEV+HEV (source did not split)
+Norway,Buses,2016,SSB 11823 (31 Dec),10,0,,54,,308,15179,701,,,,,6,16258,M2+M3 (SSB Buss)
+Norway,Buses,2017,SSB 11823 (31 Dec),28,0,,63,,250,14890,803,,,,,7,16041,M2+M3 (SSB Buss)
+Norway,Buses,2018,SSB 11823 (31 Dec),42,1,,151,,223,14391,820,,,,,6,15634,M2+M3 (SSB Buss)
+Norway,Buses,2019,SSB 11823 (31 Dec),199,64,,154,,202,14436,806,,,,,6,15867,M2+M3 (SSB Buss)
+Norway,Buses,2020,SSB 11823 (31 Dec),462,54,,111,,181,13822,782,,,,,17,15429,M2+M3 (SSB Buss)
+Norway,Buses,2021,SSB 11823 (31 Dec),546,59,,106,,169,13224,767,,,,,12,14883,M2+M3 (SSB Buss)
+Norway,Buses,2022,SSB 11823 (31 Dec),840,59,,106,,153,12771,755,,,,,13,14697,M2+M3 (SSB Buss)
+Norway,Buses,2023,SSB 11823 (31 Dec),1415,59,,106,,138,12152,706,,,,,11,14587,M2+M3 (SSB Buss)
+Norway,Buses,2024,SSB 11823 (31 Dec),1742,59,,116,,137,11732,684,,,,,10,14480,M2+M3 (SSB Buss)
+Norway,Buses,2025,SSB 11823 (31 Dec),2496,52,,118,,131,11171,640,,,,,5,14613,M2+M3 (SSB Buss)
+Norway,HDV,2016,SSB 11823 (31 Dec),2,2,,14,,3420,71476,253,,,,,71,75238,N2+N3 (SSB Lastebil)
+Norway,HDV,2017,SSB 11823 (31 Dec),1,2,,17,,3037,70375,304,,,,,72,73808,N2+N3 (SSB Lastebil)
+Norway,HDV,2018,SSB 11823 (31 Dec),13,2,,19,,2689,69297,319,,,,,66,72405,N2+N3 (SSB Lastebil)
+Norway,HDV,2019,SSB 11823 (31 Dec),21,2,,19,,2479,69036,443,,,,,78,72078,N2+N3 (SSB Lastebil)
+Norway,HDV,2020,SSB 11823 (31 Dec),37,2,,9,,2324,67697,480,,,,,121,70670,N2+N3 (SSB Lastebil)
+Norway,HDV,2021,SSB 11823 (31 Dec),98,2,,8,,2217,66908,580,,,,,118,69931,N2+N3 (SSB Lastebil)
+Norway,HDV,2022,SSB 11823 (31 Dec),455,2,,9,,1962,65056,813,,,,,110,68407,N2+N3 (SSB Lastebil)
+Norway,HDV,2023,SSB 11823 (31 Dec),1132,3,,7,,1804,63175,1209,,,,,72,67402,N2+N3 (SSB Lastebil)
+Norway,HDV,2024,SSB 11823 (31 Dec),1789,4,,6,,1711,61268,1778,,,,,64,66620,N2+N3 (SSB Lastebil)
+Norway,HDV,2025,SSB 11823 (31 Dec),2576,5,,5,,1641,59017,2259,,,,,25,65528,N2+N3 (SSB Lastebil)
+Norway,Vans,2016,SSB 11823 (31 Dec),2568,0,,55,,29463,429013,394,,,,,5,461498,N1 (SSB Varebil); combined vehicles (Kombibil) not included
+Norway,Vans,2017,SSB 11823 (31 Dec),3478,11,,57,,26814,440051,437,,,,,7,470855,N1 (SSB Varebil); combined vehicles (Kombibil) not included
+Norway,Vans,2018,SSB 11823 (31 Dec),5314,30,,60,,24765,446237,460,,,,,7,476873,N1 (SSB Varebil); combined vehicles (Kombibil) not included
+Norway,Vans,2019,SSB 11823 (31 Dec),7336,39,,81,,23599,457871,484,,,,,7,489417,N1 (SSB Varebil); combined vehicles (Kombibil) not included
+Norway,Vans,2020,SSB 11823 (31 Dec),9752,52,,114,,21626,463904,491,,,,,26,495965,N1 (SSB Varebil); combined vehicles (Kombibil) not included
+Norway,Vans,2021,SSB 11823 (31 Dec),15133,321,,346,,20480,471131,474,,,,,26,507911,N1 (SSB Varebil); combined vehicles (Kombibil) not included
+Norway,Vans,2022,SSB 11823 (31 Dec),21657,534,,582,,18931,466490,457,,,,,23,508674,N1 (SSB Varebil); combined vehicles (Kombibil) not included
+Norway,Vans,2023,SSB 11823 (31 Dec),29623,653,,731,,17884,459458,422,,,,,1112,509883,N1 (SSB Varebil); combined vehicles (Kombibil) not included
+Norway,Vans,2024,SSB 11823 (31 Dec),36986,741,,1022,,17297,456956,391,,,,,1347,514740,N1 (SSB Varebil); combined vehicles (Kombibil) not included
+Norway,Vans,2025,SSB 11823 (31 Dec),49436,1050,,1793,,16917,452033,386,,,,,1336,522951,N1 (SSB Varebil); combined vehicles (Kombibil) not included

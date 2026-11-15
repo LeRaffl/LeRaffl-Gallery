@@ -37,8 +37,8 @@ emptyFleetRow rowTotal getObservedRow inferNonBevTargetBucket inferNonBevSplit f
 fleetYearInflow applyFleetNetImports fleetProjectionCache cachedFleetProjection projectCountryFleet
 projectCountryFleetLinear projectCountryFleetVintage projectCountryFleetVintageRun effectiveHazard
 inflowDecayMultiplier shiftSharesForDecay parseGridMix feWorldMix feGridSeries feGridTrend feGridAt
-feChain fePerVehicle FE_F FE_KEYS FE_LAB FE_KM feNormalise
-FLEET_AGE_BANDS fleetAgeBands initVintageBucketsFromBands feMileage feAverageKm""".split()
+feChain fePerVehicle FE_F FE_KEYS FE_LAB FE_KM feNormalise normalizeBase
+FLEET_VARIANTS fleetVariantCountries applyFleetVariant FLEET_AGE_BANDS fleetAgeBands initVintageBucketsFromBands feMileage feAverageKm""".split()
 
 HARNESS = r"""
 const {execFileSync} = require('child_process');
@@ -50,7 +50,7 @@ const check = (ok, msg) => out.push([!!ok, msg]);
 const near = (a, b, tol) => Math.abs(a - b) <= tol;
 
 // ---- stubs for what the page loads -------------------------------------
-const fleetState = { observed: [], calibration: {}, grid: {}, mileageDefault: null };
+const fleetState = { observed: [], observedAll: [], variant: 'whole', calibration: {}, grid: {}, mileageDefault: null };
 const getCountryCandidates = c => [String(c || '')];
 let INFLOW = 0, BEV_SHARE = 0.2, ICE_SHARE = 0.7;
 const getCountryAnnualInflow = () => INFLOW;
@@ -268,6 +268,29 @@ check(near(feGridAt('Clean', 2024, 'constant').mix.renew, 0.98, 1e-9), 'mix is f
   const flows = two.links.filter(l => l.s === 'Petrol').reduce((a, l) => a + l.v, 0), crude = two.links.find(l => l.s === 'Crude oil' && l.t === 'Petrol').v;
   check(near(flows, crude, 1e-9), 'Sankey links stay balanced when countries are combined'); }
 
+// ---- 7. vehicle classes -------------------------------------------------------
+{ fleetState.observedAll = [
+    { country: 'N', variant: 'whole', year: 2025, BEV: 1e5, PHEV: 0, HEV: 0, HYBRID: 0, DIESEL: 0, PETROL: 9e5, OTHERS: 0 },
+    { country: 'N', variant: 'hdv', year: 2025, BEV: 1000, PHEV: 0, HEV: 0, HYBRID: 0, DIESEL: 59000, PETROL: 0, OTHERS: 0 },
+    { country: 'M', variant: 'whole', year: 2025, BEV: 1, PHEV: 0, HEV: 0, HYBRID: 0, DIESEL: 0, PETROL: 9, OTHERS: 0 } ];
+  fleetState.calibration.N = { attrition: { rate: 0.04, n: 5, from: 2021, to: 2025 },
+    variants: { HDV: { attrition: { rate: 0.09, n: 4, from: 2021, to: 2025 } } } };
+  INFLOW = 0;
+  applyFleetVariant('whole');
+  check(getObservedRow('N', 2025).PETROL === 9e5 && fleetCalibration('N').attrition.rate === 0.04, 'cars: the car stock and the car calibration');
+  const cars = exit1(projectCountryFleetVintage('N', 2025, 2026, opts({ calibrate: true })));
+  applyFleetVariant('hdv');
+  check(getObservedRow('N', 2025).DIESEL === 59000 && getObservedRow('N', 2025).PETROL === 0, 'trucks: only truck rows are read, never a car');
+  check(fleetCalibration('N').attrition.rate === 0.09, "trucks: the class's own calibration block");
+  const trucks = exit1(projectCountryFleetVintage('N', 2025, 2026, opts({ calibrate: true })));
+  check(near(cars, 0.04, 2e-4) && near(trucks, 0.09, 2e-4), 'each class is calibrated to its own turnover, and the cache keeps them apart');
+  check(fleetCalibration('M') === null && getObservedRow('M', 2025) === null, 'a country without the class has neither stock nor calibration there');
+  check([...fleetVariantCountries('hdv')].join() === 'N' && fleetVariantCountries('vans').size === 0, 'a class lists only the countries that have stock for it');
+  applyFleetVariant('nonsense');
+  check(fleetState.variant === 'whole', 'an unknown class falls back to cars');
+  check(FLEET_VARIANTS.map(v => v[0]).join() === 'whole,vans,hdv,buses' && ['Vans', 'HDV', 'Buses'].every(k => FLEET_VARIANTS.some(v => v[0] === normalizeBase(k))),
+        'the classes are the stock file variants Whole / Vans / HDV / Buses'); }
+
 console.log(JSON.stringify(out));
 `;
 eval(src + '\n' + TESTS);
@@ -319,8 +342,14 @@ def main():
                    "default grid scenario is the country's own trend, not the net-zero path"))
     checks.append((all(f'name="feGridScen" value="{v}"' in html for v in ("trend", "nze", "constant")),
                    "three grid scenarios are offered"))
-    checks.append(("rows.filter(isCars)" in html and "v === 'whole'" in html,
-                   "only passenger-car (Whole) rows of the stock file are read"))
+    checks.append(("fleetState.observedAll.filter(r => r.variant === 'whole')" in html
+                   and "fleetState.observedAll.filter(r => r.variant === fleetState.variant)" in html,
+                   "stock rows are kept per vehicle class and only the current class is read"))
+    checks.append(("normalizeBase(r.variant) === fleetState.variant" in html
+                   and "fleetState.weights[`${c}|${fleetState.variant}`]" in html,
+                   "fitted curves and registration volume are read for the current class"))
+    checks.append(("if (fleetState.variant === 'whole') try {" in html,
+                   "the energy view is built for passenger cars only"))
     cal = json.loads((ROOT / "fleet" / "fleet_calibration.json").read_text(encoding="utf-8"))
     fe_f = json.loads(re.search(r"const FE_F = (\{.*?\});", html, re.S).group(1))
     dflt = cal.get("mileage_default", {})
