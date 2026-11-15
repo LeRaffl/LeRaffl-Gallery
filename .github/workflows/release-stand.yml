@@ -1,18 +1,20 @@
 name: Monthly release stand
 
-# Last evening of the month, 21:00 UTC (22:00 Vienna in winter, 23:00 in summer).
-# Cron cannot name the last day, so it wakes on the 28th–31st and publishes
-# only when tomorrow is the 1st in Europe/Vienna.
-# A manual run prints the note and does not publish unless publish is true.
-# This does not mint a DOI. Zenodo does that once the repo is connected there.
+# A push to master refreshes the draft release for the current Vienna month.
+# The draft is what you read under Releases. It is not a DOI.
+# Last evening, 21:00 UTC, publishes that draft. Cron cannot name the last
+# day, so it wakes on the 28th–31st and publishes only when tomorrow is the
+# 1st in Europe/Vienna. Zenodo archives the published release, not the draft.
 
 on:
+  push:
+    branches: [master]
   schedule:
     - cron: '0 21 28-31 * *'
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Publish the release. Leave false to only print the note.'
+        description: 'Publish the release. Leave false to only refresh the draft.'
         type: boolean
         default: false
       month:
@@ -24,6 +26,10 @@ on:
 permissions:
   contents: write
   pull-requests: read
+
+concurrency:
+  group: release-stand
+  cancel-in-progress: false
 
 jobs:
   stand:
@@ -66,6 +72,35 @@ jobs:
             --released "$(date -u +%F)"
           cat "$RUNNER_TEMP/notes.md"
 
+      - name: Refresh the draft
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && inputs.publish != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.ref_name }}" != "master" ]; then
+            echo "not master, skipping draft"
+            exit 0
+          fi
+          if [ "${{ inputs.publish }}" = "true" ]; then
+            echo "publish requested, skip draft refresh"
+            exit 0
+          fi
+          TAG="${{ steps.month.outputs.tag }}"
+          if gh release view "$TAG" --json isDraft -q .isDraft 2>/dev/null | grep -qx false; then
+            echo "$TAG is already published"
+            exit 0
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file "$RUNNER_TEMP/notes.md"
+          else
+            gh release create "$TAG" \
+              --draft \
+              --target "$(git rev-parse HEAD)" \
+              --title "$TAG" \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          fi
+
       - name: Publish
         if: (github.event_name == 'schedule' && steps.month.outputs.last_day == '1') || inputs.publish
         env:
@@ -77,8 +112,8 @@ jobs:
             echo "refusing to publish from ${{ github.ref_name }}"
             exit 1
           fi
-          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-            echo "$TAG already exists"
+          if gh release view "$TAG" --json isDraft -q .isDraft 2>/dev/null | grep -qx false; then
+            echo "$TAG is already published"
             exit 0
           fi
           cp "$RUNNER_TEMP/CITATION.cff" CITATION.cff
@@ -87,10 +122,18 @@ jobs:
           git add CITATION.cff
           if ! git diff --cached --quiet; then
             git commit -m "chore: cite $TAG"
-            git pull --rebase --autostash origin "${{ github.ref_name }}"
-            git push origin "HEAD:${{ github.ref_name }}"
+            git pull --rebase --autostash origin master
+            git push origin HEAD:master
           fi
-          gh release create "$TAG" \
-            --target "$(git rev-parse HEAD)" \
-            --title "$TAG" \
-            --notes-file "$RUNNER_TEMP/notes.md"
+          SHA="$(git rev-parse HEAD)"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" \
+              --target "$SHA" \
+              --notes-file "$RUNNER_TEMP/notes.md" \
+              --draft=false
+          else
+            gh release create "$TAG" \
+              --target "$SHA" \
+              --title "$TAG" \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          fi
