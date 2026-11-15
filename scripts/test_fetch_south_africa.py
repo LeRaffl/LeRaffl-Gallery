@@ -6,7 +6,9 @@
 Covers: both NEV-table header layouts naamsa has used ("2020 2021 …",
 "FY2020 …", "Year 2020 …" with the quarter labels on the same line), the
 section-7 sales sentence, the column-sum check, the PHEV/HEV row-swap repair
-(the Q4-2025 review's defect) and its tolerance, the middle-month periods,
+(the Q4-2025 review's defect) and its tolerance, the annual-exceedance
+safety net when the year is incomplete, skipping an unreadable review
+without shrinking the window, the middle-month periods,
 ICE = TOTAL − NEV, the line-level upsert (foreign rows kept, restatements of
 our own rows applied), the self-throttle's file-name parser and the
 completeness guard.
@@ -143,6 +145,7 @@ def test_quarter_from_name():
         "https://x/20250220-naamsa-Q4-Review-of-Business-Conditions-2024.pdf": (2024, 4),
         "https://x/20240521-naamsa-Q1-2024-Review-of-Business-Conditions-2024.pdf": (2024, 1),
         "https://x/20260527-SIGNED-naamsa-1st-Quarter-2026-Review-of-Business-Conditions.pdf": (2026, 1),
+        "https://x/20261112-Q3-2026-naamsa-Quarterly-Review-of-Business-Conditions.pdf": (2026, 3),
     }
     for name, want in cases.items():
         check(f.quarter_from_name(name) == want, (name, f.quarter_from_name(name)))
@@ -214,8 +217,9 @@ def test_normal_window_repairs_a_repeated_misprint():
     check(any("2025-Q4" in l and "swapped back" in l for l in log), log)
     log = []
     rows = f.build_rows([dict(r, nev=dict(r["nev"])) for r in reviews[-2:]], log)
-    check(rows["2025-11"][1]["PHEV"] == 3452 and not log,
-          "a two-review window cannot see the misprint (why REPORTS_PER_RUN is 4)")
+    check(rows["2025-11"][1]["PHEV"] == 1026 and rows["2025-11"][1]["HEV"] == 3452,
+          rows["2025-11"])
+    check(any("no longer exceeds the 2025 annual column" in l for l in log), log)
     check(f.REPORTS_PER_RUN >= 4, f.REPORTS_PER_RUN)
 
 
@@ -224,6 +228,49 @@ def test_bootstrap_rows_sum():
         c = f.counts_of(v)
         check(c["ICE"] > 0 and iv == "yearly" and p.endswith("-06"), (p, c))
         check("not M1" in note, note)
+
+
+
+def test_incomplete_year_swaps_when_quarter_exceeds_annual():
+    """The 12.11.2026 run parsed only Q1+Q2 2026 and the typo-bearing Q4-2025
+    review (Q3-2026 was unreadable), so 2025-Q3 was missing and the
+    four-quarter year check did not run. The annual-exceedance path must
+    still undo the typo."""
+    annual = {2025: {"BEV": 1088, "PHEV": 2810, "HEV": 12818},
+              2024: {"BEV": 1257, "PHEV": 738, "HEV": 13616}}
+    reviews = [
+        _review((2025, 4), {"BEV": 286, "PHEV": 3452, "HEV": 1026},
+                {"BEV": 184, "PHEV": 4156, "HEV": 261}, annual),
+        _review((2026, 1), {"BEV": 544, "PHEV": 1277, "HEV": 2764},
+                {"BEV": 276, "PHEV": 241, "HEV": 2970}, annual),
+        _review((2026, 2), {"BEV": 1353, "PHEV": 3346, "HEV": 3912},
+                {"BEV": 294, "PHEV": 547, "HEV": 2834}, annual),
+    ]
+    log = []
+    rows = f.build_rows([dict(r, nev=dict(r["nev"])) for r in reviews], log)
+    check(rows["2025-11"][1]["PHEV"] == 1026 and rows["2025-11"][1]["HEV"] == 3452,
+          rows["2025-11"])
+    check(rows["2024-11"][1]["PHEV"] == 261 and rows["2024-11"][1]["HEV"] == 4156,
+          rows["2024-11"])
+    check(any("2025-Q4" in l and "no longer exceeds" in l for l in log), log)
+    check(any("2024-Q4" in l and "no longer exceeds" in l for l in log), log)
+
+
+def test_collect_parsed_skips_unreadable_and_keeps_going():
+    log = []
+    def try_parse(name):
+        if "garbled" in name:
+            log.append(f"{name}: not parsed (section-7 sales sentence not found)")
+            return None
+        return {"file": name}
+    got = f.collect_parsed(
+        ["Q3-2026-garbled.pdf", "Q2-2026.pdf", "Q1-2026.pdf",
+         "Q4-2025.pdf", "Q3-2025.pdf", "Q2-2025.pdf"],
+        try_parse, n=4)
+    check([r["file"] for r in got] ==
+          ["Q2-2026.pdf", "Q1-2026.pdf", "Q4-2025.pdf", "Q3-2025.pdf"], got)
+    check(any("Q3-2026-garbled" in l for l in log), log)
+    check(len(got) == f.REPORTS_PER_RUN, len(got))
 
 
 if __name__ == "__main__":
