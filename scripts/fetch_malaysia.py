@@ -135,12 +135,16 @@ def aggregate_to_monthly(df) -> dict:
             "time_interval": "monthly",
             "variant":       VARIANT,
             "source":        SOURCE,
-            "BEV":           float(bev)    if bev    else "",
+            # The register counts every fuel, so a month without one is a
+            # counted zero: write 0.0, not empty (#426). PHEV is the
+            # exception and stays empty until the source splits plug-ins out
+            # (docs/architecture/23-source-malaysia.md).
+            "BEV":           float(bev),
             "PHEV":          float(phev)   if phev   else "",
-            "HEV":           float(hev)    if hev    else "",
-            "PETROL":        float(petrol) if petrol else "",
-            "DIESEL":        float(diesel) if diesel else "",
-            "OTHERS":        float(others) if others else "",
+            "HEV":           float(hev),
+            "PETROL":        float(petrol),
+            "DIESEL":        float(diesel),
+            "OTHERS":        float(others),
             "TOTAL":         float(total),
             "notes":         "",
         }
