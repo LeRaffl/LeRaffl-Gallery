@@ -154,11 +154,7 @@ Key files in the repository root:
 ### The other data fetchers
 
 The rows above are the ones that grew a long-form entry; they are **not** the
-full set. Data is fetched automatically for 30 countries in total — the ones
-without a row here are Albania, Austria, China, Colombia, Denmark, Finland,
-Ireland, Italy, Luxembourg, Malaysia, Netherlands, Poland, Portugal, Singapore,
-Spain and Sweden, plus the ~13-country ACEA cluster
-(`scripts/fetch_acea.py`).
+full set.
 
 A related but separately-curated set of countries gets `Vans` / `HDV` /
 `Buses` variants from a second, separate fetcher — `scripts/fetch_acea_cv.py`,
@@ -222,11 +218,11 @@ The landing section opens with a hand-rolled inline-SVG chart for your **home ma
 
 ## 🔧 Data Generation (Overview)
 
-Charts are generated locally using R scripts.  
+Charts are rendered in CI (`render-country.yml`), not on a local machine.  
 The workflow:
 
 1. Monthly registration data is ingested and modelled  
-2. PNG charts are exported to the images folders by my locally run R scripts
+2. PNG charts are written by that render workflow
 3. `build_manifest.R` scans the directory → produces `manifest.json`
 4. `params.csv` is carrying relevant output parameters from each model
 5. GitHub Galerie shows updated gallery using the manifest as a guide of what to show with what filter
@@ -351,11 +347,11 @@ Uncertainty is not only a function of data quantity. It is also a function of wh
 
 ---
 
-## 🌍 License & Usage
+## 🌍 License
 
-Charts and model outputs may be shared freely with attribution to **@LeRaffl**.
-Original data sources are subject to their respective licenses.
-Feel free to use these outputs for your own purposes, but please link me to whatever you do.
+Code in this repository is [MIT](LICENSE). Charts, fits, footnotes, and method text are [CC BY 4.0](LICENSE-CONTENT): name the Gallery when you use them. The registration figures are not licensed here. They stay with their sources.
+
+Cite a GitHub release, not the moving branch. There is no release yet.
 
 ---
 
