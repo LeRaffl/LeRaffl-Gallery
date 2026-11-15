@@ -15,8 +15,7 @@ def check(name, ok):
     print(("PASS " if ok else "FAIL ") + name)
 
 
-check("1st closes the previous month", brn.stand_month(__import__("datetime").date(2026, 12, 1)) == "2026-11")
-check("mid-month previews the current month", brn.stand_month(__import__("datetime").date(2026, 11, 15)) == "2026-11")
+check("uses the calendar month", brn.stand_month(__import__("datetime").date(2026, 11, 30)) == "2026-11")
 check("explicit month wins", brn.stand_month(__import__("datetime").date(2026, 11, 15), "2026-09") == "2026-09")
 
 bodies = ["Release: France Whole is now the registry series.\n\nAlso a delimiter fix.", "no marker here", "Release: "]

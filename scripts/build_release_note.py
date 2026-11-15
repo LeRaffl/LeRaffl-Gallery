@@ -20,10 +20,6 @@ ROOT = Path(__file__).resolve().parent.parent
 def stand_month(today: date, explicit: str = "") -> str:
     if explicit:
         return explicit
-    if today.day == 1:
-        if today.month == 1:
-            return f"{today.year - 1}-12"
-        return f"{today.year}-{today.month - 1:02d}"
     return f"{today.year}-{today.month:02d}"
 
 
