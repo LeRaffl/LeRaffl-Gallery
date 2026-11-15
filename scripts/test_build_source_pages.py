@@ -122,6 +122,36 @@ def test_page_places_section_after_how_it_works():
     page = bsp.build_page(fm, {})
     assert page.index("<h2>How it works</h2>") < page.index("<h2>Why other figures differ</h2>")
     assert "table.recon{" in page
+    assert 'class="poster"' not in page
+    assert "<h1>Testland" in page
+
+
+def _germany_through_october_2026() -> str:
+    """Germany's CSV cut at 2026-10, so the pinned numbers below do not move
+    when the next month is fetched."""
+    lines = (bsp.REPO / "data" / "Germany.csv").read_text(encoding="utf-8").splitlines()
+    kept = [lines[0]] + [ln for ln in lines[1:] if ln[:7] <= "2026-10"]
+    tmp = tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False, encoding="utf-8")
+    tmp.write("\n".join(kept) + "\n")
+    tmp.close()
+    return tmp.name
+
+
+def test_germany_shift_matches_the_published_window():
+    data_file = _germany_through_october_2026()
+    shift = bsp.combustion_shift({"data_file": data_file, "hev_split": True})
+    assert shift is not None
+    assert shift["end"] == "2026-10"
+    assert abs(shift["dB"] - 9.4068) < 0.01
+    assert abs(shift["dI"] + 10.0114) < 0.01
+    assert bsp._shift_line(shift) == (
+        "Petrol and diesel lost 10 points. Battery electric took 9.4 of them."
+    )
+    points = bsp.mix_series({"data_file": data_file})
+    assert points is not None
+    assert points[-1]["period"] == "2026-10"
+    assert abs(points[-1]["BEV"] - shift["b1"]) < 0.01
+    assert points[0]["period"] < "2018-01"
 
 
 def test_repo_front_matter_still_valid():

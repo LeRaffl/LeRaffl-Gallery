@@ -105,6 +105,30 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 .live-src{font-size:14px;margin:12px 0 0}
 .source-btn--dead{color:var(--muted);font-weight:600}
 
+/* Country poster — this country's own slice, above the file card. */
+.poster{margin:2px 0 26px;padding:0 0 18px;border-bottom:1.5px solid var(--text)}
+.poster-top{display:flex;align-items:center;gap:16px;margin:0 0 16px}
+.flag{width:64px;height:44px;object-fit:cover;border-radius:3px;flex:none;
+  box-shadow:0 0 0 1px var(--line)}
+.poster h1{margin:0}
+.poster figcaption{font-family:var(--font-display);font-size:18px;font-weight:500;
+  line-height:1.35;color:var(--text);margin:14px 0 0;max-width:36em}
+.mix-panel{background:var(--bg);color:var(--text);border-radius:2px;padding:6px 8px 8px}
+.mix{display:block;width:100%;height:auto}
+.mix text{fill:#55534c;font-size:11px;font-family:var(--font-ui),sans-serif}
+.mix-grid{stroke:#e4e2dd;stroke-width:1}
+.mix-foot{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;
+  font-size:12px;color:#55534c;margin:2px 4px 0}
+.swatch::before{content:"";display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:-1px}
+.swatch.ice::before{background:#cfcabe}
+.swatch.hev::before{background:#e0c36a}
+.swatch.phev::before{background:#6f9ed4}
+.swatch.bev::before{background:#3d9a68}
+.mix-doc{margin-left:auto;font-weight:600}
+.file-kicker{margin:20px 0 8px;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted)}
+.file-kicker .chip{text-transform:none;letter-spacing:.03em;margin-left:8px}
+
 /* Coverage timeline — one hue, no legend needed (a single series). */
 .cov{display:block;margin:6px 0 0;max-width:100%}
 .cov-bar{fill:var(--accent);opacity:.85}
@@ -225,8 +249,9 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <h1>Uruguay <span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></h1>
+  <figure class="poster"><div class="poster-top"><img class="flag" src="../assets/flags/uruguay.png" alt=""><div><h1>Uruguay</h1></div></div><div class="mix-panel" data-theme="light"><svg class="mix" viewBox="0 0 720 236" role="img" aria-label="Trailing twelve months through 2026-10. Battery electric 46.9%."><path d="M32.0,33.6 L52.0,34.0 L72.0,35.2 L92.0,36.3 L112.0,38.3 L132.0,39.8 L152.0,42.9 L172.0,45.1 L192.0,46.6 L212.0,47.3 L232.0,48.9 L252.0,50.8 L272.0,52.9 L292.0,53.9 L312.0,56.0 L332.0,58.1 L352.0,60.4 L372.0,62.6 L392.0,63.6 L412.0,67.9 L432.0,71.8 L452.0,78.0 L472.0,82.8 L492.0,86.0 L512.0,90.3 L532.0,93.7 L552.0,96.0 L572.0,99.2 L592.0,102.2 L612.0,106.8 L632.0,110.7 L652.0,113.9 L672.0,118.6 L692.0,123.2 L712.0,127.4 L712.0,210.0 L692.0,210.0 L672.0,210.0 L652.0,210.0 L632.0,210.0 L612.0,210.0 L592.0,210.0 L572.0,210.0 L552.0,210.0 L532.0,210.0 L512.0,210.0 L492.0,210.0 L472.0,210.0 L452.0,210.0 L432.0,210.0 L412.0,210.0 L392.0,210.0 L372.0,210.0 L352.0,210.0 L332.0,210.0 L312.0,210.0 L292.0,210.0 L272.0,210.0 L252.0,210.0 L232.0,210.0 L212.0,210.0 L192.0,210.0 L172.0,210.0 L152.0,210.0 L132.0,210.0 L112.0,210.0 L92.0,210.0 L72.0,210.0 L52.0,210.0 L32.0,210.0 Z" fill="#cfcabe"/><path d="M32.0,17.9 L52.0,18.1 L72.0,18.8 L92.0,19.8 L112.0,21.0 L132.0,22.0 L152.0,25.4 L172.0,26.9 L192.0,28.4 L212.0,29.6 L232.0,30.9 L252.0,32.9 L272.0,35.5 L292.0,36.6 L312.0,39.4 L332.0,41.0 L352.0,43.8 L372.0,46.2 L392.0,47.0 L412.0,50.2 L432.0,53.7 L452.0,59.2 L472.0,63.7 L492.0,66.5 L512.0,69.7 L532.0,73.8 L552.0,76.5 L572.0,80.6 L592.0,84.0 L612.0,88.9 L632.0,93.0 L652.0,97.9 L672.0,103.7 L692.0,108.8 L712.0,113.8 L712.0,127.4 L692.0,123.2 L672.0,118.6 L652.0,113.9 L632.0,110.7 L612.0,106.8 L592.0,102.2 L572.0,99.2 L552.0,96.0 L532.0,93.7 L512.0,90.3 L492.0,86.0 L472.0,82.8 L452.0,78.0 L432.0,71.8 L412.0,67.9 L392.0,63.6 L372.0,62.6 L352.0,60.4 L332.0,58.1 L312.0,56.0 L292.0,53.9 L272.0,52.9 L252.0,50.8 L232.0,48.9 L212.0,47.3 L192.0,46.6 L172.0,45.1 L152.0,42.9 L132.0,39.8 L112.0,38.3 L92.0,36.3 L72.0,35.2 L52.0,34.0 L32.0,33.6 Z" fill="#e0c36a"/><path d="M32.0,17.5 L52.0,17.7 L72.0,18.4 L92.0,19.4 L112.0,20.7 L132.0,21.7 L152.0,25.1 L172.0,26.7 L192.0,28.3 L212.0,29.5 L232.0,30.8 L252.0,32.8 L272.0,35.5 L292.0,36.5 L312.0,39.1 L332.0,40.4 L352.0,43.0 L372.0,45.2 L392.0,45.7 L412.0,48.7 L432.0,52.0 L452.0,57.2 L472.0,61.5 L492.0,63.9 L512.0,66.8 L532.0,70.3 L552.0,72.5 L572.0,76.0 L592.0,78.9 L612.0,83.3 L632.0,86.7 L652.0,90.8 L672.0,95.8 L692.0,99.8 L712.0,103.8 L712.0,113.8 L692.0,108.8 L672.0,103.7 L652.0,97.9 L632.0,93.0 L612.0,88.9 L592.0,84.0 L572.0,80.6 L552.0,76.5 L532.0,73.8 L512.0,69.7 L492.0,66.5 L472.0,63.7 L452.0,59.2 L432.0,53.7 L412.0,50.2 L392.0,47.0 L372.0,46.2 L352.0,43.8 L332.0,41.0 L312.0,39.4 L292.0,36.6 L272.0,35.5 L252.0,32.9 L232.0,30.9 L212.0,29.6 L192.0,28.4 L172.0,26.9 L152.0,25.4 L132.0,22.0 L112.0,21.0 L92.0,19.8 L72.0,18.8 L52.0,18.1 L32.0,17.9 Z" fill="#6f9ed4"/><path d="M32.0,10.0 L52.0,10.0 L72.0,10.0 L92.0,10.0 L112.0,10.0 L132.0,10.0 L152.0,10.0 L172.0,10.0 L192.0,10.0 L212.0,10.0 L232.0,10.0 L252.0,10.0 L272.0,10.0 L292.0,10.0 L312.0,10.0 L332.0,10.0 L352.0,10.0 L372.0,10.0 L392.0,10.0 L412.0,10.0 L432.0,10.0 L452.0,10.0 L472.0,10.0 L492.0,10.0 L512.0,10.0 L532.0,10.0 L552.0,10.0 L572.0,10.0 L592.0,10.0 L612.0,10.0 L632.0,10.0 L652.0,10.0 L672.0,10.0 L692.0,10.0 L712.0,10.0 L712.0,103.8 L692.0,99.8 L672.0,95.8 L652.0,90.8 L632.0,86.7 L612.0,83.3 L592.0,78.9 L572.0,76.0 L552.0,72.5 L532.0,70.3 L512.0,66.8 L492.0,63.9 L472.0,61.5 L452.0,57.2 L432.0,52.0 L412.0,48.7 L392.0,45.7 L372.0,45.2 L352.0,43.0 L332.0,40.4 L312.0,39.1 L292.0,36.5 L272.0,35.5 L252.0,32.8 L232.0,30.8 L212.0,29.5 L192.0,28.3 L172.0,26.7 L152.0,25.1 L132.0,21.7 L112.0,20.7 L92.0,19.4 L72.0,18.4 L52.0,17.7 L32.0,17.5 Z" fill="#3d9a68"/><text x="26" y="213.0" text-anchor="end">0</text><text x="26" y="113.0" text-anchor="end">50</text><line x1="32" y1="110.0" x2="712" y2="110.0" class="mix-grid"/><text x="26" y="13.0" text-anchor="end">100</text><line x1="32" y1="10.0" x2="712" y2="10.0" class="mix-grid"/><text x="32.0" y="228" text-anchor="start">2023</text><text x="292.0" y="228" text-anchor="middle">2025</text><text x="532.0" y="228" text-anchor="end">2026</text></svg><div class="mix-foot"><span class="swatch ice">Petrol and diesel</span><span class="swatch hev">Full hybrid</span><span class="swatch phev">Plug-in hybrid</span><span class="swatch bev">Battery electric</span><a class="mix-doc" href="https://www.acau.com.uy/panel/estadisticas/18_29_43ar1.xlsx">October 2026 document ↗</a></div></div><figcaption>Petrol and diesel lost 22.3 points. Battery electric took 21.1 of them. Last 12 months against the 12 before, through October 2026.</figcaption></figure>
   
+  <p class="file-kicker">The file <span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></p>
   <p class="lead">New-vehicle sales for Uruguay from ACAU&#x27;s yearly Compilado workbook.</p>
 
   <div class="stats">

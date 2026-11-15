@@ -1659,6 +1659,348 @@ def build_classification(fm: dict) -> str:
     return "".join(parts)
 
 
+# The poster is this country's own row of the combustion-shift, not the
+# cross-country chart. Last 12 monthly months against the 12 before, from
+# the committed Whole CSV. An empty cell is unknown, so the poster is
+# omitted rather than drawn as zero.
+_SHIFT_ROWS = (
+    ("bev", "Battery electric", "b1", "dB"),
+    ("phev", "Plug-in hybrid", "p1", "dP"),
+    ("hev", "Full hybrid", "h1", "dH"),
+    ("ice", "Petrol and diesel", "i1", "dI"),
+)
+
+
+def _num_cell(raw) -> float | None:
+    if raw is None or str(raw).strip() == "":
+        return None
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
+def _col_sum(rows: list[dict], name: str) -> float | None:
+    total = 0.0
+    for row in rows:
+        value = _num_cell(row.get(name))
+        if value is None:
+            return None
+        total += value
+    return total
+
+
+def _optional_sum(rows: list[dict], name: str) -> float | None:
+    """0 when the column is absent or unused. None when it is partly empty."""
+    if not rows or name not in rows[0]:
+        return 0.0
+    if all(_num_cell(row.get(name)) is None for row in rows):
+        return 0.0
+    return _col_sum(rows, name)
+
+
+def _window_shares(rows: list[dict]) -> dict | None:
+    total = _col_sum(rows, "TOTAL")
+    bev = _col_sum(rows, "BEV")
+    phev = _col_sum(rows, "PHEV")
+    hev = _col_sum(rows, "HEV")
+    erev = _optional_sum(rows, "EREV")
+    if total is None or bev is None or phev is None or hev is None or erev is None or not total:
+        return None
+    plug = phev + erev
+    return {
+        "BEV": 100 * bev / total,
+        "PHEV": 100 * plug / total,
+        "HEV": 100 * hev / total,
+        "ICE": 100 * (total - bev - plug - hev) / total,
+    }
+
+
+def _pp(value: float) -> str:
+    absolute = abs(value)
+    nearest = round(absolute)
+    if abs(absolute - nearest) < 0.05:
+        return f"{nearest:.0f}"
+    return f"{absolute:.1f}"
+
+
+def _signed(value: float) -> str:
+    if abs(value) < 0.05:
+        return "0"
+    return ("+" if value > 0 else "−") + _pp(value)
+
+
+def _month_index(period: str) -> int:
+    year, month = period.split("-")[:2]
+    return int(year) * 12 + int(month)
+
+
+def _whole_monthly(fm: dict) -> list[dict]:
+    path = REPO / (fm.get("data_file") or "")
+    if not path.is_file():
+        return []
+    rows = []
+    with path.open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            if row.get("time_interval") != "monthly":
+                continue
+            if row.get("variant") not in ("", "Whole"):
+                continue
+            if row.get("period"):
+                rows.append(row)
+    return rows
+
+
+def combustion_shift(fm: dict) -> dict | None:
+    """12-month shift for Whole, or None when the CSV cannot support it."""
+    rows = _whole_monthly(fm)
+    if len(rows) < 24:
+        return None
+    tail = rows[-24:]
+    indexes = [_month_index(row["period"]) for row in tail]
+    if any(indexes[i + 1] - indexes[i] != 1 for i in range(23)):
+        return None
+    before = _window_shares(tail[:12])
+    after = _window_shares(tail[12:])
+    if not before or not after:
+        return None
+    return {
+        "end": tail[-1]["period"],
+        "hev_full": fm.get("hev_split") is True,
+        "b1": after["BEV"], "p1": after["PHEV"], "h1": after["HEV"], "i1": after["ICE"],
+        "dB": after["BEV"] - before["BEV"],
+        "dP": after["PHEV"] - before["PHEV"],
+        "dH": after["HEV"] - before["HEV"],
+        "dI": after["ICE"] - before["ICE"],
+    }
+
+
+# Bottom to top. The picture is this country's mix over time, not a
+# template of four bars. A month with an empty fuel cell is left out.
+_MIX = (
+    ("ICE", "#cfcabe"),
+    ("HEV", "#e0c36a"),
+    ("PHEV", "#6f9ed4"),
+    ("BEV", "#3d9a68"),
+)
+
+
+def mix_series(fm: dict) -> list[dict] | None:
+    """Trailing-twelve-month shares at every month that has a full window."""
+    rows = _whole_monthly(fm)
+    if len(rows) < 24:
+        return None
+    indexes = [_month_index(row["period"]) for row in rows]
+    points = []
+    for i in range(11, len(rows)):
+        window = rows[i - 11:i + 1]
+        widx = indexes[i - 11:i + 1]
+        if any(widx[j + 1] - widx[j] != 1 for j in range(11)):
+            continue
+        shares = _window_shares(window)
+        if not shares:
+            continue
+        points.append({"period": rows[i]["period"], **shares})
+    if len(points) < 13:
+        return None
+    return points
+
+
+def latest_proof(fm: dict) -> tuple[str, str, str] | None:
+    """Newest month, the URL that proves it, and whether that URL is the document."""
+    rows = _whole_monthly(fm)
+    if not rows:
+        return None
+    period = rows[-1]["period"]
+    found = URL_RE.search(rows[-1].get("notes") or "")
+    if found:
+        return period, found.group(0), "document"
+    url = fm.get("source_url") or ""
+    if not url:
+        return None
+    return period, url, "source"
+
+
+def build_mix_svg(points: list[dict]) -> str:
+    width, height = 720, 236
+    left, right, top, bottom = 32, 8, 10, 26
+    plot_w = width - left - right
+    plot_h = height - top - bottom
+    start = _month_index(points[0]["period"])
+    end = _month_index(points[-1]["period"])
+    span_m = max(1, end - start)
+
+    def x_of(period: str) -> float:
+        return left + plot_w * (_month_index(period) - start) / span_m
+
+    def y_of(share: float) -> float:
+        return top + plot_h * (1 - share / 100)
+
+    paths = []
+    for name, color in _MIX:
+        below_names = [key for key, _ in _MIX]
+        upper, lower = [], []
+        for i, point in enumerate(points):
+            below = sum(point[key] for key in below_names[:below_names.index(name)])
+            upper.append((x_of(point["period"]), y_of(below + point[name])))
+            lower.append((x_of(point["period"]), y_of(below)))
+        commands = [f"M{upper[0][0]:.1f},{upper[0][1]:.1f}"]
+        commands += [f"L{x:.1f},{y:.1f}" for x, y in upper[1:]]
+        commands += [f"L{x:.1f},{y:.1f}" for x, y in reversed(lower)]
+        commands.append("Z")
+        paths.append(f'<path d="{" ".join(commands)}" fill="{color}"/>')
+
+    years = []
+    seen: set[str] = set()
+    for i, point in enumerate(points):
+        year = point["period"][:4]
+        if year not in seen:
+            seen.add(year)
+            years.append((i, year))
+    span = int(years[-1][1]) - int(years[0][1])
+    step = 1 if span <= 10 else 2 if span <= 20 else 5
+    kept = [pair for n, pair in enumerate(years) if n % step == 0]
+    if years[-1] not in kept:
+        kept.append(years[-1])
+
+    guides = []
+    for mark in (0, 50, 100):
+        y = y_of(mark)
+        guides.append(
+            f'<text x="{left - 6}" y="{y + 3:.1f}" text-anchor="end">{mark}</text>'
+        )
+        if mark:
+            guides.append(
+                f'<line x1="{left}" y1="{y:.1f}" x2="{left + plot_w}" y2="{y:.1f}" class="mix-grid"/>'
+            )
+    labels = []
+    last_x = -999.0
+    for n, (i, year) in enumerate(kept):
+        x = x_of(points[i]["period"])
+        if labels and x - last_x < 46:
+            continue
+        anchor = "start" if not labels else "end" if n == len(kept) - 1 else "middle"
+        labels.append(
+            f'<text x="{x:.1f}" y="{height - 8}" text-anchor="{anchor}">{year}</text>'
+        )
+        last_x = x
+    end = points[-1]
+    label = (f"Trailing twelve months through {end['period']}. "
+             f"Battery electric {end['BEV']:.1f}%.")
+    return (
+        f'<svg class="mix" viewBox="0 0 {width} {height}" role="img" aria-label="{esc(label)}">'
+        f'{"".join(paths)}{"".join(guides)}{"".join(labels)}</svg>'
+    )
+
+
+def _shift_line(shift: dict) -> str:
+    lost = -shift["dI"]
+    hybrid = "Full hybrids" if shift["hev_full"] else "Hybrids"
+    if shift["i1"] < 1.5 and abs(lost) < 1.5:
+        return "There is almost no petrol and diesel left."
+    if lost < 0.5:
+        if shift["dB"] <= -1:
+            return "Battery electric lost share, and petrol and diesel did not shrink."
+        return "Petrol and diesel barely moved."
+    gains = (
+        ("Battery electric", shift["dB"]),
+        ("Plug-in hybrids", shift["dP"]),
+        (hybrid, shift["dH"]),
+    )
+    name, gained = max(gains, key=lambda item: item[1])
+    lost_s = _pp(lost)
+    if gained <= 0.3:
+        return (f"Petrol and diesel lost {lost_s} points. "
+                "None of it showed up in an electric column.")
+    gained_s = _pp(gained)
+    if gained > lost + 0.8:
+        return f"Petrol and diesel lost {lost_s} points. {name} gained {gained_s}."
+    if gained >= lost * 0.75:
+        return f"Petrol and diesel lost {lost_s} points. {name} took {gained_s} of them."
+    if gained >= lost * 0.45:
+        return f"Petrol and diesel lost {lost_s} points. Most of that went to {name.lower()}."
+    return f"Petrol and diesel lost {lost_s} points, split across the electric columns."
+
+
+def _shift_rows(shift: dict) -> str:
+    hybrid = "Full hybrid" if shift["hev_full"] else "Hybrids"
+    names = {"hev": hybrid}
+    scale = max(abs(shift[key]) for key in ("dB", "dP", "dH", "dI")) or 1
+    rows = []
+    for css, label, level, delta in _SHIFT_ROWS:
+        change = shift[delta]
+        width = min(50, abs(change) / scale * 50)
+        if change >= 0:
+            style = f"left:50%;width:{width:.2f}%"
+        else:
+            style = f"right:50%;width:{width:.2f}%"
+        kind = "gain" if change >= 0 else "loss"
+        rows.append(
+            f'<div class="shift-row"><span class="shift-name">{esc(names.get(css, label))}'
+            f'<em>now {shift[level]:.1f}%</em></span>'
+            f'<span class="shift-track"><i class="shift-zero"></i>'
+            f'<i class="shift-bar {css} {kind}" style="{style}"></i></span>'
+            f'<span class="shift-pp">{_signed(change)}</span></div>'
+        )
+    return "".join(rows)
+
+
+def build_header(fm: dict) -> tuple[str, str]:
+    """Poster when the CSV can carry it, otherwise the plain title.
+
+    The second value is the file-card kicker, empty when there is no poster.
+    """
+    country = esc(fm.get("country", "Unknown"))
+    chip = method_chip(fm.get("method", ""))
+    title = f"<h1>{country}</h1>"
+    shift = combustion_shift(fm)
+    if not shift:
+        return f"<h1>{country} {chip}</h1>", ""
+    caption = (f"Last 12 months against the 12 before, through "
+               f"{_month_label(shift['end'])}.")
+    flag = ""
+    slug = fm.get("slug") or ""
+    if slug and (REPO / "assets" / "flags" / f"{slug}.png").is_file():
+        flag = f'<img class="flag" src="../assets/flags/{esc(slug)}.png" alt="">'
+    points = mix_series(fm)
+    picture = f'<div class="shift">{_shift_rows(shift)}</div>'
+    if points:
+        hybrid = "Full hybrid" if shift["hev_full"] else "Hybrids"
+        names = {
+            "BEV": "Battery electric",
+            "PHEV": "Plug-in hybrid",
+            "HEV": hybrid,
+            "ICE": "Petrol and diesel",
+        }
+        legend = "".join(
+            f'<span class="swatch {key.lower()}">{esc(names[key])}</span>'
+            for key, _ in _MIX
+        )
+        proof = latest_proof(fm)
+        proof_html = ""
+        if proof:
+            period, url, kind = proof
+            if kind == "document":
+                text = f"{_month_label(period)} document"
+            else:
+                text = (fm.get("source_name") or "source").split("—")[0].strip()
+                if len(text) > 28:
+                    text = text[:27].rstrip() + "…"
+            proof_html = (
+                f'<a class="mix-doc" href="{esc(url)}">{esc(text)} ↗</a>'
+            )
+        picture = (
+            f'<div class="mix-panel" data-theme="light">{build_mix_svg(points)}'
+            f'<div class="mix-foot">{legend}{proof_html}</div></div>'
+        )
+    poster = (
+        f'<figure class="poster"><div class="poster-top">{flag}<div>{title}</div></div>'
+        f'{picture}'
+        f'<figcaption>{esc(_shift_line(shift))} {esc(caption)}</figcaption></figure>'
+    )
+    return poster, f'<p class="file-kicker">The file {chip}</p>'
+
+
 def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
@@ -1705,11 +2047,14 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
         model_note = (f'Curves in the gallery are fitted through '
                       f'<code>{esc(latest_period)}</code>.<br>')
 
+    header, file_kicker = build_header(fm)
     return TEMPLATE.format(
         theme_href=THEME_HREF,
         css=BASE_CSS,
         country=esc(country),
         method_chip=method_chip(fm.get("method", "")),
+        header=header,
+        file_kicker=file_kicker,
         banner=banner,
         summary=esc(fm.get("summary", "")),
         latest_period=esc(latest_period),
@@ -1918,6 +2263,30 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 .live-src{font-size:14px;margin:12px 0 0}
 .source-btn--dead{color:var(--muted);font-weight:600}
 
+/* Country poster — this country's own slice, above the file card. */
+.poster{margin:2px 0 26px;padding:0 0 18px;border-bottom:1.5px solid var(--text)}
+.poster-top{display:flex;align-items:center;gap:16px;margin:0 0 16px}
+.flag{width:64px;height:44px;object-fit:cover;border-radius:3px;flex:none;
+  box-shadow:0 0 0 1px var(--line)}
+.poster h1{margin:0}
+.poster figcaption{font-family:var(--font-display);font-size:18px;font-weight:500;
+  line-height:1.35;color:var(--text);margin:14px 0 0;max-width:36em}
+.mix-panel{background:var(--bg);color:var(--text);border-radius:2px;padding:6px 8px 8px}
+.mix{display:block;width:100%;height:auto}
+.mix text{fill:#55534c;font-size:11px;font-family:var(--font-ui),sans-serif}
+.mix-grid{stroke:#e4e2dd;stroke-width:1}
+.mix-foot{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;
+  font-size:12px;color:#55534c;margin:2px 4px 0}
+.swatch::before{content:"";display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:-1px}
+.swatch.ice::before{background:#cfcabe}
+.swatch.hev::before{background:#e0c36a}
+.swatch.phev::before{background:#6f9ed4}
+.swatch.bev::before{background:#3d9a68}
+.mix-doc{margin-left:auto;font-weight:600}
+.file-kicker{margin:20px 0 8px;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted)}
+.file-kicker .chip{text-transform:none;letter-spacing:.03em;margin-left:8px}
+
 /* Coverage timeline — one hue, no legend needed (a single series). */
 .cov{display:block;margin:6px 0 0;max-width:100%}
 .cov-bar{fill:var(--accent);opacity:.85}
@@ -2048,8 +2417,9 @@ TEMPLATE = """<!doctype html>
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <h1>{country} {method_chip}</h1>
+  {header}
   {banner}
+  {file_kicker}
   <p class="lead">{summary}</p>
 
   <div class="stats">
