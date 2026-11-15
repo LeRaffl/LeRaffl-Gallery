@@ -89,7 +89,7 @@ title_scope <- function(meta, with_reg = FALSE) {
 # The extrapolation charts name what is counted, so the vehicle kind goes
 # INTO that phrase instead of behind a colon: "new car registrations in
 # Austria", "new heavy truck registrations in Germany", "used-import car
-# registrations in Netherlands", "new car sales in USA", "first car
+# registrations in Netherlands", "new vehicle sales in USA", "first vehicle
 # registrations in Georgia". Singular forms, one per variant. Resale is ""
 # because its reg_word already is "used-car". A variant without an entry
 # (Custom, Wholesale, …) falls back to "new registrations in <Country>: <Variant>".

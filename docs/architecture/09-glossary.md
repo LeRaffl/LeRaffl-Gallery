@@ -92,8 +92,12 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 > counted, carry the kind inside that phrase in the singular
 > (`VEHICLE_SINGULAR`): "BEV share of new car registrations in Austria",
 > "… of new heavy truck registrations …", "… of used-import car registrations
-> …", "… of new car sales in USA". First-registration sources (Georgia,
-> Albania) drop the "New" ("Georgia: Cars", "first car registrations").
+> …", "… of new van registrations …". First-registration sources (Georgia,
+> Albania) drop the "New" ("Albania: Cars", "first car registrations").
+> Sources whose `Whole` is not passenger cars only (USA, Georgia, South
+> Africa, South Korea, Colombia; `ALL_VEHICLE_SOURCES` in
+> `R/render_country.R`) say **Vehicles** instead of Cars: "South Africa: New
+> Vehicles", "new vehicle sales in USA", "Georgia: Vehicles".
 > Keys, file names and `params.csv` rows stay `Whole` / `HDV` /
 > `Used`. Add a variant → add it to both maps. Charts are only re-labelled
 > when re-rendered.
