@@ -94,10 +94,11 @@ jobs:
       - name: Fail the run if a source could not be fetched
         if: ${{ steps.stock.outcome == 'failure' || steps.norway.outcome == 'failure' || steps.age.outcome == 'failure' || steps.mileage.outcome == 'failure' || steps.grid.outcome == 'failure' }}
         run: |
-          echo "::error::at least one fleet source could not be fetched (stock=$STOCK age=$AGE mileage=$MILEAGE grid=$GRID)"
+          echo "::error::at least one fleet source could not be fetched (stock=$STOCK norway=$NORWAY age=$AGE mileage=$MILEAGE grid=$GRID)"
           exit 1
         env:
           STOCK: ${{ steps.stock.outcome }}
+          NORWAY: ${{ steps.norway.outcome }}
           AGE: ${{ steps.age.outcome }}
           MILEAGE: ${{ steps.mileage.outcome }}
           GRID: ${{ steps.grid.outcome }}

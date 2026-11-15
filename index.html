@@ -4808,7 +4808,7 @@ const VIEW_START_YEAR = 2015;
 <div class="field" hidden style="margin:0 0 12px;">
   <div style="display:flex; align-items:center; gap:6px;">
     <label>Vehicle class</label>
-    <span class="info-tip" data-tip="One class at a time. Cars = passenger cars (EU class M1), Vans = goods vehicles up to 3.5 t (N1), Trucks = goods vehicles over 3.5 t (N2 + N3), Buses = M2 + M3. The number is how many countries have stock data for the class. Stock, new registrations, the fitted curves and the observed turnover are all read for the class you pick. Energy and CO2 are calculated for cars only so far.">i</span>
+    <span class="info-tip" data-tip="One class at a time. Cars = passenger cars (EU class M1), Vans = goods vehicles up to 3.5 t (N1), Heavy Trucks = goods vehicles over 3.5 t (N2 + N3), Buses = M2 + M3. The number is how many countries have stock data for the class. Stock, new registrations, the fitted curves and the observed turnover are all read for the class you pick. Energy and CO2 are calculated for cars only so far.">i</span>
   </div>
   <div id="fleetVariantChips" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
 </div>
@@ -11714,7 +11714,7 @@ function fleetCalibration(country){
 // it. The Energy view is built for passenger cars (consumption, mileage and
 // efficiency are per-class quantities) and is switched off for the others
 // until those factors are sourced.
-const FLEET_VARIANTS = [['whole', 'Cars'], ['vans', 'Vans'], ['hdv', 'Trucks'], ['buses', 'Buses']];
+const FLEET_VARIANTS = [['whole', 'Cars'], ['vans', 'Vans'], ['hdv', 'Heavy Trucks'], ['buses', 'Buses']];
 function fleetVariantCountries(variant){
   return new Set(fleetState.observedAll.filter(r => r.variant === variant).map(r => r.country));
 }

@@ -830,7 +830,7 @@ petrol/diesel → OTHERS where the stock has no split, i.e. China). Without an
 ## 8 · Beyond cars — vans, trucks and buses
 
 **Status: pilot (Norway).** The Fleet tab has a *Vehicle class* selector:
-Cars (`Whole`, M1), Vans (N1), Trucks (`HDV`, N2+N3), Buses (M2+M3). A class is
+Cars (`Whole`, M1), Vans (N1), Heavy Trucks (`HDV`, N2+N3), Buses (M2+M3). A class is
 offered only where some country has stock rows for it; the country list
 narrows to those countries.
 
@@ -871,11 +871,11 @@ commercial-vehicle year is incomplete):
 | | stock end 2025 | battery share | net attrition per year |
 |---|---|---|---|
 | Vans | 522,951 | 9.5% | 4.5% |
-| Trucks | 65,528 | 3.9% | 9.5% |
+| Heavy Trucks | 65,528 | 3.9% | 9.5% |
 | Buses | 14,613 | 17.1% | 7.2% |
 | Cars, for comparison | 2,935,735 | 32.2% | 4.4% |
 
-Trucks leave the Norwegian register about twice as fast as cars; like the
+Heavy trucks leave the Norwegian register about twice as fast as cars; like the
 car figures this is net of exports.
 
 ### 8.3 Adding countries
