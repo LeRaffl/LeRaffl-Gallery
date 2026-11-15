@@ -1,0 +1,9 @@
+🇸🇬 Singapore - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++17.6pp  BEV   (42.6% → 60.2%)
++1.8pp  PHEV  (1.4% → 3.2%)
+−11.1pp  HEV   (40.9% → 29.9%)
+−8.3pp  ICE   (15.1% → 6.8%)
+
+HEV peaked at 48.5% in 2024-11 (declining for 23 months).
