@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-14T11:43:45Z",
- "today": "2026-11-14",
+ "generated": "2026-11-15T12:14:07Z",
+ "today": "2026-11-15",
  "countries": [
   {
    "country": "Albania",
@@ -2691,10 +2691,10 @@
    "cadence_text": "daily 07:00 UTC, 15th–31st of the month",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3231,11 +3231,11 @@
    "source_url": "https://aap.org.pe/estadisticas/biaap",
    "cadence_text": "daily 15:45 UTC — AAP reloads the report on no fixed day; a month is written once it is before the reload month, classified by AAP and confirmed by AAP's printed monthly report",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3291,22 +3291,22 @@
     ],
     "workflow": ".github/workflows/fetch-peru.yml"
    },
-   "last_render": "2026-10-17",
+   "last_render": "2026-11-14",
    "flag": "🇵🇪",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2019-01",
-     "rows": 92,
+     "rows": 93,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2019-01",
-     "rows": 92,
+     "rows": 93,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3547,10 +3547,10 @@
    "cadence_text": "daily 08:00 UTC, 15th–31st, commit-gated",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4346,10 +4346,10 @@
    "cadence_text": "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-09",
-   "behind": 0,
+   "expected_period": "2026-10",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
