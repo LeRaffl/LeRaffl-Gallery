@@ -188,9 +188,11 @@ is_first_reg <- !variant %in% c("Used", "Resale") && country %in% FIRST_REG_SOUR
 # Sources whose Whole series is NOT passenger cars only (footnotes.csv,
 # 09-glossary.md "Vehicle scope per source"): light trucks and pickups (USA),
 # every vehicle category (Georgia), cars to heavy trucks and buses (South
-# Africa, South Korea), everything but motorcycles (Colombia). Their titles
-# say "Vehicles" where the others say "Cars".
-ALL_VEHICLE_SOURCES <- c("USA", "Georgia", "South Africa", "South Korea", "Colombia")
+# Africa, South Korea), everything but motorcycles (Colombia), cars plus
+# light commercial vehicles (Brazil; Chile also pickups). Their titles say
+# "Vehicles" where the others say "Cars".
+ALL_VEHICLE_SOURCES <- c("USA", "Georgia", "South Africa", "South Korea", "Colombia",
+                         "Brazil", "Chile")
 is_all_vehicles <- variant == "Whole" && country %in% ALL_VEHICLE_SOURCES
 reg_word_lc <- if (variant == "Used") "used-import" else if (variant == "Resale") "used-car" else
   if (is_first_reg) "first" else "new"
