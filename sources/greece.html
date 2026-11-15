@@ -111,29 +111,23 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 .flag{width:64px;height:44px;object-fit:cover;border-radius:3px;flex:none;
   box-shadow:0 0 0 1px var(--line)}
 .poster h1{margin:0}
-.poster-line{font-family:var(--font-display);font-size:20px;font-weight:500;
-  line-height:1.35;margin:6px 0 0;max-width:34em}
-.shift-row{display:grid;grid-template-columns:11.5rem 1fr 3.4rem;gap:10px;
-  align-items:center;margin:7px 0}
-.shift-name{font-size:14px;line-height:1.2}
-.shift-name em{display:block;font-style:normal;color:var(--muted);font-size:12px;margin-top:1px}
-.shift-track{position:relative;height:16px}
-.shift-zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted);opacity:.45}
-.shift-bar{position:absolute;top:2px;height:12px;border-radius:2px}
-.shift-bar.loss{opacity:.7}
-.shift-bar.bev{background:#2e8b57}
-.shift-bar.phev{background:#3a78b5}
-.shift-bar.hev{background:#c4a035}
-.shift-bar.ice{background:#6e6b64}
-.shift-pp{font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
-.poster figcaption{color:var(--muted);font-size:13px;margin:10px 0 0}
+.poster figcaption{font-family:var(--font-display);font-size:18px;font-weight:500;
+  line-height:1.35;color:var(--text);margin:14px 0 0;max-width:36em}
+.mix-panel{background:var(--bg);color:var(--text);border-radius:2px;padding:6px 8px 8px}
+.mix{display:block;width:100%;height:auto}
+.mix text{fill:#55534c;font-size:11px;font-family:var(--font-ui),sans-serif}
+.mix-grid{stroke:#e4e2dd;stroke-width:1}
+.mix-foot{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;
+  font-size:12px;color:#55534c;margin:2px 4px 0}
+.swatch::before{content:"";display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:-1px}
+.swatch.ice::before{background:#cfcabe}
+.swatch.hev::before{background:#e0c36a}
+.swatch.phev::before{background:#6f9ed4}
+.swatch.bev::before{background:#3d9a68}
+.mix-doc{margin-left:auto;font-weight:600}
 .file-kicker{margin:20px 0 8px;font-size:12px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--muted)}
 .file-kicker .chip{text-transform:none;letter-spacing:.03em;margin-left:8px}
-@media (max-width:560px){
-  .shift-row{grid-template-columns:1fr 3.4rem}
-  .shift-name{grid-column:1 / -1}
-}
 
 /* Coverage timeline — one hue, no legend needed (a single series). */
 .cov{display:block;margin:6px 0 0;max-width:100%}
@@ -255,7 +249,7 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <figure class="poster"><div class="poster-top"><img class="flag" src="../assets/flags/greece.png" alt=""><div><h1>Greece</h1><p class="poster-line">Petrol and diesel lost 9.6 points. Full hybrids took 8.2 of them.</p></div></div><div class="shift"><div class="shift-row"><span class="shift-name">Battery electric<em>now 7.4%</em></span><span class="shift-track"><i class="shift-zero"></i><i class="shift-bar bev gain" style="left:50%;width:4.50%"></i></span><span class="shift-pp">+0.9</span></div><div class="shift-row"><span class="shift-name">Plug-in hybrid<em>now 7.7%</em></span><span class="shift-track"><i class="shift-zero"></i><i class="shift-bar phev gain" style="left:50%;width:2.85%"></i></span><span class="shift-pp">+0.5</span></div><div class="shift-row"><span class="shift-name">Full hybrid<em>now 57.2%</em></span><span class="shift-track"><i class="shift-zero"></i><i class="shift-bar hev gain" style="left:50%;width:42.64%"></i></span><span class="shift-pp">+8.2</span></div><div class="shift-row"><span class="shift-name">Petrol and diesel<em>now 27.7%</em></span><span class="shift-track"><i class="shift-zero"></i><i class="shift-bar ice loss" style="right:50%;width:50.00%"></i></span><span class="shift-pp">−9.6</span></div></div><figcaption>Last 12 months against the 12 before, through September 2026.</figcaption></figure>
+  <figure class="poster"><div class="poster-top"><img class="flag" src="../assets/flags/greece.png" alt=""><div><h1>Greece</h1></div></div><div class="mix-panel" data-theme="light"><svg class="mix" viewBox="0 0 720 236" role="img" aria-label="Trailing twelve months through 2026-09. Battery electric 7.4%."><path d="M32.0,80.9 L47.1,80.3 L62.2,80.5 L77.3,81.5 L92.4,81.8 L107.6,83.4 L122.7,83.7 L137.8,86.6 L152.9,89.0 L168.0,90.2 L183.1,91.9 L198.2,92.6 L213.3,94.4 L228.4,96.9 L243.6,98.6 L258.7,99.9 L273.8,100.6 L288.9,102.8 L304.0,105.6 L319.1,108.1 L334.2,109.9 L349.3,112.6 L364.4,115.1 L379.6,117.5 L394.7,119.3 L409.8,121.8 L424.9,124.3 L440.0,126.5 L455.1,129.3 L470.2,130.9 L485.3,132.2 L500.4,133.5 L515.6,134.1 L530.7,135.5 L545.8,136.5 L560.9,138.5 L576.0,139.9 L591.1,142.3 L606.2,142.9 L621.3,144.4 L636.4,146.5 L651.6,148.4 L666.7,149.6 L681.8,152.1 L696.9,153.0 L712.0,154.7 L712.0,210.0 L696.9,210.0 L681.8,210.0 L666.7,210.0 L651.6,210.0 L636.4,210.0 L621.3,210.0 L606.2,210.0 L591.1,210.0 L576.0,210.0 L560.9,210.0 L545.8,210.0 L530.7,210.0 L515.6,210.0 L500.4,210.0 L485.3,210.0 L470.2,210.0 L455.1,210.0 L440.0,210.0 L424.9,210.0 L409.8,210.0 L394.7,210.0 L379.6,210.0 L364.4,210.0 L349.3,210.0 L334.2,210.0 L319.1,210.0 L304.0,210.0 L288.9,210.0 L273.8,210.0 L258.7,210.0 L243.6,210.0 L228.4,210.0 L213.3,210.0 L198.2,210.0 L183.1,210.0 L168.0,210.0 L152.9,210.0 L137.8,210.0 L122.7,210.0 L107.6,210.0 L92.4,210.0 L77.3,210.0 L62.2,210.0 L47.1,210.0 L32.0,210.0 Z" fill="#cfcabe"/><path d="M32.0,25.8 L47.1,25.7 L62.2,26.0 L77.3,26.6 L92.4,26.7 L107.6,27.7 L122.7,28.3 L137.8,29.2 L152.9,29.7 L168.0,31.1 L183.1,31.6 L198.2,32.3 L213.3,32.6 L228.4,33.0 L243.6,33.1 L258.7,32.8 L273.8,33.0 L288.9,32.3 L304.0,32.2 L319.1,32.8 L334.2,33.1 L349.3,33.0 L364.4,33.5 L379.6,34.0 L394.7,34.8 L409.8,35.2 L424.9,35.8 L440.0,36.1 L455.1,36.0 L470.2,36.7 L485.3,37.4 L500.4,37.1 L515.6,37.4 L530.7,37.5 L545.8,37.9 L560.9,37.9 L576.0,38.5 L591.1,38.7 L606.2,38.9 L621.3,38.9 L636.4,39.2 L651.6,39.2 L666.7,39.1 L681.8,39.7 L696.9,39.7 L712.0,40.3 L712.0,154.7 L696.9,153.0 L681.8,152.1 L666.7,149.6 L651.6,148.4 L636.4,146.5 L621.3,144.4 L606.2,142.9 L591.1,142.3 L576.0,139.9 L560.9,138.5 L545.8,136.5 L530.7,135.5 L515.6,134.1 L500.4,133.5 L485.3,132.2 L470.2,130.9 L455.1,129.3 L440.0,126.5 L424.9,124.3 L409.8,121.8 L394.7,119.3 L379.6,117.5 L364.4,115.1 L349.3,112.6 L334.2,109.9 L319.1,108.1 L304.0,105.6 L288.9,102.8 L273.8,100.6 L258.7,99.9 L243.6,98.6 L228.4,96.9 L213.3,94.4 L198.2,92.6 L183.1,91.9 L168.0,90.2 L152.9,89.0 L137.8,86.6 L122.7,83.7 L107.6,83.4 L92.4,81.8 L77.3,81.5 L62.2,80.5 L47.1,80.3 L32.0,80.9 Z" fill="#e0c36a"/><path d="M32.0,15.4 L47.1,15.5 L62.2,15.8 L77.3,16.4 L92.4,16.7 L107.6,17.5 L122.7,17.9 L137.8,18.3 L152.9,18.6 L168.0,19.1 L183.1,19.1 L198.2,19.2 L213.3,19.5 L228.4,19.6 L243.6,19.8 L258.7,19.6 L273.8,19.5 L288.9,19.0 L304.0,19.2 L319.1,19.6 L334.2,19.9 L349.3,20.2 L364.4,21.1 L379.6,22.0 L394.7,22.7 L409.8,23.0 L424.9,23.4 L440.0,23.7 L455.1,23.6 L470.2,23.9 L485.3,24.0 L500.4,23.5 L515.6,23.4 L530.7,23.1 L545.8,22.8 L560.9,22.4 L576.0,22.3 L591.1,22.5 L606.2,22.4 L621.3,22.6 L636.4,22.7 L651.6,22.9 L666.7,23.2 L681.8,23.8 L696.9,24.2 L712.0,24.8 L712.0,40.3 L696.9,39.7 L681.8,39.7 L666.7,39.1 L651.6,39.2 L636.4,39.2 L621.3,38.9 L606.2,38.9 L591.1,38.7 L576.0,38.5 L560.9,37.9 L545.8,37.9 L530.7,37.5 L515.6,37.4 L500.4,37.1 L485.3,37.4 L470.2,36.7 L455.1,36.0 L440.0,36.1 L424.9,35.8 L409.8,35.2 L394.7,34.8 L379.6,34.0 L364.4,33.5 L349.3,33.0 L334.2,33.1 L319.1,32.8 L304.0,32.2 L288.9,32.3 L273.8,33.0 L258.7,32.8 L243.6,33.1 L228.4,33.0 L213.3,32.6 L198.2,32.3 L183.1,31.6 L168.0,31.1 L152.9,29.7 L137.8,29.2 L122.7,28.3 L107.6,27.7 L92.4,26.7 L77.3,26.6 L62.2,26.0 L47.1,25.7 L32.0,25.8 Z" fill="#6f9ed4"/><path d="M32.0,10.0 L47.1,10.0 L62.2,10.0 L77.3,10.0 L92.4,10.0 L107.6,10.0 L122.7,10.0 L137.8,10.0 L152.9,10.0 L168.0,10.0 L183.1,10.0 L198.2,10.0 L213.3,10.0 L228.4,10.0 L243.6,10.0 L258.7,10.0 L273.8,10.0 L288.9,10.0 L304.0,10.0 L319.1,10.0 L334.2,10.0 L349.3,10.0 L364.4,10.0 L379.6,10.0 L394.7,10.0 L409.8,10.0 L424.9,10.0 L440.0,10.0 L455.1,10.0 L470.2,10.0 L485.3,10.0 L500.4,10.0 L515.6,10.0 L530.7,10.0 L545.8,10.0 L560.9,10.0 L576.0,10.0 L591.1,10.0 L606.2,10.0 L621.3,10.0 L636.4,10.0 L651.6,10.0 L666.7,10.0 L681.8,10.0 L696.9,10.0 L712.0,10.0 L712.0,24.8 L696.9,24.2 L681.8,23.8 L666.7,23.2 L651.6,22.9 L636.4,22.7 L621.3,22.6 L606.2,22.4 L591.1,22.5 L576.0,22.3 L560.9,22.4 L545.8,22.8 L530.7,23.1 L515.6,23.4 L500.4,23.5 L485.3,24.0 L470.2,23.9 L455.1,23.6 L440.0,23.7 L424.9,23.4 L409.8,23.0 L394.7,22.7 L379.6,22.0 L364.4,21.1 L349.3,20.2 L334.2,19.9 L319.1,19.6 L304.0,19.2 L288.9,19.0 L273.8,19.5 L258.7,19.6 L243.6,19.8 L228.4,19.6 L213.3,19.5 L198.2,19.2 L183.1,19.1 L168.0,19.1 L152.9,18.6 L137.8,18.3 L122.7,17.9 L107.6,17.5 L92.4,16.7 L77.3,16.4 L62.2,15.8 L47.1,15.5 L32.0,15.4 Z" fill="#3d9a68"/><text x="26" y="213.0" text-anchor="end">0</text><text x="26" y="113.0" text-anchor="end">50</text><line x1="32" y1="110.0" x2="712" y2="110.0" class="mix-grid"/><text x="26" y="13.0" text-anchor="end">100</text><line x1="32" y1="10.0" x2="712" y2="10.0" class="mix-grid"/><text x="32.0" y="228" text-anchor="start">2022</text><text x="228.4" y="228" text-anchor="middle">2024</text><text x="409.8" y="228" text-anchor="middle">2025</text><text x="591.1" y="228" text-anchor="end">2026</text></svg><div class="mix-foot"><span class="swatch ice">Petrol and diesel</span><span class="swatch hev">Full hybrid</span><span class="swatch phev">Plug-in hybrid</span><span class="swatch bev">Battery electric</span><a class="mix-doc" href="https://seaa.gr/registrations/">SEAA ↗</a></div></div><figcaption>Petrol and diesel lost 9.6 points. Full hybrids took 8.2 of them. Last 12 months against the 12 before, through September 2026.</figcaption></figure>
   
   <p class="file-kicker">The file <span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></p>
   <p class="lead">New passenger-car registrations for Greece from SEAA, the importers&#x27; association that processes ELSTAT&#x27;s registration data every month and is the source of ACEA&#x27;s Greek figure. Exact BEV, PHEV and total counts from SEAA&#x27;s statistics files; the hybrid, petrol and diesel split is first derived from the fuel shares in SEAA&#x27;s press release and replaced by ACEA&#x27;s counted split when ACEA publishes the month.</p>

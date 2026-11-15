@@ -135,6 +135,11 @@ def test_germany_shift_matches_the_published_window():
     assert bsp._shift_line(shift) == (
         "Petrol and diesel lost 10 points. Battery electric took 9.4 of them."
     )
+    points = bsp.mix_series({"data_file": "data/Germany.csv"})
+    assert points is not None
+    assert points[-1]["period"] == "2026-10"
+    assert abs(points[-1]["BEV"] - shift["b1"]) < 0.01
+    assert points[0]["period"] < "2018-01"
 
 
 def test_repo_front_matter_still_valid():

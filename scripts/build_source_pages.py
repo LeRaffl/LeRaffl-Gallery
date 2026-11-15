@@ -1730,11 +1730,15 @@ def _signed(value: float) -> str:
     return ("+" if value > 0 else "−") + _pp(value)
 
 
-def combustion_shift(fm: dict) -> dict | None:
-    """12-month shift for Whole, or None when the CSV cannot support it."""
+def _month_index(period: str) -> int:
+    year, month = period.split("-")[:2]
+    return int(year) * 12 + int(month)
+
+
+def _whole_monthly(fm: dict) -> list[dict]:
     path = REPO / (fm.get("data_file") or "")
     if not path.is_file():
-        return None
+        return []
     rows = []
     with path.open(encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
@@ -1744,15 +1748,16 @@ def combustion_shift(fm: dict) -> dict | None:
                 continue
             if row.get("period"):
                 rows.append(row)
+    return rows
+
+
+def combustion_shift(fm: dict) -> dict | None:
+    """12-month shift for Whole, or None when the CSV cannot support it."""
+    rows = _whole_monthly(fm)
     if len(rows) < 24:
         return None
     tail = rows[-24:]
-
-    def month_index(period: str) -> int:
-        year, month = period.split("-")[:2]
-        return int(year) * 12 + int(month)
-
-    indexes = [month_index(row["period"]) for row in tail]
+    indexes = [_month_index(row["period"]) for row in tail]
     if any(indexes[i + 1] - indexes[i] != 1 for i in range(23)):
         return None
     before = _window_shares(tail[:12])
@@ -1768,6 +1773,124 @@ def combustion_shift(fm: dict) -> dict | None:
         "dH": after["HEV"] - before["HEV"],
         "dI": after["ICE"] - before["ICE"],
     }
+
+
+# Bottom to top. The picture is this country's mix over time, not a
+# template of four bars. A month with an empty fuel cell is left out.
+_MIX = (
+    ("ICE", "#cfcabe"),
+    ("HEV", "#e0c36a"),
+    ("PHEV", "#6f9ed4"),
+    ("BEV", "#3d9a68"),
+)
+
+
+def mix_series(fm: dict) -> list[dict] | None:
+    """Trailing-twelve-month shares at every month that has a full window."""
+    rows = _whole_monthly(fm)
+    if len(rows) < 24:
+        return None
+    indexes = [_month_index(row["period"]) for row in rows]
+    points = []
+    for i in range(11, len(rows)):
+        window = rows[i - 11:i + 1]
+        widx = indexes[i - 11:i + 1]
+        if any(widx[j + 1] - widx[j] != 1 for j in range(11)):
+            continue
+        shares = _window_shares(window)
+        if not shares:
+            continue
+        points.append({"period": rows[i]["period"], **shares})
+    if len(points) < 13:
+        return None
+    return points
+
+
+def latest_proof(fm: dict) -> tuple[str, str, str] | None:
+    """Newest month, the URL that proves it, and whether that URL is the document."""
+    rows = _whole_monthly(fm)
+    if not rows:
+        return None
+    period = rows[-1]["period"]
+    found = URL_RE.search(rows[-1].get("notes") or "")
+    if found:
+        return period, found.group(0), "document"
+    url = fm.get("source_url") or ""
+    if not url:
+        return None
+    return period, url, "source"
+
+
+def build_mix_svg(points: list[dict]) -> str:
+    width, height = 720, 236
+    left, right, top, bottom = 32, 8, 10, 26
+    plot_w = width - left - right
+    plot_h = height - top - bottom
+    start = _month_index(points[0]["period"])
+    end = _month_index(points[-1]["period"])
+    span_m = max(1, end - start)
+
+    def x_of(period: str) -> float:
+        return left + plot_w * (_month_index(period) - start) / span_m
+
+    def y_of(share: float) -> float:
+        return top + plot_h * (1 - share / 100)
+
+    paths = []
+    for name, color in _MIX:
+        below_names = [key for key, _ in _MIX]
+        upper, lower = [], []
+        for i, point in enumerate(points):
+            below = sum(point[key] for key in below_names[:below_names.index(name)])
+            upper.append((x_of(point["period"]), y_of(below + point[name])))
+            lower.append((x_of(point["period"]), y_of(below)))
+        commands = [f"M{upper[0][0]:.1f},{upper[0][1]:.1f}"]
+        commands += [f"L{x:.1f},{y:.1f}" for x, y in upper[1:]]
+        commands += [f"L{x:.1f},{y:.1f}" for x, y in reversed(lower)]
+        commands.append("Z")
+        paths.append(f'<path d="{" ".join(commands)}" fill="{color}"/>')
+
+    years = []
+    seen: set[str] = set()
+    for i, point in enumerate(points):
+        year = point["period"][:4]
+        if year not in seen:
+            seen.add(year)
+            years.append((i, year))
+    span = int(years[-1][1]) - int(years[0][1])
+    step = 1 if span <= 10 else 2 if span <= 20 else 5
+    kept = [pair for n, pair in enumerate(years) if n % step == 0]
+    if years[-1] not in kept:
+        kept.append(years[-1])
+
+    guides = []
+    for mark in (0, 50, 100):
+        y = y_of(mark)
+        guides.append(
+            f'<text x="{left - 6}" y="{y + 3:.1f}" text-anchor="end">{mark}</text>'
+        )
+        if mark:
+            guides.append(
+                f'<line x1="{left}" y1="{y:.1f}" x2="{left + plot_w}" y2="{y:.1f}" class="mix-grid"/>'
+            )
+    labels = []
+    last_x = -999.0
+    for n, (i, year) in enumerate(kept):
+        x = x_of(points[i]["period"])
+        if labels and x - last_x < 46:
+            continue
+        anchor = "start" if not labels else "end" if n == len(kept) - 1 else "middle"
+        labels.append(
+            f'<text x="{x:.1f}" y="{height - 8}" text-anchor="{anchor}">{year}</text>'
+        )
+        last_x = x
+    end = points[-1]
+    label = (f"Trailing twelve months through {end['period']}. "
+             f"Battery electric {end['BEV']:.1f}%.")
+    return (
+        f'<svg class="mix" viewBox="0 0 {width} {height}" role="img" aria-label="{esc(label)}">'
+        f'{"".join(paths)}{"".join(guides)}{"".join(labels)}</svg>'
+    )
 
 
 def _shift_line(shift: dict) -> str:
@@ -1839,11 +1962,41 @@ def build_header(fm: dict) -> tuple[str, str]:
     slug = fm.get("slug") or ""
     if slug and (REPO / "assets" / "flags" / f"{slug}.png").is_file():
         flag = f'<img class="flag" src="../assets/flags/{esc(slug)}.png" alt="">'
+    points = mix_series(fm)
+    picture = f'<div class="shift">{_shift_rows(shift)}</div>'
+    if points:
+        hybrid = "Full hybrid" if shift["hev_full"] else "Hybrids"
+        names = {
+            "BEV": "Battery electric",
+            "PHEV": "Plug-in hybrid",
+            "HEV": hybrid,
+            "ICE": "Petrol and diesel",
+        }
+        legend = "".join(
+            f'<span class="swatch {key.lower()}">{esc(names[key])}</span>'
+            for key, _ in _MIX
+        )
+        proof = latest_proof(fm)
+        proof_html = ""
+        if proof:
+            period, url, kind = proof
+            if kind == "document":
+                text = f"{_month_label(period)} document"
+            else:
+                text = (fm.get("source_name") or "source").split("—")[0].strip()
+                if len(text) > 28:
+                    text = text[:27].rstrip() + "…"
+            proof_html = (
+                f'<a class="mix-doc" href="{esc(url)}">{esc(text)} ↗</a>'
+            )
+        picture = (
+            f'<div class="mix-panel" data-theme="light">{build_mix_svg(points)}'
+            f'<div class="mix-foot">{legend}{proof_html}</div></div>'
+        )
     poster = (
-        f'<figure class="poster"><div class="poster-top">{flag}<div>{title}'
-        f'<p class="poster-line">{esc(_shift_line(shift))}</p></div></div>'
-        f'<div class="shift">{_shift_rows(shift)}</div>'
-        f'<figcaption>{esc(caption)}</figcaption></figure>'
+        f'<figure class="poster"><div class="poster-top">{flag}<div>{title}</div></div>'
+        f'{picture}'
+        f'<figcaption>{esc(_shift_line(shift))} {esc(caption)}</figcaption></figure>'
     )
     return poster, f'<p class="file-kicker">The file {chip}</p>'
 
@@ -2116,29 +2269,23 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 .flag{width:64px;height:44px;object-fit:cover;border-radius:3px;flex:none;
   box-shadow:0 0 0 1px var(--line)}
 .poster h1{margin:0}
-.poster-line{font-family:var(--font-display);font-size:20px;font-weight:500;
-  line-height:1.35;margin:6px 0 0;max-width:34em}
-.shift-row{display:grid;grid-template-columns:11.5rem 1fr 3.4rem;gap:10px;
-  align-items:center;margin:7px 0}
-.shift-name{font-size:14px;line-height:1.2}
-.shift-name em{display:block;font-style:normal;color:var(--muted);font-size:12px;margin-top:1px}
-.shift-track{position:relative;height:16px}
-.shift-zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted);opacity:.45}
-.shift-bar{position:absolute;top:2px;height:12px;border-radius:2px}
-.shift-bar.loss{opacity:.7}
-.shift-bar.bev{background:#2e8b57}
-.shift-bar.phev{background:#3a78b5}
-.shift-bar.hev{background:#c4a035}
-.shift-bar.ice{background:#6e6b64}
-.shift-pp{font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
-.poster figcaption{color:var(--muted);font-size:13px;margin:10px 0 0}
+.poster figcaption{font-family:var(--font-display);font-size:18px;font-weight:500;
+  line-height:1.35;color:var(--text);margin:14px 0 0;max-width:36em}
+.mix-panel{background:var(--bg);color:var(--text);border-radius:2px;padding:6px 8px 8px}
+.mix{display:block;width:100%;height:auto}
+.mix text{fill:#55534c;font-size:11px;font-family:var(--font-ui),sans-serif}
+.mix-grid{stroke:#e4e2dd;stroke-width:1}
+.mix-foot{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;
+  font-size:12px;color:#55534c;margin:2px 4px 0}
+.swatch::before{content:"";display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:-1px}
+.swatch.ice::before{background:#cfcabe}
+.swatch.hev::before{background:#e0c36a}
+.swatch.phev::before{background:#6f9ed4}
+.swatch.bev::before{background:#3d9a68}
+.mix-doc{margin-left:auto;font-weight:600}
 .file-kicker{margin:20px 0 8px;font-size:12px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--muted)}
 .file-kicker .chip{text-transform:none;letter-spacing:.03em;margin-left:8px}
-@media (max-width:560px){
-  .shift-row{grid-template-columns:1fr 3.4rem}
-  .shift-name{grid-column:1 / -1}
-}
 
 /* Coverage timeline — one hue, no legend needed (a single series). */
 .cov{display:block;margin:6px 0 0;max-width:100%}
