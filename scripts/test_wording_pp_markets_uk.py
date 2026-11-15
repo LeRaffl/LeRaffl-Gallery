@@ -3,7 +3,7 @@
 
 Run:  python scripts/test_wording_pp_markets_uk.py
  - Durations 'Numerical speed' is a slope in percentage points per year -> 'pp/year' (not '%/year')
- - hero lede says '~60 markets'
+ - hero lede does not claim the figures are open data, and does not say '40+ markets'
  - Fleet picker / chart footer show 'UK' (display only; data key stays 'United Kingdom')
 """
 import pathlib, re, sys
@@ -13,7 +13,9 @@ checks = [
     ("durations cells use pp/year", "' pp/year'" in HTML),
     ("tag tooltip uses pp/yr", "' pp/yr'" in HTML),
     ("Numerical speed header explains pp", 'data-k="_speed" title="Steepest slope' in HTML),
-    ("hero lede ~60 markets", "Open data. ~60 markets" in HTML and "40+ markets" not in HTML),
+    ("hero lede does not claim open data",
+     "Updated as new figures land. Not every market counts the same thing." in HTML
+     and "Open data." not in HTML and "40+ markets" not in HTML),
     ("fleet display helper", "function fleetDisplayName(name){ return name === 'United Kingdom' ? 'UK' : name; }" in HTML),
     ("fleet option label uses helper", "opt.textContent = fleetDisplayName(label);" in HTML),
     ("fleet chart footer uses helper", "selectedCountries.map(fleetDisplayName)" in HTML),
