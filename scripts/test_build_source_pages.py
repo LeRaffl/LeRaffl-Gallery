@@ -122,6 +122,19 @@ def test_page_places_section_after_how_it_works():
     page = bsp.build_page(fm, {})
     assert page.index("<h2>How it works</h2>") < page.index("<h2>Why other figures differ</h2>")
     assert "table.recon{" in page
+    assert 'class="poster"' not in page
+    assert "<h1>Testland" in page
+
+
+def test_germany_shift_matches_the_published_window():
+    shift = bsp.combustion_shift({"data_file": "data/Germany.csv", "hev_split": True})
+    assert shift is not None
+    assert shift["end"] == "2026-10"
+    assert abs(shift["dB"] - 9.4068) < 0.01
+    assert abs(shift["dI"] + 10.0114) < 0.01
+    assert bsp._shift_line(shift) == (
+        "Petrol and diesel lost 10 points. Battery electric took 9.4 of them."
+    )
 
 
 def test_repo_front_matter_still_valid():

@@ -1659,6 +1659,195 @@ def build_classification(fm: dict) -> str:
     return "".join(parts)
 
 
+# The poster is this country's own row of the combustion-shift, not the
+# cross-country chart. Last 12 monthly months against the 12 before, from
+# the committed Whole CSV. An empty cell is unknown, so the poster is
+# omitted rather than drawn as zero.
+_SHIFT_ROWS = (
+    ("bev", "Battery electric", "b1", "dB"),
+    ("phev", "Plug-in hybrid", "p1", "dP"),
+    ("hev", "Full hybrid", "h1", "dH"),
+    ("ice", "Petrol and diesel", "i1", "dI"),
+)
+
+
+def _num_cell(raw) -> float | None:
+    if raw is None or str(raw).strip() == "":
+        return None
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
+def _col_sum(rows: list[dict], name: str) -> float | None:
+    total = 0.0
+    for row in rows:
+        value = _num_cell(row.get(name))
+        if value is None:
+            return None
+        total += value
+    return total
+
+
+def _optional_sum(rows: list[dict], name: str) -> float | None:
+    """0 when the column is absent or unused. None when it is partly empty."""
+    if not rows or name not in rows[0]:
+        return 0.0
+    if all(_num_cell(row.get(name)) is None for row in rows):
+        return 0.0
+    return _col_sum(rows, name)
+
+
+def _window_shares(rows: list[dict]) -> dict | None:
+    total = _col_sum(rows, "TOTAL")
+    bev = _col_sum(rows, "BEV")
+    phev = _col_sum(rows, "PHEV")
+    hev = _col_sum(rows, "HEV")
+    erev = _optional_sum(rows, "EREV")
+    if total is None or bev is None or phev is None or hev is None or erev is None or not total:
+        return None
+    plug = phev + erev
+    return {
+        "BEV": 100 * bev / total,
+        "PHEV": 100 * plug / total,
+        "HEV": 100 * hev / total,
+        "ICE": 100 * (total - bev - plug - hev) / total,
+    }
+
+
+def _pp(value: float) -> str:
+    absolute = abs(value)
+    nearest = round(absolute)
+    if abs(absolute - nearest) < 0.05:
+        return f"{nearest:.0f}"
+    return f"{absolute:.1f}"
+
+
+def _signed(value: float) -> str:
+    if abs(value) < 0.05:
+        return "0"
+    return ("+" if value > 0 else "−") + _pp(value)
+
+
+def combustion_shift(fm: dict) -> dict | None:
+    """12-month shift for Whole, or None when the CSV cannot support it."""
+    path = REPO / (fm.get("data_file") or "")
+    if not path.is_file():
+        return None
+    rows = []
+    with path.open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            if row.get("time_interval") != "monthly":
+                continue
+            if row.get("variant") not in ("", "Whole"):
+                continue
+            if row.get("period"):
+                rows.append(row)
+    if len(rows) < 24:
+        return None
+    tail = rows[-24:]
+
+    def month_index(period: str) -> int:
+        year, month = period.split("-")[:2]
+        return int(year) * 12 + int(month)
+
+    indexes = [month_index(row["period"]) for row in tail]
+    if any(indexes[i + 1] - indexes[i] != 1 for i in range(23)):
+        return None
+    before = _window_shares(tail[:12])
+    after = _window_shares(tail[12:])
+    if not before or not after:
+        return None
+    return {
+        "end": tail[-1]["period"],
+        "hev_full": fm.get("hev_split") is True,
+        "b1": after["BEV"], "p1": after["PHEV"], "h1": after["HEV"], "i1": after["ICE"],
+        "dB": after["BEV"] - before["BEV"],
+        "dP": after["PHEV"] - before["PHEV"],
+        "dH": after["HEV"] - before["HEV"],
+        "dI": after["ICE"] - before["ICE"],
+    }
+
+
+def _shift_line(shift: dict) -> str:
+    lost = -shift["dI"]
+    hybrid = "Full hybrids" if shift["hev_full"] else "Hybrids"
+    if shift["i1"] < 1.5 and abs(lost) < 1.5:
+        return "There is almost no petrol and diesel left."
+    if lost < 0.5:
+        if shift["dB"] <= -1:
+            return "Battery electric lost share, and petrol and diesel did not shrink."
+        return "Petrol and diesel barely moved."
+    gains = (
+        ("Battery electric", shift["dB"]),
+        ("Plug-in hybrids", shift["dP"]),
+        (hybrid, shift["dH"]),
+    )
+    name, gained = max(gains, key=lambda item: item[1])
+    lost_s = _pp(lost)
+    if gained <= 0.3:
+        return (f"Petrol and diesel lost {lost_s} points. "
+                "None of it showed up in an electric column.")
+    gained_s = _pp(gained)
+    if gained > lost + 0.8:
+        return f"Petrol and diesel lost {lost_s} points. {name} gained {gained_s}."
+    if gained >= lost * 0.75:
+        return f"Petrol and diesel lost {lost_s} points. {name} took {gained_s} of them."
+    if gained >= lost * 0.45:
+        return f"Petrol and diesel lost {lost_s} points. Most of that went to {name.lower()}."
+    return f"Petrol and diesel lost {lost_s} points, split across the electric columns."
+
+
+def _shift_rows(shift: dict) -> str:
+    hybrid = "Full hybrid" if shift["hev_full"] else "Hybrids"
+    names = {"hev": hybrid}
+    scale = max(abs(shift[key]) for key in ("dB", "dP", "dH", "dI")) or 1
+    rows = []
+    for css, label, level, delta in _SHIFT_ROWS:
+        change = shift[delta]
+        width = min(50, abs(change) / scale * 50)
+        if change >= 0:
+            style = f"left:50%;width:{width:.2f}%"
+        else:
+            style = f"right:50%;width:{width:.2f}%"
+        kind = "gain" if change >= 0 else "loss"
+        rows.append(
+            f'<div class="shift-row"><span class="shift-name">{esc(names.get(css, label))}'
+            f'<em>now {shift[level]:.1f}%</em></span>'
+            f'<span class="shift-track"><i class="shift-zero"></i>'
+            f'<i class="shift-bar {css} {kind}" style="{style}"></i></span>'
+            f'<span class="shift-pp">{_signed(change)}</span></div>'
+        )
+    return "".join(rows)
+
+
+def build_header(fm: dict) -> tuple[str, str]:
+    """Poster when the CSV can carry it, otherwise the plain title.
+
+    The second value is the file-card kicker, empty when there is no poster.
+    """
+    country = esc(fm.get("country", "Unknown"))
+    chip = method_chip(fm.get("method", ""))
+    title = f"<h1>{country}</h1>"
+    shift = combustion_shift(fm)
+    if not shift:
+        return f"<h1>{country} {chip}</h1>", ""
+    caption = (f"Last 12 months against the 12 before, through "
+               f"{_month_label(shift['end'])}.")
+    flag = ""
+    slug = fm.get("slug") or ""
+    if slug and (REPO / "assets" / "flags" / f"{slug}.png").is_file():
+        flag = f'<img class="flag" src="../assets/flags/{esc(slug)}.png" alt="">'
+    poster = (
+        f'<figure class="poster"><div class="poster-top">{flag}<div>{title}'
+        f'<p class="poster-line">{esc(_shift_line(shift))}</p></div></div>'
+        f'<div class="shift">{_shift_rows(shift)}</div>'
+        f'<figcaption>{esc(caption)}</figcaption></figure>'
+    )
+    return poster, f'<p class="file-kicker">The file {chip}</p>'
+
+
 def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
@@ -1705,11 +1894,14 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
         model_note = (f'Curves in the gallery are fitted through '
                       f'<code>{esc(latest_period)}</code>.<br>')
 
+    header, file_kicker = build_header(fm)
     return TEMPLATE.format(
         theme_href=THEME_HREF,
         css=BASE_CSS,
         country=esc(country),
         method_chip=method_chip(fm.get("method", "")),
+        header=header,
+        file_kicker=file_kicker,
         banner=banner,
         summary=esc(fm.get("summary", "")),
         latest_period=esc(latest_period),
@@ -1918,6 +2110,36 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 .live-src{font-size:14px;margin:12px 0 0}
 .source-btn--dead{color:var(--muted);font-weight:600}
 
+/* Country poster — this country's own slice, above the file card. */
+.poster{margin:2px 0 26px;padding:0 0 18px;border-bottom:1.5px solid var(--text)}
+.poster-top{display:flex;align-items:center;gap:16px;margin:0 0 16px}
+.flag{width:64px;height:44px;object-fit:cover;border-radius:3px;flex:none;
+  box-shadow:0 0 0 1px var(--line)}
+.poster h1{margin:0}
+.poster-line{font-family:var(--font-display);font-size:20px;font-weight:500;
+  line-height:1.35;margin:6px 0 0;max-width:34em}
+.shift-row{display:grid;grid-template-columns:11.5rem 1fr 3.4rem;gap:10px;
+  align-items:center;margin:7px 0}
+.shift-name{font-size:14px;line-height:1.2}
+.shift-name em{display:block;font-style:normal;color:var(--muted);font-size:12px;margin-top:1px}
+.shift-track{position:relative;height:16px}
+.shift-zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted);opacity:.45}
+.shift-bar{position:absolute;top:2px;height:12px;border-radius:2px}
+.shift-bar.loss{opacity:.7}
+.shift-bar.bev{background:#2e8b57}
+.shift-bar.phev{background:#3a78b5}
+.shift-bar.hev{background:#c4a035}
+.shift-bar.ice{background:#6e6b64}
+.shift-pp{font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+.poster figcaption{color:var(--muted);font-size:13px;margin:10px 0 0}
+.file-kicker{margin:20px 0 8px;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted)}
+.file-kicker .chip{text-transform:none;letter-spacing:.03em;margin-left:8px}
+@media (max-width:560px){
+  .shift-row{grid-template-columns:1fr 3.4rem}
+  .shift-name{grid-column:1 / -1}
+}
+
 /* Coverage timeline — one hue, no legend needed (a single series). */
 .cov{display:block;margin:6px 0 0;max-width:100%}
 .cov-bar{fill:var(--accent);opacity:.85}
@@ -2048,8 +2270,9 @@ TEMPLATE = """<!doctype html>
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <h1>{country} {method_chip}</h1>
+  {header}
   {banner}
+  {file_kicker}
   <p class="lead">{summary}</p>
 
   <div class="stats">

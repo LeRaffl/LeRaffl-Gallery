@@ -105,6 +105,36 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 .live-src{font-size:14px;margin:12px 0 0}
 .source-btn--dead{color:var(--muted);font-weight:600}
 
+/* Country poster — this country's own slice, above the file card. */
+.poster{margin:2px 0 26px;padding:0 0 18px;border-bottom:1.5px solid var(--text)}
+.poster-top{display:flex;align-items:center;gap:16px;margin:0 0 16px}
+.flag{width:64px;height:44px;object-fit:cover;border-radius:3px;flex:none;
+  box-shadow:0 0 0 1px var(--line)}
+.poster h1{margin:0}
+.poster-line{font-family:var(--font-display);font-size:20px;font-weight:500;
+  line-height:1.35;margin:6px 0 0;max-width:34em}
+.shift-row{display:grid;grid-template-columns:11.5rem 1fr 3.4rem;gap:10px;
+  align-items:center;margin:7px 0}
+.shift-name{font-size:14px;line-height:1.2}
+.shift-name em{display:block;font-style:normal;color:var(--muted);font-size:12px;margin-top:1px}
+.shift-track{position:relative;height:16px}
+.shift-zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted);opacity:.45}
+.shift-bar{position:absolute;top:2px;height:12px;border-radius:2px}
+.shift-bar.loss{opacity:.7}
+.shift-bar.bev{background:#2e8b57}
+.shift-bar.phev{background:#3a78b5}
+.shift-bar.hev{background:#c4a035}
+.shift-bar.ice{background:#6e6b64}
+.shift-pp{font-variant-numeric:tabular-nums;font-size:13px;text-align:right}
+.poster figcaption{color:var(--muted);font-size:13px;margin:10px 0 0}
+.file-kicker{margin:20px 0 8px;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted)}
+.file-kicker .chip{text-transform:none;letter-spacing:.03em;margin-left:8px}
+@media (max-width:560px){
+  .shift-row{grid-template-columns:1fr 3.4rem}
+  .shift-name{grid-column:1 / -1}
+}
+
 /* Coverage timeline — one hue, no legend needed (a single series). */
 .cov{display:block;margin:6px 0 0;max-width:100%}
 .cov-bar{fill:var(--accent);opacity:.85}
@@ -225,8 +255,9 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <h1>Taiwan <span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></h1>
+  <figure class="poster"><div class="poster-top"><img class="flag" src="../assets/flags/taiwan.png" alt=""><div><h1>Taiwan</h1><p class="poster-line">Petrol and diesel lost 8.6 points. Most of that went to full hybrids.</p></div></div><div class="shift"><div class="shift-row"><span class="shift-name">Battery electric<em>now 11.2%</em></span><span class="shift-track"><i class="shift-zero"></i><i class="shift-bar bev gain" style="left:50%;width:14.31%"></i></span><span class="shift-pp">+2.5</span></div><div class="shift-row"><span class="shift-name">Plug-in hybrid<em>now 1.0%</em></span><span class="shift-track"><i class="shift-zero"></i><i class="shift-bar phev gain" style="left:50%;width:1.33%"></i></span><span class="shift-pp">+0.2</span></div><div class="shift-row"><span class="shift-name">Full hybrid<em>now 39.7%</em></span><span class="shift-track"><i class="shift-zero"></i><i class="shift-bar hev gain" style="left:50%;width:34.35%"></i></span><span class="shift-pp">+5.9</span></div><div class="shift-row"><span class="shift-name">Petrol and diesel<em>now 48.1%</em></span><span class="shift-track"><i class="shift-zero"></i><i class="shift-bar ice loss" style="right:50%;width:50.00%"></i></span><span class="shift-pp">−8.6</span></div></div><figcaption>Last 12 months against the 12 before, through September 2026.</figcaption></figure>
   
+  <p class="file-kicker">The file <span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></p>
   <p class="lead">New-vehicle registration data for Taiwan from the Highway Bureau&#x27;s national motor-vehicle register — monthly new registrations by vehicle kind and fuel, with battery-electric, plug-in, range-extender and hybrid each its own category — read from the Ministry of Transportation&#x27;s statistics database.</p>
 
   <div class="stats">
