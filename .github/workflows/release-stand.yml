@@ -1,12 +1,14 @@
 name: Monthly release stand
 
-# On the 1st at 06:00 UTC, tag the month that just ended and publish the note.
+# Last evening of the month, 21:00 UTC (22:00 Vienna in winter, 23:00 in summer).
+# Cron cannot name the last day, so it wakes on the 28th–31st and publishes
+# only when tomorrow is the 1st in Europe/Vienna.
 # A manual run prints the note and does not publish unless publish is true.
 # This does not mint a DOI. Zenodo does that once the repo is connected there.
 
 on:
   schedule:
-    - cron: '0 6 1 * *'
+    - cron: '0 21 28-31 * *'
   workflow_dispatch:
     inputs:
       publish:
@@ -14,7 +16,7 @@ on:
         type: boolean
         default: false
       month:
-        description: 'Stand month YYYY-MM. Empty uses the previous month on the 1st, otherwise the current month.'
+        description: 'Stand month YYYY-MM. Empty uses the current month in Vienna.'
         required: false
         type: string
         default: ''
@@ -31,7 +33,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -40,17 +42,19 @@ jobs:
         run: |
           set -euo pipefail
           MONTH="${{ inputs.month }}"
+          if [ "$(TZ=Europe/Vienna date -d 'tomorrow' +%d)" = "01" ]; then
+            echo "last_day=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "last_day=0" >> "$GITHUB_OUTPUT"
+          fi
           if [ -z "$MONTH" ]; then
-            if [ "$(date -u +%d)" = "01" ]; then
-              MONTH=$(date -u -d 'yesterday' +%Y-%m)
-            else
-              MONTH=$(date -u +%Y-%m)
-            fi
+            MONTH=$(TZ=Europe/Vienna date +%Y-%m)
           fi
           echo "month=$MONTH" >> "$GITHUB_OUTPUT"
           echo "tag=v$MONTH" >> "$GITHUB_OUTPUT"
 
       - name: Build the note
+        if: github.event_name != 'schedule' || steps.month.outputs.last_day == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -63,7 +67,7 @@ jobs:
           cat "$RUNNER_TEMP/notes.md"
 
       - name: Publish
-        if: github.event_name == 'schedule' || inputs.publish
+        if: (github.event_name == 'schedule' && steps.month.outputs.last_day == '1') || inputs.publish
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
