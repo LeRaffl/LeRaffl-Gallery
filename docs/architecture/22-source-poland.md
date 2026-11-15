@@ -190,10 +190,12 @@ Cross-check (Apr-2026), all matching the workbook to the unit:
 
 Every variant whose CSV changed is auto-rendered on schedule. Vans, HDV and
 Buses used to be fetch-only because their history was thin; they now run from
-2021-07 (26 months through 2026-10) and are in `params.csv`. The workbook
+2021-07 through 2026-10 (26 rows: ACEA yearly and quarterly history, PZPM
+monthly since 2026-04) and are in `params.csv`. The workbook
 itself still carries only the current month, which is why the CSVs must keep
-accumulating. A missed month (for example October 2026, already in the CSV
-when this policy changed) still needs a one-off `render-country.yml` dispatch.
+accumulating. A month that is already in the CSV when a variant is switched
+to auto-render still needs a one-off `render-country.yml` dispatch (October
+2026 was rendered that way on 12.11.2026).
 
 ## 5. Gotchas
 

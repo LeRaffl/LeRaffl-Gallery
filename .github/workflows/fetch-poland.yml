@@ -18,8 +18,9 @@ name: Fetch Poland data (PZPM eRegistrations)
 #
 # Every variant whose CSV changed is dispatched to render-country.yml. The
 # commercial variants used to be fetch-only because their history was thin
-# ("started 2026"); they now run from 2021-07 (26 months through 2026-10),
-# so that restriction no longer applies. The workbook still only carries the
+# ("started 2026"); they now run from 2021-07 through 2026-10 (26 rows:
+# ACEA yearly and quarterly history, PZPM monthly since 2026-04), so that
+# restriction no longer applies. The workbook still only carries the
 # current month, which is why the CSVs must keep accumulating.
 #
 # See scripts/fetch_poland.py and docs/architecture/22-source-poland.md.
