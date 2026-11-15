@@ -1,0 +1,8 @@
+🇲🇾 Malaysia - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++3.9pp  BEV     (4.2% → 8.0%)
++2.3pp  Hybrid  (3.5% → 5.8%)
+−6.1pp  ICE     (92.3% → 86.2%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2033-06.

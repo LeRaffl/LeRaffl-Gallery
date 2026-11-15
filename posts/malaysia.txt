@@ -1,11 +1,9 @@
-🇲🇾 Malaysia - September 26 - BEV Trajectory
-8.1% BEV
-7.3% Hybrid
-84.5% ICE
+🇲🇾 Malaysia - October 26 - BEV Trajectory
+6.1% BEV
+6.7% Hybrid
+87.2% ICE
 
 Trailing 12 months are:
 8.0% BEV
-5.5% Hybrid
-86.5% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+5.8% Hybrid
+86.2% ICE
