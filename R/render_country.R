@@ -364,11 +364,25 @@ add_header_overlays <- function(g, meta, show_flag = TRUE, show_qr = TRUE) {
   g
 }
 
+TITLE_FIT_CHARS <- 80
+fit_title <- function(plot) {
+  labs_of <- if (exists("get_labs", asNamespace("ggplot2"))) ggplot2::get_labs(plot) else plot$labels
+  n <- nchar(labs_of$title %||% "")
+  if (n <= TITLE_FIT_CHARS) return(plot)
+  plot + theme(plot.title = element_text(size = rel(1.5 * TITLE_FIT_CHARS / n)))
+}
+
 save_one <- function(plot, fname, w, h, units, dpi = 300, show_flag = TRUE, show_qr = TRUE) {
   if (is.null(plot)) { cat("[render] skip ", fname, " (nothing to plot)\n"); return(invisible()) }
   path <- file.path(out_dir, fname)
 
   if (!is.null(meta$flag_img) && show_flag) {
+    # A long title would run under the QR code and flag, which sit at the
+    # right of the header from about 78 % of the width. Up to
+    # TITLE_FIT_CHARS characters fit at the normal size (rel(1.5), set by
+    # every plot that carries a flag); a longer title is scaled down so it
+    # takes the same width.
+    plot <- fit_title(plot)
     # Convert to gtable, composite header overlays, save via png/grid.draw.
     g <- add_header_overlays(ggplotGrob(plot), meta, show_flag = show_flag, show_qr = show_qr)
     w_in <- if (units == "px") w / dpi else w
