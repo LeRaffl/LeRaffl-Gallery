@@ -268,7 +268,10 @@ def build_rows(periods: dict, since: str | None) -> dict:
             "time_interval": "monthly",
             "variant":       VARIANT,
             "source":        SOURCE,
-            **{c: (float(cols[c]) if cols[c] else "") for c in VALUE_COLUMNS},
+            # A fuel with no units in a month is a counted zero (every column
+            # starts at 0.0 in parse_m03), not "not reported": write 0.0.
+            # Writing it as empty broke the strict 12-month TTM window (#425).
+            **{c: float(cols[c]) for c in VALUE_COLUMNS},
             "TOTAL":         float(total),
             "notes":         "",
         }

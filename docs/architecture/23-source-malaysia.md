@@ -96,6 +96,8 @@ Georgia, and Colombia:
 
 - Combined hybrids → `HEV` column.
 - `PHEV` column left empty (not zero — empty, to signal "not reported").
+- Every other fuel column is written as `0.0` when the register has no vehicle
+  of that fuel in a month: a counted zero, not "not reported" (#426).
 - TTM split chart labels the band **"Hybrid"** (not "HEV"), via the
   `compute_ttm_long` relabelling in `R/data.R`.
 - In the BEV / ICE / PHEV trajectory chart, hybrids count as **ICE**

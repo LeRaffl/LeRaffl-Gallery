@@ -100,6 +100,9 @@ Diesel                      → DIESEL
 CNG / Petrol-CNG / Others   → OTHERS
 ```
 
+A fuel with no units in a month is written as `0.0`, a counted zero, never
+as empty (#425).
+
 Validation: the parser reproduces the known monthly fuel totals exactly, e.g.
 2026-05 = BEV 2930 / PHEV 121 / HEV 1230 / PETROL 196 / DIESEL 1 (rows_ok=125,
 rows_bad=0). Footnote/header lines are skipped (they carry no fuel suffix).
