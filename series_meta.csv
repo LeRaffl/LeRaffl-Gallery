@@ -1,8 +1,8 @@
 country,variant,data_per,bev_label,ev_combined,ev_combined_any,ev_basis_change,has_phev_split,hev_in_ice
-Albania,2-Wheelers,2026-09,BEV,false,false,,false,false
-Albania,Buses,2026-09,BEV,false,false,,false,false
-Albania,HDV,2026-09,BEV,false,false,,false,false
-Albania,Whole,2026-09,BEV,false,false,,true,true
+Albania,2-Wheelers,2026-10,BEV,false,false,,false,false
+Albania,Buses,2026-10,BEV,false,false,,false,false
+Albania,HDV,2026-10,BEV,false,false,,false,false
+Albania,Whole,2026-10,BEV,false,false,,true,true
 Australia,Whole,2026-10,BEV,false,false,,true,true
 Austria,Vans,2026-10,BEV,false,false,,false,false
 Austria,Whole,2026-10,BEV,false,false,,true,true
@@ -18,11 +18,11 @@ Colombia,Whole,2026-10,BEV,false,false,,false,false
 Croatia,Whole,2026-09,BEV,false,false,,true,true
 Cyprus,Whole,2026-09,BEV,false,false,,true,true
 Czechia,Whole,2026-09,BEV,false,false,,true,true
-Denmark,HDV,2026-09,BEV,false,false,,true,true
-Denmark,Industry,2026-09,BEV,false,false,,true,true
-Denmark,Private,2026-09,BEV,false,false,,true,true
-Denmark,Vans,2026-09,BEV,false,false,,true,true
-Denmark,Whole,2026-09,BEV,false,false,,true,true
+Denmark,HDV,2026-10,BEV,false,false,,true,true
+Denmark,Industry,2026-10,BEV,false,false,,true,true
+Denmark,Private,2026-10,BEV,false,false,,true,true
+Denmark,Vans,2026-10,BEV,false,false,,true,true
+Denmark,Whole,2026-10,BEV,false,false,,true,true
 Estonia,Whole,2026-10,BEV,false,false,,true,true
 Finland,Buses,2026-10,BEV,false,false,,true,true
 Finland,HDV,2026-10,BEV,false,false,,true,true
@@ -50,11 +50,11 @@ Italy,Whole,2026-10,BEV,false,false,,true,true
 Japan,Whole,2026-10,BEV,false,false,,true,true
 Latvia,Used,2026-09,BEV,false,false,,true,true
 Latvia,Whole,2026-09,BEV,false,false,,true,true
-Lithuania,Whole,2026-09,BEV,false,false,,true,true
+Lithuania,Whole,2026-10,BEV,false,false,,true,true
 Luxembourg,HDV,2026-10,BEV,false,false,,true,true
 Luxembourg,Vans,2026-10,BEV,false,false,,true,true
 Luxembourg,Whole,2026-10,BEV,false,false,,true,true
-Malaysia,Whole,2026-09,BEV,false,false,,false,false
+Malaysia,Whole,2026-10,BEV,false,false,,false,false
 Malta,Whole,2026-09,BEV,false,false,,true,true
 Nepal,3-Wheelers,2026-10,BEV,false,false,,false,false
 Nepal,Whole,2026-10,BEV,false,false,,false,false
@@ -66,7 +66,7 @@ Norway,Whole,2026-10,BEV,false,false,,true,true
 Poland,Whole,2026-10,BEV,false,false,,true,true
 Portugal,Whole,2026-10,BEV,false,false,,true,true
 Romania,Whole,2026-09,BEV,false,false,,true,true
-Singapore,Whole,2026-09,BEV,false,false,,true,true
+Singapore,Whole,2026-10,BEV,false,false,,true,true
 Slovakia,Whole,2026-09,BEV,false,false,,true,true
 Slovenia,Whole,2026-09,BEV,false,false,,true,true
 South Korea,Whole,2026-09,BEV,false,false,,true,true
@@ -114,7 +114,7 @@ Estonia,HDV,2026-10,BEV,false,false,,true,true
 France,HDV,2026-09,EV,true,true,,false,false
 Norway,HDV,2026-09,EV,true,true,,false,false
 Portugal,HDV,2026-08,BEV,false,false,,true,true
-Poland,HDV,2026-09,BEV,false,true,2026-04,false,false
+Poland,HDV,2026-10,BEV,false,true,2026-04,false,false
 Latvia,HDV,2026-09,BEV,false,false,,true,true
 Czechia,HDV,2026-09,BEV,false,false,,true,true
 Greece,HDV,2026-09,EV,true,true,,false,false
@@ -135,13 +135,13 @@ Ukraine,Industry,2026-08,BEV,false,false,,false,false
 Ukraine,Used,2026-08,BEV,false,false,,false,false
 Ukraine,Vans,2026-08,BEV,false,false,,false,false
 Hong Kong,Whole,2026-08,BEV,false,false,,true,true
-Peru,Whole,2026-09,BEV,false,false,,true,true
-Peru,Vans,2026-09,BEV,false,false,,true,true
+Peru,Whole,2026-10,BEV,false,false,,true,true
+Peru,Vans,2026-10,BEV,false,false,,true,true
 Switzerland,Vans,2026-10,BEV,false,false,,true,true
 Switzerland,Buses,2026-10,BEV,false,false,,true,true
 Switzerland,2-Wheelers,2026-10,BEV,false,false,,true,true
 Switzerland,Used,2026-10,BEV,false,false,,true,true
-Poland,Vans,2026-09,BEV,false,true,2026-04,false,false
+Poland,Vans,2026-10,BEV,false,true,2026-04,false,false
 Paraguay,Whole,2026-10,BEV,false,false,,true,true
 Ecuador,Whole,2026-10,BEV,false,false,,true,true
 Ecuador,Vans,2026-10,BEV,false,false,,true,true
@@ -157,7 +157,7 @@ New Zealand,Vans,2026-10,BEV,false,false,,true,true
 New Zealand,HDV,2026-10,BEV,false,false,,true,true
 New Zealand,Used,2026-10,BEV,false,false,,true,true
 China,Wholesale,2026-09,BEV,false,false,,true,true
-Lithuania,Used,2026-09,BEV,false,false,,false,false
+Lithuania,Used,2026-10,BEV,false,false,,false,false
 South Africa,Whole,2026-06,BEV,false,false,,true,true
 Latvia,Private,2026-09,BEV,false,false,,true,true
 Latvia,Industry,2026-09,BEV,false,false,,true,true
@@ -168,7 +168,7 @@ Estonia,Industry,2026-09,BEV,false,false,,true,true
 Estonia,Used,2026-10,BEV,false,false,,false,false
 Belgium,Private,2026-10,BEV,false,false,,true,true
 Belgium,Industry,2026-10,BEV,false,false,,true,true
-Austria,Resale,2026-09,BEV,false,false,,true,true
+Austria,Resale,2026-10,BEV,false,false,,true,true
 Vietnam,Whole,2026-09,BEV,false,false,,false,false
 Malta,HDV,2026-09,EV,true,true,,false,false
 Malta,Vans,2026-09,EV,true,true,,false,false
@@ -187,7 +187,7 @@ Iceland,Vans,2026-09,EV,true,true,,false,false
 Cyprus,Vans,2026-09,EV,true,true,,false,false
 Malta,Buses,2026-09,EV,true,true,,false,false
 France,Vans,2026-09,EV,true,true,,false,false
-Poland,Buses,2026-09,BEV,false,true,2026-04,false,false
+Poland,Buses,2026-10,BEV,false,true,2026-04,false,false
 Lithuania,Buses,2026-09,EV,true,true,,false,false
 Germany,Vans,2026-09,EV,true,true,,false,false
 Sweden,HDV,2026-09,EV,true,true,,false,false

@@ -1,0 +1,8 @@
+🇩🇰 Denmark - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++16.2pp  BEV   (65.0% → 81.3%)
+−2.2pp  PHEV  (2.9% → 0.7%)
+−14.0pp  ICE   (32.0% → 18.0%)
+
+PHEV peaked at 4.6% in 2024-11 (declining for 23 months).

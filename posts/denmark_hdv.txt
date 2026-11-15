@@ -1,11 +1,9 @@
-🇩🇰 Denmark (HDV) - September 26 - BEV Trajectory
-50.2% BEV
+🇩🇰 Denmark (HDV) - October 26 - BEV Trajectory
+39.3% BEV
 0.0% PHEV
-49.8% ICE
+60.7% ICE
 
 Trailing 12 months are:
-31.4% BEV
+32.2% BEV
 0.0% PHEV
-68.6% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+67.8% ICE

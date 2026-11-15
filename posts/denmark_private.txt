@@ -1,11 +1,9 @@
-🇩🇰 Denmark (Private) - September 26 - BEV Trajectory
-97.3% BEV
-0.1% PHEV
-2.6% ICE
+🇩🇰 Denmark (Private) - October 26 - BEV Trajectory
+97.4% BEV
+0.0% PHEV
+2.5% ICE
 
 Trailing 12 months are:
-94.4% BEV
-0.7% PHEV
-4.8% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+95.1% BEV
+0.6% PHEV
+4.3% ICE

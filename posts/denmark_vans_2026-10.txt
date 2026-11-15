@@ -1,0 +1,9 @@
+🇩🇰 Denmark (Vans) - October 26 - BEV Trajectory
+56.1% BEV
+0.5% PHEV
+43.4% ICE
+
+Trailing 12 months are:
+43.3% BEV
+0.9% PHEV
+55.7% ICE

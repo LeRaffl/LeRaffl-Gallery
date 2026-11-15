@@ -1,0 +1,5 @@
+🇦🇱 Albania (HDV) - TTM Market Split
+
+Nov23–Oct24  vs  Nov24–Oct26
++3.7pp  BEV  (0.0% → 3.7%)
+−3.7pp  ICE  (100.0% → 96.3%)

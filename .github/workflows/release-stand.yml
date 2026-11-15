@@ -1,0 +1,139 @@
+name: Monthly release stand
+
+# A push to master refreshes the draft release for the current Vienna month.
+# The draft is what you read under Releases. It is not a DOI.
+# Last evening, 21:00 UTC, publishes that draft. Cron cannot name the last
+# day, so it wakes on the 28th–31st and publishes only when tomorrow is the
+# 1st in Europe/Vienna. Zenodo archives the published release, not the draft.
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    - cron: '0 21 28-31 * *'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish the release. Leave false to only refresh the draft.'
+        type: boolean
+        default: false
+      month:
+        description: 'Stand month YYYY-MM. Empty uses the current month in Vienna.'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: release-stand
+  cancel-in-progress: false
+
+jobs:
+  stand:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Choose the stand month
+        id: month
+        run: |
+          set -euo pipefail
+          MONTH="${{ inputs.month }}"
+          if [ "$(TZ=Europe/Vienna date -d 'tomorrow' +%d)" = "01" ]; then
+            echo "last_day=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "last_day=0" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -z "$MONTH" ]; then
+            MONTH=$(TZ=Europe/Vienna date +%Y-%m)
+          fi
+          echo "month=$MONTH" >> "$GITHUB_OUTPUT"
+          echo "tag=v$MONTH" >> "$GITHUB_OUTPUT"
+
+      - name: Build the note
+        if: github.event_name != 'schedule' || steps.month.outputs.last_day == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python scripts/build_release_note.py \
+            --month "${{ steps.month.outputs.month }}" \
+            --write "$RUNNER_TEMP/notes.md" \
+            --citation-out "$RUNNER_TEMP/CITATION.cff" \
+            --released "$(date -u +%F)"
+          cat "$RUNNER_TEMP/notes.md"
+
+      - name: Refresh the draft
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && inputs.publish != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.ref_name }}" != "master" ]; then
+            echo "not master, skipping draft"
+            exit 0
+          fi
+          if [ "${{ inputs.publish }}" = "true" ]; then
+            echo "publish requested, skip draft refresh"
+            exit 0
+          fi
+          TAG="${{ steps.month.outputs.tag }}"
+          if gh release view "$TAG" --json isDraft -q .isDraft 2>/dev/null | grep -qx false; then
+            echo "$TAG is already published"
+            exit 0
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file "$RUNNER_TEMP/notes.md"
+          else
+            gh release create "$TAG" \
+              --draft \
+              --target "$(git rev-parse HEAD)" \
+              --title "$TAG" \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          fi
+
+      - name: Publish
+        if: (github.event_name == 'schedule' && steps.month.outputs.last_day == '1') || inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.month.outputs.tag }}"
+          if [ "${{ github.ref_name }}" != "master" ]; then
+            echo "refusing to publish from ${{ github.ref_name }}"
+            exit 1
+          fi
+          if gh release view "$TAG" --json isDraft -q .isDraft 2>/dev/null | grep -qx false; then
+            echo "$TAG is already published"
+            exit 0
+          fi
+          cp "$RUNNER_TEMP/CITATION.cff" CITATION.cff
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CITATION.cff
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: cite $TAG"
+            git pull --rebase --autostash origin master
+            git push origin HEAD:master
+          fi
+          SHA="$(git rev-parse HEAD)"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" \
+              --target "$SHA" \
+              --notes-file "$RUNNER_TEMP/notes.md" \
+              --draft=false
+          else
+            gh release create "$TAG" \
+              --target "$SHA" \
+              --title "$TAG" \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          fi

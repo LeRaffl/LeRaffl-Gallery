@@ -1,0 +1,9 @@
+🇵🇪 Peru (Vans) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++0.1pp  BEV   (0.3% → 0.3%)
++0.1pp  PHEV  (0.1% → 0.2%)
++0.0pp  HEV   (0.4% → 0.4%)
+−0.2pp  ICE   (99.2% → 99.0%)
+
+HEV peaked at 0.4% in 2025-11 (declining for 11 months).

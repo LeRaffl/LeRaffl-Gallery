@@ -1,4 +1,3 @@
-🇵🇱 Poland (HDV) - September 26 - EV Trajectory
-1.0% EV
-0.0% PHEV
-99.0% ICE
+🇵🇱 Poland (HDV) - October 26 - BEV Trajectory
+1.1% BEV
+98.9% ICE

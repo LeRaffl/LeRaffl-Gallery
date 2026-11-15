@@ -2,19 +2,19 @@
  "schema": 3,
  "country": "Spain",
  "variant": "Whole",
- "source": "DGT (daily)",
+ "source": "DGT",
  "as_of": "2026-10",
  "window": {
   "from": "2025-11",
   "to": "2026-10",
   "months": 12
  },
- "total_registrations": 1234686,
+ "total_registrations": 1234688,
  "unit": "registrations (model = DGT MODELO_ITV string, brand = MARCA_ITV)",
  "classes": {
   "BEV": {
-   "units": 140737,
-   "share_of_market": 0.11399,
+   "units": 140734,
+   "share_of_market": 0.11398,
    "brands": [
     {
      "brand": "BYD",
@@ -43,7 +43,7 @@
     },
     {
      "brand": "RENAULT",
-     "units": 5909,
+     "units": 5908,
      "share_of_class": 0.042
     },
     {
@@ -53,7 +53,7 @@
     },
     {
      "brand": "VOLKSWAGEN",
-     "units": 5351,
+     "units": 5350,
      "share_of_class": 0.038
     },
     {
@@ -107,7 +107,7 @@
     {
      "brand": "RENAULT",
      "model": "5 E-TECH ELECT",
-     "units": 3300,
+     "units": 3299,
      "share_of_class": 0.0234
     },
     {
@@ -161,8 +161,8 @@
    ]
   },
   "PHEV": {
-   "units": 158516,
-   "share_of_market": 0.12839,
+   "units": 158515,
+   "share_of_market": 0.12838,
    "brands": [
     {
      "brand": "BYD",
@@ -181,17 +181,17 @@
     },
     {
      "brand": "AUDI",
-     "units": 12172,
+     "units": 12171,
      "share_of_class": 0.0768
     },
     {
      "brand": "EBRO",
-     "units": 10008,
+     "units": 10007,
      "share_of_class": 0.0631
     },
     {
      "brand": "VOLKSWAGEN",
-     "units": 9855,
+     "units": 9856,
      "share_of_class": 0.0622
     },
     {
@@ -243,7 +243,7 @@
     {
      "brand": "EBRO",
      "model": "S700 PHEV",
-     "units": 5425,
+     "units": 5424,
      "share_of_class": 0.0342
     },
     {
@@ -308,7 +308,7 @@
     }
    ],
    "incl_erev": {
-    "units": 160587,
+    "units": 160586,
     "share_of_market": 0.13006,
     "brands": [
      {
@@ -328,17 +328,17 @@
      },
      {
       "brand": "AUDI",
-      "units": 12172,
+      "units": 12171,
       "share_of_class": 0.0758
      },
      {
       "brand": "EBRO",
-      "units": 10008,
+      "units": 10007,
       "share_of_class": 0.0623
      },
      {
       "brand": "VOLKSWAGEN",
-      "units": 9855,
+      "units": 9856,
       "share_of_class": 0.0614
      },
      {
@@ -390,7 +390,7 @@
      {
       "brand": "EBRO",
       "model": "S700 PHEV",
-      "units": 5425,
+      "units": 5424,
       "share_of_class": 0.0338
      },
      {
@@ -482,17 +482,17 @@
    ]
   },
   "HEV": {
-   "units": 557352,
-   "share_of_market": 0.45141,
+   "units": 557341,
+   "share_of_market": 0.4514,
    "brands": [
     {
      "brand": "TOYOTA",
-     "units": 84486,
+     "units": 84484,
      "share_of_class": 0.1516
     },
     {
      "brand": "KIA",
-     "units": 42146,
+     "units": 42145,
      "share_of_class": 0.0756
     },
     {
@@ -502,7 +502,7 @@
     },
     {
      "brand": "PEUGEOT",
-     "units": 37068,
+     "units": 37067,
      "share_of_class": 0.0665
     },
     {
@@ -512,12 +512,12 @@
     },
     {
      "brand": "HYUNDAI",
-     "units": 28680,
+     "units": 28679,
      "share_of_class": 0.0515
     },
     {
      "brand": "MG",
-     "units": 24739,
+     "units": 24738,
      "share_of_class": 0.0444
     },
     {
@@ -527,7 +527,7 @@
     },
     {
      "brand": "VOLKSWAGEN",
-     "units": 23239,
+     "units": 23237,
      "share_of_class": 0.0417
     },
     {
@@ -540,13 +540,13 @@
     {
      "brand": "TOYOTA",
      "model": "COROLLA",
-     "units": 24813,
+     "units": 24812,
      "share_of_class": 0.0445
     },
     {
      "brand": "TOYOTA",
      "model": "YARIS CROSS",
-     "units": 20607,
+     "units": 20606,
      "share_of_class": 0.037
     },
     {
@@ -576,7 +576,7 @@
     {
      "brand": "VOLKSWAGEN",
      "model": "T-ROC",
-     "units": 14113,
+     "units": 14111,
      "share_of_class": 0.0253
     },
     {
@@ -588,13 +588,13 @@
     {
      "brand": "MG",
      "model": "ZS",
-     "units": 13162,
+     "units": 13161,
      "share_of_class": 0.0236
     },
     {
      "brand": "HYUNDAI",
      "model": "TUCSON",
-     "units": 12988,
+     "units": 12987,
      "share_of_class": 0.0233
     },
     {
@@ -606,7 +606,7 @@
     {
      "brand": "KIA",
      "model": "NIRO",
-     "units": 11206,
+     "units": 11205,
      "share_of_class": 0.0201
     },
     {
@@ -630,7 +630,7 @@
    ]
   },
   "PETROL": {
-   "units": 268879,
+   "units": 268876,
    "share_of_market": 0.21777,
    "brands": [
     {
@@ -640,7 +640,7 @@
     },
     {
      "brand": "VOLKSWAGEN",
-     "units": 35034,
+     "units": 35033,
      "share_of_class": 0.1303
     },
     {
@@ -680,7 +680,7 @@
     },
     {
      "brand": "RENAULT",
-     "units": 10901,
+     "units": 10900,
      "share_of_class": 0.0405
     }
    ],
@@ -748,7 +748,7 @@
     {
      "brand": "VOLKSWAGEN",
      "model": "POLO",
-     "units": 7051,
+     "units": 7050,
      "share_of_class": 0.0262
     },
     {
@@ -778,18 +778,18 @@
    ]
   },
   "DIESEL": {
-   "units": 58417,
-   "share_of_market": 0.04731,
+   "units": 58436,
+   "share_of_market": 0.04733,
    "brands": [
     {
      "brand": "VOLKSWAGEN",
-     "units": 11746,
-     "share_of_class": 0.2011
+     "units": 11747,
+     "share_of_class": 0.201
     },
     {
      "brand": "MERCEDES-BENZ",
-     "units": 7707,
-     "share_of_class": 0.1319
+     "units": 7711,
+     "share_of_class": 0.132
     },
     {
      "brand": "AUDI",
@@ -798,13 +798,13 @@
     },
     {
      "brand": "RENAULT",
-     "units": 4593,
-     "share_of_class": 0.0786
+     "units": 4597,
+     "share_of_class": 0.0787
     },
     {
      "brand": "CITROEN",
      "units": 4583,
-     "share_of_class": 0.0785
+     "share_of_class": 0.0784
     },
     {
      "brand": "SKODA",
@@ -818,7 +818,7 @@
     },
     {
      "brand": "PEUGEOT",
-     "units": 3955,
+     "units": 3956,
      "share_of_class": 0.0677
     },
     {
@@ -843,7 +843,7 @@
      "brand": "RENAULT",
      "model": "CLIO",
      "units": 3585,
-     "share_of_class": 0.0614
+     "share_of_class": 0.0613
     },
     {
      "brand": "MERCEDES-BENZ",
@@ -908,7 +908,7 @@
     {
      "brand": "VOLKSWAGEN",
      "model": "CADDY",
-     "units": 1220,
+     "units": 1221,
      "share_of_class": 0.0209
     },
     {
@@ -929,11 +929,11 @@
  "months": [
   {
    "period": "2026-10",
-   "total_registrations": 100739,
+   "total_registrations": 100741,
    "classes": {
     "BEV": {
-     "units": 16840,
-     "share_of_market": 0.16716,
+     "units": 16837,
+     "share_of_market": 0.16713,
      "brands": [
       {
        "brand": "BYD",
@@ -943,12 +943,12 @@
       {
        "brand": "TESLA",
        "units": 1459,
-       "share_of_class": 0.0866
+       "share_of_class": 0.0867
       },
       {
        "brand": "LEAPMOTOR",
        "units": 1400,
-       "share_of_class": 0.0831
+       "share_of_class": 0.0832
       },
       {
        "brand": "KIA",
@@ -972,7 +972,7 @@
       },
       {
        "brand": "VOLKSWAGEN",
-       "units": 711,
+       "units": 710,
        "share_of_class": 0.0422
       },
       {
@@ -982,7 +982,7 @@
       },
       {
        "brand": "RENAULT",
-       "units": 608,
+       "units": 607,
        "share_of_class": 0.0361
       }
      ],
@@ -1009,7 +1009,7 @@
        "brand": "BYD",
        "model": "ATTO 2",
        "units": 602,
-       "share_of_class": 0.0357
+       "share_of_class": 0.0358
       },
       {
        "brand": "BYD",
@@ -1044,14 +1044,14 @@
       {
        "brand": "RENAULT",
        "model": "5 E-TECH ELECT",
-       "units": 313,
-       "share_of_class": 0.0186
+       "units": 312,
+       "share_of_class": 0.0185
       }
      ]
     },
     "PHEV": {
-     "units": 14741,
-     "share_of_market": 0.14633,
+     "units": 14740,
+     "share_of_market": 0.14632,
      "brands": [
       {
        "brand": "BYD",
@@ -1070,8 +1070,8 @@
       },
       {
        "brand": "AUDI",
-       "units": 955,
-       "share_of_class": 0.0648
+       "units": 954,
+       "share_of_class": 0.0647
       },
       {
        "brand": "OMODA",
@@ -1085,13 +1085,13 @@
       },
       {
        "brand": "EBRO",
-       "units": 823,
+       "units": 822,
        "share_of_class": 0.0558
       },
       {
        "brand": "VOLKSWAGEN",
-       "units": 789,
-       "share_of_class": 0.0535
+       "units": 790,
+       "share_of_class": 0.0536
       },
       {
        "brand": "CUPRA",
@@ -1150,8 +1150,8 @@
       {
        "brand": "EBRO",
        "model": "S700 PHEV",
-       "units": 464,
-       "share_of_class": 0.0315
+       "units": 463,
+       "share_of_class": 0.0314
       },
       {
        "brand": "DEEPAL",
@@ -1167,8 +1167,8 @@
       }
      ],
      "incl_erev": {
-      "units": 15039,
-      "share_of_market": 0.14929,
+      "units": 15038,
+      "share_of_market": 0.14927,
       "brands": [
        {
         "brand": "BYD",
@@ -1187,8 +1187,8 @@
        },
        {
         "brand": "AUDI",
-        "units": 955,
-        "share_of_class": 0.0635
+        "units": 954,
+        "share_of_class": 0.0634
        },
        {
         "brand": "OMODA",
@@ -1202,12 +1202,12 @@
        },
        {
         "brand": "EBRO",
-        "units": 823,
+        "units": 822,
         "share_of_class": 0.0547
        },
        {
         "brand": "VOLKSWAGEN",
-        "units": 789,
+        "units": 790,
         "share_of_class": 0.0525
        },
        {
@@ -1267,8 +1267,8 @@
        {
         "brand": "EBRO",
         "model": "S700 PHEV",
-        "units": 464,
-        "share_of_class": 0.0309
+        "units": 463,
+        "share_of_class": 0.0308
        },
        {
         "brand": "DEEPAL",
@@ -1311,17 +1311,17 @@
      ]
     },
     "HEV": {
-     "units": 43295,
-     "share_of_market": 0.42977,
+     "units": 43284,
+     "share_of_market": 0.42966,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 5902,
+       "units": 5900,
        "share_of_class": 0.1363
       },
       {
        "brand": "KIA",
-       "units": 4374,
+       "units": 4373,
        "share_of_class": 0.101
       },
       {
@@ -1331,13 +1331,13 @@
       },
       {
        "brand": "VOLKSWAGEN",
-       "units": 2848,
+       "units": 2846,
        "share_of_class": 0.0658
       },
       {
        "brand": "PEUGEOT",
-       "units": 2561,
-       "share_of_class": 0.0592
+       "units": 2560,
+       "share_of_class": 0.0591
       },
       {
        "brand": "BMW",
@@ -1351,7 +1351,7 @@
       },
       {
        "brand": "HYUNDAI",
-       "units": 1833,
+       "units": 1832,
        "share_of_class": 0.0423
       },
       {
@@ -1369,7 +1369,7 @@
       {
        "brand": "TOYOTA",
        "model": "COROLLA",
-       "units": 2208,
+       "units": 2207,
        "share_of_class": 0.051
       },
       {
@@ -1381,14 +1381,14 @@
       {
        "brand": "VOLKSWAGEN",
        "model": "T-ROC",
-       "units": 1572,
+       "units": 1570,
        "share_of_class": 0.0363
       },
       {
        "brand": "KIA",
        "model": "NIRO",
-       "units": 1418,
-       "share_of_class": 0.0328
+       "units": 1417,
+       "share_of_class": 0.0327
       },
       {
        "brand": "NISSAN",
@@ -1399,8 +1399,8 @@
       {
        "brand": "TOYOTA",
        "model": "YARIS CROSS",
-       "units": 1375,
-       "share_of_class": 0.0318
+       "units": 1374,
+       "share_of_class": 0.0317
       },
       {
        "brand": "OMODA",
@@ -1429,12 +1429,12 @@
      ]
     },
     "PETROL": {
-     "units": 17432,
-     "share_of_market": 0.17304,
+     "units": 17429,
+     "share_of_market": 0.17301,
      "brands": [
       {
        "brand": "VOLKSWAGEN",
-       "units": 3181,
+       "units": 3180,
        "share_of_class": 0.1825
       },
       {
@@ -1445,7 +1445,7 @@
       {
        "brand": "SKODA",
        "units": 2183,
-       "share_of_class": 0.1252
+       "share_of_class": 0.1253
       },
       {
        "brand": "MG",
@@ -1455,7 +1455,7 @@
       {
        "brand": "HYUNDAI",
        "units": 1038,
-       "share_of_class": 0.0595
+       "share_of_class": 0.0596
       },
       {
        "brand": "PEUGEOT",
@@ -1493,8 +1493,8 @@
       {
        "brand": "VOLKSWAGEN",
        "model": "POLO",
-       "units": 1288,
-       "share_of_class": 0.0739
+       "units": 1287,
+       "share_of_class": 0.0738
       },
       {
        "brand": "SEAT",
@@ -1547,58 +1547,58 @@
      ]
     },
     "DIESEL": {
-     "units": 3659,
-     "share_of_market": 0.03632,
+     "units": 3678,
+     "share_of_market": 0.03651,
      "brands": [
       {
        "brand": "VOLKSWAGEN",
-       "units": 768,
-       "share_of_class": 0.2099
+       "units": 769,
+       "share_of_class": 0.2091
       },
       {
        "brand": "SKODA",
        "units": 467,
-       "share_of_class": 0.1276
+       "share_of_class": 0.127
       },
       {
        "brand": "AUDI",
        "units": 444,
-       "share_of_class": 0.1213
+       "share_of_class": 0.1207
       },
       {
        "brand": "PEUGEOT",
-       "units": 439,
-       "share_of_class": 0.12
+       "units": 440,
+       "share_of_class": 0.1196
       },
       {
        "brand": "MERCEDES-BENZ",
-       "units": 397,
-       "share_of_class": 0.1085
+       "units": 401,
+       "share_of_class": 0.109
       },
       {
        "brand": "SEAT",
        "units": 229,
-       "share_of_class": 0.0626
+       "share_of_class": 0.0623
       },
       {
        "brand": "CITROEN",
        "units": 226,
-       "share_of_class": 0.0618
+       "share_of_class": 0.0614
       },
       {
        "brand": "BMW",
        "units": 170,
-       "share_of_class": 0.0465
+       "share_of_class": 0.0462
       },
       {
        "brand": "OPEL",
        "units": 111,
-       "share_of_class": 0.0303
+       "share_of_class": 0.0302
       },
       {
        "brand": "TOYOTA",
-       "units": 89,
-       "share_of_class": 0.0243
+       "units": 92,
+       "share_of_class": 0.025
       }
      ],
      "models": [
@@ -1606,61 +1606,61 @@
        "brand": "VOLKSWAGEN",
        "model": "TIGUAN",
        "units": 393,
-       "share_of_class": 0.1074
+       "share_of_class": 0.1069
       },
       {
        "brand": "PEUGEOT",
        "model": "RIFTER ALLURE BLUEHDI",
        "units": 249,
-       "share_of_class": 0.0681
+       "share_of_class": 0.0677
       },
       {
        "brand": "SKODA",
        "model": "OCTAVIA",
        "units": 218,
-       "share_of_class": 0.0596
+       "share_of_class": 0.0593
       },
       {
        "brand": "MERCEDES-BENZ",
        "model": "GLA 200 D",
        "units": 203,
-       "share_of_class": 0.0555
+       "share_of_class": 0.0552
       },
       {
        "brand": "SKODA",
        "model": "KAROQ",
        "units": 200,
-       "share_of_class": 0.0547
+       "share_of_class": 0.0544
       },
       {
        "brand": "SEAT",
        "model": "LEON",
        "units": 174,
-       "share_of_class": 0.0476
+       "share_of_class": 0.0473
       },
       {
        "brand": "AUDI",
        "model": "Q2",
        "units": 158,
-       "share_of_class": 0.0432
+       "share_of_class": 0.043
       },
       {
        "brand": "AUDI",
        "model": "Q3 SPORTBACK",
        "units": 130,
-       "share_of_class": 0.0355
+       "share_of_class": 0.0353
       },
       {
        "brand": "VOLKSWAGEN",
        "model": "GOLF",
        "units": 126,
-       "share_of_class": 0.0344
+       "share_of_class": 0.0343
       },
       {
        "brand": "CITROEN",
        "model": "BERLINGOÁTALLA M BLUEH",
        "units": 109,
-       "share_of_class": 0.0298
+       "share_of_class": 0.0296
       }
      ]
     }
