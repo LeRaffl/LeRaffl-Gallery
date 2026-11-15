@@ -187,6 +187,19 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
   `chore: render <Country> (<variant>)`.
 - Keep changes **surgical** and single-concern. A Submit-Data PR must touch
   exactly one `data/<Country>.csv` and nothing else.
+- **The monthly release note is written in PR descriptions.**
+  `release-stand.yml` rebuilds the month's draft release on every push to
+  `master` and publishes it on the last evening of the month; Zenodo archives
+  what is published. Its visible part is every line that starts with
+  `Release:` in a PR merged that month (`scripts/build_release_note.py`). A PR
+  without one only shows up in a collapsed list of titles. So a PR that changes
+  what a reader sees or what a number means (a new view, a changed method or
+  definition, corrected past data, a new country or variant, the licence) ends
+  its description with exactly one line, at the start of the line, outside any
+  list or quote: `Release: <one full sentence, capitalised, for a reader who
+  has not seen the PR>`. CI, refactors, docs and routine data updates get no
+  line (never `Release: none`). If the PR changes after the line was written,
+  rewrite the line; it is read again at every build, also after the merge.
 - **Never commit secrets/tokens.** Fetchers use repo secrets and relays
   (`docs/architecture/07-secrets-trust.md`, `08-deploy-ops.md` §8.4); the Worker
   holds a fine-grained PAT set via `wrangler secret`.
