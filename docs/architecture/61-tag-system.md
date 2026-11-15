@@ -122,7 +122,7 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | R (`fit.R` refit_swing, `post_text.R`, `render_*.R`) | no tags (refit_swing feeds `fitReliability`) | no | no |
 | posts/*.txt, X/Bluesky drafts | BEV/PHEV/ICE shares only; no tag words | no | no |
 | `manifest.json`, `weights.csv`, `params.csv`, `bands/*.json`, `sources/sources.json` | no tag fields | no | no |
-| `index_legacy.html` | its own frozen copy of the old v1 rules (2023/2025) | — | **not adapted** (legacy snapshot, not linked from anywhere) — flagged |
+| *(removed 2026-11-15)* | `index_legacy.html`, `index_before_fleet.html`, `index_before_fleet_extrapolation.html`, `index_before_fleet_upgrade.html`, `index_pre_visual_update.html`. Frozen gallery snapshots. Pages was still serving them, with the old tag rules. Not linked from anywhere. | — | deleted |
 | `.github/workflows/build-source-pages.yml` | builds `sources/` | doc 61 now produces `sources/tags.html` | yes — path trigger for `61-tag-system.md` added |
 
 ## Sidebar filter (v2, 2026-10-17)
