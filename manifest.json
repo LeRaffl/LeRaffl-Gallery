@@ -32,6 +32,16 @@
       "country_slug": "malaysia"
     },
     {
+      "country": "Malaysia",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-15",
+      "filename": "malaysia_ttm_shares_20261115.png",
+      "url": "images/2026-10/malaysia_ttm_shares_20261115.png",
+      "alt": "Malaysia TTM market split graph",
+      "country_slug": "malaysia"
+    },
+    {
       "country": "Singapore",
       "type": "ICE_BEV",
       "period": "2026-10",
@@ -70,6 +80,46 @@
       "url": "images/2026-10/singapore_ttm_shares_20261115.png",
       "alt": "Singapore TTM market split graph",
       "country_slug": "singapore"
+    },
+    {
+      "country": "South Africa",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-11-15",
+      "filename": "south_africa_ICE_BEV_20261115.png",
+      "url": "images/2026-06/south_africa_ICE_BEV_20261115.png",
+      "alt": "South Africa ICE-BEV-Hybrid trajectory",
+      "country_slug": "south_africa"
+    },
+    {
+      "country": "South Africa",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-11-15",
+      "filename": "south_africa_20261115.png",
+      "url": "images/2026-06/south_africa_20261115.png",
+      "alt": "South Africa BEV trajectory",
+      "country_slug": "south_africa"
+    },
+    {
+      "country": "South Africa",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-11-15",
+      "filename": "south_africa_time_20261115.png",
+      "url": "images/2026-06/south_africa_time_20261115.png",
+      "alt": "South Africa Transition time curve",
+      "country_slug": "south_africa"
+    },
+    {
+      "country": "South Africa",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-11-15",
+      "filename": "south_africa_ttm_shares_20261115.png",
+      "url": "images/2026-06/south_africa_ttm_shares_20261115.png",
+      "alt": "South Africa TTM market split graph",
+      "country_slug": "south_africa"
     },
     {
       "country": "Spain",
