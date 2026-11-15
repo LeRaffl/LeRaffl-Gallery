@@ -32,6 +32,46 @@
       "country_slug": "malaysia"
     },
     {
+      "country": "Singapore",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-15",
+      "filename": "singapore_ICE_BEV_20261115.png",
+      "url": "images/2026-10/singapore_ICE_BEV_20261115.png",
+      "alt": "Singapore ICE-BEV-Hybrid trajectory",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Singapore",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-15",
+      "filename": "singapore_20261115.png",
+      "url": "images/2026-10/singapore_20261115.png",
+      "alt": "Singapore BEV trajectory",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Singapore",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-15",
+      "filename": "singapore_time_20261115.png",
+      "url": "images/2026-10/singapore_time_20261115.png",
+      "alt": "Singapore Transition time curve",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Singapore",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-15",
+      "filename": "singapore_ttm_shares_20261115.png",
+      "url": "images/2026-10/singapore_ttm_shares_20261115.png",
+      "alt": "Singapore TTM market split graph",
+      "country_slug": "singapore"
+    },
+    {
       "country": "Spain",
       "type": "ICE_BEV",
       "period": "2026-10",
