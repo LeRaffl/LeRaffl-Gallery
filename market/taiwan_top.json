@@ -3,74 +3,137 @@
  "country": "Taiwan",
  "variant": "Whole",
  "source": "THB register via MOTC statistics database",
- "as_of": "2026-09",
+ "as_of": "2026-10",
  "window": {
-  "from": "2025-10",
-  "to": "2026-09",
+  "from": "2025-11",
+  "to": "2026-10",
   "months": 12
  },
- "total_registrations": 377713,
+ "total_registrations": 376806,
  "unit": "new registrations of passenger cars (小客車) by the brand THB records — the registering maker or importer; every powertrain, as the source publishes brands without a fuel split",
  "classes": {
   "ALL": {
-   "units": 377713,
+   "units": 376806,
    "share_of_market": 1.0,
    "brands": [
     {
      "brand": "Toyota",
-     "units": 120570,
-     "share_of_class": 0.3192
+     "units": 120194,
+     "share_of_class": 0.319
     },
     {
      "brand": "Lexus",
-     "units": 27831,
-     "share_of_class": 0.0737
+     "units": 28487,
+     "share_of_class": 0.0756
     },
     {
      "brand": "Honda",
-     "units": 25981,
-     "share_of_class": 0.0688
+     "units": 25412,
+     "share_of_class": 0.0674
     },
     {
      "brand": "Tesla",
-     "units": 24729,
-     "share_of_class": 0.0655
+     "units": 24724,
+     "share_of_class": 0.0656
     },
     {
      "brand": "China Motor (CMC)",
-     "units": 21429,
-     "share_of_class": 0.0567
+     "units": 21502,
+     "share_of_class": 0.0571
     },
     {
      "brand": "Mercedes-Benz",
-     "units": 20881,
-     "share_of_class": 0.0553
+     "units": 21419,
+     "share_of_class": 0.0568
     },
     {
      "brand": "BMW",
-     "units": 16003,
-     "share_of_class": 0.0424
+     "units": 16132,
+     "share_of_class": 0.0428
     },
     {
      "brand": "Mazda",
-     "units": 15843,
-     "share_of_class": 0.0419
+     "units": 15921,
+     "share_of_class": 0.0423
     },
     {
      "brand": "Ford",
-     "units": 14434,
-     "share_of_class": 0.0382
+     "units": 14212,
+     "share_of_class": 0.0377
     },
     {
      "brand": "Hyundai",
-     "units": 12815,
-     "share_of_class": 0.0339
+     "units": 12360,
+     "share_of_class": 0.0328
     }
    ],
    "models": []
   }
  },
  "months": [
+  {
+   "period": "2026-10",
+   "total_registrations": 29385,
+   "classes": {
+    "ALL": {
+     "units": 29385,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "Toyota",
+       "units": 9641,
+       "share_of_class": 0.3281
+      },
+      {
+       "brand": "Lexus",
+       "units": 2704,
+       "share_of_class": 0.092
+      },
+      {
+       "brand": "Mercedes-Benz",
+       "units": 2101,
+       "share_of_class": 0.0715
+      },
+      {
+       "brand": "Honda",
+       "units": 2030,
+       "share_of_class": 0.0691
+      },
+      {
+       "brand": "BMW",
+       "units": 1616,
+       "share_of_class": 0.055
+      },
+      {
+       "brand": "China Motor (CMC)",
+       "units": 1612,
+       "share_of_class": 0.0549
+      },
+      {
+       "brand": "Mazda",
+       "units": 1335,
+       "share_of_class": 0.0454
+      },
+      {
+       "brand": "Nissan",
+       "units": 1049,
+       "share_of_class": 0.0357
+      },
+      {
+       "brand": "Hyundai",
+       "units": 870,
+       "share_of_class": 0.0296
+      },
+      {
+       "brand": "Ford",
+       "units": 818,
+       "share_of_class": 0.0278
+      }
+     ],
+     "models": []
+    }
+   }
+  },
   {
    "period": "2026-09",
    "total_registrations": 33309,
@@ -758,69 +821,6 @@
        "brand": "Ford",
        "units": 958,
        "share_of_class": 0.0298
-      }
-     ],
-     "models": []
-    }
-   }
-  },
-  {
-   "period": "2025-10",
-   "total_registrations": 30292,
-   "classes": {
-    "ALL": {
-     "units": 30292,
-     "share_of_market": 1.0,
-     "brands": [
-      {
-       "brand": "Toyota",
-       "units": 10017,
-       "share_of_class": 0.3307
-      },
-      {
-       "brand": "Honda",
-       "units": 2599,
-       "share_of_class": 0.0858
-      },
-      {
-       "brand": "Lexus",
-       "units": 2048,
-       "share_of_class": 0.0676
-      },
-      {
-       "brand": "Mercedes-Benz",
-       "units": 1563,
-       "share_of_class": 0.0516
-      },
-      {
-       "brand": "China Motor (CMC)",
-       "units": 1539,
-       "share_of_class": 0.0508
-      },
-      {
-       "brand": "BMW",
-       "units": 1487,
-       "share_of_class": 0.0491
-      },
-      {
-       "brand": "Hyundai",
-       "units": 1325,
-       "share_of_class": 0.0437
-      },
-      {
-       "brand": "Mazda",
-       "units": 1257,
-       "share_of_class": 0.0415
-      },
-      {
-       "brand": "Nissan",
-       "units": 1102,
-       "share_of_class": 0.0364
-      },
-      {
-       "brand": "Ford",
-       "units": 1040,
-       "share_of_class": 0.0343
       }
      ],
      "models": []
