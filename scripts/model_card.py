@@ -738,7 +738,9 @@ def _sci(value: float) -> str:
 
 
 def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
-                    width: int = 720, height: int = 300) -> str:
+                    width: int = 720, height: int = 300, weak_fit: bool = True) -> str:
+    """Observed shares and the fitted curve. `weak_fit=False` leaves the line
+    of a fit that carries no dates off the chart instead of dashing it."""
     observed = []
     for row in rows:
         idx, value = month_index(row["period"]), _bev_share(row)
@@ -750,7 +752,7 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
     data_end = observed[-1][0]
     start = math.floor(observed[0][0])
     reach = fit_year(0.9, v1, v2, t0)
-    end = data_end + 15
+    end = data_end + (15 if weak_fit else 4)
     if state["quotable"] and math.isfinite(reach):
         end = min(max(reach + 2, data_end + 6), data_end + 25)
     end = float(min(2060, math.ceil(end)))
@@ -761,14 +763,21 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
     def x_of(year: float) -> float:
         return left + plot_w * (year - start) / (end - start)
 
+    # Without a curve to show, zoom in on the observed shares.
+    draw_fit = state["quotable"] or weak_fit
+    ymax = 100.0
+    if not draw_fit:
+        peak = max(value for _, value, _ in observed) * 1.15
+        ymax = next((float(m) for m in (2, 4, 10, 20, 40, 100) if m >= peak), 100.0)
+
     def y_of(pct: float) -> float:
-        return top + plot_h * (1 - max(0.0, min(100.0, pct)) / 100)
+        return top + plot_h * (1 - max(0.0, min(ymax, pct)) / ymax)
 
     parts = []
-    for mark in (0, 25, 50, 75, 100):
+    for mark in (ymax * k / 4 for k in range(5)):
         y = y_of(mark)
         parts.append(f'<line x1="{left}" y1="{y:.1f}" x2="{left + plot_w}" y2="{y:.1f}" class="cv-grid"/>')
-        parts.append(f'<text x="{left - 6}" y="{y + 3.5:.1f}" text-anchor="end">{mark}</text>')
+        parts.append(f'<text x="{left - 6}" y="{y + 3.5:.1f}" text-anchor="end">{mark:g}</text>')
     span = end - start
     step = 2 if span <= 20 else 5 if span <= 45 else 10
     year = int(math.ceil(start / step) * step)
@@ -791,7 +800,9 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
     parts.append(f'<line x1="{xd:.1f}" y1="{top}" x2="{xd:.1f}" y2="{top + plot_h}" class="cv-now"/>')
     side = "end" if xd > left + plot_w * 0.5 else "start"
     off = -5 if side == "end" else 5
-    parts.append(f'<text x="{xd + off:.1f}" y="{top + 10}" text-anchor="{side}">'
+    # Keep the label off the points: below them once the series is high.
+    label_y = top + 10 if observed[-1][1] < 60 else top + plot_h - 6
+    parts.append(f'<text x="{xd + off:.1f}" y="{label_y}" text-anchor="{side}">'
                  f'data through {esc(period_label(state["data_per"]))}</text>')
 
     for t, value, est in observed:
@@ -804,7 +815,8 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
         t = start + span * i / n
         line.append(f'{"M" if not i else "L"}{x_of(t):.1f},{y_of(100 * fit_share(t, v1, v2, t0)):.1f}')
     cls = "cv-fit" if state["quotable"] else "cv-fit cv-weak"
-    parts.append(f'<path d="{" ".join(line)}" class="{cls}"/>')
+    if draw_fit:
+        parts.append(f'<path d="{" ".join(line)}" class="{cls}"/>')
 
     label = (f"BEV share of new registrations, observed and fitted S-curve, "
              f"{start} to {int(end)}.")

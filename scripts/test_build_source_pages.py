@@ -323,6 +323,33 @@ def test_flyer_page_builds_without_data():
     assert "Nowhere" in html and "fl-foot" in html
 
 
+def test_flyer_qr_compare_and_fractions():
+    qr = flyer.build_qr("https://example.org/x")
+    assert qr.startswith("<svg") and "QR code: https://example.org/x" in qr
+    assert qr == flyer.build_qr("https://example.org/x")           # byte-stable
+    peers = [(f"C{i}", float(i)) for i in range(1, 21)]
+    html = flyer.build_compare("C18", peers, 700)
+    assert "<b>3rd of 20</b>" in html and "middle one is at 10.5%" in html
+    assert flyer.build_compare("Nowhere", peers, 700) == ""
+    assert flyer.build_compare("C1", peers[:5], 700) == ""       # too few to compare
+    assert [flyer.ordinal(n) for n in (1, 2, 3, 4, 11, 12, 21, 22)] == [
+        "1st", "2nd", "3rd", "4th", "11th", "12th", "21st", "22nd"]
+    fig = lambda s: {"ttm": {"share": s, "delta": None, "end": "2026-10"}}  # noqa: E731
+    assert flyer.verdict("X", fig(39.9), None)[0] == "About 2 in 5 new cars are battery electric."
+    assert flyer.verdict("X", fig(33.0), None)[0] == "About 1 in 3 new cars is battery electric."
+    assert flyer.verdict("X", fig(50.3), None)[0] == "About half of new cars are battery electric."
+
+
+def test_flyer_draws_no_curve_for_a_fit_without_dates():
+    rows = _rows(30, TOTAL=lambda i: 1000, BEV=lambda i: 5 + i)
+    bad = mc.model_state({"v1": "-1e-30", "v2": "32", "t0": "2011", "data_per": "2026-06",
+                          "ttm_bev_share": "0.02", "refit_swing": "1"}, None,
+                         dt.date(2026, 7, 1))
+    assert not bad["quotable"]
+    assert "cv-fit" in mc.build_curve_svg(rows, bad, None)                      # source page: dashed
+    assert "cv-fit" not in mc.build_curve_svg(rows, bad, None, weak_fit=False)  # brief: none
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

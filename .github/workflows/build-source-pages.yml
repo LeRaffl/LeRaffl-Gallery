@@ -71,7 +71,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install deps
-        run: pip install pyyaml
+        run: pip install pyyaml segno==1.6.6   # segno: QR code on the country briefs
 
       # On pull requests, only validate the content model — never commit.
       - name: Validate front-matter + stubs

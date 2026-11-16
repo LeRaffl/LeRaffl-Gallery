@@ -2002,7 +2002,7 @@ def build_header(fm: dict, asof: str = "") -> str:
     )
 
 
-def build_flyer_page(fm: dict, params: dict) -> str:
+def build_flyer_page(fm: dict, params: dict, peers: list | None = None) -> str:
     """The one-page reader flyer, from the same figures as the source page."""
     fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
@@ -2013,7 +2013,35 @@ def build_flyer_page(fm: dict, params: dict) -> str:
     figures = mc.key_figures(rows, shift, whole,
                              mc.read_keyed("weights.csv").get((country, "Whole")))
     return flyer.build_flyer(fm, rows, shift, figures, mc.model_state(whole, bands),
-                             bands, "../../assets/theme.css")
+                             bands, "../../assets/theme.css", peers)
+
+
+def flyer_summary(fm: dict, params: dict) -> dict:
+    """One row of the brief directory."""
+    fm = apply_group_defaults(fm)
+    country = fm.get("country", "Unknown")
+    whole = params.get((country, "Whole")) or {}
+    rows = mc.whole_rows(fm.get("data_file"))
+    shift = mc.powertrain_shift(rows, fm.get("hev_split") is True)
+    figures = mc.key_figures(rows, shift, whole,
+                             mc.read_keyed("weights.csv").get((country, "Whole")))
+    ttm = figures.get("ttm") or {}
+    return {"country": country, "slug": fm.get("slug", ""),
+            "share": ttm.get("share"), "delta": ttm.get("delta"),
+            "head": flyer.verdict(country, figures, shift)[0],
+            "through": mc.period_label(rows[-1]["period"]) if rows else ""}
+
+
+def flyer_peers(entries, params: dict) -> list[tuple[str, float]]:
+    """(country, 12-month BEV share in percent) for every country with a page."""
+    out = []
+    for fm, _ in entries:
+        raw = (params.get((fm.get("country"), "Whole")) or {}).get("ttm_bev_share")
+        try:
+            out.append((fm["country"], 100 * float(raw)))
+        except (TypeError, ValueError):
+            continue
+    return out
 
 
 def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
@@ -2449,7 +2477,7 @@ TEMPLATE = """<!doctype html>
 <div class="wrap">
   <div class="cardbar"><a class="back" href="./">← All sources</a>
     <nav aria-label="Sections"></nav>
-    <a class="flyer-link" href="flyer/{slug}.html">One-page flyer</a></div>
+    <a class="flyer-link" href="flyer/{slug}.html">Country brief (one page, PDF)</a></div>
   {header}
   {banner}
   {glance}
@@ -2518,6 +2546,8 @@ INDEX_TEMPLATE = """<!doctype html>
 <div class="wrap">
   <a class="back" href="../">← Back to gallery</a>
   <h1>Data sources</h1>
+  <p class="lead"><a href="flyer/"><strong>Country briefs →</strong></a> one page per country
+     on how far the shift to battery-electric cars has come, ready to save as PDF.</p>
   <p class="lead">Where each country's numbers come from, how they're acquired,
      what they count, and what to be careful about. {n} countries, each tagged by
      acquisition method — API, Scrape, PDF, File or Manual. {n_mkt} of them also
@@ -2856,12 +2886,17 @@ def main() -> int:
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     built = []
+    peers = flyer_peers(entries, params)
+    (OUT_DIR / "flyer").mkdir(exist_ok=True)
+    (OUT_DIR / "flyer" / "index.html").write_text(
+        flyer.build_index([flyer_summary(fm, params) for fm, _ in entries],
+                          "../../assets/theme.css"), encoding="utf-8")
     for fm, is_stub in entries:
         page = build_page(fm, params, is_stub=is_stub)
         (OUT_DIR / f"{fm['slug']}.html").write_text(page, encoding="utf-8")
         (OUT_DIR / "flyer").mkdir(exist_ok=True)
         (OUT_DIR / "flyer" / f"{fm['slug']}.html").write_text(
-            build_flyer_page(fm, params), encoding="utf-8")
+            build_flyer_page(fm, params, peers), encoding="utf-8")
         whole = params.get((fm.get("country"), "Whole")) or {}
         # Same rule as the page itself: the directory card shows what we
         # actually hold, falling back to the model's period only if the CSV
