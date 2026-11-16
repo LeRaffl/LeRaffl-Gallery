@@ -1,0 +1,5 @@
+🇹🇼 Taiwan (Buses) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++30.1pp  BEV  (33.5% → 63.7%)
+−30.1pp  ICE  (66.5% → 36.3%)

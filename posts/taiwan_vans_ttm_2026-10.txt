@@ -1,0 +1,8 @@
+🇹🇼 Taiwan (Vans) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
+−0.3pp  BEV     (1.0% → 0.7%)
+−0.3pp  Hybrid  (0.7% → 0.4%)
++0.6pp  ICE     (98.4% → 98.9%)
+
+Hybrid peaked at 0.9% in 2024-11 (declining for 23 months).

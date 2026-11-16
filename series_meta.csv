@@ -145,10 +145,10 @@ Poland,Vans,2026-10,BEV,false,true,2026-04,false,false
 Paraguay,Whole,2026-10,BEV,false,false,,true,true
 Ecuador,Whole,2026-10,BEV,false,false,,true,true
 Ecuador,Vans,2026-10,BEV,false,false,,true,true
-Taiwan,Whole,2026-09,BEV,false,false,,true,true
-Taiwan,Vans,2026-09,BEV,false,false,,true,true
-Taiwan,HDV,2026-09,BEV,false,false,,true,true
-Taiwan,Buses,2026-09,BEV,false,false,,true,true
+Taiwan,Whole,2026-10,BEV,false,false,,true,true
+Taiwan,Vans,2026-10,BEV,false,false,,true,true
+Taiwan,HDV,2026-10,BEV,false,false,,true,true
+Taiwan,Buses,2026-10,BEV,false,false,,true,true
 Hong Kong,Used,2026-08,BEV,false,false,,true,true
 Hong Kong,Vans,2026-08,BEV,false,false,,true,true
 Czechia,Used,2026-09,BEV,false,false,,true,true
