@@ -184,8 +184,10 @@ Each country also has a public source page under
 [`sources/`](https://leraffl.github.io/LeRaffl-Gallery/sources/) that doubles
 as its **model card**: the key figures with their "data through" month, which
 powertrain gained and which lost share, the latest periods, the fitted curve
-with its milestone years, and where the numbers come from. It prints to PDF
-from the button at the top (`scripts/model_card.py`).
+with its milestone years, and where the numbers come from. Each has a one-page
+**flyer** for readers under `sources/flyer/<slug>.html`: a verdict in plain
+words, the mix over time, gains and losses and where the curve points, on one
+A4 sheet that saves as PDF (`scripts/model_card.py`, `scripts/flyer.py`).
 
 ---
 

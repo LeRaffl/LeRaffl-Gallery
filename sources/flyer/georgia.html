@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Georgia — the shift to battery-electric cars · BEV Trajectories</title>
+<meta name="description" content="About 1 in 13 new cars is battery electric. The share is rising: up 3.3 points in a year. Diesel lost the most: 5.6 points.">
+<meta property="og:title" content="Georgia — the shift to battery-electric cars">
+<meta property="og:description" content="About 1 in 13 new cars is battery electric. The share is rising: up 3.3 points in a year. Diesel lost the most: 5.6 points.">
+<link rel="stylesheet" href="../../assets/theme.css">
+<style>
+html{background:#e9e7e1}
+body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sans-serif}
+.fl-bar{max-width:794px;margin:0 auto;padding:12px 8px;display:flex;gap:12px;align-items:center;
+  font-size:13px}
+.fl-bar a{color:var(--muted)}
+.fl-bar button{margin-left:auto;font:inherit;padding:6px 14px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--text);background:var(--text);color:#fff;font-weight:600}
+.sheet-box{margin:0 auto 32px}
+.sheet{width:794px;height:1123px;box-sizing:border-box;padding:32px 46px 26px;background:#fdfdfc;
+  box-shadow:0 2px 18px rgba(0,0,0,.14);display:flex;flex-direction:column;overflow:hidden;
+  transform-origin:top left;color-scheme:light;
+  --text:#1a1a18;--muted:#55534c;--line:#dcd9d2}
+.sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.fl-top{display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid var(--text)}
+.fl-flag{width:54px;height:37px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px var(--line)}
+.fl-top h1{font-family:var(--font-display);font-size:30px;line-height:1;margin:0;font-weight:600}
+.fl-kick{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.fl-date{margin-left:auto;text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted);line-height:1.5}
+.fl-date b{display:block;font-size:15px;letter-spacing:0;text-transform:none;color:var(--text)}
+.fl-head{font-family:var(--font-display);font-size:28px;line-height:1.16;font-weight:600;
+  margin:14px 0 4px;letter-spacing:-.01em}
+.fl-follow{font-family:var(--font-display);font-size:17px;line-height:1.35;margin:0;color:#3a3935;
+  min-height:23px}
+.fl-hero{display:flex;gap:18px;align-items:flex-end;margin:12px 0 0}
+.fh-num{flex:none;width:218px}
+.fh-kicker{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);line-height:1.35}
+.fh-big{font-family:var(--font-display);font-size:84px;line-height:.98;font-weight:600;color:#2c7a50;
+  letter-spacing:-.03em;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.fh-big span{font-size:40px;margin-left:3px;letter-spacing:0}
+.fh-what{font-size:13px;color:var(--muted)}
+.fh-delta{display:inline-block;margin-top:10px;padding:3px 10px;border-radius:999px;font-size:13px;
+  font-weight:700}
+.fh-delta.up{background:#dcefe4;color:#1f6a43}
+.fh-delta.down{background:#f6e0dc;color:#9a3324}
+.fh-delta.flat{background:#eceae4;color:#55534c}
+.fh-month{font-size:13px;margin-top:8px;color:var(--muted)}
+.fh-month b{color:var(--text)}
+.fh-mix{flex:1;min-width:0}
+.fl-svg{display:block}
+.fl-svg text{font-size:11.5px;fill:#3a3935;font-family:var(--font-ui),sans-serif}
+.fl-svg text.ax{fill:#77746c;font-size:10.5px}
+.fl-svg text.strong{font-weight:700;fill:#1f6a43}
+.fl-sec{margin-top:12px}
+.fl-sec h2{font-family:var(--font-display);font-size:18px;margin:0;font-weight:600;border:0;padding:0}
+.fl-sub{font-size:11.5px;color:var(--muted);margin:2px 0 8px;line-height:1.4}
+.fb-row{display:grid;grid-template-columns:200px 1fr 46px 62px;column-gap:10px;align-items:center;
+  font-size:13px;height:21px}
+.fb-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fb-track{position:relative;height:21px}
+.fb-zero{position:absolute;top:0;bottom:0;border-left:1px solid #77746c}
+.fb-bar{position:absolute;top:4px;bottom:4px;border-radius:2px;min-width:2px}
+.fb-pp{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.fb-now{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.fl-curve{display:flex;gap:22px;align-items:flex-start}
+.fl-curve .curve{width:452px;height:170px}
+.fl-curve .curve text{font-size:10.5px;fill:#77746c;font-family:var(--font-ui),sans-serif}
+.cv-grid{stroke:#e4e2dd;stroke-width:1}
+.cv-ci{fill:#3d9a68;fill-opacity:.2}
+.cv-fit{fill:none;stroke:#2c7a50;stroke-width:2.2}
+.cv-weak{stroke-dasharray:5 4;stroke:#8d897c}
+.cv-pt{fill:#55534c;fill-opacity:.55}
+.cv-est{fill:none;stroke:#55534c}
+.cv-now{stroke:#8d897c;stroke-width:1;stroke-dasharray:2 3}
+.fl-legend{font-size:10.5px;color:var(--muted);margin:2px 0 0 30px}
+.fm-side{flex:1;min-width:0;padding-top:6px}
+.fm-head{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:4px}
+.fm-row{display:grid;grid-template-columns:52px 62px 1fr;align-items:baseline;
+  border-bottom:1px solid var(--line);padding:3px 0}
+.fm-lvl{font-size:14px;color:var(--muted)}
+.fm-year{font-family:var(--font-display);font-size:24px;font-weight:600;line-height:1;
+  font-variant-numeric:tabular-nums}
+.fm-ci{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.fm-past .fm-year{color:#8d897c;font-weight:500}
+.fm-note{font-size:10.5px;color:var(--muted);margin:6px 0 0}
+.fm-none{font-family:var(--font-display);font-size:16px;line-height:1.35;margin:10px 0 0}
+.fl-facts{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:12px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ff{padding:8px 12px 7px;border-left:1px solid var(--line)}
+.ff:first-child{border-left:0;padding-left:0}
+.ff-n{font-family:var(--font-display);font-size:22px;font-weight:600;line-height:1.1;
+  font-variant-numeric:tabular-nums}
+.ff-l{font-size:12px;margin-top:2px}
+.ff-s{font-size:11px;color:var(--muted)}
+.fl-foot{margin-top:auto;padding-top:10px;font-size:10.5px;line-height:1.45;color:var(--muted)}
+.fl-foot p{margin:0 0 3px}
+.fl-foot a{color:inherit}
+.fl-foot b{color:var(--text)}
+.fl-brand{margin-top:6px!important;padding-top:6px;border-top:2px solid var(--text);
+  color:var(--text);font-size:11px}
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:#fff}
+  .fl-bar{display:none}
+  .sheet-box{margin:0;width:auto!important;height:auto!important}
+  .sheet{box-shadow:none;transform:none!important;width:210mm;height:296mm;zoom:1}
+}
+</style>
+</head>
+<body>
+<div class="fl-bar"><a href="../georgia.html">← Georgia: sources and method</a>
+  <a href="../">All countries</a>
+  <button type="button" onclick="window.print()">Save as PDF</button></div>
+<div class="sheet-box"><article class="sheet">
+  <header class="fl-top"><img class="fl-flag" src="../../assets/flags/georgia.png" alt="">
+    <div><h1>Georgia</h1><div class="fl-kick">The shift to battery-electric cars</div></div>
+    <div class="fl-date">Data through<b>August 2026</b></div></header>
+  <p class="fl-head">About 1 in 13 new cars is battery electric.</p>
+  <p class="fl-follow">The share is rising: up 3.3 points in a year. Diesel lost the most: 5.6 points.</p>
+  <div class="fl-hero"><div class="fh-num"><div class="fh-kicker">BEV share of new cars</div><div class="fh-big">7.5<span>%</span></div><div class="fh-what">in the 12 months to August 2026</div><div class="fh-delta up">+3.3 points in a year</div><div class="fh-month">Quarter to Aug 2026 alone: <b>10.8 %</b></div></div><div class="fh-mix"><svg class="fl-svg" viewBox="0 0 470 170" width="470" height="170" role="img" aria-label="Share of new registrations by powertrain, trailing twelve months, through Aug 2026."><path d="M26.0,41.1 L34.4,49.9 L42.8,53.9 L51.2,56.8 L59.6,57.6 L68.0,56.7 L76.4,55.3 L84.8,53.2 L93.2,51.5 L101.6,49.8 L110.0,49.0 L118.4,47.2 L126.8,45.1 L135.2,42.6 L143.6,40.0 L152.0,36.8 L160.4,35.1 L168.8,34.1 L177.2,33.2 L185.6,33.0 L194.0,31.9 L202.4,31.4 L210.8,31.7 L219.2,32.4 L227.6,34.1 L236.0,35.4 L244.4,37.6 L252.8,39.5 L261.2,40.8 L269.6,41.8 L278.0,42.7 L286.4,44.0 L294.8,45.6 L303.2,47.3 L311.6,49.9 L320.0,53.5 L320.0,148.0 L311.6,148.0 L303.2,148.0 L294.8,148.0 L286.4,148.0 L278.0,148.0 L269.6,148.0 L261.2,148.0 L252.8,148.0 L244.4,148.0 L236.0,148.0 L227.6,148.0 L219.2,148.0 L210.8,148.0 L202.4,148.0 L194.0,148.0 L185.6,148.0 L177.2,148.0 L168.8,148.0 L160.4,148.0 L152.0,148.0 L143.6,148.0 L135.2,148.0 L126.8,148.0 L118.4,148.0 L110.0,148.0 L101.6,148.0 L93.2,148.0 L84.8,148.0 L76.4,148.0 L68.0,148.0 L59.6,148.0 L51.2,148.0 L42.8,148.0 L34.4,148.0 L26.0,148.0 Z" fill="#cfcabe"/><path d="M26.0,9.5 L34.4,10.0 L42.8,9.9 L51.2,9.5 L59.6,9.2 L68.0,9.3 L76.4,9.5 L84.8,9.6 L93.2,9.5 L101.6,9.3 L110.0,8.9 L118.4,8.8 L126.8,8.7 L135.2,8.5 L143.6,8.4 L152.0,8.4 L160.4,8.5 L168.8,8.5 L177.2,8.7 L185.6,9.0 L194.0,9.2 L202.4,9.4 L210.8,9.6 L219.2,9.5 L227.6,9.7 L236.0,10.0 L244.4,10.6 L252.8,11.5 L261.2,12.3 L269.6,12.8 L278.0,13.4 L286.4,14.0 L294.8,14.2 L303.2,14.7 L311.6,16.2 L320.0,18.5 L320.0,53.5 L311.6,49.9 L303.2,47.3 L294.8,45.6 L286.4,44.0 L278.0,42.7 L269.6,41.8 L261.2,40.8 L252.8,39.5 L244.4,37.6 L236.0,35.4 L227.6,34.1 L219.2,32.4 L210.8,31.7 L202.4,31.4 L194.0,31.9 L185.6,33.0 L177.2,33.2 L168.8,34.1 L160.4,35.1 L152.0,36.8 L143.6,40.0 L135.2,42.6 L126.8,45.1 L118.4,47.2 L110.0,49.0 L101.6,49.8 L93.2,51.5 L84.8,53.2 L76.4,55.3 L68.0,56.7 L59.6,57.6 L51.2,56.8 L42.8,53.9 L34.4,49.9 L26.0,41.1 Z" fill="#e0c36a"/><path d="M26.0,8.0 L34.4,8.0 L42.8,8.0 L51.2,8.0 L59.6,8.0 L68.0,8.0 L76.4,8.0 L84.8,8.0 L93.2,8.0 L101.6,8.0 L110.0,8.0 L118.4,8.0 L126.8,8.0 L135.2,8.0 L143.6,8.0 L152.0,8.0 L160.4,8.0 L168.8,8.0 L177.2,8.0 L185.6,8.0 L194.0,8.0 L202.4,8.0 L210.8,8.0 L219.2,8.0 L227.6,8.0 L236.0,8.0 L244.4,8.0 L252.8,8.0 L261.2,8.0 L269.6,8.0 L278.0,8.0 L286.4,8.0 L294.8,8.0 L303.2,8.0 L311.6,8.0 L320.0,8.0 L320.0,18.5 L311.6,16.2 L303.2,14.7 L294.8,14.2 L286.4,14.0 L278.0,13.4 L269.6,12.8 L261.2,12.3 L252.8,11.5 L244.4,10.6 L236.0,10.0 L227.6,9.7 L219.2,9.5 L210.8,9.6 L202.4,9.4 L194.0,9.2 L185.6,9.0 L177.2,8.7 L168.8,8.5 L160.4,8.5 L152.0,8.4 L143.6,8.4 L135.2,8.5 L126.8,8.7 L118.4,8.8 L110.0,8.9 L101.6,9.3 L93.2,9.5 L84.8,9.6 L76.4,9.5 L68.0,9.3 L59.6,9.2 L51.2,9.5 L42.8,9.9 L34.4,10.0 L26.0,9.5 Z" fill="#3d9a68"/><text x="21" y="151.5" text-anchor="end" class="ax">0</text><text x="21" y="81.5" text-anchor="end" class="ax">50</text><text x="21" y="11.5" text-anchor="end" class="ax">100</text><line x1="26" y1="78.0" x2="320" y2="78.0" stroke="#fff" stroke-opacity=".6"/><text x="98.8" y="164" text-anchor="middle" class="ax">2020</text><text x="166.0" y="164" text-anchor="middle" class="ax">2022</text><text x="233.2" y="164" text-anchor="middle" class="ax">2024</text><text x="300.4" y="164" text-anchor="middle" class="ax">2026</text><rect x="328" y="8.3" width="8" height="8" fill="#3d9a68"/><text x="341" y="16.3" class="strong">Battery electric 7.5%</text><rect x="328" y="31.0" width="8" height="8" fill="#e0c36a"/><text x="341" y="39.0">Hybrid 25.0%</text><rect x="328" y="95.8" width="8" height="8" fill="#cfcabe"/><text x="341" y="103.8">Combustion 67.5%</text></svg></div></div>
+  <section class="fl-sec"><h2>Who gained, who lost</h2><p class="fl-sub">Change in share of new registrations, in percentage points: Sep 2025 to Aug 2026 against the year before. Right: share now.</p><div class="fb"><div class="fb-row"><span class="fb-name">Battery electric</span><span class="fb-track"><i class="fb-zero" style="left:61.24%"></i><i class="fb-bar" style="left:61.24%;width:35.63%;background:#3d9a68"></i></span><span class="fb-pp">+3.3</span><span class="fb-now">7.5 %</span></div><div class="fb-row"><span class="fb-name">Hybrid</span><span class="fb-track"><i class="fb-zero" style="left:61.24%"></i><i class="fb-bar" style="left:61.24%;width:38.76%;background:#e0c36a"></i></span><span class="fb-pp">+3.5</span><span class="fb-now">25.0 %</span></div><div class="fb-row"><span class="fb-name">Petrol</span><span class="fb-track"><i class="fb-zero" style="left:61.24%"></i><i class="fb-bar" style="left:44.84%;width:16.41%;background:#b3a48c"></i></span><span class="fb-pp">−1.5</span><span class="fb-now">55.4 %</span></div><div class="fb-row"><span class="fb-name">Diesel</span><span class="fb-track"><i class="fb-zero" style="left:61.24%"></i><i class="fb-bar" style="left:0.00%;width:61.24%;background:#8d897c"></i></span><span class="fb-pp">−5.6</span><span class="fb-now">11.3 %</span></div><div class="fb-row"><span class="fb-name">Other fuels</span><span class="fb-track"><i class="fb-zero" style="left:61.24%"></i><i class="fb-bar" style="left:61.24%;width:3.27%;background:#cfcabe"></i></span><span class="fb-pp">+0.3</span><span class="fb-now">0.79 %</span></div></div></section>
+  <section class="fl-sec"><h2>Where the curve points</h2><p class="fl-sub">An S-curve fitted to the BEV share so far. It is this project's model, not an official forecast: a policy change or a stall is not in it.</p><div class="fl-curve"><div><svg class="curve" viewBox="0 0 452 170" role="img" aria-label="BEV share of new registrations, observed and fitted S-curve, 2017 to 2036."><line x1="34" y1="144.0" x2="442" y2="144.0" class="cv-grid"/><text x="28" y="147.5" text-anchor="end">0</text><line x1="34" y1="111.0" x2="442" y2="111.0" class="cv-grid"/><text x="28" y="114.5" text-anchor="end">25</text><line x1="34" y1="78.0" x2="442" y2="78.0" class="cv-grid"/><text x="28" y="81.5" text-anchor="end">50</text><line x1="34" y1="45.0" x2="442" y2="45.0" class="cv-grid"/><text x="28" y="48.5" text-anchor="end">75</text><line x1="34" y1="12.0" x2="442" y2="12.0" class="cv-grid"/><text x="28" y="15.5" text-anchor="end">100</text><text x="55.5" y="162" text-anchor="middle">2018</text><text x="98.4" y="162" text-anchor="middle">2020</text><text x="141.4" y="162" text-anchor="middle">2022</text><text x="184.3" y="162" text-anchor="middle">2024</text><text x="227.3" y="162" text-anchor="middle">2026</text><text x="270.2" y="162" text-anchor="middle">2028</text><text x="313.2" y="162" text-anchor="middle">2030</text><text x="356.1" y="162" text-anchor="middle">2032</text><text x="399.1" y="162" text-anchor="middle">2034</text><text x="442.0" y="162" text-anchor="end">2036</text><line x1="239.8" y1="12" x2="239.8" y2="144" class="cv-now"/><text x="234.8" y="22" text-anchor="end">data through Sep 2026</text><circle cx="35.8" cy="143.8" r="1.9" class="cv-pt"/><circle cx="41.2" cy="143.0" r="1.9" class="cv-pt"/><circle cx="46.5" cy="141.4" r="1.9" class="cv-pt"/><circle cx="51.9" cy="141.5" r="1.9" class="cv-pt"/><circle cx="57.3" cy="142.5" r="1.9" class="cv-pt"/><circle cx="62.6" cy="143.0" r="1.9" class="cv-pt"/><circle cx="68.0" cy="143.0" r="1.9" class="cv-pt"/><circle cx="73.4" cy="143.1" r="1.9" class="cv-pt"/><circle cx="78.7" cy="142.1" r="1.9" class="cv-pt"/><circle cx="84.1" cy="142.0" r="1.9" class="cv-pt"/><circle cx="89.5" cy="142.9" r="1.9" class="cv-pt"/><circle cx="94.8" cy="143.1" r="1.9" class="cv-pt"/><circle cx="100.2" cy="143.2" r="1.9" class="cv-pt"/><circle cx="105.6" cy="143.2" r="1.9" class="cv-pt"/><circle cx="110.9" cy="143.5" r="1.9" class="cv-pt"/><circle cx="116.3" cy="143.5" r="1.9" class="cv-pt"/><circle cx="121.7" cy="143.6" r="1.9" class="cv-pt"/><circle cx="127.1" cy="143.7" r="1.9" class="cv-pt"/><circle cx="132.4" cy="143.5" r="1.9" class="cv-pt"/><circle cx="137.8" cy="143.5" r="1.9" class="cv-pt"/><circle cx="143.2" cy="143.3" r="1.9" class="cv-pt"/><circle cx="148.5" cy="143.1" r="1.9" class="cv-pt"/><circle cx="153.9" cy="142.3" r="1.9" class="cv-pt"/><circle cx="159.3" cy="142.7" r="1.9" class="cv-pt"/><circle cx="164.6" cy="142.4" r="1.9" class="cv-pt"/><circle cx="170.0" cy="142.5" r="1.9" class="cv-pt"/><circle cx="175.4" cy="142.7" r="1.9" class="cv-pt"/><circle cx="180.7" cy="141.8" r="1.9" class="cv-pt"/><circle cx="186.1" cy="140.9" r="1.9" class="cv-pt"/><circle cx="191.5" cy="140.1" r="1.9" class="cv-pt"/><circle cx="196.8" cy="139.9" r="1.9" class="cv-pt"/><circle cx="202.2" cy="139.4" r="1.9" class="cv-pt"/><circle cx="207.6" cy="138.3" r="1.9" class="cv-pt"/><circle cx="212.9" cy="138.1" r="1.9" class="cv-pt"/><circle cx="218.3" cy="137.9" r="1.9" class="cv-pt"/><circle cx="223.7" cy="138.3" r="1.9" class="cv-pt"/><circle cx="229.1" cy="136.1" r="1.9" class="cv-pt"/><circle cx="234.4" cy="132.7" r="1.9" class="cv-pt"/><circle cx="239.8" cy="129.7" r="1.9" class="cv-pt"/><path d="M34.0,144.0 L35.7,144.0 L37.4,144.0 L39.1,144.0 L40.8,144.0 L42.5,144.0 L44.2,144.0 L45.9,144.0 L47.6,144.0 L49.3,144.0 L51.0,144.0 L52.7,144.0 L54.4,144.0 L56.1,144.0 L57.8,144.0 L59.5,144.0 L61.2,144.0 L62.9,144.0 L64.6,144.0 L66.3,144.0 L68.0,144.0 L69.7,144.0 L71.4,144.0 L73.1,144.0 L74.8,144.0 L76.5,144.0 L78.2,144.0 L79.9,144.0 L81.6,144.0 L83.3,144.0 L85.0,144.0 L86.7,144.0 L88.4,144.0 L90.1,144.0 L91.8,144.0 L93.5,144.0 L95.2,144.0 L96.9,144.0 L98.6,144.0 L100.3,144.0 L102.0,144.0 L103.7,144.0 L105.4,144.0 L107.1,144.0 L108.8,143.9 L110.5,143.9 L112.2,143.9 L113.9,143.9 L115.6,143.9 L117.3,143.9 L119.0,143.9 L120.7,143.9 L122.4,143.9 L124.1,143.9 L125.8,143.8 L127.5,143.8 L129.2,143.8 L130.9,143.8 L132.6,143.8 L134.3,143.8 L136.0,143.7 L137.7,143.7 L139.4,143.7 L141.1,143.6 L142.8,143.6 L144.5,143.6 L146.2,143.5 L147.9,143.5 L149.6,143.5 L151.3,143.4 L153.0,143.4 L154.7,143.3 L156.4,143.3 L158.1,143.2 L159.8,143.2 L161.5,143.1 L163.2,143.0 L164.9,143.0 L166.6,142.9 L168.3,142.8 L170.0,142.7 L171.7,142.6 L173.4,142.5 L175.1,142.4 L176.8,142.3 L178.5,142.2 L180.2,142.1 L181.9,142.0 L183.6,141.8 L185.3,141.7 L187.0,141.6 L188.7,141.4 L190.4,141.2 L192.1,141.1 L193.8,140.9 L195.5,140.7 L197.2,140.5 L198.9,140.3 L200.6,140.1 L202.3,139.8 L204.0,139.6 L205.7,139.4 L207.4,139.1 L209.1,138.8 L210.8,138.5 L212.5,138.2 L214.2,137.9 L215.9,137.6 L217.6,137.3 L219.3,136.9 L221.0,136.5 L222.7,136.2 L224.4,135.8 L226.1,135.3 L227.8,134.9 L229.5,134.5 L231.2,134.0 L232.9,133.5 L234.6,133.0 L236.3,132.5 L238.0,131.9 L239.7,131.4 L241.4,130.8 L243.1,130.2 L244.8,129.6 L246.5,128.9 L248.2,128.2 L249.9,127.6 L251.6,126.8 L253.3,126.1 L255.0,125.3 L256.7,124.6 L258.4,123.7 L260.1,122.9 L261.8,122.1 L263.5,121.2 L265.2,120.3 L266.9,119.3 L268.6,118.4 L270.3,117.4 L272.0,116.4 L273.7,115.3 L275.4,114.3 L277.1,113.2 L278.8,112.1 L280.5,110.9 L282.2,109.8 L283.9,108.6 L285.6,107.4 L287.3,106.1 L289.0,104.9 L290.7,103.6 L292.4,102.2 L294.1,100.9 L295.8,99.5 L297.5,98.2 L299.2,96.7 L300.9,95.3 L302.6,93.9 L304.3,92.4 L306.0,90.9 L307.7,89.4 L309.4,87.9 L311.1,86.3 L312.8,84.8 L314.5,83.2 L316.2,81.6 L317.9,80.0 L319.6,78.4 L321.3,76.8 L323.0,75.2 L324.7,73.6 L326.4,71.9 L328.1,70.3 L329.8,68.7 L331.5,67.0 L333.2,65.4 L334.9,63.8 L336.6,62.1 L338.3,60.5 L340.0,58.9 L341.7,57.3 L343.4,55.7 L345.1,54.1 L346.8,52.6 L348.5,51.0 L350.2,49.5 L351.9,48.0 L353.6,46.5 L355.3,45.1 L357.0,43.6 L358.7,42.2 L360.4,40.8 L362.1,39.5 L363.8,38.2 L365.5,36.9 L367.2,35.6 L368.9,34.4 L370.6,33.2 L372.3,32.1 L374.0,30.9 L375.7,29.8 L377.4,28.8 L379.1,27.8 L380.8,26.8 L382.5,25.9 L384.2,25.0 L385.9,24.1 L387.6,23.3 L389.3,22.5 L391.0,21.8 L392.7,21.1 L394.4,20.4 L396.1,19.8 L397.8,19.1 L399.5,18.6 L401.2,18.0 L402.9,17.5 L404.6,17.1 L406.3,16.6 L408.0,16.2 L409.7,15.8 L411.4,15.5 L413.1,15.1 L414.8,14.8 L416.5,14.6 L418.2,14.3 L419.9,14.1 L421.6,13.8 L423.3,13.6 L425.0,13.5 L426.7,13.3 L428.4,13.1 L430.1,13.0 L431.8,12.9 L433.5,12.8 L435.2,12.7 L436.9,12.6 L438.6,12.5 L440.3,12.5 L442.0,12.4" class="cv-fit"/></svg><p class="fl-legend">Dots: observed share per period. Line: fitted S-curve.</p></div><div class="fm-side"><div class="fm-head">The curve reaches</div><div class="fm"><div class="fm-row"><span class="fm-lvl">20 %</span><span class="fm-year">2027</span></div><div class="fm-row"><span class="fm-lvl">50 %</span><span class="fm-year">2030</span></div><div class="fm-row"><span class="fm-lvl">80 %</span><span class="fm-year">2032</span></div><div class="fm-row"><span class="fm-lvl">90 %</span><span class="fm-year">2033</span></div></div></div></div></section>
+  <div class="fl-facts"><div class="ff"><div class="ff-n">163,226</div><div class="ff-l">new registrations</div><div class="ff-s">last 12 months, +3.3 % in a year</div></div><div class="ff"><div class="ff-n">12,263</div><div class="ff-l">of them battery electric</div><div class="ff-s">last 12 months</div></div><div class="ff"><div class="ff-n">10.8 %</div><div class="ff-l">highest BEV share in one period</div><div class="ff-s">Quarter to Aug 2026</div></div></div>
+  <footer class="fl-foot"><p><b>Source:</b> Geostat. All vehicle categories, first registrations incl. used imports (79 % over 2 years old, Q3 2026). One combined hybrid figure, counted within ICE, no…</p><p>Scopes differ between countries. Method, definitions and every number: <a href="../georgia.html">leraffl.github.io/LeRaffl-Gallery/sources/georgia.html</a></p><p class="fl-brand"><b>BEV Trajectory Gallery</b> · @LeRaffl · charts and text CC BY 4.0 · data through August 2026</p></footer>
+</article></div>
+<script>
+(function(){
+  var box=document.querySelector('.sheet-box'),sheet=box.firstElementChild;
+  function fit(){
+    var s=Math.min(1,(document.documentElement.clientWidth-16)/794);
+    sheet.style.transform=s<1?'scale('+s+')':'';
+    box.style.width=(794*s)+'px';box.style.height=(1123*s)+'px';
+  }
+  fit();addEventListener('resize',fit);
+})();
+</script>
+</body>
+</html>

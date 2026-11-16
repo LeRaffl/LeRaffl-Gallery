@@ -281,6 +281,48 @@ def test_card_formatting():
     assert mc.period_label("2026-10", long=True) == "October 2026"
 
 
+# --- flyer (scripts/flyer.py) -----------------------------------------------
+
+import flyer  # noqa: E402
+
+
+def test_flyer_verdict_says_how_far_and_which_way():
+    def fig(share, delta):
+        return {"ttm": {"share": share, "delta": delta, "end": "2026-10"}}
+    assert flyer.verdict("X", fig(27.2, 9.4), None) == (
+        "About 1 in 4 new cars is battery electric.",
+        "The share is rising fast: up 9.4 points in a year.")
+    assert flyer.verdict("X", fig(0.4, 0.0), None) == (
+        "Fewer than 1 in 100 new cars is battery electric.",
+        "The share has barely moved in a year.")
+    assert flyer.verdict("X", fig(95.0, 2.0), None)[0].startswith("Almost every new car")
+    assert flyer.verdict("X", fig(62.0, -3.0), None) == (
+        "Most new cars are battery electric: 62 in 100.",
+        "The share fell by 3.0 points in a year.")
+    assert flyer.verdict("X", {}, None) == ("X: new registrations by powertrain", "")
+    # The follow-up names the biggest mover as a fact, not as a cause.
+    shift = {"rows": [{"key": "BEV", "label": "Battery electric", "delta": 1.9},
+                      {"key": "PETROL", "label": "Petrol", "delta": -4.0},
+                      {"key": "CNG", "label": "CNG", "delta": 2.8}]}
+    assert flyer.verdict("X", fig(5.9, 1.9), shift)[1].endswith("Petrol lost the most: 4.0 points.")
+
+
+def test_flyer_mix_keeps_unknown_columns_out_of_their_own_band():
+    rows = _rows(30, TOTAL=lambda i: 100, BEV=lambda i: 10 + i,
+                 HEV=lambda i: None if i < 6 else 10)
+    points = flyer.mix_points(rows)
+    assert len(points) == 19 and points[-1]["period"] == "2026-06"
+    assert points[0]["HEV"] is None and points[-1]["HEV"] == 10
+    assert points[-1]["PHEV"] is None
+    assert abs(points[-1]["BEV"] + points[-1]["HEV"] + points[-1]["REST"] - 100) < 1e-9
+    assert flyer.mix_points(rows[:20]) == []          # too short to draw
+
+
+def test_flyer_page_builds_without_data():
+    html = flyer.build_flyer({"country": "Nowhere", "slug": "nowhere"}, [], None, {}, None, None, "t.css")
+    assert "Nowhere" in html and "fl-foot" in html
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

@@ -257,11 +257,11 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
 .cardbar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:0 0 18px;
   font-size:13px}
 .cardbar .back{margin:0}
-.cardbar button{margin-left:auto}
+.cardbar .flyer-link{margin-left:auto}
 .cardbar nav{display:flex;flex-wrap:wrap;gap:4px 14px;flex-basis:100%;order:3}
 .cardbar nav a{color:var(--muted)}
-.cardbar button{font:inherit;font-size:13px;padding:4px 10px;border-radius:8px;cursor:pointer;
-  border:1px solid var(--border);background:var(--panel);color:var(--text)}
+.cardbar .flyer-link{padding:4px 12px;border-radius:8px;font-weight:600;
+  border:1px solid var(--text);background:var(--text);color:var(--bg)}
 .glance{margin:0 0 6px}
 .glance .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
 .glance .stat{padding:12px 14px}
@@ -349,7 +349,7 @@ h3{font-size:15px;margin:22px 0 10px}
 <div class="wrap">
   <div class="cardbar"><a class="back" href="./">← All sources</a>
     <nav aria-label="Sections"></nav>
-    <button type="button" title="Opens the print dialog: choose Save as PDF">Print or save as PDF</button></div>
+    <a class="flyer-link" href="flyer/ukraine.html">One-page flyer</a></div>
   <header class="poster poster--plain"><div class="poster-top"><img class="flag" src="../assets/flags/ukraine.png" alt=""><div><h1>Ukraine</h1><p class="asof">Data through <b>August 2026</b> · curve fitted 2026-09-24 <span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></p></div></div></header>
   
   <section id="glance" class="glance"><div class="stats"><div class="stat"><div class="l">BEV share, latest period</div><div class="n">10.5 %</div><div class="s">Aug 2026 · −17.6 points in a year</div></div><div class="stat"><div class="l">BEV share, last 12 months</div><div class="n">22.7 %</div><div class="s">through Aug 2026 · +4.5 points in a year</div></div><div class="stat"><div class="l">New registrations</div><div class="n">75,979</div><div class="s">last 12 months · +13.3 % in a year</div></div><div class="stat"><div class="l">Battery electric registered</div><div class="n">17,275</div><div class="s">last 12 months</div></div><div class="stat"><div class="l">Highest BEV share so far</div><div class="n">51.9 %</div><div class="s">Dec 2025</div></div><div class="stat"><div class="l">Curve reaches 50 % BEV</div><div class="n">2028</div><div class="s">95 % CI 2025 or later · fitted S-curve, not a forecast</div></div></div></section>
@@ -432,9 +432,6 @@ h3{font-size:15px;margin:22px 0 10px}
     var host=h.closest('section')||h;if(!host.id)host.id='s'+i;
     var a=document.createElement('a');a.href='#'+host.id;a.textContent=short[t];nav.appendChild(a);
   });
-  var b=document.querySelector('.cardbar button');
-  if(b)b.addEventListener('click',function(){
-    document.querySelectorAll('details').forEach(function(d){d.open=true;});window.print();});
 })();
 </script>
 </body>

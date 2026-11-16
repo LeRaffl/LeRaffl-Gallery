@@ -737,7 +737,8 @@ def _sci(value: float) -> str:
         "<sup>-", "<sup>−")
 
 
-def build_curve_svg(rows: list[dict], state: dict, bands: dict | None) -> str:
+def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
+                    width: int = 720, height: int = 300) -> str:
     observed = []
     for row in rows:
         idx, value = month_index(row["period"]), _bev_share(row)
@@ -754,7 +755,6 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None) -> str:
         end = min(max(reach + 2, data_end + 6), data_end + 25)
     end = float(min(2060, math.ceil(end)))
 
-    width, height = 720, 300
     left, right, top, bottom = 34, 10, 12, 26
     plot_w, plot_h = width - left - right, height - top - bottom
 
@@ -944,11 +944,11 @@ CARD_CSS = """
 .cardbar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:0 0 18px;
   font-size:13px}
 .cardbar .back{margin:0}
-.cardbar button{margin-left:auto}
+.cardbar .flyer-link{margin-left:auto}
 .cardbar nav{display:flex;flex-wrap:wrap;gap:4px 14px;flex-basis:100%;order:3}
 .cardbar nav a{color:var(--muted)}
-.cardbar button{font:inherit;font-size:13px;padding:4px 10px;border-radius:8px;cursor:pointer;
-  border:1px solid var(--border);background:var(--panel);color:var(--text)}
+.cardbar .flyer-link{padding:4px 12px;border-radius:8px;font-weight:600;
+  border:1px solid var(--text);background:var(--text);color:var(--bg)}
 .glance{margin:0 0 6px}
 .glance .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
 .glance .stat{padding:12px 14px}
@@ -1045,8 +1045,5 @@ CARD_JS = """<script>
     var host=h.closest('section')||h;if(!host.id)host.id='s'+i;
     var a=document.createElement('a');a.href='#'+host.id;a.textContent=short[t];nav.appendChild(a);
   });
-  var b=document.querySelector('.cardbar button');
-  if(b)b.addEventListener('click',function(){
-    document.querySelectorAll('details').forEach(function(d){d.open=true;});window.print();});
 })();
 </script>"""

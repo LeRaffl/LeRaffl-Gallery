@@ -562,7 +562,16 @@ Rules that keep the card honest:
 - **Dates come from the fitted line and its CI only** ([44-uncertainty-bands.md](44-uncertainty-bands.md) §7). The milestone table is shown only when the row passes the reliability gate and is not a "no transition" row; the CI column only when `quality.usable` is true and the band was built for the same `data_per`.
 - `fit_reliability()` / `has_no_transition()` mirror `fitReliability()` / `rowHasNoTransition()` in `assets/fit_core.js`, and `band_slug()` mirrors `slug_country()` / `bandSlug()`. Change them together.
 - The page carries no build date, only the data month and the model date, so a rebuild without new data produces no diff.
-- The print stylesheet (`@media print`) is the flyer: the navigation bar is dropped, collapsed blocks are opened by the button, and the source part starts after the card.
+
+### The flyer (`scripts/flyer.py` → `sources/flyer/<slug>.html`)
+
+The source page is for checking a series; the flyer is for a reader who wants to see at a glance where a country stands. One fixed A4 sheet per country (794 × 1123 px, scaled down on a narrow screen, printed 1:1 by its *Save as PDF* button), built in the same run from the same computed figures, so the two cannot disagree. The source page links to it from its top bar.
+
+On the sheet, top to bottom: country and "data through" month; a verdict in plain words (`verdict()`: how many new cars in N are battery electric, which way the share moved in a year, and which powertrain moved most, stated as a fact, never as a cause); the 12-month BEV share as the one large number next to the mix over time; the gains and losses; the fitted curve with its milestone years; four facts; source and scope in the footer. No pipeline detail belongs on it.
+
+- The same gates as the source page apply: no dates from an unreliable fit, no interval from an unusable band.
+- **The sheet must not overflow.** Everything that varies in length is bounded (at most six bars, a clipped scope line). After changing the layout, open a few long cases (India, Czechia, Slovenia) and check that the footer is still on the sheet.
+- In the mix, plug-ins and hybrids are their own band only where the 12-month window fills that column; before that they are inside the combustion band.
 
 ## 2.12 Theme Extractor (`scripts/build_theme.py`)
 

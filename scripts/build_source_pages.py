@@ -42,6 +42,7 @@ from pathlib import Path
 
 import yaml
 
+import flyer
 import model_card as mc
 
 REPO = Path(__file__).resolve().parent.parent
@@ -2001,6 +2002,20 @@ def build_header(fm: dict, asof: str = "") -> str:
     )
 
 
+def build_flyer_page(fm: dict, params: dict) -> str:
+    """The one-page reader flyer, from the same figures as the source page."""
+    fm = apply_group_defaults(fm)
+    country = fm.get("country", "Unknown")
+    whole = params.get((country, "Whole")) or {}
+    rows = mc.whole_rows(fm.get("data_file"))
+    bands = mc.load_bands(country)
+    shift = mc.powertrain_shift(rows, fm.get("hev_split") is True)
+    figures = mc.key_figures(rows, shift, whole,
+                             mc.read_keyed("weights.csv").get((country, "Whole")))
+    return flyer.build_flyer(fm, rows, shift, figures, mc.model_state(whole, bands),
+                             bands, "../../assets/theme.css")
+
+
 def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
@@ -2061,6 +2076,7 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
         country=esc(country),
         method_chip=method_chip(fm.get("method", "")),
         header=header,
+        slug=esc(fm.get("slug", "")),
         card_css=mc.CARD_CSS,
         card_js=mc.CARD_JS,
         glance=mc.build_glance(figures, state),
@@ -2433,7 +2449,7 @@ TEMPLATE = """<!doctype html>
 <div class="wrap">
   <div class="cardbar"><a class="back" href="./">← All sources</a>
     <nav aria-label="Sections"></nav>
-    <button type="button" title="Opens the print dialog: choose Save as PDF">Print or save as PDF</button></div>
+    <a class="flyer-link" href="flyer/{slug}.html">One-page flyer</a></div>
   {header}
   {banner}
   {glance}
@@ -2843,6 +2859,9 @@ def main() -> int:
     for fm, is_stub in entries:
         page = build_page(fm, params, is_stub=is_stub)
         (OUT_DIR / f"{fm['slug']}.html").write_text(page, encoding="utf-8")
+        (OUT_DIR / "flyer").mkdir(exist_ok=True)
+        (OUT_DIR / "flyer" / f"{fm['slug']}.html").write_text(
+            build_flyer_page(fm, params), encoding="utf-8")
         whole = params.get((fm.get("country"), "Whole")) or {}
         # Same rule as the page itself: the directory card shows what we
         # actually hold, falling back to the model's period only if the CSV
