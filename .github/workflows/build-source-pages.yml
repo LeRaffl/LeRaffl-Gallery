@@ -23,6 +23,8 @@ on:
       - 'docs/architecture/country_source_stubs.yaml'
       - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
+      - 'scripts/model_card.py'      # the model-card sections of each page
+      - 'footnotes.csv'              # chart footnote repeated under Caveats
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
       - 'index.html'                 # the palette's source of truth (#221)
@@ -39,6 +41,8 @@ on:
       - 'docs/architecture/country_source_stubs.yaml'
       - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
+      - 'scripts/model_card.py'
+      - 'footnotes.csv'
       - 'scripts/test_build_source_pages.py'
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'

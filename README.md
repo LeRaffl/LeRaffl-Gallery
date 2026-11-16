@@ -181,8 +181,11 @@ variants it writes and its schedule — see
 and the cron table in
 [docs/architecture/08-deploy-ops.md § 8.11](docs/architecture/08-deploy-ops.md#811-cron-schedule-overview).
 Each country also has a public source page under
-[`sources/`](https://leraffl.github.io/LeRaffl-Gallery/sources/) explaining
-where its numbers come from.
+[`sources/`](https://leraffl.github.io/LeRaffl-Gallery/sources/) that doubles
+as its **model card**: the key figures with their "data through" month, which
+powertrain gained and which lost share, the latest periods, the fitted curve
+with its milestone years, and where the numbers come from. It prints to PDF
+from the button at the top (`scripts/model_card.py`).
 
 ---
 
