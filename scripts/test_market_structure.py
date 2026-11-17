@@ -188,7 +188,7 @@ def test_generated_stamp_is_reproducible():
 def test_flag_filename_accepts_hyphen_or_underscore_slugs():
     assert mc.flag_filename("new-zealand", "New Zealand") == "new_zealand.png"
     assert mc.flag_filename("eu", "EU") == "eu.png"
-    # World's emblem ships with the region-flyer work; EU is already in-tree.
+    assert mc.flag_filename("world", "World") == "world.png"
     assert mc.flag_src("netherlands", "Netherlands").endswith("/netherlands.png")
 
 

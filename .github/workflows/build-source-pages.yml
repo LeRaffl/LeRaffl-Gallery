@@ -46,9 +46,11 @@ on:
       - 'scripts/flyer.py'
       - 'scripts/market_structure.py'  # brand block on the brief
       - 'scripts/social_card.py'       # social cards; generation still a follow-up
+      - 'scripts/region_card.py'       # region briefs; generation still a follow-up
       - 'footnotes.csv'
       - 'scripts/test_build_source_pages.py'
       - 'scripts/test_market_structure.py'
+      - 'scripts/test_region_card.py'
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
       - 'index.html'
