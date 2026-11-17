@@ -256,6 +256,15 @@ def test_card_ttm_only_from_a_full_window_at_the_latest_period():
     assert "ttm" not in figures and "volume" not in figures
 
 
+def test_card_latest_table_shows_an_empty_bev_cell_as_unknown():
+    # A month published with a total but no fuel split yet (Indonesia's PDF
+    # can arrive like that) must neither crash the build nor read as 0 %.
+    rows = _rows(13, TOTAL=lambda i: 100, BEV=lambda i: None if i == 12 else 10)
+    html = mc.build_latest_table(rows, hev_full=False)
+    newest = html.split("<tr>")[2]
+    assert newest.count(">—<") == 3 and "0.0" not in newest
+
+
 def test_card_shift_refuses_overlapping_columns():
     rows = _rows(24, TOTAL=lambda i: 100, BEV=lambda i: 10, HEV=lambda i: 50,
                  MHEV=lambda i: 45)

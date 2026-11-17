@@ -730,10 +730,16 @@ def build_latest_table(rows: list[dict], hev_full: bool, count: int = 13) -> str
     flagged = False
     for row in reversed(tail):
         total = num(row, "TOTAL")
+        bev = num(row, "BEV")
         named = 0.0
         cells = []
         for key, _ in cols:
-            value = num(row, key) or 0.0
+            value = num(row, key)
+            if value is None:
+                # Only BEV can be empty here (the other columns are shown
+                # only when every row fills them): unknown, never 0.
+                cells.append('<td class="num">—</td>')
+                continue
             if key == "PHEV":
                 value += num(row, "EREV") or 0.0
             named += value
@@ -741,12 +747,13 @@ def build_latest_table(rows: list[dict], hev_full: bool, count: int = 13) -> str
         mark = ""
         if is_estimated(row):
             mark, flagged = '<sup title="partly estimated">e</sup>', True
-        bev = num(row, "BEV")
+        rest = ("—" if bev is None else
+                share(max(0.0, 100 * (total - named) / total))[:-2])
         body.append(
             f'<tr><th>{esc(row_label(row))}{mark}</th>'
             f'<td class="num">{total:,.0f}</td>'
-            f'<td class="num">{bev:,.0f}</td>{"".join(cells)}'
-            f'<td class="num">{share(max(0.0, 100 * (total - named) / total))[:-2]}</td></tr>')
+            f'<td class="num">{"—" if bev is None else f"{bev:,.0f}"}</td>{"".join(cells)}'
+            f'<td class="num">{rest}</td></tr>')
     head = "".join(f'<th class="num">{esc(label)} %</th>' for _, label in cols)
     note = ("<sup>e</sup> partly estimated from annual data, see the row's "
             "<code>notes</code> in the CSV. " if flagged else "")
