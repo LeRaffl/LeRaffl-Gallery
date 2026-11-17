@@ -261,6 +261,32 @@ def tail_windows(rows: list[dict]) -> dict | None:
     }
 
 
+def ttm_window(rows: list[dict]) -> dict | None:
+    """BEV share of the last 12 months (or 4 quarters), from the CSV only.
+
+    Only a full window that ends at the series' latest period counts: one
+    cadence, no gap, BEV and TOTAL filled in every period. Anything less is
+    unknown, not an older window passed off as the latest one.
+    """
+    if not rows:
+        return None
+    interval = interval_of(rows[-1])
+    size, step = {"monthly": (12, 1), "quarterly": (4, 3)}.get(interval, (0, 0))
+    if not size or len(rows) < size:
+        return None
+    window = rows[-size:]
+    if any(interval_of(row) != interval for row in window):
+        return None
+    idx = [month_index(row["period"]) for row in window]
+    if None in idx or any(b - a != step for a, b in zip(idx, idx[1:])):
+        return None
+    total, bev = _full_sum(window, "TOTAL"), _full_sum(window, "BEV")
+    if total is None or bev is None or total <= 0:
+        return None
+    return {"share": 100 * bev / total, "total": total, "bev": bev,
+            "end": window[-1]["period"], "interval": interval}
+
+
 def _shift(period: str, months: int) -> str:
     idx = month_index(period) + months
     return f"{idx // 12:04d}-{idx % 12 + 1:02d}"
@@ -620,13 +646,15 @@ def key_figures(rows: list[dict], shift: dict | None, param: dict | None,
                          "growth": 100 * (shift["total_after"] / shift["total_before"] - 1),
                          "interval": shift["interval"]}
     else:
-        ttm = _f((param or {}).get("ttm_bev_share"))
-        if math.isfinite(ttm):
-            out["ttm"] = {"share": 100 * ttm, "delta": None,
-                          "end": (param or {}).get("data_per") or ""}
-        total = _f((weight or {}).get("weight"))
-        if math.isfinite(total) and total > 0:
-            out["volume"] = {"total": total, "bev": None, "growth": None, "interval": ""}
+        # Without the two-window comparison the 12-month figures still come
+        # from the CSV, and only from a full window ending at its latest
+        # period. params.csv's ttm_bev_share is not used here: it may be an
+        # older complete window and does not say which one.
+        window = ttm_window(rows)
+        if window:
+            out["ttm"] = {"share": window["share"], "delta": None, "end": window["end"]}
+            out["volume"] = {"total": window["total"], "bev": window["bev"],
+                             "growth": None, "interval": window["interval"]}
     return out
 
 
@@ -944,14 +972,16 @@ def reference_line(rows: list[dict], state: dict | None, chip: str) -> str:
     return f'<p class="asof">{text} {chip}</p>'
 
 
-def variant_figures(country: str, variant: str, params: dict, weights: dict) -> tuple[str, str]:
-    """(TTM BEV share, 12-month volume) cells for the variants table."""
-    param = params.get((country, variant)) or {}
-    weight = weights.get((country, variant)) or {}
-    ttm = _f(param.get("ttm_bev_share"))
-    total = _f(weight.get("weight"))
-    return (share(100 * ttm) if math.isfinite(ttm) else "—",
-            units(total) if math.isfinite(total) and total > 0 else "—")
+def variant_figures(data_file: str | None, variant: str) -> tuple[str, str]:
+    """(12-month BEV share, 12-month volume) cells for the variants table.
+
+    Same rule and same source as the key figures: the variant's own CSV
+    rows, a full window ending at its latest period, else "—".
+    """
+    window = ttm_window(series_rows(data_file, variant))
+    if not window:
+        return "—", "—"
+    return share(window["share"]), units(window["total"])
 
 
 def build_cite(country: str, slug: str, rows: list[dict], source_name: str) -> str:

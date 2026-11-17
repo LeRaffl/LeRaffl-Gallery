@@ -242,6 +242,20 @@ def test_card_rows_are_read_in_period_order():
         (mc.REPO / name).unlink()
 
 
+def test_card_ttm_only_from_a_full_window_at_the_latest_period():
+    rows = _rows(14, TOTAL=lambda i: 100, BEV=lambda i: 10)
+    window = mc.ttm_window(rows)
+    assert window["share"] == 10 and window["end"] == rows[-1]["period"]
+    # A gap or an empty BEV cell inside the last 12 months: unknown, and no
+    # fallback to an older window or to params.csv.
+    assert mc.ttm_window(rows[:5] + rows[6:]) is None
+    rows[-3]["BEV"] = ""
+    assert mc.ttm_window(rows) is None
+    figures = mc.key_figures(rows, None, {"ttm_bev_share": "0.5", "data_per": "2025-02"},
+                             {"weight": "1200"})
+    assert "ttm" not in figures and "volume" not in figures
+
+
 def test_card_shift_refuses_overlapping_columns():
     rows = _rows(24, TOTAL=lambda i: 100, BEV=lambda i: 10, HEV=lambda i: 50,
                  MHEV=lambda i: 45)

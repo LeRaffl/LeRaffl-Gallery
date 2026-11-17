@@ -722,7 +722,7 @@ def build_variants_table(fm: dict, variant_facts: list[tuple[str, dict | None]],
             f'<td>{esc(notes.get(variant, "—"))}</td>'
             f'<td class="nowrap">{held}</td>'
             + "".join(f'<td class="num">{esc(v)}</td>' for v in mc.variant_figures(
-                fm.get("country", ""), variant, params or {}, weights or {}))
+                variant_file(fm, variant), variant))
             + f'<td>{raw}</td></tr>')
     return (
         '<section><h2>Variants</h2>'
@@ -2033,14 +2033,16 @@ def flyer_summary(fm: dict, params: dict) -> dict:
 
 
 def flyer_peers(entries, params: dict) -> list[tuple[str, float]]:
-    """(country, 12-month BEV share in percent) for every country with a page."""
+    """(country, 12-month BEV share in percent) for every country with a page.
+
+    The same CSV window as each brief's own large number, so a country's
+    place in the comparison matches the share printed above it.
+    """
     out = []
     for fm, _ in entries:
-        raw = (params.get((fm.get("country"), "Whole")) or {}).get("ttm_bev_share")
-        try:
-            out.append((fm["country"], 100 * float(raw)))
-        except (TypeError, ValueError):
-            continue
+        window = mc.ttm_window(mc.whole_rows(fm.get("data_file")))
+        if window:
+            out.append((fm["country"], window["share"]))
     return out
 
 
