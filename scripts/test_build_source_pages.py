@@ -221,6 +221,27 @@ def test_card_shift_needs_a_gapless_single_cadence_tail():
     assert shift["span"][0] == ("2023-11", "2024-10")
 
 
+def test_card_rows_are_read_in_period_order():
+    # Malta's CSV appends a late block after older rows; file order would
+    # make an older month the "latest" and break the 24-month tail.
+    import csv as _csv
+    rows = _rows(26, TOTAL=lambda i: 100, BEV=lambda i: i)
+    shuffled = rows[:10] + rows[20:] + rows[10:20]
+    with tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False, dir=mc.REPO,
+                                     encoding="utf-8", newline="") as fh:
+        writer = _csv.DictWriter(fh, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(shuffled + [{**rows[0], "variant": "Vans"}])
+        name = Path(fh.name).name
+    try:
+        got = mc.whole_rows(name)
+        assert [r["period"] for r in got] == [r["period"] for r in rows]
+        assert mc.powertrain_shift(got) is not None
+        assert [r["variant"] for r in mc.series_rows(name, "Vans")] == ["Vans"]
+    finally:
+        (mc.REPO / name).unlink()
+
+
 def test_card_shift_refuses_overlapping_columns():
     rows = _rows(24, TOTAL=lambda i: 100, BEV=lambda i: 10, HEV=lambda i: 50,
                  MHEV=lambda i: 45)

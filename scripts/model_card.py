@@ -85,13 +85,34 @@ def is_estimated(row: dict) -> bool:
 
 
 def whole_rows(data_file: str | None) -> list[dict]:
-    """Every Whole row of the country CSV, in file order."""
+    """Every Whole row of the country CSV, oldest period first."""
+    return series_rows(data_file, "Whole")
+
+
+def series_rows(data_file: str | None, variant: str = "Whole") -> list[dict]:
+    """Every row of one series in the CSV, oldest period first.
+
+    Not every CSV is in period order (Malta's appends a late block after
+    older rows), so "the last row" would not be the latest period. The sort
+    is stable: rows of the same period keep their file order.
+    """
     path = REPO / (data_file or "")
     if not data_file or not path.is_file():
         return []
+    wanted = ("", "Whole") if variant in ("", "Whole", None) else (variant,)
     with path.open(encoding="utf-8") as fh:
-        return [row for row in csv.DictReader(fh)
-                if row.get("period") and row.get("variant") in ("", "Whole")]
+        rows = [row for row in csv.DictReader(fh)
+                if row.get("period") and row.get("variant") in wanted]
+    return sorted(rows, key=lambda row: _period_key(row["period"]))
+
+
+def _period_key(period: str) -> int:
+    """Sort key: a month by its index, a bare year as its December."""
+    idx = month_index(period)
+    if idx is not None:
+        return idx
+    found = re.match(r"^(\d{4})$", period or "")
+    return int(found.group(1)) * 12 + 11 if found else -1
 
 
 def read_keyed(name: str) -> dict[tuple[str, str], dict]:
