@@ -370,6 +370,19 @@ def test_flyer_mix_never_calls_a_rest_with_plug_ins_combustion():
     assert ">Everything else 80.0%<" in svg and ">Combustion" not in svg
 
 
+def test_flyer_says_when_the_dates_are_provisional():
+    rows = _rows(30, start=(2024, 1), TOTAL=lambda i: 1000, BEV=lambda i: 100 + 10 * i)
+    param = {"v1": "-6.48e-5", "v2": "3.1", "t0": "2011", "data_per": "2026-06",
+             "ttm_bev_share": "0.27", "refit_swing": "9"}
+    state = mc.model_state(param, None, dt.date(2026, 7, 1))
+    assert state["quotable"] and state["rel"]["status"] == "provisional"
+    html = flyer.build_flyer({"country": "X", "slug": "x"}, rows, None, {}, state, None, "t.css")
+    assert "Provisional: the 80 % year moved by 9 years" in html
+    ok = mc.model_state({**param, "refit_swing": "1"}, None, dt.date(2026, 7, 1))
+    assert "Provisional" not in flyer.build_flyer({"country": "X", "slug": "x"}, rows, None, {},
+                                                  ok, None, "t.css")
+
+
 def test_flyer_page_builds_without_data():
     html = flyer.build_flyer({"country": "Nowhere", "slug": "nowhere"}, [], None, {}, None, None, "t.css")
     assert "Nowhere" in html and "fl-foot" in html

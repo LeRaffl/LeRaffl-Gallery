@@ -405,6 +405,10 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
             shown_ci = state["band_ok"] and '"fm-ci">passed' not in build_miles(state).replace(
                 '<span class="fm-ci">passed</span>', "", 3) and "–" in build_miles(state)
             band = ('<p class="fm-note">Range: 95 % confidence interval.</p>' if shown_ci else "")
+            if state["rel"]["status"] == "provisional":
+                # Same caveat as the source page: the dates still move.
+                band += ('<p class="fm-note">Provisional: the 80 % year moved by '
+                         f'{state["rel"]["swing"]:.0f} years across recent re-fits.</p>')
             legend = "Dots: observed share per period. Line: fitted S-curve."
             if state["band_ok"]:
                 legend += " Band: 95 % confidence interval."
