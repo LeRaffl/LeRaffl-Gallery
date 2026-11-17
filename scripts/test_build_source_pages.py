@@ -362,6 +362,14 @@ def test_flyer_mix_keeps_unknown_columns_out_of_their_own_band():
     assert flyer.mix_points(rows[:20]) == []          # too short to draw
 
 
+def test_flyer_mix_never_calls_a_rest_with_plug_ins_combustion():
+    full = _rows(30, TOTAL=lambda i: 100, BEV=lambda i: 10, PHEV=lambda i: 5, HEV=lambda i: 10)
+    assert ">Combustion 75.0%<" in flyer.build_mix(flyer.mix_points(full), False, 470, 146)
+    no_plug = _rows(30, TOTAL=lambda i: 100, BEV=lambda i: 10, HEV=lambda i: 10)
+    svg = flyer.build_mix(flyer.mix_points(no_plug), False, 470, 146)
+    assert ">Everything else 80.0%<" in svg and ">Combustion" not in svg
+
+
 def test_flyer_page_builds_without_data():
     html = flyer.build_flyer({"country": "Nowhere", "slug": "nowhere"}, [], None, {}, None, None, "t.css")
     assert "Nowhere" in html and "fl-foot" in html

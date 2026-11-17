@@ -169,7 +169,12 @@ def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> st
     end = points[-1]
     names = dict(MIX_ORDER)
     names["HEV"] = "Full hybrid" if hev_full else "Hybrid"
-    if end["HEV"] is None:
+    if end["PHEV"] is None:
+        # Plug-ins are not split out at this point, so the rest holds them
+        # too (Malaysia, Nepal fill PHEV only in part; Türkiye, Georgia,
+        # Ukraine have no PHEV column). Calling that "Combustion" is wrong.
+        names["REST"] = "Everything else"
+    elif end["HEV"] is None:
         names["REST"] = "Combustion + hybrids"
     for key, _ in MIX_ORDER:
         values = [p[key] or 0.0 for p in points]
