@@ -44,8 +44,11 @@ on:
       - 'scripts/build_source_pages.py'
       - 'scripts/model_card.py'
       - 'scripts/flyer.py'
+      - 'scripts/market_structure.py'  # brand block on the brief
+      - 'scripts/social_card.py'       # social cards; generation still a follow-up
       - 'footnotes.csv'
       - 'scripts/test_build_source_pages.py'
+      - 'scripts/test_market_structure.py'
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
       - 'index.html'

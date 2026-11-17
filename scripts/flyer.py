@@ -18,6 +18,7 @@ import math
 
 import segno
 
+import market_structure as mstr
 import model_card as mc
 from model_card import esc
 
@@ -47,11 +48,22 @@ SHORT_LABEL = {
     "Plug-in hybrid incl. range extenders": "Plug-in hybrid + EREV",
     "Petrol, diesel and other combustion": "Combustion",
     "Combustion and anything not split out": "Combustion, not split",
+    "Combustion + hybrids": "Other powertrains",
 }
 
 
 def _short(row: dict) -> str:
     return SHORT_LABEL.get(row["label"], row["label"])
+
+
+def _clause(row: dict) -> str:
+    """'petrol down 9.4' / 'CNG up 2.8' for the verdict follow-up."""
+    name = _short(row)
+    if not name.isupper():
+        name = name[0].lower() + name[1:]
+    delta = row["delta"]
+    way = "up" if delta > 0 else "down"
+    return f"{name} {way} {abs(delta):.1f}"
 
 
 def verdict(country: str, figures: dict, shift: dict | None) -> tuple[str, str]:
@@ -75,33 +87,32 @@ def verdict(country: str, figures: dict, shift: dict | None) -> tuple[str, str]:
 
     if d is None:
         return head, ""
-    if d >= 5:
-        move = f"The share is rising fast: up {d:.1f} points in a year."
-    elif d >= 1:
-        move = f"The share is rising: up {d:.1f} points in a year."
-    elif d > -1:
-        move = "The share has barely moved in a year."
+    period = mc.vs_prior_phrase(ttm["end"])
+    if abs(d) < 0.15:
+        move = f"{period}: BEV barely moved."
+    elif d > 0:
+        move = f"{period}: BEV up {d:.1f} points."
     else:
-        move = f"The share fell by {-d:.1f} points in a year."
-    where = ""
+        move = f"{period}: BEV down {abs(d):.1f} points."
     if shift:
-        others = [r for r in shift["rows"] if r["key"] != "BEV"]
-        if d >= 1 and others:
+        # "Everything else" only mirrors the BEV change; skip it.
+        others = [r for r in shift["rows"] if r["key"] not in ("BEV", "REST")]
+        if others:
+            # Biggest counter-move as a fact in the same sentence.
             loser = min(others, key=lambda r: r["delta"])
-            if loser["delta"] <= -1:
-                where = (f" {_short(loser)} lost the most: "
-                         f"{-loser['delta']:.1f} points.")
-        elif d <= -1 and others:
             winner = max(others, key=lambda r: r["delta"])
-            if winner["delta"] >= 1:
-                where = (f" {_short(winner)} gained the most: "
-                         f"{winner['delta']:.1f} points.")
-        elif others:
-            winner = max(others, key=lambda r: r["delta"])
-            if winner["delta"] >= 1:
-                where = (f" {_short(winner)} gained the most: "
-                         f"{winner['delta']:.1f} points.")
-    return head, move + where
+            extra = ""
+            if d >= 0.15 and loser["delta"] <= -1:
+                extra = f", {_clause(loser)}"
+            elif d <= -0.15 and winner["delta"] >= 1:
+                extra = f", {_clause(winner)}"
+            elif abs(d) < 0.15:
+                mover = loser if abs(loser["delta"]) >= abs(winner["delta"]) else winner
+                if abs(mover["delta"]) >= 1:
+                    extra = f", {_clause(mover)}"
+            if extra:
+                move = move.rstrip(".") + extra + "."
+    return head, move
 
 
 # --------------------------------------------------------------------------
@@ -153,7 +164,7 @@ def mix_points(rows: list[dict], years: int = 10) -> list[dict]:
 def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> str:
     if not points:
         return ""
-    left, right, top, bottom = 26, 164, 8, 22
+    left, right, top, bottom = 26, 164, 20, 22
     plot_w, plot_h = width - left - right, height - top - bottom
     t0, t1 = points[0]["t"], points[-1]["t"]
 
@@ -163,7 +174,9 @@ def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> st
     def y_of(v: float) -> float:
         return top + plot_h * (1 - max(0.0, min(100.0, v)) / 100)
 
-    parts = []
+    parts = [
+        f'<text x="{left}" y="12" class="mix-t">Trailing 12-month share by powertrain</text>'
+    ]
     base = [0.0] * len(points)
     labels = []
     end = points[-1]
@@ -249,7 +262,9 @@ def build_bars(shift: dict, limit: int = 6) -> str:
             f'background:{mc.COLORS.get(row["key"], mc.COLORS["REST"])}"></i></span>'
             f'<span class="fb-pp">{mc.points(row["delta"])}</span>'
             f'<span class="fb-now">{mc.share(row["after"])}</span></div>')
-    return "".join(out)
+    head = ('<div class="fb-head"><span></span><span></span>'
+            '<span>Change, pts</span><span>Share, last 12 months</span></div>')
+    return head + "".join(out)
 
 
 def build_miles(state: dict) -> str:
@@ -303,68 +318,235 @@ def ordinal(n: int) -> str:
     return f"{n}{ {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
 
 
-def build_compare(country: str, peers: list[tuple[str, float]], width: int) -> str:
-    """Every country in the gallery on one line, this one marked.
+def build_compare(country: str, peers: list[tuple[str, float]], width: int,
+                  highlights: list[dict] | None = None,
+                  subject_slug: str = "", is_region: bool = False,
+                  own_share: float | None = None) -> str:
+    """Every country in the gallery on one line, this one marked, plus a
+    handful of named reference points with flags (Norway, China, EU, …).
 
-    `peers` is (country, 12-month BEV share in percent). Shares are
-    comparable across countries where volumes are not.
+    `peers` is (country, 12-month BEV share in percent) under the same
+    full-window rule as each brief. Region highlights must already carry
+    their weighted headline share. The subject is never also a highlight.
     """
-    own = next((v for name, v in peers if name == country), None)
+    own = own_share
+    if own is None:
+        own = next((v for name, v in peers if name == country), None)
     if own is None or len(peers) < 10:
         return ""
     ranked = sorted(peers, key=lambda item: -item[1])
-    rank = [name for name, _ in ranked].index(country) + 1
+    rank = None
+    if not is_region and any(name == country for name, _ in peers):
+        rank = [name for name, _ in ranked].index(country) + 1
     values = sorted(v for _, v in peers)
     mid = len(values) // 2
     median = values[mid] if len(values) % 2 else (values[mid - 1] + values[mid]) / 2
-    left, right, base = 4, 4, 30
+    left, right, base = 10, 10, 76
     plot = width - left - right
+    height = 98
 
     def x_of(v: float) -> float:
         return left + plot * max(0.0, min(100.0, v)) / 100
 
+    marks = []
+    for h in highlights or []:
+        if h.get("name") == country:
+            continue
+        share = h.get("share")
+        if share is None or share != share:
+            continue
+        marks.append(dict(h))
+
     parts = [f'<line x1="{left}" y1="{base}" x2="{left + plot}" y2="{base}" stroke="#bdb9af"/>']
-    for mark in (0, 25, 50, 75, 100):
-        anchor = "start" if mark == 0 else "end" if mark == 100 else "middle"
-        parts.append(f'<text x="{x_of(mark):.1f}" y="{base + 14}" text-anchor="{anchor}" '
-                     f'class="ax">{mark}%</text>')
+    for tick in (0, 25, 50, 75, 100):
+        anchor = "start" if tick == 0 else "end" if tick == 100 else "middle"
+        parts.append(f'<text x="{x_of(tick):.1f}" y="{base + 14}" text-anchor="{anchor}" '
+                     f'class="ax">{tick}%</text>')
     for name, v in peers:
         if name != country:
-            parts.append(f'<line x1="{x_of(v):.1f}" y1="{base - 9}" x2="{x_of(v):.1f}" '
+            parts.append(f'<line x1="{x_of(v):.1f}" y1="{base - 8}" x2="{x_of(v):.1f}" '
                          f'y2="{base}" stroke="#8d897c" stroke-opacity=".55" stroke-width="1.3"/>')
+    peer_names = {name for name, _ in peers}
+    for h in marks:
+        if h["name"] not in peer_names:
+            x = x_of(h["share"])
+            parts.append(f'<line x1="{x:.1f}" y1="{base - 8}" x2="{x:.1f}" '
+                         f'y2="{base}" stroke="#8d897c" stroke-width="1.6"/>')
+
+    fw, fh = 18, 12
+    # Flags stack upward when their slots would overlap.
+    flag_items = ([{"name": country, "share": own, "slug": subject_slug, "subject": True}]
+                  + [{**h, "subject": False} for h in marks])
+    flag_items.sort(key=lambda n: n["share"])
+    placed_flags: list[tuple[float, float]] = []
+    for item in flag_items:
+        x = x_of(item["share"])
+        fy = base - 10 - fh
+        while any(abs(px - x) < fw + 2 and abs(py - fy) < fh + 2 for px, py in placed_flags):
+            fy -= fh + 4
+        item["fx"], item["fy"] = x, fy
+        placed_flags.append((x, fy))
+        src = mc.flag_src(item.get("slug") or "", item["name"])
+        if src:
+            parts.append(f'<image href="{esc(src)}" x="{x - fw/2:.1f}" y="{fy:.1f}" '
+                         f'width="{fw}" height="{fh}"/>')
+
     xo = x_of(own)
-    parts.append(f'<line x1="{xo:.1f}" y1="{base - 15}" x2="{xo:.1f}" y2="{base + 1}" '
+    parts.append(f'<line x1="{xo:.1f}" y1="{base - 16}" x2="{xo:.1f}" y2="{base + 1}" '
                  'stroke="#2c7a50" stroke-width="3.2"/>')
-    own_anchor = "start" if xo < width * 0.72 else "end"
-    own_x = xo + (6 if own_anchor == "start" else -6)
-    parts.append(f'<text x="{own_x:.1f}" y="{base - 18}" text-anchor="{own_anchor}" class="strong">'
-                 f'{esc(country)} {mc.share(own).replace(" %", "%")}</text>')
-    lead_name, lead = ranked[0]
-    if lead_name != country and abs(x_of(lead) - xo) > 150:
-        parts.append(f'<text x="{x_of(lead):.1f}" y="{base - 13}" text-anchor="end" class="ax">'
-                     f'{esc(lead_name)} {lead:.0f}%</text>')
-    label = (f"{country} ranks {ordinal(rank)} of {len(peers)} countries by BEV share.")
-    svg = (f'<svg class="fl-svg" viewBox="0 0 {width} 46" width="{width}" height="46" role="img" '
-           f'aria-label="{esc(label)}">{"".join(parts)}</svg>')
+
+    def _tw(text: str, heavy: bool = False) -> float:
+        return (7.4 if heavy else 6.2) * len(text) + 4
+
+    boxes: list[tuple[float, float, float, float]] = []
+
+    def box_of(text, lx, y, anchor, heavy):
+        w = _tw(text, heavy)
+        if anchor == "start":
+            return (lx, y - 11, lx + w, y + 2)
+        if anchor == "end":
+            return (lx - w, y - 11, lx, y + 2)
+        return (lx - w / 2, y - 11, lx + w / 2, y + 2)
+
+    def free(box, pad=6):
+        def ov(a, b):
+            return not (a[2] + pad < b[0] or b[2] + pad < a[0]
+                        or a[3] + pad < b[1] or b[3] + pad < a[1])
+        return box[0] >= 2 and box[2] <= width - 2 and not any(ov(box, b) for b in boxes)
+
+    def draw_label(text, lx, y, anchor, heavy=False):
+        box = box_of(text, lx, y, anchor, heavy)
+        boxes.append(box)
+        klass = "strong" if heavy else "hl"
+        parts.append(
+            f'<text x="{lx:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
+            f'class="{klass}" stroke="#fdfdfc" stroke-width="3" '
+            f'paint-order="stroke">{esc(text)}</text>')
+
+    nodes = ([{"name": country, "share": own, "text":
+               f"{country} {mc.share(own).replace(' %', '%')}", "heavy": True,
+               "x": xo}]
+             + [{"name": h["name"], "share": h["share"],
+                 "text": f"{h['name']} {h['share']:.0f}%", "heavy": False,
+                 "x": x_of(h["share"])} for h in marks])
+    nodes.sort(key=lambda n: n["share"])
+    # Clusters of points closer than 10 pts share a vertical stack.
+    clusters: list[list[dict]] = []
+    for n in nodes:
+        if clusters and n["share"] - clusters[-1][-1]["share"] < 10:
+            clusters[-1].append(n)
+        else:
+            clusters.append([n])
+
+    slots = [(16, "end"), (16, "start"), (30, "end"), (30, "start"),
+             (44, "end"), (44, "start")]
+    for cluster in clusters:
+        # Subject in a cluster keeps the first row, on the side facing
+        # the more open side of the scale (away from the cluster mean).
+        mean = sum(n["share"] for n in cluster) / len(cluster)
+        ordered = sorted(cluster, key=lambda n: (not n["heavy"], n["share"]))
+        used = 0
+        for n in ordered:
+            placed = False
+            # Try preferred side first: away from the cluster centre,
+            # or, for an isolated point, away from the edges.
+            want_end = n["x"] > x_of(mean) if len(cluster) > 1 else n["x"] > width * 0.55
+            cand = (slots[1:] + slots[:1]) if not want_end else slots[:]
+            # Isolated points (cluster of 1) prefer a single top row.
+            if len(cluster) == 1:
+                cand = ([(16, "start"), (16, "end"), (30, "start"), (30, "end")]
+                        if not want_end else
+                        [(16, "end"), (16, "start"), (30, "end"), (30, "start")])
+            for y, anchor in cand:
+                lx = n["x"] + (12 if anchor == "start" else -12)
+                if free(box_of(n["text"], lx, y, anchor, n["heavy"])):
+                    draw_label(n["text"], lx, y, anchor, n["heavy"])
+                    placed = True
+                    break
+            if not placed:
+                # Fall back to the next free slot, no dumping on one point.
+                for y, anchor in slots:
+                    lx = n["x"] + (12 if anchor == "start" else -12)
+                    if free(box_of(n["text"], lx, y, anchor, n["heavy"])):
+                        draw_label(n["text"], lx, y, anchor, n["heavy"])
+                        placed = True
+                        break
+            if not placed:
+                draw_label(n["text"], n["x"], 12, "middle", n["heavy"])
+
+    if is_region:
+        label = (f"{country} compared with individual countries by BEV share "
+                 f"of new cars, last 12 months.")
+        named = [h["name"] for h in marks]
+        sub = (f'BEV share of new cars, last 12 months. Each line is one country. '
+               f'The group figure is the weighted headline on this brief.')
+        if named:
+            sub += f' Highlighted: {_and_list(named)}.'
+    else:
+        label = (f"{country} ranks {ordinal(rank)} of {len(peers)} countries by BEV share.")
+        sub = (f'<b>{ordinal(rank)} of {len(peers)}</b> countries by BEV share of '
+               f'new cars, last 12 months. Each line is one country; the middle one is at '
+               f'{mc.share(median).replace(" %", "%")}.')
+        named = [h["name"] for h in marks]
+        if named:
+            sub += f' Highlighted: {_and_list(named)}.'
+    svg = (f'<svg class="fl-svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
+           f'role="img" aria-label="{esc(label)}">{"".join(parts)}</svg>')
     return (
         '<section class="fl-sec fl-cmp"><h2>How it compares</h2>'
-        f'<p class="fl-sub"><b>{ordinal(rank)} of {len(peers)}</b> countries by BEV share of '
-        f'new cars, last 12 months. Each line is one country; the middle one is at '
-        f'{mc.share(median).replace(" %", "%")}.</p>{svg}</section>')
+        f'<p class="fl-sub">{sub}</p>{svg}</section>')
+
+
+def _and_list(names: list[str]) -> str:
+    if not names:
+        return ""
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return f"{names[0]} and {names[1]}"
+    return ", ".join(names[:-1]) + f" and {names[-1]}"
+
+
+def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
+                       region: bool = False) -> tuple[int, int]:
+    """The mix fills the number column; leftover brand-row slots go to both charts.
+
+    The hero used to pin the mix at 132 px and align it to the bottom, which
+    left a hole beside the big share. Size the mix to that column so the
+    plot grows, not the padding.
+    """
+    ttm = figures.get("ttm")
+    mix = 132
+    if ttm:
+        mix = 118
+        if ttm.get("delta") is not None:
+            mix += 32
+        if figures.get("latest"):
+            mix += 20
+        if mc.ytd_window(rows):
+            mix += 18
+        mix = max(132, mix)
+    mix += spare * 8
+    curve = 128 + spare * 14
+    if region:
+        # Region briefs have no brand block; a short who-gained list should
+        # not leave a gap above the footer.
+        curve += 28
+    return mix, curve
 
 
 def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 state: dict | None, bands: dict | None, theme_href: str,
-                peers: list[tuple[str, float]] | None = None) -> str:
+                peers: list[tuple[str, float]] | None = None,
+                market: dict | None = None, brand_mode: str = "chips",
+                logo_href: str = "../../assets/brands") -> str:
     country = fm.get("country", "")
     slug = fm.get("slug", "")
     hev_full = fm.get("hev_split") is True
     head, follow = verdict(country, figures, shift)
     through = mc.period_label(rows[-1]["period"], long=True) if rows else ""
 
-    flag = ""
-    if slug and (mc.REPO / "assets" / "flags" / f"{slug}.png").is_file():
-        flag = f'<img class="fl-flag" src="../../assets/flags/{esc(slug)}.png" alt="">'
+    flag = mc.flag_img(slug, country, cls="fl-flag") or fm.get("mark_html") or ""
 
     # Hero: the one number, and the mix over time.
     hero_num = ""
@@ -373,51 +555,81 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         delta = ""
         if ttm["delta"] is not None:
             cls = "up" if ttm["delta"] >= 0.05 else "down" if ttm["delta"] <= -0.05 else "flat"
-            delta = (f'<div class="fh-delta {cls}">{mc.points(ttm["delta"])} points '
-                     'in a year</div>')
+            delta = (f'<div class="fh-delta {cls}">{mc.points(ttm["delta"])} pts · '
+                     'last 12 months</div>')
         month = ""
+        latest, rng = figures.get("latest"), mc.share_range(rows)
         if latest:
-            month = (f'<div class="fh-month">{esc(mc.row_label(latest["row"]))} alone: '
-                     f'<b>{esc(mc.share(latest["share"]))}</b></div>')
+            month += (f'<div class="fh-month">{esc(mc.period_label(latest["row"]["period"]))} '
+                      f'alone: <b>{esc(mc.share(latest["share"]))}</b></div>')
+        ytd = mc.ytd_window(rows)
+        if ytd:
+            month += (f'<div class="fh-month fh-ytd">{esc(mc.period_label(ytd["from"]).split()[0])}–'
+                      f'{esc(mc.period_label(ytd["to"]))} so far: '
+                      f'<b>{esc(mc.share(ytd["share"]))}</b></div>')
         big = mc.share(ttm["share"]).replace(" %", "")
         hero_num = (
             '<div class="fh-num"><div class="fh-kicker">BEV share of new cars</div>'
             f'<div class="fh-big">{esc(big)}<span>%</span></div>'
-            f'<div class="fh-what">in the 12 months to {esc(mc.period_label(ttm["end"], long=True))}</div>'
+            f'<div class="fh-what">12 months to {esc(mc.period_label(ttm["end"], long=True))}</div>'
             f'{delta}{month}</div>')
-    mix = build_mix(mix_points(rows), hev_full, 470 if hero_num else INNER_W, 146)
-    hero = f'<div class="fl-hero">{hero_num}<div class="fh-mix">{mix}</div></div>' if (hero_num or mix) else ""
+    # Unused named-row slots (the fullest list is 5 + others) go to the charts
+    # so a one- or two-brand market does not leave a hole on the sheet.
+    # Region briefs have no brand block; give the charts a modest lift.
+    if fm.get("region"):
+        spare = 0 if fm.get("carriers_html") else 5
+    else:
+        spare = max(0, 5 - len((market or {}).get("named") or []))
+    mix_h, curve_h = hero_chart_heights(figures, rows, spare, bool(fm.get("region")))
+    mix = build_mix(fm.get("region_mix_points") or mix_points(rows), hev_full, 470 if hero_num else INNER_W, mix_h)
+    range_line = ""
+    rng = mc.share_range(rows)
+    if rng:
+        range_line = f'<p class="fh-range-line">{esc(mc.range_sentence(rng))}</p>'
+    hero = (f'<div class="fl-hero">{hero_num}<div class="fh-mix">{mix}</div></div>{range_line}'
+            if (hero_num or mix or range_line) else "")
 
     bars = ""
     if shift:
         (b0, b1), (a0, a1) = shift["span"]
+        mix_note = fm.get("mix_note") or ""
+        note = (f'<p class="fl-sub fl-mixnote">{esc(mix_note)}</p>'
+                if mix_note else "")
         bars = (
             '<section><h2>Who gained, who lost</h2>'
-            f'<p class="fl-sub">Change in share in percentage points, '
-            f'{esc(mc.period_label(a0))} to {esc(mc.period_label(a1))} against the year '
-            'before. Right: share now.</p>'
+            f'<p class="fl-sub">Change in percentage points, '
+            f'{esc(mc.vs_prior_phrase(a1))}.</p>{note}'
             f'<div class="fb">{build_bars(shift)}</div></section>')
 
     curve = ""
-    if state:
-        svg = mc.build_curve_svg(rows, state, bands, width=452, height=142, weak_fit=False)
+    if fm.get("region_curve"):
+        svg, legend = fm["region_curve"](452, curve_h, 42)
+        side = fm.get("region_curve_side") or ""
+        sub = fm.get("region_curve_sub") or (
+            "Battery-electric share of new registrations. The line is this "
+            "project's fitted model for the group, not an official forecast.")
+        if svg:
+            curve = (
+                '<section class="fl-sec"><h2>Where the curve points</h2>'
+                f'<p class="fl-sub">{esc(sub)}</p>'
+                f'<div class="fl-curve"><div>{svg}{legend or ""}</div>'
+                f'{side}</div></section>')
+    elif state:
+        svg = mc.build_curve_svg(rows, state, bands, width=452, height=curve_h, weak_fit=False)
         if svg and state["quotable"]:
             shown_ci = state["band_ok"] and '"fm-ci">passed' not in build_miles(state).replace(
                 '<span class="fm-ci">passed</span>', "", 3) and "–" in build_miles(state)
-            band = ('<p class="fm-note">Range: 95 % confidence interval.</p>' if shown_ci else "")
+            band = ('<p class="fm-note">95 % confidence band.</p>' if shown_ci else "")
             if state["rel"]["status"] == "provisional":
                 # Same caveat as the source page: the dates still move.
                 band += ('<p class="fm-note">Provisional: the 80 % year moved by '
                          f'{state["rel"]["swing"]:.0f} years across recent re-fits.</p>')
-            legend = "Dots: observed share per period. Line: fitted S-curve."
-            if state["band_ok"]:
-                legend += " Band: 95 % confidence interval."
             curve = (
                 '<section class="fl-sec"><h2>Where the curve points</h2>'
                 '<p class="fl-sub">An S-curve fitted to the BEV share so far. It is this '
                 "project's model, not an official forecast: a policy change or a stall "
                 'is not in it.</p>'
-                f'<div class="fl-curve"><div>{svg}<p class="fl-legend">{legend}</p></div>'
+                f'<div class="fl-curve"><div>{svg}{mc.chart_legend(state)}</div>'
                 '<div class="fm-side"><div class="fm-head">The curve reaches</div>'
                 f'<div class="fm">{build_miles(state)}</div>{band}</div></div></section>')
         elif svg:
@@ -428,23 +640,31 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 '<section class="fl-sec"><h2>The BEV share so far</h2>'
                 '<p class="fl-sub">Battery-electric share of new registrations in each period, '
                 'in percent.</p>'
-                f'<div class="fl-curve"><div>{svg}</div>'
+                f'<div class="fl-curve"><div>{svg}{mc.chart_legend(state)}</div>'
                 f'<div class="fm-side"><div class="fm-head">No projection</div>'
                 f'<p class="fm-none">{why}</p></div></div></section>')
 
     facts = []
     volume, record = figures.get("volume"), figures.get("record")
+    # Region totals are weights, not a count of registrations; omit count facts.
+    if fm.get("region"):
+        volume = None
     if volume:
         sub = "last 12 months"
         if volume["growth"] is not None:
-            sub += f', {mc.points(volume["growth"])} % in a year'
+            sub += f', {mc.growth_phrase(volume["growth"])} vs the 12 months before'
         facts.append(_fact(mc.units(volume["total"]), "new registrations", sub))
         if volume["bev"] is not None:
             facts.append(_fact(mc.units(volume["bev"]), "of them battery electric", "last 12 months"))
-    if record:
-        facts.append(_fact(mc.share(record["share"]), "highest BEV share in one period",
-                           mc.row_label(record["row"])))
-    if shift:
+    if shift and shift.get("bev_before") and not fm.get("region"):
+        # Battery-electric volume, 12 months against the 12 before: both
+        # windows complete, so no single month can swing it.
+        growth = 100 * (shift["bev_after"] / shift["bev_before"] - 1)
+        facts.append(_fact(mc.growth_phrase(growth), "battery-electric registrations",
+                           "vs the 12 months before"))
+    # Regions have no comparable registration count, and a "with a plug"
+    # tile would steal width from the who-gained labels.
+    if shift and not fm.get("region"):
         plug = next((r for r in shift["rows"] if r["key"] == "PHEV"), None)
         bev = next(r for r in shift["rows"] if r["key"] == "BEV")
         if plug and plug["after"] >= 0.05:
@@ -459,32 +679,65 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         two = f'<div class="fl-sec fl-one">{bars}{facts_html}</div>'
 
     source = (fm.get("source_name") or "").split("—")[0].strip()
-    scope = _clip(mc.footnote(country) or fm.get("scope_note") or "", 140)
+    brand_src = mstr.brand_source(fm, market)
     url = f"{mc.SITE}/sources/{slug}.html"
     flyer_url = f"{mc.SITE}/sources/flyer/{slug}.html"
+    if fm.get("region"):
+        url = flyer_url = mc.SITE
+        source_line = (
+            f'<p><b>Source:</b> {esc(source)}. '
+            f'{esc(fm.get("scope_note") or fm.get("coverage_note") or "")}</p>')
+        method = '<p>Scopes differ between countries.</p>'
+        qr_cap = 'Gallery home'
+    else:
+        scope = _clip(mc.footnote(country) or fm.get("scope_note") or "", 140)
+        source_line = f'<p><b>Source:</b> {esc(source)}.'
+        if brand_src:
+            source_line += f' Brands: {esc(brand_src)}.'
+        if scope:
+            source_line += f' {esc(scope)}'
+        source_line += '</p>'
+        method = ('<p>Scopes differ between countries. Method and every number: '
+                  f'<a class="nw" href="../{esc(slug)}.html">{esc(url.replace("https://", ""))}</a></p>')
+        qr_cap = 'Current edition<br>and all countries'
     foot = (
         '<footer class="fl-foot"><div class="fl-foot-text">'
         '<p><b>How to read it.</b> Battery electric (BEV): battery only. Plug-in hybrid: engine '
         'plus a battery charged from the grid. Hybrid: engine plus battery, no plug. '
         'Shares are of new registrations.</p>'
-        f'<p><b>Source:</b> {esc(source)}. {esc(scope)}</p>'
-        '<p>Scopes differ between countries. Method and every number: '
-        f'<a class="nw" href="../{esc(slug)}.html">{esc(url.replace("https://", ""))}</a></p></div>'
+        + source_line + method + '</div>'
         f'<a class="fl-qrbox" href="{esc(flyer_url)}">{build_qr(flyer_url)}'
-        '<span>Current edition<br>and all countries</span></a>'
+        f'<span>{qr_cap}</span></a>'
         '<p class="fl-brand"><span class="fl-b1"><b>BEV Trajectory Gallery</b> · @LeRaffl · '
-        f'charts and text CC BY 4.0{" · data through " + esc(through) if through else ""}</span>'
-        '<span>The curve is a model, not a forecast.</span></p></footer>')
-    compare = build_compare(country, peers or [], INNER_W)
+        'charts and text CC BY 4.0</span>'
+        '<span>The curve is a model, not a forecast.</span></p>'
+        f'<p class="fl-gen">{esc(mc.generated_line(rows[-1]["period"] if rows else ""))}</p>'
+        '</footer>')
+    highlights = fm.get("compare_highlights")
+    if highlights is None:
+        try:
+            import region_card as _rc
+            highlights = _rc.reference_points()
+        except Exception:
+            highlights = []
+    own_share = (figures.get("ttm") or {}).get("share")
+    compare = build_compare(country, peers or [], INNER_W,
+                            highlights=highlights, subject_slug=slug,
+                            is_region=bool(fm.get("region")),
+                            own_share=own_share)
 
+    kicker = ("Region brief · the shift to battery-electric cars"
+              if fm.get("region") else
+              "Country brief · the shift to battery-electric cars")
     return FLYER_TEMPLATE.format(
         country=esc(country), theme_href=theme_href, css=FLYER_CSS, flag=flag,
         through=esc(through), head=esc(head), follow=esc(follow), hero=hero,
-        two=two, curve=curve, foot=foot, compare=compare, slug=esc(slug),
-        w=SHEET_W, h=SHEET_H)
+        two=two, market=fm.get("carriers_html") or mstr.build_block(market, brand_mode, logo_href),
+        curve=curve, foot=foot, compare=compare, slug=esc(slug),
+        kicker=esc(kicker), w=SHEET_W, h=SHEET_H)
 
 
-FLYER_CSS = """
+FLYER_CSS = mstr.CSS + """
 html{background:#e9e7e1}
 body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sans-serif}
 .fl-bar{max-width:794px;margin:0 auto;padding:12px 8px;display:flex;gap:12px;align-items:center;
@@ -500,7 +753,8 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .sheet-in{width:100%;min-height:100%;display:flex;flex-direction:column;transform-origin:top left}
 .sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .fl-top{display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid var(--text)}
-.fl-flag{width:54px;height:37px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px var(--line)}
+.fl-flag,.fl-mark{width:54px;height:37px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px var(--line);display:block}
+.fl-mark{background:#eceae4}
 .fl-top h1{font-family:var(--font-display);font-size:30px;line-height:1;margin:0;font-weight:600}
 .fl-kick{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:5px}
 .fl-date{margin-left:auto;text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
@@ -510,8 +764,8 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
   margin:14px 0 4px;letter-spacing:-.01em}
 .fl-follow{font-family:var(--font-display);font-size:17px;line-height:1.35;margin:0;color:#3a3935;
   min-height:23px}
-.fl-hero{display:flex;gap:18px;align-items:flex-end;margin:12px 0 0}
-.fh-num{flex:none;width:218px}
+.fl-hero{display:flex;gap:18px;align-items:flex-start;margin:12px 0 0}
+.fh-num{flex:none;width:236px}
 .fh-kicker{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);line-height:1.35}
 .fh-big{font-family:var(--font-display);font-size:84px;line-height:.98;font-weight:600;color:#2c7a50;
   letter-spacing:-.03em;margin:4px 0 2px;font-variant-numeric:tabular-nums}
@@ -522,18 +776,36 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fh-delta.up{background:#dcefe4;color:#1f6a43}
 .fh-delta.down{background:#f6e0dc;color:#9a3324}
 .fh-delta.flat{background:#eceae4;color:#55534c}
-.fh-month{font-size:13px;margin-top:8px;color:var(--muted)}
+.fh-month{font-size:13px;margin-top:6px;color:var(--muted)}
 .fh-month b{color:var(--text)}
+.fh-range-line{font-size:12.5px;color:var(--muted);line-height:1.45;margin:8px 0 0;max-width:100%}
+.fh-ytd{margin-top:3px}
 .fh-mix{flex:1;min-width:0}
+.fh-mix svg text.mix-t{font-size:10.5px;fill:#3a3935;font-weight:600;
+  font-family:var(--font-ui),system-ui,sans-serif}
+.fl-mixnote{margin-top:.15em;color:#55534c}
 .fl-svg{display:block}
 .fl-svg text{font-size:11.5px;fill:#3a3935;font-family:var(--font-ui),sans-serif}
 .fl-svg text.ax{fill:#77746c;font-size:10.5px}
 .fl-svg text.strong{font-weight:700;fill:#1f6a43}
+.fl-svg text.hl{fill:#3a3935;font-size:9.5px}
+.wc-flag{display:block;width:22px;height:15px;object-fit:cover;border-radius:1px;
+  box-shadow:0 0 0 1px var(--line);flex:none}
+.wc-bev{text-align:right;font-variant-numeric:tabular-nums;color:#55534c;font-size:12px}
+.wc-list{--ms-logo:24px;--ms-name:120px;--ms-pct:56px;--ms-row:20px}
+.wc-head,.wc-row{display:grid;grid-template-columns:calc(var(--ms-logo) + 8px + var(--ms-name)) 56px minmax(0,1fr) var(--ms-pct);
+  column-gap:10px;align-items:center}
+.wc-head{align-items:end;font-size:9px;line-height:1.2;color:var(--muted);font-weight:600;
+  text-align:right;margin-bottom:4px;height:auto}
+.wc-row{height:var(--ms-row);font-size:13px}
+.wc-list .wc-row + .wc-row{margin-top:3px}
 .fl-sec{margin-top:11px}
 .fl-sec h2{font-family:var(--font-display);font-size:18px;margin:0;font-weight:600;border:0;padding:0}
 .fl-sub{font-size:11.5px;color:var(--muted);margin:2px 0 8px;line-height:1.4}
-.fb-row{display:grid;grid-template-columns:158px 1fr 42px 56px;column-gap:10px;align-items:center;
-  font-size:13px;height:20px}
+.fb-row,.fb-head{display:grid;grid-template-columns:130px 1fr 52px 102px;column-gap:8px}
+.fb-head{align-items:end;font-size:9px;line-height:1.2;color:var(--muted);font-weight:600;
+  text-align:right;margin-bottom:3px}
+.fb-row{align-items:center;font-size:13px;height:20px}
 .fb-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fb-track{position:relative;height:20px}
 .fb-zero{position:absolute;top:0;bottom:0;border-left:1px solid #77746c}
@@ -541,7 +813,8 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fb-pp{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
 .fb-now{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
 .fl-curve{display:flex;gap:22px;align-items:flex-start}
-.fl-curve .curve{width:452px;height:142px}
+.fl-curve .curve{width:452px;height:auto}
+.fl-curve>div:first-child{flex:none;width:452px}
 .fl-curve .curve text{font-size:10.5px;fill:#77746c;font-family:var(--font-ui),sans-serif}
 .cv-grid{stroke:#e4e2dd;stroke-width:1}
 .cv-ci{fill:#3d9a68;fill-opacity:.2}
@@ -549,8 +822,18 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .cv-weak{stroke-dasharray:5 4;stroke:#8d897c}
 .cv-pt{fill:#55534c;fill-opacity:.55}
 .cv-est{fill:none;stroke:#55534c}
+.cv-step{fill:none;stroke:#3a3935;stroke-width:1.4;stroke-linejoin:miter}
+.cv-step-est{stroke-dasharray:3 2}
+.cv-rise{fill:none;stroke:#3a3935;stroke-width:.8}
+.cv-ttm{fill:none;stroke:#154a30;stroke-width:2;stroke-linejoin:round}
+.cv-pt-bg{fill-opacity:.18}
 .cv-now{stroke:#8d897c;stroke-width:1;stroke-dasharray:2 3}
 .fl-legend{font-size:10.5px;color:var(--muted);margin:2px 0 0 30px}
+.cv-leg{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;margin:3px 0 0 28px;
+  font-size:10.5px;color:var(--muted)}
+.cv-leg-i{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.cv-g{display:block;flex:none}
+.cv-leg-note{font-style:italic}
 .fm-side{flex:1;min-width:0;padding-top:6px}
 .fm-head{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
   margin-bottom:4px}
@@ -587,6 +870,7 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
   color:var(--text);font-size:11px;display:flex;justify-content:space-between}
 .fl-brand span{color:var(--muted)}
 .fl-brand .fl-b1{color:var(--text)}
+.fl-gen{flex-basis:100%;margin:2px 0 0!important;font-size:9.5px;color:var(--muted);letter-spacing:.01em}
 @page{size:A4;margin:0}
 @media print{
   html,body{background:#fff}
@@ -614,12 +898,13 @@ FLYER_TEMPLATE = """<!doctype html>
   <button type="button" onclick="window.print()">Save as PDF</button></div>
 <div class="sheet-box"><article class="sheet"><div class="sheet-in">
   <header class="fl-top">{flag}
-    <div><h1>{country}</h1><div class="fl-kick">Country brief · the shift to battery-electric cars</div></div>
+    <div><h1>{country}</h1><div class="fl-kick">{kicker}</div></div>
     <div class="fl-date">Data through<b>{through}</b></div></header>
   <p class="fl-head">{head}</p>
   <p class="fl-follow">{follow}</p>
   {hero}
   {two}
+  {market}
   {curve}
   {compare}
   {foot}
@@ -729,12 +1014,12 @@ INDEX_TEMPLATE = """<!doctype html>
     sheet that saves as PDF, rebuilt whenever new data arrives. {n} countries, highest
     battery-electric share first.</p>
   <div class="ix-headrow"><span></span><span></span><span>Country</span>
-    <span class="r">BEV share</span><span>In a year</span><span>In one sentence</span>
+    <span class="r">BEV share</span><span>Change, pts</span><span>In one sentence</span>
     <span class="r">Data through</span></div>
   {cards}
   <p class="lead" style="font-size:13px;margin-top:18px">BEV share: battery-electric share of new
-    registrations over the last 12 months, as each source counts them. "In a year": change in
-    percentage points against the 12 months before. Scopes differ between countries; each
+    registrations over the last 12 months, as each source counts them. "Change, pts": change in
+    percentage points, last 12 months vs the 12 months before. Scopes differ between countries; each
     brief names its source.</p>
 </div>
 </body>

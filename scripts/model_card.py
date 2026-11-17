@@ -25,6 +25,8 @@ import csv
 import datetime as dt
 import html
 import json
+import itertools
+import os
 import math
 import re
 from pathlib import Path
@@ -137,6 +139,38 @@ def band_slug(country: str, variant: str = "Whole") -> str:
     return base if variant in ("", "Whole", None) else f"{base}_{part(variant)}"
 
 
+def flag_filename(slug: str = "", country: str = "") -> str | None:
+    """Basename under assets/flags/ if a PNG exists.
+
+    Page slugs sometimes use hyphens (`new-zealand`) while flag files use
+    the underscore form from band_slug (`new_zealand.png`). Try both, then
+    the country name.
+    """
+    seen: list[str] = []
+    for raw in (slug, (slug or "").replace("-", "_"),
+                band_slug(country) if country else ""):
+        if raw and raw not in seen:
+            seen.append(raw)
+    for name in seen:
+        if (REPO / "assets" / "flags" / f"{name}.png").is_file():
+            return f"{name}.png"
+    return None
+
+
+def flag_src(slug: str = "", country: str = "",
+             prefix: str = "../../assets/flags") -> str | None:
+    name = flag_filename(slug, country)
+    return f"{prefix}/{name}" if name else None
+
+
+def flag_img(slug: str = "", country: str = "", cls: str = "fl-flag",
+             prefix: str = "../../assets/flags", alt: str = "") -> str:
+    src = flag_src(slug, country, prefix)
+    if not src:
+        return ""
+    return f'<img class="{esc(cls)}" src="{esc(src)}" alt="{esc(alt)}">'
+
+
 def load_bands(country: str) -> dict | None:
     path = REPO / "bands" / f"{band_slug(country)}.json"
     if not path.is_file():
@@ -192,6 +226,65 @@ def period_label(period: str, long: bool = False) -> str:
     return f"{names[idx % 12]} {idx // 12}"
 
 
+
+def generated_stamp(now: dt.datetime | None = None) -> str:
+    """UTC clock time for a 'Generated …' footer, reproducible when pinned.
+
+    Honours SOURCE_DATE_EPOCH (seconds since the Unix epoch, the standard
+    reproducible-build pin) or, if that is unset, GENERATED_AT (an ISO-8601
+    or 'YYYY-MM-DD HH:MM' string, treated as UTC when it has no zone).
+    Otherwise uses the current UTC time. Always printed as
+    'YYYY-MM-DD HH:MM UTC'. Tests and unchanged rebuilds should set one of
+    the env vars (or pass `now`) so the line does not drift.
+    """
+    when = now if now is not None else _generated_now()
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=dt.timezone.utc)
+    else:
+        when = when.astimezone(dt.timezone.utc)
+    return when.strftime("%Y-%m-%d %H:%M UTC")
+
+
+def generated_line(through_period: str | None = "") -> str:
+    """'Generated 2026-11-17 21:38 UTC · data through Oct 2026'."""
+    line = f"Generated {generated_stamp()}"
+    if through_period:
+        label = (period_label(through_period)
+                 if month_index(through_period) is not None else through_period)
+        line += f" · data through {label}"
+    return line
+
+
+def _generated_now() -> dt.datetime:
+    raw = (os.environ.get("SOURCE_DATE_EPOCH") or "").strip()
+    if raw:
+        try:
+            return dt.datetime.fromtimestamp(int(raw), dt.timezone.utc)
+        except (ValueError, OverflowError, OSError):
+            pass
+    raw = (os.environ.get("GENERATED_AT") or "").strip()
+    if raw:
+        parsed = _parse_generated_at(raw)
+        if parsed is not None:
+            return parsed
+    return dt.datetime.now(dt.timezone.utc)
+
+
+def _parse_generated_at(raw: str) -> dt.datetime | None:
+    text = raw.replace(" UTC", "").strip()
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    if "T" not in text and " " in text:
+        text = text.replace(" ", "T", 1)
+    try:
+        when = dt.datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=dt.timezone.utc)
+    return when
+
+
 def row_label(row: dict, long: bool = False) -> str:
     label = period_label(row["period"], long)
     interval = interval_of(row)
@@ -220,6 +313,21 @@ def points(value: float) -> str:
     if abs(value) < 0.05:
         return "±0"
     return ("+" if value > 0 else "−") + f"{abs(value):.1f}"
+
+
+def growth_phrase(pct: float) -> str:
+    """Year-on-year change of a count (not of a share). From +100 %
+    (doubled or more) as a multiplier: ×9.6, not +855 %."""
+    if pct >= 100:
+        times = 1 + pct / 100.0
+        if abs(times - round(times)) < 0.05:
+            return f"×{times:.0f}"
+        return f"×{times:.1f}"
+    if abs(pct) < 0.05:
+        return "±0 %"
+    sign = "+" if pct > 0 else "−"
+    num_ = f"{abs(pct):.0f}" if abs(pct) >= 10 else f"{abs(pct):.1f}"
+    return f"{sign}{num_} %"
 
 
 def year_text(value: float | None) -> str:
@@ -285,6 +393,114 @@ def ttm_window(rows: list[dict]) -> dict | None:
         return None
     return {"share": 100 * bev / total, "total": total, "bev": bev,
             "end": window[-1]["period"], "interval": interval}
+
+
+YTD_MIN_MONTHS = 3      # fewer months would be a single-month figure in disguise
+
+
+def ytd_window(rows: list[dict]) -> dict | None:
+    """BEV share of the current year so far: every month from January to the
+    latest period present, monthly, BEV and TOTAL filled; else None."""
+    if not rows or interval_of(rows[-1]) != "monthly":
+        return None
+    last = month_index(rows[-1]["period"])
+    if last is None:
+        return None
+    year, n = last // 12, last % 12 + 1
+    if n < YTD_MIN_MONTHS or len(rows) < n:
+        return None
+    window = rows[-n:]
+    idx = [month_index(r["period"]) for r in window]
+    if (any(interval_of(r) != "monthly" for r in window)
+            or idx != list(range(year * 12, year * 12 + n))):
+        return None
+    total, bev = _full_sum(window, "TOTAL"), _full_sum(window, "BEV")
+    if not total or bev is None:
+        return None
+    return {"share": 100 * bev / total, "from": window[0]["period"],
+            "to": window[-1]["period"], "year": year}
+
+
+def share_range(rows: list[dict]) -> dict | None:
+    """Min and max of the last 12 single-month BEV shares.
+
+    Only a full monthly window that ends at the series' latest period,
+    with BEV and TOTAL filled in every month. Anything less is unknown,
+    not a shorter window and not a 0.
+    """
+    if not rows or interval_of(rows[-1]) != "monthly" or len(rows) < 12:
+        return None
+    window = rows[-12:]
+    if any(interval_of(row) != "monthly" for row in window):
+        return None
+    idx = [month_index(row["period"]) for row in window]
+    if None in idx or any(b - a != 1 for a, b in zip(idx, idx[1:])):
+        return None
+    shares = [_bev_share(row) for row in window]
+    if any(s is None for s in shares):
+        return None
+    lo, hi = min(shares), max(shares)
+    # First occurrence in the window on a tie, so the sentence names a
+    # real month rather than the latest of several matching ones.
+    min_i = next(i for i, s in enumerate(shares) if s == lo)
+    max_i = next(i for i, s in enumerate(shares) if s == hi)
+    return {"min": lo, "max": hi, "latest": shares[-1],
+            "end": window[-1]["period"],
+            "min_period": window[min_i]["period"],
+            "max_period": window[max_i]["period"]}
+
+
+def range_sentence(rng: dict) -> str:
+    """Name the min and max months of the last-12-month range."""
+    lo, hi = rng["min"], rng["max"]
+    a = period_label(rng["min_period"])
+    b = period_label(rng["max_period"])
+    return (f"BEV share fluctuated between {lo:.1f} % ({a}) and "
+            f"{hi:.1f} % ({b}) over the last 12 months.")
+
+
+def range_bar_svg(rng: dict, width: float = 120, height: float = 16) -> str:
+    """Tiny bar for the last-12-month range; marker at the latest month."""
+    lo, hi, last = rng["min"], rng["max"], rng["latest"]
+    pad, mid = 3.5, height / 2
+    inner = max(1.0, width - 2 * pad)
+    span = hi - lo
+
+    def x_of(v: float) -> float:
+        if span <= 0:
+            return pad + inner / 2
+        return pad + inner * (v - lo) / span
+
+    x = x_of(last)
+    return (
+        f'<svg class="rg-bar" width="{width:.0f}" height="{height:.0f}" '
+        f'viewBox="0 0 {width:.0f} {height:.0f}" aria-hidden="true">'
+        f'<rect x="{pad}" y="{mid - 2.2:.1f}" width="{inner:.1f}" height="4.4" rx="2.2" fill="#b9b6ae"/>'
+        f'<circle cx="{x:.1f}" cy="{mid:.1f}" r="5" fill="#154a30"/>'
+        f'<circle cx="{x:.1f}" cy="{mid:.1f}" r="2.2" fill="#fdfdfc"/>'
+        f'</svg>')
+
+
+def range_chip(rng: dict, width: float = 120, height: float = 16,
+               bar: bool = False) -> str:
+    """Sentence naming the min and max months. The tiny bar is off by
+    default: the sentence is enough on its own."""
+    label = range_sentence(rng)
+    if not bar:
+        return f'<span class="rg rg-sent">{esc(label)}</span>'
+    return (f'<span class="rg rg-sent">{esc(label)}'
+            f'{range_bar_svg(rng, width, height)}</span>')
+
+
+def window_span_label(end: str, months: int = 12) -> str:
+    """'Nov 2025–Oct 2026' for a window of `months` ending at `end`."""
+    start = _shift(end, -(months - 1))
+    return f"{period_label(start)}–{period_label(end)}"
+
+
+def vs_prior_phrase(end: str) -> str:
+    """The last 12 months against the 12 before, with both ends named."""
+    return f"{window_span_label(end)} vs the 12 months before"
 
 
 def _shift(period: str, months: int) -> str:
@@ -399,6 +615,7 @@ def powertrain_shift(rows: list[dict], hev_full: bool = False) -> dict | None:
         "total_before": sums["before"]["TOTAL"],
         "total_after": sums["after"]["TOTAL"],
         "bev_after": sums["after"]["BEV"],
+        "bev_before": sums["before"]["BEV"],
     }
 
 
@@ -670,19 +887,19 @@ def build_glance(figures: dict, state: dict | None) -> str:
     if latest:
         sub = esc(row_label(latest["row"]))
         if latest["delta"] is not None:
-            sub += f' · {points(latest["delta"])} points in a year'
+            sub += f' · {points(latest["delta"])} points vs the 12 months before'
         tiles.append(_tile(esc(share(latest["share"])), "BEV share, latest period", sub))
     ttm = figures.get("ttm")
     if ttm:
         sub = f'through {esc(period_label(ttm["end"]))}'
         if ttm["delta"] is not None:
-            sub += f' · {points(ttm["delta"])} points in a year'
+            sub += f' · {points(ttm["delta"])} points vs the 12 months before'
         tiles.append(_tile(esc(share(ttm["share"])), "BEV share, last 12 months", sub))
     volume = figures.get("volume")
     if volume:
         sub = "last 12 months"
         if volume["growth"] is not None:
-            sub += f' · {points(volume["growth"])} % in a year'
+            sub += f' · {points(volume["growth"])} % vs the 12 months before'
         tiles.append(_tile(esc(units(volume["total"])), "New registrations", sub))
         if volume["bev"] is not None:
             tiles.append(_tile(esc(units(volume["bev"])), "Battery electric registered",
@@ -703,7 +920,7 @@ def build_glance(figures: dict, state: dict | None) -> str:
             nxt = ahead[0]
             sub = "fitted S-curve, not a forecast"
             if nxt["ci"]:
-                sub = f'95 % CI {esc(_ci_text(nxt["ci"]))} · ' + sub
+                sub = f'95 % confidence band {esc(_ci_text(nxt["ci"]))} · ' + sub
             tiles.append(_tile(esc(year_text(nxt["fit"])),
                                f'Curve reaches {nxt["level"] * 100:.0f} % BEV', sub))
     if not tiles:
@@ -793,10 +1010,159 @@ def _sci(value: float) -> str:
         "<sup>-", "<sup>−")
 
 
+# Observed shares are drawn as a step line, one flat step per period.
+# STEP_VOLUME_OPACITY: a step's opacity follows the registrations of its
+# period (lighter = fewer), so a tiny month does not look as solid as a big
+# one. Set to False for one even tone. STEP_LINE = False brings the old dots
+# back everywhere.
+STEP_LINE = True
+STEP_VOLUME_OPACITY = True
+STEP_MIN_OPACITY = 0.28
+# The bold line: rolling 12-month share, only where a full window exists.
+# With it on, the single months are drawn faint behind it.
+STEP_TTM = True
+STEP_FAINT = 0.38
+# Do not let the x-axis run past the last data year plus this many years
+# (a slow fit can otherwise stretch to 2050+).
+CURVE_HORIZON_YEARS = 15
+TTM_STROKE = "#154a30"   # dark green; the fit stays #2c7a50
+
+
+def step_legend(state: dict | None = None) -> str:
+    """The words for the observed series, matching build_curve_svg."""
+    if not STEP_LINE:
+        return "Dots: observed share per period."
+    if STEP_TTM:
+        text = "Bold: trailing 12-month share; faint: single months"
+    else:
+        text = "Steps: observed share per period"
+    if STEP_VOLUME_OPACITY:
+        text += ", lighter = fewer registrations"
+    return text + "."
+
+
+def chart_legend(state: dict | None) -> str:
+    """Compact visual key for the step line, the months and the fit."""
+    def step(color: str, width: float, opacity: float = 1.0) -> str:
+        return (f'<svg class="cv-g" width="28" height="10" viewBox="0 0 28 10" aria-hidden="true">'
+                f'<path d="M1 7h10V3h16" fill="none" stroke="{color}" stroke-width="{width}" '
+                f'stroke-linejoin="round" stroke-opacity="{opacity}"/></svg>')
+
+    def band() -> str:
+        return ('<svg class="cv-g" width="28" height="10" viewBox="0 0 28 10" aria-hidden="true">'
+                '<rect x="0" y="1" width="28" height="8" fill="#3d9a68" fill-opacity=".22"/>'
+                '<path d="M0 5.5C8 7 20 3 28 5" fill="none" stroke="#2c7a50" stroke-width="1.6"/>'
+                '</svg>')
+
+    items = [
+        f'{step(TTM_STROKE, 2.4)} trailing 12-month share',
+        f'{step("#3a3935", 1.6, 0.55)} single month',
+    ]
+    if state and state.get("quotable"):
+        if state.get("band_ok"):
+            items.append(f'{band()} S-curve + 95 % confidence band')
+        else:
+            items.append(f'{step("#2c7a50", 1.8)} S-curve fit')
+            items.append('<span class="cv-leg-note">no confidence band available</span>')
+        note = "a model, not a forecast"
+        if (state.get("rel") or {}).get("status") == "provisional":
+            note = "provisional · " + note
+        items.append(f'<span class="cv-leg-note">{note}</span>')
+    else:
+        items.append('<span class="cv-leg-note">No projection: no stable fit yet</span>')
+    return ('<div class="cv-leg">' +
+            "".join(f'<span class="cv-leg-i">{i}</span>' for i in items) +
+            "</div>")
+
+
+def _step_segments(rows: list[dict], x_of, y_of) -> list[str]:
+    """One path per period: up/down from the previous level, then flat."""
+    items = []
+    for row in rows:
+        idx, value = month_index(row["period"]), _bev_share(row)
+        if idx is None or value is None:
+            continue
+        months = {"quarterly": 3}.get(interval_of(row), 1)
+        total = num(row, "TOTAL")
+        per_month = total / months if total else None
+        # A period label is its last month: a quarter "2018-03" spans Jan-Mar.
+        items.append((idx - (months - 1), idx + 1, value, per_month, is_estimated(row)))
+    if not items:
+        return []
+    vols = sorted(v for *_, v, _ in items if v)
+    ref = vols[min(len(vols) - 1, int(0.95 * len(vols)))] if vols else None
+    out, prev = [], None
+    for a, b, value, vol, est in items:
+        op = 1.0
+        if STEP_VOLUME_OPACITY and ref and vol:
+            op = STEP_MIN_OPACITY + (1 - STEP_MIN_OPACITY) * min(1.0, vol / ref)
+        if STEP_TTM:
+            op *= STEP_FAINT
+        x0, x1, y = x_of(a / 12), x_of(b / 12), y_of(value)
+        if prev and prev[0] == a:
+            # Contiguous: a thin, faint riser from the last level, so the
+            # flat steps (and their volume tone) carry the reading.
+            out.append(f'<path d="M{x0:.1f},{prev[1]:.1f}V{y:.1f}" class="cv-rise" '
+                       f'stroke-opacity="{0.45 * min(op, prev[2]):.2f}"/>')
+        cls = "cv-step cv-step-est" if est else "cv-step"
+        out.append(f'<path d="M{x0:.1f},{y:.1f}H{x1:.1f}" class="{cls}" stroke-opacity="{op:.2f}"/>')
+        prev = (b, y, op)
+    return out
+
+
+_CLIP_IDS = itertools.count(1)
+
+
+def ttm_series(rows: list[dict]) -> list[tuple[int, int, float]]:
+    """Rolling 12-month BEV share: (first month, month after, share) per period
+    whose trailing 12 months (or 4 quarters) are complete: one cadence, no
+    gap, BEV and TOTAL filled in every period. No window, no point."""
+    out = []
+    for i, row in enumerate(rows):
+        interval = interval_of(row)
+        size, step = {"monthly": (12, 1), "quarterly": (4, 3)}.get(interval, (0, 0))
+        if not size or i + 1 < size:
+            continue
+        window = rows[i - size + 1:i + 1]
+        if any(interval_of(r) != interval for r in window):
+            continue
+        idx = [month_index(r["period"]) for r in window]
+        if None in idx or any(b - a != step for a, b in zip(idx, idx[1:])):
+            continue
+        total, bev = _full_sum(window, "TOTAL"), _full_sum(window, "BEV")
+        if not total or bev is None:
+            continue
+        out.append((idx[-1] - (step - 1), idx[-1] + 1, 100 * bev / total))
+    return out
+
+
+def _ttm_path(series, x_of, y_of) -> str:
+    d, prev_end, prev_y = [], None, None
+    for a, b, share in series:
+        y = y_of(share)
+        if prev_end == a:
+            d.append(f"V{y:.1f}H{x_of(b / 12):.1f}")
+        else:
+            d.append(f"M{x_of(a / 12):.1f},{y:.1f}H{x_of(b / 12):.1f}")
+        prev_end, prev_y = b, y
+    return "".join(d)
+
+
+def first_year_over(rows: list[dict], level: float = 1.0) -> int | None:
+    for row in rows:
+        idx, value = month_index(row["period"]), _bev_share(row)
+        if idx is not None and value is not None and value >= level:
+            return idx // 12
+    return None
+
+
 def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
-                    width: int = 720, height: int = 300, weak_fit: bool = True) -> str:
+                    width: int = 720, height: int = 300, weak_fit: bool = True,
+                    x_range: tuple[float, float] | None = None,
+                    left: int = 42) -> str:
     """Observed shares and the fitted curve. `weak_fit=False` leaves the line
-    of a fit that carries no dates off the chart instead of dashing it."""
+    of a fit that carries no dates off the chart instead of dashing it.
+    `x_range` (start year, end year) overrides the default span."""
     observed = []
     for row in rows:
         idx, value = month_index(row["period"]), _bev_share(row)
@@ -808,32 +1174,39 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
     data_end = observed[-1][0]
     start = math.floor(observed[0][0])
     reach = fit_year(0.9, v1, v2, t0)
-    end = data_end + (15 if weak_fit else 4)
+    end = data_end + (CURVE_HORIZON_YEARS if weak_fit else 4)
     if state["quotable"] and math.isfinite(reach):
-        end = min(max(reach + 2, data_end + 6), data_end + 25)
-    end = float(min(2060, math.ceil(end)))
+        end = min(max(reach + 2, data_end + 6), data_end + CURVE_HORIZON_YEARS)
+    end = float(math.ceil(end))
+    if x_range:
+        start, end = float(x_range[0]), float(x_range[1])
 
-    left, right, top, bottom = 34, 10, 12, 26
+    right, top, bottom = 10, 20, 26
     plot_w, plot_h = width - left - right, height - top - bottom
 
     def x_of(year: float) -> float:
         return left + plot_w * (year - start) / (end - start)
 
+    def in_x(rows_):
+        return [r for r in rows_ if (month_index(r["period"]) or 0) / 12 >= start]
+
     # Without a curve to show, zoom in on the observed shares.
     draw_fit = state["quotable"] or weak_fit
     ymax = 100.0
     if not draw_fit:
-        peak = max(value for _, value, _ in observed) * 1.15
+        peak = max(value for t, value, _ in observed if t >= start) * 1.15
         ymax = next((float(m) for m in (2, 4, 10, 20, 40, 100) if m >= peak), 100.0)
 
     def y_of(pct: float) -> float:
         return top + plot_h * (1 - max(0.0, min(ymax, pct)) / ymax)
 
-    parts = []
+    clip = f"cvclip{next(_CLIP_IDS)}"
+    parts = [f'<defs><clipPath id="{clip}"><rect x="{left}" y="0" width="{plot_w}" '
+             f'height="{top + plot_h}"/></clipPath></defs>']
     for mark in (ymax * k / 4 for k in range(5)):
         y = y_of(mark)
         parts.append(f'<line x1="{left}" y1="{y:.1f}" x2="{left + plot_w}" y2="{y:.1f}" class="cv-grid"/>')
-        parts.append(f'<text x="{left - 6}" y="{y + 3.5:.1f}" text-anchor="end">{mark:g}</text>')
+        parts.append(f'<text x="{left - 6}" y="{y + 3.5:.1f}" text-anchor="end">{mark:g}%</text>')
     span = end - start
     step = 2 if span <= 20 else 5 if span <= 45 else 10
     year = int(math.ceil(start / step) * step)
@@ -842,6 +1215,7 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
         parts.append(f'<text x="{x_of(year):.1f}" y="{height - 8}" text-anchor="{anchor}">{year}</text>')
         year += step
 
+    body = []
     if state["band_ok"] and bands:
         ts, (lo, hi) = bands.get("t") or [], (bands.get("ci") or [[], []])
         pts = [(t, a, b) for t, a, b in zip(ts, lo, hi)
@@ -850,20 +1224,38 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
             path = [f"M{x_of(pts[0][0]):.1f},{y_of(100 * pts[0][2]):.1f}"]
             path += [f"L{x_of(t):.1f},{y_of(100 * b):.1f}" for t, _, b in pts[1:]]
             path += [f"L{x_of(t):.1f},{y_of(100 * a):.1f}" for t, a, _ in reversed(pts)]
-            parts.append(f'<path d="{" ".join(path)} Z" class="cv-ci"/>')
+            body.append(f'<path d="{" ".join(path)} Z" class="cv-ci"/>')
 
     xd = x_of(data_end)
     parts.append(f'<line x1="{xd:.1f}" y1="{top}" x2="{xd:.1f}" y2="{top + plot_h}" class="cv-now"/>')
     side = "end" if xd > left + plot_w * 0.5 else "start"
     off = -5 if side == "end" else 5
-    # Keep the label off the points: below them once the series is high.
-    label_y = top + 10 if observed[-1][1] < 60 else top + plot_h - 6
+    # Keep the label off the points, and off a wide future band: below them
+    # once the series is high, or when the now-line sits in the left half.
+    recent = [v for t, v, _ in observed if t >= data_end - 2] or [0.0]
+    if max(recent) >= 0.85 * ymax or (state["quotable"] and xd < left + plot_w * 0.45):
+        label_y = top + plot_h - 6
+    else:
+        label_y = top + 12
     parts.append(f'<text x="{xd + off:.1f}" y="{label_y}" text-anchor="{side}">'
                  f'data through {esc(period_label(state["data_per"]))}</text>')
 
-    for t, value, est in observed:
-        cls = "cv-pt cv-est" if est else "cv-pt"
-        parts.append(f'<circle cx="{x_of(t):.1f}" cy="{y_of(value):.1f}" r="1.9" class="{cls}"/>')
+    shown = in_x(rows)
+    if STEP_LINE:
+        body.extend(_step_segments(shown, x_of, y_of))
+    if not STEP_LINE or draw_fit:
+        # The dots are the fit's input: with the step line they stay only
+        # where a curve is drawn, faint, behind it.
+        faint = " cv-pt-bg" if STEP_LINE else ""
+        for t, value, est in observed:
+            if t < start:
+                continue
+            cls = ("cv-pt cv-est" if est else "cv-pt") + faint
+            body.append(f'<circle cx="{x_of(t):.1f}" cy="{y_of(value):.1f}" r="1.9" class="{cls}"/>')
+    if STEP_TTM:
+        ttm = [w for w in ttm_series(rows) if w[0] / 12 >= start]
+        if ttm:
+            body.append(f'<path d="{_ttm_path(ttm, x_of, y_of)}" class="cv-ttm"/>')
 
     line = []
     n = 240
@@ -872,11 +1264,13 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
         line.append(f'{"M" if not i else "L"}{x_of(t):.1f},{y_of(100 * fit_share(t, v1, v2, t0)):.1f}')
     cls = "cv-fit" if state["quotable"] else "cv-fit cv-weak"
     if draw_fit:
-        parts.append(f'<path d="{" ".join(line)}" class="{cls}"/>')
+        body.append(f'<path d="{" ".join(line)}" class="{cls}"/>')
+    parts.append(f'<g clip-path="url(#{clip})">{"".join(body)}</g>')
 
     label = (f"BEV share of new registrations, observed and fitted S-curve, "
-             f"{start} to {int(end)}.")
-    return (f'<svg class="curve" viewBox="0 0 {width} {height}" role="img" '
+             f"{int(start)} to {int(end)}.")
+    return (f'<svg class="curve" width="{width}" height="{height}" '
+            f'viewBox="0 0 {width} {height}" role="img" '
             f'aria-label="{esc(label)}">{"".join(parts)}</svg>')
 
 
@@ -896,10 +1290,11 @@ def build_model(country: str, rows: list[dict], state: dict | None,
     if state:
         curve = build_curve_svg(rows, state, bands)
         if curve:
-            legend = ['<span class="key key-pt">observed share per period</span>',
+            seen = step_legend().rstrip(".")
+            legend = [f'<span class="key key-pt">{seen}</span>',
                       '<span class="key key-fit">fitted S-curve</span>']
             if state["band_ok"]:
-                legend.append('<span class="key key-ci">95 % confidence interval of the curve</span>')
+                legend.append('<span class="key key-ci">95 % confidence band of the curve</span>')
             out.append(f'<figure class="curve-fig" data-theme="light">{curve}'
                        f'<figcaption>{"".join(legend)}</figcaption></figure>')
         if state["flat"]:
@@ -915,7 +1310,7 @@ def build_model(country: str, rows: list[dict], state: dict | None,
                 ci = f'<td>{esc(_ci_text(c["ci"]))}</td>' if state["band_ok"] else ""
                 body.append(f'<tr><th>{c["level"] * 100:.0f} %</th>'
                             f'<td>{esc(year_text(c["fit"]))}</td>{ci}</tr>')
-            ci_head = "<th>95 % confidence interval</th>" if state["band_ok"] else ""
+            ci_head = "<th>95 % confidence band</th>" if state["band_ok"] else ""
             out.append('<div class="scroll"><table class="vars miles">'
                        f'<tr><th>BEV share</th><th>Curve reaches it in</th>{ci_head}</tr>'
                        f'{"".join(body)}</table></div>')
@@ -925,14 +1320,14 @@ def build_model(country: str, rows: list[dict], state: dict | None,
                              f"{state['rel']['swing']:.0f} years across recent re-fits.")
             if not state["band_ok"]:
                 reasons = "; ".join(state["band_reasons"])
-                notes.append("No confidence interval is shown: none can be stated "
+                notes.append("No confidence band is shown: none can be stated "
                              "reliably for this series" + (f" ({reasons})." if reasons else "."))
             else:
-                notes.append("The interval is for the fitted line, point by point, and "
+                notes.append("The band is for the fitted line, point by point, and "
                              "holds only if the transition keeps following an S-shape.")
             out.append(f'<p class="fig-note">{esc(" ".join(notes))} '
                        f'<a href="{GH_BLOB}/docs/architecture/44-uncertainty-bands.md">'
-                       'How the intervals are calculated</a>.</p>')
+                       'How the bands are calculated</a>.</p>')
         fitted = period_label(state["data_per"], long=True)
         run = f', model run {esc(state["model_date"])}' if state["model_date"] else ""
         out.append(
@@ -1055,6 +1450,11 @@ table.miles{max-width:520px}
 .cv-weak{stroke-dasharray:5 4;stroke:#8d897c}
 .cv-pt{fill:#55534c;fill-opacity:.55}
 .cv-est{fill:none;stroke:#55534c}
+.cv-step{fill:none;stroke:#3a3935;stroke-width:1.4;stroke-linejoin:miter}
+.cv-step-est{stroke-dasharray:3 2}
+.cv-rise{fill:none;stroke:#3a3935;stroke-width:.8}
+.cv-ttm{fill:none;stroke:#154a30;stroke-width:2.2;stroke-linejoin:round}
+.cv-pt-bg{fill-opacity:.18}
 .cv-now{stroke:#8d897c;stroke-width:1;stroke-dasharray:2 3}
 .curve-fig figcaption{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;color:#55534c;
   margin:2px 4px 0}

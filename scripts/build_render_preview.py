@@ -44,7 +44,7 @@ def read_params(path: Path) -> dict[str, str]:
 
 
 def bands_80(path: Path) -> str:
-    """'2038.1 (95 % CI 2033.8–2052.7)' from a bands/<slug>.json, or '—'."""
+    """'2038.1 (95 % confidence band 2033.8–2052.7)' from a bands/<slug>.json, or '—'."""
     import json
     if not path.is_file():
         return "—"
@@ -53,7 +53,7 @@ def bands_80(path: Path) -> str:
         c = next(c for c in b["crossing"] if abs(c["share"] - 0.8) < 1e-9)
         f = lambda v: "—" if v is None else f"{v:.1f}"
         hi = "2100+" if c["ci"][1] is None else f(c["ci"][1])
-        return f"{f(c['fit'])} (95 % CI {f(c['ci'][0])}–{hi})"
+        return f"{f(c['fit'])} (95 % confidence band {f(c['ci'][0])}–{hi})"
     except Exception:
         return "unreadable"
 
