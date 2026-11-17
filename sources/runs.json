@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-16T13:06:50Z",
+ "generated": "2026-11-17T13:48:52Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8099,6 +8099,14 @@
   },
   {
    "date": "2026-11-16",
+   "label": "Greece",
+   "base": "Greece",
+   "slug": "greece",
+   "period": "2026-10",
+   "flag": "🇬🇷"
+  },
+  {
+   "date": "2026-11-16",
    "label": "Taiwan",
    "base": "Taiwan",
    "slug": "taiwan",
@@ -8128,6 +8136,14 @@
    "slug": "taiwan_vans",
    "period": "2026-10",
    "flag": "🇹🇼"
+  },
+  {
+   "date": "2026-11-17",
+   "label": "South Korea",
+   "base": "South Korea",
+   "slug": "south_korea",
+   "period": "2026-10",
+   "flag": "🇰🇷"
   }
  ]
 }
