@@ -540,6 +540,12 @@ def _and_list(names: list[str]) -> str:
     return ", ".join(names[:-1]) + f" and {names[-1]}"
 
 
+# The curve is drawn this wide. The sheet is laid out wider than A4 and
+# scaled to fit, so the old 452 px left the milestone table half empty;
+# on a page that fits unscaled the chart shrinks with its column.
+CURVE_W = 540
+
+
 def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
                        region: bool = False) -> tuple[int, int]:
     """The mix fills the number column; leftover brand-row slots go to both charts.
@@ -643,7 +649,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
 
     curve = ""
     if fm.get("region_curve"):
-        svg, legend = fm["region_curve"](452, curve_h, 42)
+        svg, legend = fm["region_curve"](CURVE_W, curve_h, 42)
         side = fm.get("region_curve_side") or ""
         sub = fm.get("region_curve_sub") or (
             "Battery-electric share of new registrations. The line is this "
@@ -655,7 +661,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 f'<div class="fl-curve"><div>{svg}{legend or ""}</div>'
                 f'{side}</div></section>')
     elif state:
-        svg = mc.build_curve_svg(rows, state, bands, width=452, height=curve_h, weak_fit=False)
+        svg = mc.build_curve_svg(rows, state, bands, width=CURVE_W, height=curve_h, weak_fit=False)
         if svg and state["quotable"]:
             shown_ci = state["band_ok"] and '"fm-ci">passed' not in build_miles(state).replace(
                 '<span class="fm-ci">passed</span>', "", 3) and "–" in build_miles(state)
@@ -856,8 +862,9 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fb-pp{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
 .fb-now{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
 .fl-curve{display:flex;gap:22px;align-items:flex-start}
-.fl-curve .curve{width:452px;height:auto}
-.fl-curve>div:first-child{flex:none;width:452px}
+.fl-curve .curve{width:100%;height:auto;display:block}
+.fl-curve>div:first-child{flex:0 1 """ + str(CURVE_W) + """px;min-width:0}
+.fl-curve .fm-side{min-width:200px}
 .fl-curve .curve text{font-size:10.5px;fill:#77746c;font-family:var(--font-ui),sans-serif}
 .cv-grid{stroke:#e4e2dd;stroke-width:1}
 .cv-ci{fill:#3d9a68;fill-opacity:.2}
@@ -958,13 +965,20 @@ FLYER_TEMPLATE = """<!doctype html>
   // Fonts differ between machines. If the content is taller than the sheet,
   // shrink it as a whole so the page never loses its footer.
   function fitIn(){{
+    // The largest scale at which the whole page fits. Laid out wider (100/z %)
+    // the text wraps less, so the first guess have/height leaves a gap above
+    // the footer; a short bisection closes it.
     var cs=getComputedStyle(sheet),have=sheet.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),z=1;
-    inn.style.transform='';inn.style.width='';inn.style.minHeight='';
-    for(var i=0;i<4&&inn.scrollHeight>have+0.5;i++){{
-      z*=have/inn.scrollHeight;
-      inn.style.width=(100/z)+'%';inn.style.minHeight=(100/z)+'%';inn.style.transform='scale('+z+')';
-      if(inn.scrollHeight*z<=have+0.5)break;
+    inn.style.transform='';inn.style.width='';inn.style.minHeight='0';
+    function fits(k){{inn.style.width=(100/k)+'%';return inn.scrollHeight*k<=have+0.5;}}
+    if(!fits(1)){{
+      var lo=Math.min(1,have/inn.scrollHeight)*0.9,hi=1;
+      for(var i=0;i<12&&!fits(lo);i++)lo*=0.9;
+      for(var j=0;j<10;j++){{var m=(lo+hi)/2;if(fits(m))lo=m;else hi=m;}}
+      z=lo;
     }}
+    if(z<1){{inn.style.width=(100/z)+'%';inn.style.minHeight=(100/z)+'%';inn.style.transform='scale('+z+')';}}
+    else{{inn.style.width='';inn.style.minHeight='';}}
     sheet.dataset.fit=z.toFixed(3);
   }}
   function fit(){{
