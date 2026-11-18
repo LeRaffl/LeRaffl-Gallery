@@ -880,6 +880,8 @@ def load(slug: str) -> dict:
         "region_curve_side": side,
         "region_curve_sub": sub,
         "hev_split": "HEV" in mix_bands,
+        # Locator map: every member of the group, in or out of the figure.
+        "map_countries": [m["country"] for m in members],
         "mix_note": mix_note,
         "mix_note_long": mix_note_long,
     }
