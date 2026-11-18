@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-17T13:48:52Z",
- "today": "2026-11-17",
+ "generated": "2026-11-18T13:24:12Z",
+ "today": "2026-11-18",
  "countries": [
   {
    "country": "Albania",
@@ -1443,8 +1443,8 @@
    "cadence_text": "monthly; SDES publishes the previous month ~3–4 weeks after month-end",
    "interval": "monthly",
    "latest_period": "2026-10",
-   "expected_period": "2026-09",
-   "behind": -1,
+   "expected_period": "2026-10",
+   "behind": 0,
    "behind_now": 0,
    "status": "current",
    "automated": true,
