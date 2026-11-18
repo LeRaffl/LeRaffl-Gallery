@@ -571,6 +571,11 @@ def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
         # Region briefs have no brand block; a short who-gained list should
         # not leave a gap above the footer.
         curve += 28
+    if not ttm:
+        # No full 12-month window (Malta): no headline, who-gained or
+        # compare strip, so the page is half empty. Give it to the charts.
+        mix += 40
+        curve += 170
     return mix, curve
 
 
@@ -623,14 +628,16 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     else:
         spare = max(0, 5 - len((market or {}).get("named") or []))
     mix_h, curve_h = hero_chart_heights(figures, rows, spare, bool(fm.get("region")))
-    mix = build_mix(fm.get("region_mix_points") or mix_points(rows), hev_full, 470 if hero_num else INNER_W, mix_h)
+    # Without a headline number the mix spans the row; leave room for the map.
+    mix_w = 470 if hero_num else (INNER_W - 200 if where else INNER_W)
+    mix = build_mix(fm.get("region_mix_points") or mix_points(rows), hev_full, mix_w, mix_h)
     range_line = ""
     rng = mc.share_range(rows)
     if rng:
         range_line = f'<p class="fh-range-line">{esc(mc.range_sentence(rng))}</p>'
     # The locator map takes the room right of the mix: the sheet is laid out
     # wider than A4 and scaled to fit, so a fixed-width mix left it empty.
-    loc = f'<div class="fh-loc">{where}</div>' if where and hero_num else ""
+    loc = f'<div class="fh-loc">{where}</div>' if where else ""
     hero = (f'<div class="fl-hero{" has-loc" if loc else ""}">{hero_num}'
             f'<div class="fh-mix">{mix}</div>{loc}</div>{range_line}'
             if (hero_num or mix or range_line) else "")
