@@ -105,6 +105,9 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
     # market block and footer (measured from the rendered card).
     # padding + header + compact hero (with glance) + legend + footer
     fixed = 52 + 40 + 122 + 190 + 28 + 50 + 76
+    if fm.get("coverage_note"):
+        # Region cards name their coverage in the footer: two lines there.
+        fixed += 30
     chart_h = int(max(300, H - fixed - market_h - 8))
     curve = ""
     if fm.get("region_curve"):
@@ -122,8 +125,10 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
     brand_src = mstr.brand_source(fm, market)
     short = re.sub(r"\s*\(.*?\)", "", source)
     src = f"Share: {short} · Brands: {brand_src}" if brand_src else f"Source: {source}"
+    cov = ""
     if fm.get("coverage_note"):
-        src = src + f' · {fm["coverage_note"]}'
+        # Its own line: appended to the source it wrapped onto three lines.
+        cov = f'<div class="sc-cov">{esc(fm["coverage_note"])}</div>'
     url = mc.SITE.replace("https://", "")
     end = rows[-1]["period"] if rows else ""
     gen = mc.generated_line(end)
@@ -137,7 +142,7 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
     <div class="sc-thr">through {esc(through)}</div></div>{qr}</header>
   {hero}{curve}{market_html}
   <footer class="sc-foot"><div class="sc-foot-row"><div>{esc(src)}</div>
-    <div><b>{esc(url)}</b> · @LeRaffl</div></div>
+    <div><b>{esc(url)}</b> · @LeRaffl</div></div>{cov}
     <div class="sc-gen">{esc(gen)}</div></footer>
 </div></body></html>"""
 
@@ -215,6 +220,8 @@ html,body{margin:0;background:#fdfdfc}
 .sc-foot{margin-top:auto;padding-top:14px;border-top:3px solid #1a1a18;display:flex;
   flex-direction:column;gap:6px;font-size:18px;color:#55534c}
 .sc-foot-row{display:flex;justify-content:space-between;gap:20px}
+.sc-foot-row>div:last-child{flex:none;white-space:nowrap}
 .sc-foot b{color:#1a1a18}
+.sc-cov{font-size:17px;line-height:1.3}
 .sc-gen{font-size:15px;color:#77746c}
 """
