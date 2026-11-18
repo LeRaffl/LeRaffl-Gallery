@@ -873,7 +873,9 @@ def build_region_curve_svg(rows: list[dict], years: list[float],
         f'{"".join(parts)}</svg>')
 
 
-def region_legend() -> str:
+def region_legend(model_note: bool = True) -> str:
+    note = ('<span class="cv-leg-note">a model, not a forecast</span>'
+            if model_note else "")
     return (
         '<div class="cv-leg">'
         '<span class="cv-leg-i"><svg class="cv-g" width="22" height="10">'
@@ -886,7 +888,7 @@ def region_legend() -> str:
         '<circle cx="7" cy="5" r="2.2" fill="#55534c" fill-opacity=".55"/></svg>'
         'single month</span>'
         '<span class="cv-leg-note">no confidence band available</span>'
-        '<span class="cv-leg-note">a model, not a forecast</span>'
+        f'{note}'
         '</div>')
 
 
@@ -1005,14 +1007,12 @@ def load(slug: str) -> dict:
     state = _crossings_state(frame) if frame else None
     model_per = (frame or {}).get("data_per") or ""
 
-    def curve_builder(width, height, left):
+    def curve_builder(width, height, left, model_note=True):
         svg = build_region_curve_svg(rows, years, model, width, height, left)
-        return svg, region_legend()
+        return svg, region_legend(model_note=model_note)
 
     side = ""
-    sub = ("An S-curve fitted to the group's BEV share so far. It is this "
-           "project's model, not an official forecast: a policy change or a "
-           "stall is not in it.")
+    sub = flyer.CURVE_MODEL_NOTE_GROUP
     if state and state["quotable"]:
         note = ""
         if model_per and model_per != t:
@@ -1026,8 +1026,9 @@ def load(slug: str) -> dict:
         side = ('<div class="fm-side"><div class="fm-head">No projection</div>'
                 '<p class="fm-none">The published model for this group does not '
                 "name milestone years.</p></div>")
-        sub = ("Battery-electric share of new registrations. The line is this "
-               "project's fitted model for the group, not an official forecast.")
+        sub = ("Battery-electric share of new registrations. This is the project's "
+               "model, not an actual forecast; it does not include policy changes "
+               "and is based only on historical data.")
 
     mix = mix_points_for(mix_members, t, mix_bands)
 
@@ -1223,20 +1224,23 @@ def reference_points() -> list[dict]:
                                    mc.load_bands(name))
             out.append({"name": name, "slug": slug, "share": win["share"],
                         "end": win["end"], "kind": kind,
-                        "year50": flyer.year_at_50(state)})
+                        "year50": flyer.year_at_50(state),
+                        "year80": flyer.year_at_80(state)})
         else:
             info = load(slug)
             out.append({"name": name, "slug": slug, "share": info["share"],
                         "end": info["t"], "kind": kind,
                         "coverage": info["coverage"],
-                        "year50": flyer.year_at_50(info["fm"].get("curve_state"))})
+                        "year50": flyer.year_at_50(info["fm"].get("curve_state")),
+                        "year80": flyer.year_at_80(info["fm"].get("curve_state"))})
     _REF_CACHE = out
     return out
 
 
 def build(slug: str, theme_href: str, logo_href: str = "../../assets/brands",
           peers: list | None = None,
-          peer_years: list | None = None) -> tuple[str, str, dict]:
+          peer_years: list | None = None,
+          peer_years_80: list | None = None) -> tuple[str, str, dict]:
     """Return (flyer_html, social_html, info)."""
     info = load(slug)
     fm_fl = dict(info["fm"])
@@ -1255,7 +1259,7 @@ def build(slug: str, theme_href: str, logo_href: str = "../../assets/brands",
     fm_sc["carriers_social"] = (carriers_sc, sc_h)
     brief = flyer.build_flyer(fm_fl, info["rows"], info["shift"], info["figures"],
                               None, None, theme_href, peers=peers or [], market=None,
-                              peer_years=peer_years)
+                              peer_years=peer_years, peer_years_80=peer_years_80)
     social = social_card.build_social(fm_sc, info["rows"], info["figures"],
                                       None, None, None, "list", theme_href, logo_href,
                                       peers=peers or [],

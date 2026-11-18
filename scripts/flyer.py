@@ -358,16 +358,25 @@ def box_stats(values: list[float]) -> dict | None:
             "q3": q(0.75), "max": vals[-1]}
 
 
-def year_at_50(state: dict | None) -> float | None:
-    """Year the brief's own fitted curve reaches 50 % (None when the brief
+def year_at(state: dict | None, level: float = 0.5) -> float | None:
+    """Year the brief's own fitted curve reaches `level` (None when the brief
     quotes no year: no quotable fit, or a curve that never gets there)."""
     if not state or not state.get("quotable"):
         return None
+    target = round(level, 3)
     for c in state.get("crossings") or []:
-        if round(c.get("level", 0), 3) == 0.5:
+        if round(c.get("level", 0), 3) == target:
             y = c.get("fit")
             return y if y is not None and math.isfinite(y) else None
     return None
+
+
+def year_at_50(state: dict | None) -> float | None:
+    return year_at(state, 0.5)
+
+
+def year_at_80(state: dict | None) -> float | None:
+    return year_at(state, 0.8)
 
 
 CMP_LABEL_W = 176          # left column of each box-plot strip, px
@@ -379,7 +388,9 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
     markets, the subject in green."""
     lo, hi = metric["axis"]
     stats = metric["stats"]
-    left, right = 10 * k, 10 * k
+    # Enough inset that end-tick labels can sit on the tick (middle-anchored)
+    # without clipping, and every strip uses the same left edge.
+    left, right = 22 * k, 22 * k
     plot = width - left - right
     flag_rows = (13 * k, 1 * k)
     fw, fh = 15 * k, 10 * k
@@ -411,10 +422,9 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
              f'height="{box_h:.1f}" fill="#ebe8e1" {grey}/>')
     p.append(f'<line x1="{md:.1f}" y1="{box_top:.1f}" x2="{md:.1f}" '
              f'y2="{box_top + box_h:.1f}" stroke="#3b3a36" stroke-width="{2 * k:.2f}"/>')
-    # Axis labels.
+    # Axis labels, all middle-anchored so 0% and 2020 sit on the same inset.
     for tick, text in metric["ticks"]:
-        anchor = "start" if tick == lo else "end" if tick == hi else "middle"
-        p.append(f'<text x="{x_of(tick):.1f}" y="{height - 2}" text-anchor="{anchor}" '
+        p.append(f'<text x="{x_of(tick):.1f}" y="{height - 2}" text-anchor="middle" '
                  f'class="ax">{esc(text)}</text>')
 
     # Flags: the subject first, on the lower row; others avoid it, moving
@@ -440,9 +450,11 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
     p.extend(subject_parts)     # the green mark sits on top of any neighbour
     svg = (f'<svg class="{cls}-svg {cls}-cmp-svg" width="100%" height="{height}" role="img" '
            f'aria-label="{esc(metric["aria"])}">{_x_to_pct("".join(p), width)}</svg>')
+    q = metric.get("q_line") or ""
+    q_html = f'<span>{q}</span>' if q else ""
     return (f'<div class="{cls}-bx"><div class="{cls}-bx-l"><b>{metric["title"]}</b>'
             f'<span class="{cls}-bx-own">{metric["own_line"]}</span>'
-            f'<span>{metric["mid_line"]}</span></div>{svg}</div>')
+            f'<span>{metric["mid_line"]}</span>{q_html}</div>{svg}</div>')
 
 
 def _rank_of(own: float, values: list[float], higher_first: bool) -> int:
@@ -456,18 +468,21 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
                    subject_slug: str = "", is_region: bool = False,
                    own_share: float | None = None,
                    peer_years: list[tuple[str, float]] | None = None,
-                   own_year: float | None = None) -> tuple[list[dict], list[str], int]:
-    """Two of the Gallery's rankings as slim box plots across every ranked
-    country: BEV share of new cars over the last 12 months, and the year the
-    fitted S-curve reaches 50 % (the Thresholds ranking). The subject is
+                   own_year: float | None = None,
+                   peer_years_80: list[tuple[str, float]] | None = None,
+                   own_year_80: float | None = None) -> tuple[list[dict], list[str], int]:
+    """The Gallery's rankings as slim box plots across every ranked country:
+    BEV share of new cars over the last 12 months, and the years the fitted
+    S-curve reaches 50 % and 80 % (the Thresholds ranking). The subject is
     marked in green; Norway, China, EU, World, Germany and USA are flags.
 
     `peers` is (country, 12-month BEV share in percent) under the same
-    full-window rule as each brief; `peer_years` is (country, fitted 50 %
-    year) for every brief that quotes one. Region highlights carry their
-    weighted headline share and their own curve's year. The subject is
-    never also a highlight. The year strip is left out when the subject
-    quotes no year or fewer than 10 countries do.
+    full-window rule as each brief; `peer_years` / `peer_years_80` are
+    (country, fitted year) for every brief that quotes that threshold.
+    Region highlights carry their weighted headline share and their own
+    curve's years. The subject is never also a highlight. A year strip is
+    left out when the subject quotes no year at that threshold, or fewer
+    than 10 countries do.
     """
     own = own_share
     if own is None:
@@ -501,7 +516,8 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
     strips = [{
         "title": "BEV share, last 12 months",
         "own_line": f"{esc(country)} {pct(own)} · {place(s_rank, len(peers))}",
-        "mid_line": f"Middle of the field: {pct(s_stats['median'])}",
+        "mid_line": f"Median: {pct(s_stats['median'])}",
+        "q_line": f"25%: {pct(s_stats['q1'])}  ·  75%: {pct(s_stats['q3'])}",
         "values": peers, "stats": s_stats, "axis": (0.0, 100.0),
         "ticks": [(t, f"{t:.0f}%") for t in (0, 25, 50, 75, 100)],
         "own": {"name": country, "slug": subject_slug, "value": own},
@@ -509,29 +525,42 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
         "aria": (f"{country}: BEV share {pct(own)}, "
                  f"{'would be ' if is_region else ''}{ordinal(s_rank)} of {len(peers)} countries."),
     }]
-    years = [(n, y) for n, y in (peer_years or []) if y is not None and math.isfinite(y)]
-    if own_year is None and not is_region:
-        own_year = next((y for n, y in years if n == country), None)
-    y_stats = box_stats([y for _, y in years]) if len(years) >= 10 else None
-    if own_year is not None and math.isfinite(own_year) and y_stats:
-        lo = 5 * math.floor(min(y_stats["min"], own_year) / 5)
-        hi = max(5 * math.ceil(max(y_stats["max"], own_year) / 5), lo + 20)
-        y_rank = _rank_of(own_year, [y for _, y in years], higher_first=False)
+
+    def add_year_strip(title: str, mark_key: str, peer_list, own_y, level_label: str) -> int:
+        years = [(n, y) for n, y in (peer_list or []) if y is not None and math.isfinite(y)]
+        y = own_y
+        if y is None and not is_region:
+            y = next((v for n, v in years if n == country), None)
+        y_stats = box_stats([v for _, v in years]) if len(years) >= 10 else None
+        if y is None or not math.isfinite(y) or not y_stats:
+            return len(years)
+        lo = 5 * math.floor(min(y_stats["min"], y) / 5)
+        hi = max(5 * math.ceil(max(y_stats["max"], y) / 5), lo + 20)
+        y_rank = _rank_of(y, [v for _, v in years], higher_first=False)
         strips.append({
-            "title": "Fitted curve reaches 50%",
-            "own_line": (f"{esc(country)} {mc.year_text(own_year)} · "
+            "title": title,
+            "own_line": (f"{esc(country)} {mc.year_text(y)} · "
                          f"{place(y_rank, len(years))}"),
-            "mid_line": f"Middle of the field: {mc.year_text(y_stats['median'])}",
+            "mid_line": f"Median: {mc.year_text(y_stats['median'])}",
+            "q_line": (f"25%: {mc.year_text(y_stats['q1'])}  ·  "
+                       f"75%: {mc.year_text(y_stats['q3'])}"),
             "values": years, "stats": y_stats, "axis": (float(lo), float(hi)),
             "ticks": [(float(t), str(t)) for t in range(lo, hi + 1, 5)
                       if t % 10 == 0 or t in (lo, hi)],
-            "own": {"name": country, "slug": subject_slug, "value": own_year},
-            "marks": marks_for("year50"),
-            "aria": (f"{country}: fitted curve reaches 50% in {mc.year_text(own_year)}, "
+            "own": {"name": country, "slug": subject_slug, "value": y},
+            "marks": marks_for(mark_key),
+            "aria": (f"{country}: fitted curve reaches {level_label} in "
+                     f"{mc.year_text(y)}, "
                      f"{'would be ' if is_region else ''}{ordinal(y_rank)} of "
                      f"{len(years)} countries, earliest first."),
         })
-    return strips, named, len(years)
+        return len(years)
+
+    n_years = add_year_strip("Fitted curve reaches 50%", "year50",
+                             peer_years, own_year, "50%")
+    add_year_strip("Fitted curve reaches 80%", "year80",
+                   peer_years_80, own_year_80, "80%")
+    return strips, named, n_years
 
 
 def build_compare(country: str, peers: list[tuple[str, float]], width: int,
@@ -539,24 +568,37 @@ def build_compare(country: str, peers: list[tuple[str, float]], width: int,
                   subject_slug: str = "", is_region: bool = False,
                   own_share: float | None = None,
                   peer_years: list[tuple[str, float]] | None = None,
-                  own_year: float | None = None) -> str:
+                  own_year: float | None = None,
+                  peer_years_80: list[tuple[str, float]] | None = None,
+                  own_year_80: float | None = None) -> str:
     """The A4 "How it compares" section: the strips of compare_strips."""
-    strips, named, n_years = compare_strips(country, peers, highlights, subject_slug,
-                                            is_region, own_share, peer_years, own_year)
+    strips, named, n_years = compare_strips(
+        country, peers, highlights, subject_slug, is_region, own_share,
+        peer_years, own_year, peer_years_80, own_year_80)
     if not strips:
         return ""
     plot_w = width - CMP_LABEL_W
     body = "".join(_box_strip(m, plot_w) for m in strips)
-    sub = ("Every country in the gallery: box = middle half, dark line = middle of the "
-           "field, whiskers = lowest to highest, one grey tick per country.")
+    n = strips[0]["stats"]["n"]
+    sub = (f"Box = middle half of the {n} countries in the Gallery; "
+           "whiskers = lowest and highest quarter each.")
     if len(strips) > 1:
-        sub += f" Years: the {n_years} with a quoted curve, earliest first."
+        year_ns = [s["stats"]["n"] for s in strips[1:]]
+        if len(set(year_ns)) == 1:
+            sub += f" Years: the {year_ns[0]} with a quoted curve, earliest first."
+        else:
+            bits = []
+            for s, yn in zip(strips[1:], year_ns):
+                label = "50 %" if "50%" in s["title"] else "80 %"
+                bits.append(f"{label} {yn}")
+            sub += f" Years: {', '.join(bits)}, earliest first."
     if is_region:
         sub += " The group figure is this brief's weighted headline."
     if named:
         sub += f" Flags: {_and_list(named)}."
     return ('<section class="fl-sec fl-cmp"><h2>How it compares</h2>'
-            f'<p class="fl-sub">{sub}</p>{body}</section>')
+            f'<p class="fl-sub">{sub}</p>'
+            f'<div class="fl-cmp-strips">{body}</div></section>')
 
 
 def build_compare_social(country: str, peers: list[tuple[str, float]],
@@ -570,7 +612,8 @@ def build_compare_social(country: str, peers: list[tuple[str, float]],
     if not strips:
         return "", 0
     m = dict(strips[0])
-    m["mid_line"] = f"Box: middle half of {len(peers)} countries"
+    m["mid_line"] = f"Box = middle half of {len(peers)} countries"
+    m["q_line"] = ""
     k = 1.7
     html = _box_strip(m, width - label_w, k=k, cls="sc")
     return f'<div class="sc-cmp">{html}</div>', round((27 + 11 + 8 + 13) * k) + 14
@@ -618,6 +661,17 @@ def _and_list(names: list[str]) -> str:
 # on a page that fits unscaled the chart shrinks with its column.
 CURVE_W = 540
 
+# Stated once per page, under "Where the curve points". Not repeated in
+# the chart legend or the footer.
+CURVE_MODEL_NOTE = (
+    "An S-curve fitted to the BEV share so far. This is the project's model, "
+    "not an actual forecast; it does not include policy changes and is based "
+    "only on historical data.")
+CURVE_MODEL_NOTE_GROUP = (
+    "An S-curve fitted to the group's BEV share so far. This is the project's "
+    "model, not an actual forecast; it does not include policy changes and is "
+    "based only on historical data.")
+
 
 def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
                        region: bool = False) -> tuple[int, int]:
@@ -638,12 +692,15 @@ def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
         if mc.ytd_window(rows):
             mix += 18
         mix = max(132, mix)
-    mix += spare * 8
-    curve = 160 + spare * 14
+    # Compare is now three strips and the locator sits in the title row,
+    # so leftover brand slots only get a modest lift (not a hole, and not
+    # a shrink on a full page).
+    mix += spare * 5
+    curve = 160 + spare * 8
     if region:
         # Region briefs have no brand block; a short who-gained list should
         # not leave a gap above the footer.
-        curve += 28
+        curve += 18
     if not ttm:
         # No full 12-month window (Malta): no headline, who-gained or
         # compare strip, so the page is half empty. Give it to the charts.
@@ -657,7 +714,8 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 peers: list[tuple[str, float]] | None = None,
                 market: dict | None = None, brand_mode: str = "chips",
                 logo_href: str = "../../assets/brands",
-                peer_years: list[tuple[str, float]] | None = None) -> str:
+                peer_years: list[tuple[str, float]] | None = None,
+                peer_years_80: list[tuple[str, float]] | None = None) -> str:
     country = fm.get("country", "")
     slug = fm.get("slug", "")
     hev_full = fm.get("hev_split") is True
@@ -665,7 +723,10 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     through = mc.period_label(rows[-1]["period"], long=True) if rows else ""
 
     flag = mc.flag_img(slug, country, cls="fl-flag") or fm.get("mark_html") or ""
-    where = locator_map.build(fm.get("map_countries") or [country], 150,
+    # Locator lives in the title row, like the social card: room enough
+    # for a readable Europe / Asia / world map without squeezing the mix.
+    MAP_H = 92
+    where = locator_map.build(fm.get("map_countries") or [country], MAP_H,
                               label=f"Where {country} is" if not fm.get("region")
                               else f"{country}: member countries")
 
@@ -702,18 +763,16 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     else:
         spare = max(0, 5 - len((market or {}).get("named") or []))
     mix_h, curve_h = hero_chart_heights(figures, rows, spare, bool(fm.get("region")))
-    # Without a headline number the mix spans the row; leave room for the map.
-    mix_w = 470 if hero_num else (INNER_W - 200 if where else INNER_W)
+    # Number column is 236 px, hero gap 18 px; the mix takes the rest.
+    mix_w = (INNER_W - 236 - 18) if hero_num else INNER_W
     mix = build_mix(fm.get("region_mix_points") or mix_points(rows), hev_full, mix_w, mix_h)
     range_line = ""
     rng = mc.share_range(rows)
     if rng:
         range_line = f'<p class="fh-range-line">{esc(mc.range_sentence(rng))}</p>'
-    # The locator map takes the room right of the mix: the sheet is laid out
-    # wider than A4 and scaled to fit, so a fixed-width mix left it empty.
-    loc = f'<div class="fh-loc">{where}</div>' if where else ""
-    hero = (f'<div class="fl-hero{" has-loc" if loc else ""}">{hero_num}'
-            f'<div class="fh-mix">{mix}</div>{loc}</div>{range_line}'
+    loc = f'<div class="fl-loc">{where}</div>' if where else ""
+    hero = (f'<div class="fl-hero">{hero_num}'
+            f'<div class="fh-mix">{mix}</div></div>{range_line}'
             if (hero_num or mix or range_line) else "")
 
     bars = ""
@@ -733,11 +792,15 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
 
     curve = ""
     if fm.get("region_curve"):
-        svg, legend = fm["region_curve"](CURVE_W, curve_h, 42)
+        builder = fm["region_curve"]
+        # A4 already states the model caveat in the section sub; the mini
+        # card still gets it in the legend (the default).
+        try:
+            svg, legend = builder(CURVE_W, curve_h, 42, False)
+        except TypeError:
+            svg, legend = builder(CURVE_W, curve_h, 42)
         side = fm.get("region_curve_side") or ""
-        sub = fm.get("region_curve_sub") or (
-            "Battery-electric share of new registrations. The line is this "
-            "project's fitted model for the group, not an official forecast.")
+        sub = fm.get("region_curve_sub") or CURVE_MODEL_NOTE_GROUP
         if svg:
             curve = (
                 '<section class="fl-sec"><h2>Where the curve points</h2>'
@@ -756,10 +819,8 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                          f'{state["rel"]["swing"]:.0f} years across recent re-fits.</p>')
             curve = (
                 '<section class="fl-sec"><h2>Where the curve points</h2>'
-                '<p class="fl-sub">An S-curve fitted to the BEV share so far. It is this '
-                "project's model, not an official forecast: a policy change or a stall "
-                'is not in it.</p>'
-                f'<div class="fl-curve"><div>{svg}{mc.chart_legend(state)}</div>'
+                f'<p class="fl-sub">{esc(CURVE_MODEL_NOTE)}</p>'
+                f'<div class="fl-curve"><div>{svg}{mc.chart_legend(state, model_note=False)}</div>'
                 '<div class="fm-side"><div class="fm-head">The curve reaches</div>'
                 f'<div class="fm">{build_miles(state)}</div>{band}</div></div></section>')
         elif svg:
@@ -832,15 +893,14 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         qr_cap = 'Current edition<br>and all countries'
     foot = (
         '<footer class="fl-foot"><div class="fl-foot-text">'
-        '<p><b>How to read it.</b> Battery electric (BEV): battery only. Plug-in hybrid: engine '
+        '<p><b>Abbreviations:</b> Battery electric (BEV): battery only. Plug-in hybrid: engine '
         'plus a battery charged from the grid. Hybrid: engine plus battery, no plug. '
         'Shares are of new registrations.</p>'
         + source_line + method + '</div>'
         f'<a class="fl-qrbox" href="{esc(flyer_url)}">{build_qr(flyer_url)}'
         f'<span>{qr_cap}</span></a>'
         '<p class="fl-brand"><span class="fl-b1"><b>BEV Trajectory Gallery</b> · @LeRaffl · '
-        'charts and text CC BY 4.0</span>'
-        '<span>The curve is a model, not a forecast.</span></p>'
+        'charts and text CC BY 4.0</span></p>'
         f'<p class="fl-gen">{esc(mc.generated_line(rows[-1]["period"] if rows else ""))}</p>'
         '</footer>')
     highlights = fm.get("compare_highlights")
@@ -851,12 +911,14 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         except Exception:
             highlights = []
     own_share = (figures.get("ttm") or {}).get("share")
+    curve_state = state if state is not None else fm.get("curve_state")
     compare = build_compare(country, peers or [], INNER_W,
                             highlights=highlights, subject_slug=slug,
                             is_region=bool(fm.get("region")),
                             own_share=own_share, peer_years=peer_years,
-                            own_year=year_at_50(state if state is not None
-                                                else fm.get("curve_state")))
+                            own_year=year_at_50(curve_state),
+                            peer_years_80=peer_years_80,
+                            own_year_80=year_at_80(curve_state))
 
     kicker = ("Region brief · the shift to battery-electric cars"
               if fm.get("region") else
@@ -864,7 +926,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     return FLYER_TEMPLATE.format(
         country=esc(country), theme_href=theme_href, css=FLYER_CSS, flag=flag,
         through=esc(through), head=esc(head), follow=esc(follow), hero=hero,
-        two=two, market=fm.get("carriers_html") or mstr.build_block(market, brand_mode, logo_href),
+        loc=loc, two=two, market=fm.get("carriers_html") or mstr.build_block(market, brand_mode, logo_href),
         curve=curve, foot=foot, compare=compare, slug=esc(slug),
         kicker=esc(kicker), w=SHEET_W, h=SHEET_H)
 
@@ -884,19 +946,22 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
   --text:#1a1a18;--muted:#55534c;--line:#dcd9d2}
 .sheet-in{width:100%;min-height:100%;display:flex;flex-direction:column;transform-origin:top left}
 .sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.fl-top{display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid var(--text)}
+.fl-top{display:flex;align-items:center;gap:14px;padding-bottom:10px;border-bottom:2px solid var(--text)}
 .fl-flag,.fl-mark{width:54px;height:37px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px var(--line);display:block}
 .fl-mark{background:#eceae4}
 .fl-top h1{font-family:var(--font-display);font-size:30px;line-height:1;margin:0;font-weight:600}
 .fl-kick{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.fl-loc{flex:none;margin-left:auto;line-height:0}
+.fl-loc svg{display:block;height:92px;width:auto}
 .fl-date{margin-left:auto;text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
   color:var(--muted);line-height:1.5}
+.fl-loc + .fl-date{margin-left:0}
 .fl-date b{display:block;font-size:15px;letter-spacing:0;text-transform:none;color:var(--text)}
 .fl-head{font-family:var(--font-display);font-size:28px;line-height:1.16;font-weight:600;
-  margin:14px 0 4px;letter-spacing:-.01em}
+  margin:10px 0 2px;letter-spacing:-.01em}
 .fl-follow{font-family:var(--font-display);font-size:17px;line-height:1.35;margin:0;color:#3a3935;
   min-height:23px}
-.fl-hero{display:flex;gap:18px;align-items:flex-start;margin:12px 0 0}
+.fl-hero{display:flex;gap:18px;align-items:flex-start;margin:8px 0 0}
 .fh-num{flex:none;width:236px}
 .fh-kicker{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);line-height:1.35}
 .fh-big{font-family:var(--font-display);font-size:84px;line-height:.98;font-weight:600;color:#2c7a50;
@@ -910,13 +975,11 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fh-delta.flat{background:#eceae4;color:#55534c}
 .fh-month{font-size:13px;margin-top:6px;color:var(--muted)}
 .fh-month b{color:var(--text)}
-.fh-range-line{font-size:12.5px;color:var(--muted);line-height:1.45;margin:8px 0 0;max-width:100%}
+.fh-range-line{font-size:12.5px;color:var(--muted);line-height:1.45;margin:6px 0 0;max-width:100%}
 .acea-stale{color:#9a3324;font-weight:600}
 .fh-ytd{margin-top:3px}
 .fh-mix{flex:1;min-width:0}
-.has-loc .fh-mix{flex:none}
-.fh-loc{flex:1 1 0;min-width:96px;max-width:240px;margin-left:auto;align-self:center;line-height:0}
-.fh-loc svg{display:block;width:100%;height:auto}
+
 .fh-mix svg text.mix-t{font-size:10.5px;fill:#3a3935;font-weight:600;
   font-family:var(--font-ui),system-ui,sans-serif}
 .fl-mixnote{margin-top:.15em;color:#55534c}
@@ -935,7 +998,7 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
   text-align:right;margin-bottom:4px;height:auto}
 .wc-row{height:var(--ms-row);font-size:13px}
 .wc-list .wc-row + .wc-row{margin-top:3px}
-.fl-sec{margin-top:11px}
+.fl-sec{margin-top:8px}
 .fl-sec h2{font-family:var(--font-display);font-size:18px;margin:0;font-weight:600;border:0;padding:0}
 .fl-sub{font-size:11.5px;color:var(--muted);margin:2px 0 8px;line-height:1.4}
 .fb-row,.fb-head{display:grid;grid-template-columns:142px 1fr 52px 102px;column-gap:8px}
@@ -948,10 +1011,9 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fb-bar{position:absolute;top:4px;bottom:4px;border-radius:2px;min-width:2px}
 .fb-pp{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
 .fb-now{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
-.fl-curve{display:flex;gap:22px;align-items:flex-start}
+.fl-curve{display:grid;grid-template-columns:minmax(0,1fr) 250px;column-gap:22px;align-items:stretch}
 .fl-curve .curve{width:100%;height:auto;display:block}
-.fl-curve>div:first-child{flex:0 1 """ + str(CURVE_W) + """px;min-width:0}
-.fl-curve .fm-side{min-width:200px}
+.fl-curve>div:first-child{min-width:0}
 .fl-curve .curve text{font-size:10.5px;fill:#77746c;font-family:var(--font-ui),sans-serif}
 .cv-grid{stroke:#e4e2dd;stroke-width:1}
 .cv-ci{fill:#3d9a68;fill-opacity:.2}
@@ -971,11 +1033,12 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .cv-leg-i{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .cv-g{display:block;flex:none}
 .cv-leg-note{font-style:italic}
-.fm-side{flex:1;min-width:0;padding-top:6px}
+.fm-side{min-width:0;padding-top:0;display:flex;flex-direction:column}
 .fm-head{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
   margin-bottom:4px}
-.fm-row{display:grid;grid-template-columns:52px 62px 1fr;align-items:baseline;
-  border-bottom:1px solid var(--line);padding:1px 0}
+.fm{flex:1;display:flex;flex-direction:column;justify-content:space-evenly}
+.fm-row{display:grid;grid-template-columns:48px 86px 1fr;column-gap:8px;align-items:center;
+  border-bottom:1px solid var(--line);padding:6px 0;flex:1}
 .fm-lvl{font-size:14px;color:var(--muted)}
 .fm-year{font-family:var(--font-display);font-size:24px;font-weight:600;line-height:1;
   font-variant-numeric:tabular-nums}
@@ -999,9 +1062,10 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
   color:var(--muted);text-decoration:none;width:84px}
 .fl-qr{display:block;margin:0 auto 3px}
 .fl-cmp .fl-sub{margin-bottom:2px}
-.fl-bx{display:grid;grid-template-columns:176px 1fr;align-items:end;column-gap:0}
+.fl-cmp-strips{display:grid;grid-template-columns:176px minmax(0,1fr);align-items:end;row-gap:2px}
+.fl-bx{display:contents}
 .fl-bx-l{display:flex;flex-direction:column;font-size:10.5px;line-height:1.28;color:var(--muted);
-  padding-bottom:12px}
+  padding-bottom:8px}
 .fl-bx-l b{color:var(--text);font-size:11px}
 .fl-bx-own{color:#2c7a50;font-weight:600}
 .fl-bx-own b{color:#2c7a50}
@@ -1042,6 +1106,7 @@ FLYER_TEMPLATE = """<!doctype html>
 <div class="sheet-box"><article class="sheet"><div class="sheet-in">
   <header class="fl-top">{flag}
     <div><h1>{country}</h1><div class="fl-kick">{kicker}</div></div>
+    {loc}
     <div class="fl-date">Data through<b>{through}</b></div></header>
   <p class="fl-head">{head}</p>
   <p class="fl-follow">{follow}</p>

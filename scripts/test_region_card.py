@@ -124,10 +124,16 @@ def test_region_brief_compares_as_box_plots():
     entries, _ = bsp.collect_entries()
     params = bsp.load_params()
     brief, social, _ = rc.build("eu", "t.css", peers=bsp.flyer_peers(entries, params),
-                                peer_years=bsp.flyer_peer_years(entries, params))
-    assert "<h2>How it compares" in brief and brief.count('class="fl-bx"') == 2
+                                peer_years=bsp.flyer_peer_years(entries, params),
+                                peer_years_80=bsp.flyer_peer_years(entries, params, level=0.8))
+    assert "<h2>How it compares" in brief and brief.count('class="fl-bx"') == 3
     assert "would be" in brief and "Fitted curve reaches 50%" in brief
+    assert "Fitted curve reaches 80%" in brief
     assert social.count('class="sc-bx"') == 1 and "Fitted curve" not in social
+    assert brief.count("a model, not a forecast") == 0
+    assert "not an actual forecast" in brief
+    assert "The curve is a model, not a forecast." not in brief
+    assert "<b>Abbreviations:</b>" in brief
 
 
 def test_eu_and_northern_europe_split_phev_not_hev():

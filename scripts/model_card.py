@@ -1045,7 +1045,7 @@ def step_legend(state: dict | None = None) -> str:
     return text + "."
 
 
-def chart_legend(state: dict | None) -> str:
+def chart_legend(state: dict | None, model_note: bool = True) -> str:
     """Compact visual key for the step line, the months and the fit."""
     def step(color: str, width: float, opacity: float = 1.0) -> str:
         return (f'<svg class="cv-g" width="28" height="10" viewBox="0 0 28 10" aria-hidden="true">'
@@ -1068,10 +1068,11 @@ def chart_legend(state: dict | None) -> str:
         else:
             items.append(f'{step("#2c7a50", 1.8)} S-curve fit')
             items.append('<span class="cv-leg-note">no confidence band available</span>')
-        note = "a model, not a forecast"
-        if (state.get("rel") or {}).get("status") == "provisional":
-            note = "provisional · " + note
-        items.append(f'<span class="cv-leg-note">{note}</span>')
+        if model_note:
+            note = "a model, not a forecast"
+            if (state.get("rel") or {}).get("status") == "provisional":
+                note = "provisional · " + note
+            items.append(f'<span class="cv-leg-note">{note}</span>')
     else:
         items.append('<span class="cv-leg-note">No projection: no stable fit yet</span>')
     return ('<div class="cv-leg">' +
