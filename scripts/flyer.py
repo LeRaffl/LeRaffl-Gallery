@@ -166,6 +166,14 @@ def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> st
     if not points:
         return ""
     left, right, top, bottom = 26, 164, 20, 22
+    end = points[-1]
+    # The direct labels sit right of the plot; a long one ("Combustion +
+    # hybrids 65.3%") was clipped at the edge. Reserve what the longest needs
+    # (about 6.2 px a character at 11.5 px, plus swatch and gap).
+    longest = max(len(n) for n in ("Battery electric", "Plug-in hybrid", "Full hybrid",
+                                   "Combustion + hybrids" if end.get("HEV") is None
+                                   and end.get("PHEV") is not None else "Combustion"))
+    right = max(right, int((longest + 6) * 6.2) + 22)
     plot_w, plot_h = width - left - right, height - top - bottom
     t0, t1 = points[0]["t"], points[-1]["t"]
 
