@@ -1120,7 +1120,7 @@ def carrier_rows(contrib: list[dict], t: str,
 
 def build_carriers_html(info: dict, width: float = 702, base: float = 17,
                         fs: float = 13, row_h: float = 20,
-                        social: bool = False) -> tuple[str, int]:
+                        social: bool = False, compact: bool = False) -> tuple[str, int]:
     """Who-carries block: flag, name, member BEV share, 0–100% bar, share of
     the group's BEV total. Visual language matches the brand rows."""
     items = list(info.get("carriers") or [])
@@ -1132,8 +1132,8 @@ def build_carriers_html(info: dict, width: float = 702, base: float = 17,
     show_rest = rest >= 0.05
     logo_slot = 24 if not social else 36
     name_w = 120 if not social else 180
-    pct_w = 56 if not social else 72
-    bev_w = 56 if not social else 72
+    pct_w = 48 if compact else (56 if not social else 72)
+    bev_w = 48 if compact else (56 if not social else 72)
     style = (f'--ms-logo:{logo_slot}px;--ms-name:{name_w}px;--ms-pct:{pct_w}px;'
              f'--ms-row:{row_h:.0f}px')
     head = (
@@ -1185,6 +1185,10 @@ def build_carriers_html(info: dict, width: float = 702, base: float = 17,
             f'{esc(short)}</p>{head}{"".join(out)}</div>')
         height = 36 + 52 + 20 + n * row_h + max(0, n - 1) * 4
     else:
+        if compact:
+            through = mc.period_label(info["t"], long=True)
+            sub = ("Share of the group's battery-electric total, "
+                   f"12 months to {through}.")
         html = (
             f'<section class="fl-sec wc-list" style="{style}"><h2>Who carries it</h2>'
             f'<p class="fl-sub">{esc(sub)}</p>{head}{"".join(out)}</section>')
@@ -1252,7 +1256,7 @@ def build(slug: str, theme_href: str, logo_href: str = "../../assets/brands",
         fm_fl["mark_html"] = region_mark(slug, "fl")
         fm_sc["mark_html"] = region_mark(slug, "sc")
     fm_fl["compare_highlights"] = reference_points()
-    carriers_fl, _ = build_carriers_html(info, width=702, social=False)
+    carriers_fl, _ = build_carriers_html(info, width=702, social=False, compact=True)
     carriers_sc, sc_h = build_carriers_html(info, width=960, base=30, fs=20,
                                             row_h=28, social=True)
     fm_fl["carriers_html"] = carriers_fl

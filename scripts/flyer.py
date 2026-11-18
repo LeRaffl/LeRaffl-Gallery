@@ -162,6 +162,9 @@ def mix_points(rows: list[dict], years: int = 10) -> list[dict]:
 
 
 def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> str:
+    """Stacked trailing-share chart. An HTML grid, not a fixed-width SVG: the
+    plot column is fluid, so it fills the hero after fitIn lays the sheet
+    out wider than A4; the axis and the direct labels stay a fixed size."""
     if not points:
         return ""
     left, right, top, bottom = 26, 164, 20, 22
@@ -173,21 +176,18 @@ def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> st
                                    "Combustion + hybrids" if end.get("HEV") is None
                                    and end.get("PHEV") is not None else "Combustion"))
     right = max(right, int((longest + 6) * 6.2) + 22)
-    plot_w, plot_h = width - left - right, height - top - bottom
+    plot_h = height - top - bottom
     t0, t1 = points[0]["t"], points[-1]["t"]
 
-    def x_of(t: float) -> float:
-        return left + plot_w * (t - t0) / ((t1 - t0) or 1)
+    def x_pct(t: float) -> float:
+        return 100.0 * (t - t0) / ((t1 - t0) or 1)
 
     def y_of(v: float) -> float:
         return top + plot_h * (1 - max(0.0, min(100.0, v)) / 100)
 
-    parts = [
-        f'<text x="{left}" y="12" class="mix-t">Trailing 12-month share by powertrain</text>'
-    ]
+    plot, axis, years, labels_out = [], [], [], []
     base = [0.0] * len(points)
     labels = []
-    end = points[-1]
     names = dict(MIX_ORDER)
     names["HEV"] = "Full hybrid" if hev_full else "Hybrid"
     if end["PHEV"] is None:
@@ -202,46 +202,61 @@ def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> st
         if not any(values):
             continue
         upper = [b + v for b, v in zip(base, values)]
-        path = [f"M{x_of(points[0]['t']):.1f},{y_of(upper[0]):.1f}"]
-        path += [f"L{x_of(p['t']):.1f},{y_of(u):.1f}" for p, u in zip(points[1:], upper[1:])]
-        path += [f"L{x_of(p['t']):.1f},{y_of(b):.1f}" for p, b in zip(reversed(points), reversed(base))]
-        parts.append(f'<path d="{" ".join(path)} Z" fill="{mc.COLORS[key]}"/>')
+        path = [f"M{x_pct(points[0]['t']):.2f},{y_of(upper[0]):.1f}"]
+        path += [f"L{x_pct(p['t']):.2f},{y_of(u):.1f}" for p, u in zip(points[1:], upper[1:])]
+        path += [f"L{x_pct(p['t']):.2f},{y_of(b):.1f}" for p, b in zip(reversed(points), reversed(base))]
+        plot.append(f'<path d="{" ".join(path)} Z" fill="{mc.COLORS[key]}"/>')
         if end[key] and (end[key] >= 0.5 or key == "BEV"):
             labels.append([y_of(base[-1] + values[-1] / 2), key, names[key], end[key]])
         base = upper
     for mark in (0, 50, 100):
         y = y_of(mark)
-        parts.append(f'<text x="{left - 5}" y="{y + 3.5:.1f}" text-anchor="end" class="ax">{mark}</text>')
-    parts.append(f'<line x1="{left}" y1="{y_of(50):.1f}" x2="{left + plot_w}" '
-                 f'y2="{y_of(50):.1f}" stroke="#fff" stroke-opacity=".6"/>')
+        axis.append(f'<text x="{left - 5}" y="{y + 3.5:.1f}" text-anchor="end" class="ax">{mark}</text>')
+    plot.append(f'<line x1="0" y1="{y_of(50):.1f}" x2="100" y2="{y_of(50):.1f}" '
+                'stroke="#fff" stroke-opacity=".6"/>')
     year = math.ceil(t0)
     span = t1 - t0
     step = 1 if span <= 6 else 2
     while year <= t1:
-        if x_of(year) - left > 12 or year == t0:
-            parts.append(f'<text x="{x_of(year):.1f}" y="{height - 6}" text-anchor="middle" '
+        xp = x_pct(year)
+        if xp > 3 or year == t0 or abs(year - t0) < 1e-9:
+            anchor = "start" if xp < 2 else "end" if xp > 98 else "middle"
+            years.append(f'<text x="{xp:.2f}%" y="{height - 6}" text-anchor="{anchor}" '
                          f'class="ax">{year}</text>')
         year += step
     # Direct labels at the right edge, pushed apart so they never overlap.
     labels.sort()
     gap = 15
-    for i in range(1, len(labels)):
-        labels[i][0] = max(labels[i][0], labels[i - 1][0] + gap)
-    over = labels[-1][0] - (top + plot_h - 2) if labels else 0
-    if over > 0:
-        labels[-1][0] -= over
-        for i in range(len(labels) - 2, -1, -1):
-            labels[i][0] = min(labels[i][0], labels[i + 1][0] - gap)
+    if labels:
+        for i in range(1, len(labels)):
+            labels[i][0] = max(labels[i][0], labels[i - 1][0] + gap)
+        over = labels[-1][0] - (top + plot_h - 2)
+        if over > 0:
+            labels[-1][0] -= over
+            for i in range(len(labels) - 2, -1, -1):
+                labels[i][0] = min(labels[i][0], labels[i + 1][0] - gap)
     for y, key, name, value in labels:
-        x = left + plot_w + 8
-        parts.append(f'<rect x="{x}" y="{y - 5:.1f}" width="8" height="8" fill="{mc.COLORS[key]}"/>')
+        labels_out.append(f'<rect x="8" y="{y - 5:.1f}" width="8" height="8" fill="{mc.COLORS[key]}"/>')
         bold = ' class="strong"' if key == "BEV" else ""
-        parts.append(f'<text x="{x + 13}" y="{y + 3:.1f}"{bold}>{esc(name)} '
-                     f'{mc.share(value).replace(" %", "%")}</text>')
+        labels_out.append(f'<text x="21" y="{y + 3:.1f}"{bold}>{esc(name)} '
+                          f'{mc.share(value).replace(" %", "%")}</text>')
     label = (f"Share of new registrations by powertrain, trailing twelve months, "
              f"through {mc.period_label(end['period'])}.")
-    return (f'<svg class="fl-svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
-            f'role="img" aria-label="{esc(label)}">{"".join(parts)}</svg>')
+    title = '<text x="0" y="12" class="mix-t">Trailing 12-month share by powertrain</text>'
+    return (
+        f'<div class="fl-mix" style="--mix-lab:{right}px;height:{height}px" '
+        f'role="img" aria-label="{esc(label)}">'
+        f'<svg class="fl-svg mix-y" viewBox="0 0 {left} {height}" width="{left}" height="{height}" '
+        f'aria-hidden="true">{"".join(axis)}</svg>'
+        f'<div class="mix-mid">'
+        f'<svg class="fl-svg mix-plot" viewBox="0 0 100 {height}" preserveAspectRatio="none" '
+        f'aria-hidden="true">{"".join(plot)}</svg>'
+        f'<svg class="fl-svg mix-years" aria-hidden="true">{title}{"".join(years)}</svg>'
+        f'</div>'
+        f'<svg class="fl-svg mix-lab" viewBox="0 0 {right} {height}" width="{right}" height="{height}" '
+        f'aria-hidden="true">{"".join(labels_out)}</svg>'
+        f'</div>')
+
 
 
 # --------------------------------------------------------------------------
@@ -695,12 +710,15 @@ def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
     # Compare is now three strips and the locator sits in the title row,
     # so leftover brand slots only get a modest lift (not a hole, and not
     # a shrink on a full page).
-    mix += spare * 5
-    curve = 160 + spare * 8
+    # The mix is fluid in width; a little extra height keeps the plot from
+    # becoming a wide ribbon once it fills the hero. Spare is modest now
+    # that the mid-row holds brands / who-carries beside who-gained.
+    mix += 24 + spare * 2
+    curve = 160 + spare * 4
     if region:
         # Region briefs have no brand block; a short who-gained list should
         # not leave a gap above the footer.
-        curve += 18
+        curve += 12
     if not ttm:
         # No full 12-month window (Malta): no headline, who-gained or
         # compare strip, so the page is half empty. Give it to the charts.
@@ -863,8 +881,14 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                                "BEV + plug-in hybrid, 12 months"))
     facts_html = (f'<section><h2>In numbers</h2><div class="fl-facts">{"".join(facts[:4])}'
                   '</div></section>') if facts else ""
+    # Region "Who carries it" sits beside who-gained. Country brand lists
+    # stay full width: in a narrow column the 0–100 % bars collapse to slivers.
+    market_html = fm.get("carriers_html") or mstr.build_block(market, brand_mode, logo_href)
     two = ""
-    if bars and facts_html:
+    if bars and market_html and fm.get("region"):
+        two = f'<div class="fl-sec fl-two fl-two-wide">{bars}{market_html}</div>'
+        market_html = ""
+    elif bars and facts_html:
         two = f'<div class="fl-sec fl-two">{bars}{facts_html}</div>'
     elif bars or facts_html:
         two = f'<div class="fl-sec fl-one">{bars}{facts_html}</div>'
@@ -926,7 +950,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     return FLYER_TEMPLATE.format(
         country=esc(country), theme_href=theme_href, css=FLYER_CSS, flag=flag,
         through=esc(through), head=esc(head), follow=esc(follow), hero=hero,
-        loc=loc, two=two, market=fm.get("carriers_html") or mstr.build_block(market, brand_mode, logo_href),
+        loc=loc, two=two, market=market_html,
         curve=curve, foot=foot, compare=compare, slug=esc(slug),
         kicker=esc(kicker), w=SHEET_W, h=SHEET_H)
 
@@ -979,6 +1003,11 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .acea-stale{color:#9a3324;font-weight:600}
 .fh-ytd{margin-top:3px}
 .fh-mix{flex:1;min-width:0}
+.fh-mix .fl-mix,.fl-mix{width:100%;display:grid;
+  grid-template-columns:26px minmax(0,1fr) var(--mix-lab,164px);align-items:stretch}
+.mix-mid{position:relative;min-width:0;height:100%}
+.mix-mid > svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.mix-y,.mix-lab{display:block;overflow:visible}
 
 .fh-mix svg text.mix-t{font-size:10.5px;fill:#3a3935;font-weight:600;
   font-family:var(--font-ui),system-ui,sans-serif}
@@ -1047,6 +1076,9 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fm-note{font-size:10.5px;color:var(--muted);margin:6px 0 0}
 .fm-none{font-family:var(--font-display);font-size:15.5px;line-height:1.35;margin:6px 0 0}
 .fl-two{display:grid;grid-template-columns:1fr 236px;column-gap:28px}
+.fl-two-wide{grid-template-columns:1fr 1fr;column-gap:22px}
+.fl-two-wide .wc-list h2{font-size:16px}
+.fl-two-wide .fb-row,.fl-two-wide .fb-head{grid-template-columns:110px 1fr 44px 72px;column-gap:6px}
 .fl-facts{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;margin-top:6px}
 .ff{padding:6px 0 7px;border-top:1px solid var(--line)}
 .ff-n{font-family:var(--font-display);font-size:21px;font-weight:600;line-height:1.1;

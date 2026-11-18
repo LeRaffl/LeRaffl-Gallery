@@ -345,16 +345,23 @@ def base_line(ms: dict) -> str:
             f'of {mc.units(ms["units"])} battery-electric cars.')
 
 
-def build_block(ms: dict | None, mode: str, logo_href: str) -> str:
-    """The brief's section. `mode`: 'logos' or 'chips'."""
+def build_block(ms: dict | None, mode: str, logo_href: str,
+                compact: bool = False) -> str:
+    """The brief's section. `mode`: 'logos' or 'chips'.
+
+    `compact` is a tighter list: shorter heading, narrower columns, no
+    best-selling-model line. Ready if a later layout needs a narrow column.
+    """
     if not ms:
         return ""
     model = ""
-    if ms["model"]:
+    if ms["model"] and not compact:
         model = (f'<p class="ms-model">Best-selling model: <b>{esc(ms["model"]["name"])}</b>, '
                  f'{esc(_pct(ms["model"]["share"]))} of battery-electric cars.</p>')
+    heading = "Top brands" if compact else HEADING
+    klass = "fl-sec ms ms-compact" if compact else "fl-sec ms"
     return (
-        f'<section class="fl-sec ms"><h2>{esc(HEADING)}</h2>'
+        f'<section class="{klass}"><h2>{esc(heading)}</h2>'
         f'<p class="fl-sub">{esc(base_line(ms))}{esc(gap_note(ms))}</p>'
         f'<p class="ms-line"><span class="ms-kind ms-{ms["kind"]}">{esc(LABEL[ms["kind"]])}</span>'
         f'{esc(sentence(ms))}</p>'
@@ -391,4 +398,7 @@ CSS = """
   white-space:nowrap;color:#1a1a18;align-self:center}
 .ms-rest .ms-val{font-weight:600;color:#3a3935}
 .ms-model{font-size:12.5px;margin:6px 0 0;color:#3a3935}
+.ms-compact{--ms-logo:28px;--ms-name:88px;--ms-pct:42px;--ms-row:16px;--ms-logo-h:11px}
+.ms-compact .ms-line{font-size:13.5px;margin:0 0 6px}
+.ms-compact .ms-row{column-gap:8px}
 """

@@ -129,6 +129,7 @@ def test_region_brief_compares_as_box_plots():
     assert "<h2>How it compares" in brief and brief.count('class="fl-bx"') == 3
     assert "would be" in brief and "Fitted curve reaches 50%" in brief
     assert "Fitted curve reaches 80%" in brief
+    assert "fl-two-wide" in brief and brief.find("Who carries it") < brief.find("Where the curve points")
     assert social.count('class="sc-bx"') == 1 and "Fitted curve" not in social
     assert brief.count("a model, not a forecast") == 0
     assert "not an actual forecast" in brief

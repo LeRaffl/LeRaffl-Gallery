@@ -389,6 +389,7 @@ def test_flyer_mix_never_calls_a_rest_with_plug_ins_combustion():
     no_plug = _rows(30, TOTAL=lambda i: 100, BEV=lambda i: 10, HEV=lambda i: 10)
     svg = flyer.build_mix(flyer.mix_points(no_plug), False, 470, 146)
     assert ">Everything else 80.0%<" in svg and ">Combustion" not in svg
+    assert 'class="fl-mix"' in svg and 'mix-plot' in svg
 
 
 def test_flyer_says_when_the_dates_are_provisional():
