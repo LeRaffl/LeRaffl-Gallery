@@ -1064,6 +1064,8 @@ def load(slug: str) -> dict:
         "map_countries": [m["country"] for m in members],
         "mix_note": mix_note,
         "mix_note_long": mix_note_long,
+        # The group's own curve, for the 50 % year in "How it compares".
+        "curve_state": state,
     }
     return {
         "fm": fm,
@@ -1217,19 +1219,24 @@ def reference_points() -> list[dict]:
                    if path.is_file() else None)
             if not win:
                 continue
+            state = mc.model_state(mc.read_keyed("params.csv").get((name, "Whole")),
+                                   mc.load_bands(name))
             out.append({"name": name, "slug": slug, "share": win["share"],
-                        "end": win["end"], "kind": kind})
+                        "end": win["end"], "kind": kind,
+                        "year50": flyer.year_at_50(state)})
         else:
             info = load(slug)
             out.append({"name": name, "slug": slug, "share": info["share"],
                         "end": info["t"], "kind": kind,
-                        "coverage": info["coverage"]})
+                        "coverage": info["coverage"],
+                        "year50": flyer.year_at_50(info["fm"].get("curve_state"))})
     _REF_CACHE = out
     return out
 
 
 def build(slug: str, theme_href: str, logo_href: str = "../../assets/brands",
-          peers: list | None = None) -> tuple[str, str, dict]:
+          peers: list | None = None,
+          peer_years: list | None = None) -> tuple[str, str, dict]:
     """Return (flyer_html, social_html, info)."""
     info = load(slug)
     fm_fl = dict(info["fm"])
@@ -1247,9 +1254,12 @@ def build(slug: str, theme_href: str, logo_href: str = "../../assets/brands",
     fm_fl["carriers_html"] = carriers_fl
     fm_sc["carriers_social"] = (carriers_sc, sc_h)
     brief = flyer.build_flyer(fm_fl, info["rows"], info["shift"], info["figures"],
-                              None, None, theme_href, peers=peers or [], market=None)
+                              None, None, theme_href, peers=peers or [], market=None,
+                              peer_years=peer_years)
     social = social_card.build_social(fm_sc, info["rows"], info["figures"],
-                                      None, None, None, "list", theme_href, logo_href)
+                                      None, None, None, "list", theme_href, logo_href,
+                                      peers=peers or [],
+                                      highlights=fm_fl["compare_highlights"])
     return brief, social, info
 
 

@@ -6,6 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import region_card as rc
 import model_card as mc
+import flyer  # noqa: E402
 
 
 def member(name, w, months, share=10):
@@ -113,6 +114,20 @@ def test_reference_points_include_the_named_set():
     assert pts["Norway"]["share"] > 80
     assert pts["USA"]["share"] < 15
     assert pts["World"]["share"] < pts["EU"]["share"] < pts["China"]["share"]
+    # 50 % year for the compare box plot: the same fitted-curve rule as each brief.
+    assert pts["Norway"]["year50"] < pts["Germany"]["year50"] < pts["USA"]["year50"]
+    assert pts["EU"]["year50"] == flyer.year_at_50(rc.load("eu")["fm"]["curve_state"])
+
+
+def test_region_brief_compares_as_box_plots():
+    import build_source_pages as bsp
+    entries, _ = bsp.collect_entries()
+    params = bsp.load_params()
+    brief, social, _ = rc.build("eu", "t.css", peers=bsp.flyer_peers(entries, params),
+                                peer_years=bsp.flyer_peer_years(entries, params))
+    assert "<h2>How it compares" in brief and brief.count('class="fl-bx"') == 2
+    assert "would be" in brief and "Fitted curve reaches 50%" in brief
+    assert social.count('class="sc-bx"') == 1 and "Fitted curve" not in social
 
 
 def test_eu_and_northern_europe_split_phev_not_hev():

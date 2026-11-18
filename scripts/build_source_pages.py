@@ -2004,7 +2004,7 @@ def build_header(fm: dict, asof: str = "") -> str:
 
 
 def build_flyer_page(fm: dict, params: dict, peers: list | None = None,
-                     brand_mode: str = "chips") -> str:
+                     brand_mode: str = "chips", peer_years: list | None = None) -> str:
     """The one-page reader flyer, from the same figures as the source page."""
     fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
@@ -2016,7 +2016,8 @@ def build_flyer_page(fm: dict, params: dict, peers: list | None = None,
                              mc.read_keyed("weights.csv").get((country, "Whole")))
     return flyer.build_flyer(fm, rows, shift, figures, mc.model_state(whole, bands),
                              bands, "../../assets/theme.css", peers,
-                             market=market_structure.load(fm, rows), brand_mode=brand_mode)
+                             market=market_structure.load(fm, rows), brand_mode=brand_mode,
+                             peer_years=peer_years)
 
 
 def flyer_summary(fm: dict, params: dict) -> dict:
@@ -2046,6 +2047,21 @@ def flyer_peers(entries, params: dict) -> list[tuple[str, float]]:
         window = mc.ttm_window(mc.whole_rows(fm.get("data_file")))
         if window:
             out.append((fm["country"], window["share"]))
+    return out
+
+
+def flyer_peer_years(entries, params: dict) -> list[tuple[str, float]]:
+    """(country, year its fitted curve reaches 50 %) for every brief that
+    quotes one: the Gallery's Thresholds ranking at 50 %, under the same
+    quotable-fit rule as the brief's own "The curve reaches" block."""
+    out = []
+    for fm, _ in entries:
+        fm = apply_group_defaults(fm)
+        country = fm.get("country", "")
+        state = mc.model_state(params.get((country, "Whole")), mc.load_bands(country))
+        year = flyer.year_at_50(state)
+        if year is not None:
+            out.append((country, year))
     return out
 
 
@@ -2892,6 +2908,7 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     built = []
     peers = flyer_peers(entries, params)
+    peer_years = flyer_peer_years(entries, params)
     (OUT_DIR / "flyer").mkdir(exist_ok=True)
     (OUT_DIR / "flyer" / "index.html").write_text(
         flyer.build_index([flyer_summary(fm, params) for fm, _ in entries],
@@ -2901,7 +2918,7 @@ def main() -> int:
         (OUT_DIR / f"{fm['slug']}.html").write_text(page, encoding="utf-8")
         (OUT_DIR / "flyer").mkdir(exist_ok=True)
         (OUT_DIR / "flyer" / f"{fm['slug']}.html").write_text(
-            build_flyer_page(fm, params, peers), encoding="utf-8")
+            build_flyer_page(fm, params, peers, peer_years=peer_years), encoding="utf-8")
         whole = params.get((fm.get("country"), "Whole")) or {}
         # Same rule as the page itself: the directory card shows what we
         # actually hold, falling back to the model's period only if the CSV

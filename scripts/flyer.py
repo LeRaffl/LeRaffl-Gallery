@@ -340,183 +340,240 @@ def ordinal(n: int) -> str:
     return f"{n}{ {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
 
 
-def build_compare(country: str, peers: list[tuple[str, float]], width: int,
-                  highlights: list[dict] | None = None,
-                  subject_slug: str = "", is_region: bool = False,
-                  own_share: float | None = None) -> str:
-    """Every country in the gallery on one line, this one marked, plus a
-    handful of named reference points with flags (Norway, China, EU, …).
+def box_stats(values: list[float]) -> dict | None:
+    """Five-number summary: min, quartiles (linear interpolation between
+    order statistics, the common "type 7" rule), median and max."""
+    vals = sorted(v for v in values if v is not None and math.isfinite(v))
+    n = len(vals)
+    if n < 5:
+        return None
+
+    def q(p: float) -> float:
+        pos = (n - 1) * p
+        lo = int(math.floor(pos))
+        hi = min(lo + 1, n - 1)
+        return vals[lo] + (vals[hi] - vals[lo]) * (pos - lo)
+
+    return {"n": n, "min": vals[0], "q1": q(0.25), "median": q(0.5),
+            "q3": q(0.75), "max": vals[-1]}
+
+
+def year_at_50(state: dict | None) -> float | None:
+    """Year the brief's own fitted curve reaches 50 % (None when the brief
+    quotes no year: no quotable fit, or a curve that never gets there)."""
+    if not state or not state.get("quotable"):
+        return None
+    for c in state.get("crossings") or []:
+        if round(c.get("level", 0), 3) == 0.5:
+            y = c.get("fit")
+            return y if y is not None and math.isfinite(y) else None
+    return None
+
+
+CMP_LABEL_W = 176          # left column of each box-plot strip, px
+
+
+def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> str:
+    """One slim box plot: whiskers lowest to highest country, box = middle
+    half, line = median; a grey tick per country, flags for the reference
+    markets, the subject in green."""
+    lo, hi = metric["axis"]
+    stats = metric["stats"]
+    left, right = 10 * k, 10 * k
+    plot = width - left - right
+    flag_rows = (13 * k, 1 * k)
+    fw, fh = 15 * k, 10 * k
+    box_top, box_h = 27 * k, 11 * k
+    mid = box_top + box_h / 2
+    rug_top, rug_bot = box_top + box_h + 2 * k, box_top + box_h + 8 * k
+    height = round(rug_bot + 13 * k)
+
+    def x_of(v: float) -> float:
+        v = max(lo, min(hi, v))
+        return left + plot * (v - lo) / (hi - lo)
+
+    p = []
+    # Rug: one grey tick per ranked country.
+    for _, v in metric["values"]:
+        x = x_of(v)
+        p.append(f'<line x1="{x:.1f}" y1="{rug_top:.1f}" x2="{x:.1f}" y2="{rug_bot:.1f}" '
+                 f'stroke="#8d897c" stroke-opacity=".6" stroke-width="{1.1 * k:.2f}"/>')
+    # Whiskers, box, median.
+    x0, x1 = x_of(stats["min"]), x_of(stats["max"])
+    q1, q3, md = x_of(stats["q1"]), x_of(stats["q3"]), x_of(stats["median"])
+    grey = f'stroke="#8d897c" stroke-width="{k:.2f}"'
+    p.append(f'<line x1="{x0:.1f}" y1="{mid:.1f}" x2="{q1:.1f}" y2="{mid:.1f}" {grey}/>')
+    p.append(f'<line x1="{q3:.1f}" y1="{mid:.1f}" x2="{x1:.1f}" y2="{mid:.1f}" {grey}/>')
+    for x in (x0, x1):
+        p.append(f'<line x1="{x:.1f}" y1="{box_top + 3 * k:.1f}" x2="{x:.1f}" '
+                 f'y2="{box_top + box_h - 3 * k:.1f}" {grey}/>')
+    p.append(f'<rect x="{q1:.1f}" y="{box_top:.1f}" width="{max(q3 - q1, 1):.1f}" '
+             f'height="{box_h:.1f}" fill="#ebe8e1" {grey}/>')
+    p.append(f'<line x1="{md:.1f}" y1="{box_top:.1f}" x2="{md:.1f}" '
+             f'y2="{box_top + box_h:.1f}" stroke="#3b3a36" stroke-width="{2 * k:.2f}"/>')
+    # Axis labels.
+    for tick, text in metric["ticks"]:
+        anchor = "start" if tick == lo else "end" if tick == hi else "middle"
+        p.append(f'<text x="{x_of(tick):.1f}" y="{height - 2}" text-anchor="{anchor}" '
+                 f'class="ax">{esc(text)}</text>')
+
+    # Flags: the subject first, on the lower row; others avoid it, moving
+    # up a row (or, if both rows are taken there, staying as a bare tick).
+    taken: list[tuple[float, int]] = []
+    items = ([{**metric["own"], "subject": True}]
+             + [{**h, "subject": False} for h in metric["marks"]])
+    subject_parts: list[str] = []
+    for item in items:
+        out = subject_parts if item["subject"] else p
+        x = x_of(item["value"])
+        row = next((r for r in range(len(flag_rows))
+                    if not any(abs(px - x) < fw + 2 and pr == r for px, pr in taken)), None)
+        src = mc.flag_src(item.get("slug") or "", item["name"])
+        colour, sw = (("#2c7a50", 3.2 * k) if item["subject"] else ("#3b3a36", 1.4 * k))
+        top = (flag_rows[row] + fh + k) if (row is not None and src) else box_top - 6 * k
+        out.append(f'<line x1="{x:.1f}" y1="{top:.1f}" x2="{x:.1f}" y2="{rug_bot:.1f}" '
+                   f'stroke="{colour}" stroke-width="{sw:.2f}"><title>{esc(item["name"])}</title></line>')
+        if row is not None and src:
+            taken.append((x, row))
+            out.append(f'<image href="{esc(src)}" x="{x - fw / 2:.1f}" y="{flag_rows[row]:.1f}" '
+                       f'width="{fw:.1f}" height="{fh:.1f}"/>')
+    p.extend(subject_parts)     # the green mark sits on top of any neighbour
+    svg = (f'<svg class="{cls}-svg {cls}-cmp-svg" width="100%" height="{height}" role="img" '
+           f'aria-label="{esc(metric["aria"])}">{_x_to_pct("".join(p), width)}</svg>')
+    return (f'<div class="{cls}-bx"><div class="{cls}-bx-l"><b>{metric["title"]}</b>'
+            f'<span class="{cls}-bx-own">{metric["own_line"]}</span>'
+            f'<span>{metric["mid_line"]}</span></div>{svg}</div>')
+
+
+def _rank_of(own: float, values: list[float], higher_first: bool) -> int:
+    """1 + the number of countries strictly ahead of `own`."""
+    ahead = sum(1 for v in values if (v > own if higher_first else v < own))
+    return ahead + 1
+
+
+def compare_strips(country: str, peers: list[tuple[str, float]],
+                   highlights: list[dict] | None = None,
+                   subject_slug: str = "", is_region: bool = False,
+                   own_share: float | None = None,
+                   peer_years: list[tuple[str, float]] | None = None,
+                   own_year: float | None = None) -> tuple[list[dict], list[str], int]:
+    """Two of the Gallery's rankings as slim box plots across every ranked
+    country: BEV share of new cars over the last 12 months, and the year the
+    fitted S-curve reaches 50 % (the Thresholds ranking). The subject is
+    marked in green; Norway, China, EU, World, Germany and USA are flags.
 
     `peers` is (country, 12-month BEV share in percent) under the same
-    full-window rule as each brief. Region highlights must already carry
-    their weighted headline share. The subject is never also a highlight.
+    full-window rule as each brief; `peer_years` is (country, fitted 50 %
+    year) for every brief that quotes one. Region highlights carry their
+    weighted headline share and their own curve's year. The subject is
+    never also a highlight. The year strip is left out when the subject
+    quotes no year or fewer than 10 countries do.
     """
     own = own_share
     if own is None:
         own = next((v for name, v in peers if name == country), None)
     if own is None or len(peers) < 10:
+        return [], [], 0
+    if not is_region and not any(name == country for name, _ in peers):
+        return [], [], 0
+    named: list[str] = []
+
+    def marks_for(key: str) -> list[dict]:
+        out = []
+        for h in highlights or []:
+            v = h.get(key)
+            if h.get("name") == country or v is None or v != v or not math.isfinite(v):
+                continue
+            out.append({"name": h["name"], "slug": h.get("slug", ""), "value": v})
+            if h["name"] not in named:
+                named.append(h["name"])
+        return out
+
+    def place(rank: int, n: int) -> str:
+        if is_region:
+            return f"would be {ordinal(rank)} of {n}"
+        return f"<b>{ordinal(rank)} of {n}</b>"
+
+    pct = lambda v: mc.share(v).replace(" %", "%")  # noqa: E731
+    shares = [v for _, v in peers]
+    s_stats = box_stats(shares)
+    s_rank = _rank_of(own, shares, higher_first=True)
+    strips = [{
+        "title": "BEV share, last 12 months",
+        "own_line": f"{esc(country)} {pct(own)} · {place(s_rank, len(peers))}",
+        "mid_line": f"Middle of the field: {pct(s_stats['median'])}",
+        "values": peers, "stats": s_stats, "axis": (0.0, 100.0),
+        "ticks": [(t, f"{t:.0f}%") for t in (0, 25, 50, 75, 100)],
+        "own": {"name": country, "slug": subject_slug, "value": own},
+        "marks": marks_for("share"),
+        "aria": (f"{country}: BEV share {pct(own)}, "
+                 f"{'would be ' if is_region else ''}{ordinal(s_rank)} of {len(peers)} countries."),
+    }]
+    years = [(n, y) for n, y in (peer_years or []) if y is not None and math.isfinite(y)]
+    if own_year is None and not is_region:
+        own_year = next((y for n, y in years if n == country), None)
+    y_stats = box_stats([y for _, y in years]) if len(years) >= 10 else None
+    if own_year is not None and math.isfinite(own_year) and y_stats:
+        lo = 5 * math.floor(min(y_stats["min"], own_year) / 5)
+        hi = max(5 * math.ceil(max(y_stats["max"], own_year) / 5), lo + 20)
+        y_rank = _rank_of(own_year, [y for _, y in years], higher_first=False)
+        strips.append({
+            "title": "Fitted curve reaches 50%",
+            "own_line": (f"{esc(country)} {mc.year_text(own_year)} · "
+                         f"{place(y_rank, len(years))}"),
+            "mid_line": f"Middle of the field: {mc.year_text(y_stats['median'])}",
+            "values": years, "stats": y_stats, "axis": (float(lo), float(hi)),
+            "ticks": [(float(t), str(t)) for t in range(lo, hi + 1, 5)
+                      if t % 10 == 0 or t in (lo, hi)],
+            "own": {"name": country, "slug": subject_slug, "value": own_year},
+            "marks": marks_for("year50"),
+            "aria": (f"{country}: fitted curve reaches 50% in {mc.year_text(own_year)}, "
+                     f"{'would be ' if is_region else ''}{ordinal(y_rank)} of "
+                     f"{len(years)} countries, earliest first."),
+        })
+    return strips, named, len(years)
+
+
+def build_compare(country: str, peers: list[tuple[str, float]], width: int,
+                  highlights: list[dict] | None = None,
+                  subject_slug: str = "", is_region: bool = False,
+                  own_share: float | None = None,
+                  peer_years: list[tuple[str, float]] | None = None,
+                  own_year: float | None = None) -> str:
+    """The A4 "How it compares" section: the strips of compare_strips."""
+    strips, named, n_years = compare_strips(country, peers, highlights, subject_slug,
+                                            is_region, own_share, peer_years, own_year)
+    if not strips:
         return ""
-    ranked = sorted(peers, key=lambda item: -item[1])
-    rank = None
-    if not is_region and any(name == country for name, _ in peers):
-        rank = [name for name, _ in ranked].index(country) + 1
-    values = sorted(v for _, v in peers)
-    mid = len(values) // 2
-    median = values[mid] if len(values) % 2 else (values[mid - 1] + values[mid]) / 2
-    left, right, base = 10, 10, 76
-    plot = width - left - right
-    height = 98
-
-    def x_of(v: float) -> float:
-        return left + plot * max(0.0, min(100.0, v)) / 100
-
-    marks = []
-    for h in highlights or []:
-        if h.get("name") == country:
-            continue
-        share = h.get("share")
-        if share is None or share != share:
-            continue
-        marks.append(dict(h))
-
-    parts = [f'<line x1="{left}" y1="{base}" x2="{left + plot}" y2="{base}" stroke="#bdb9af"/>']
-    for tick in (0, 25, 50, 75, 100):
-        anchor = "start" if tick == 0 else "end" if tick == 100 else "middle"
-        parts.append(f'<text x="{x_of(tick):.1f}" y="{base + 14}" text-anchor="{anchor}" '
-                     f'class="ax">{tick}%</text>')
-    for name, v in peers:
-        if name != country:
-            parts.append(f'<line x1="{x_of(v):.1f}" y1="{base - 8}" x2="{x_of(v):.1f}" '
-                         f'y2="{base}" stroke="#8d897c" stroke-opacity=".55" stroke-width="1.3"/>')
-    peer_names = {name for name, _ in peers}
-    for h in marks:
-        if h["name"] not in peer_names:
-            x = x_of(h["share"])
-            parts.append(f'<line x1="{x:.1f}" y1="{base - 8}" x2="{x:.1f}" '
-                         f'y2="{base}" stroke="#8d897c" stroke-width="1.6"/>')
-
-    fw, fh = 18, 12
-    # Flags stack upward when their slots would overlap.
-    flag_items = ([{"name": country, "share": own, "slug": subject_slug, "subject": True}]
-                  + [{**h, "subject": False} for h in marks])
-    flag_items.sort(key=lambda n: n["share"])
-    placed_flags: list[tuple[float, float]] = []
-    for item in flag_items:
-        x = x_of(item["share"])
-        fy = base - 10 - fh
-        while any(abs(px - x) < fw + 2 and abs(py - fy) < fh + 2 for px, py in placed_flags):
-            fy -= fh + 4
-        item["fx"], item["fy"] = x, fy
-        placed_flags.append((x, fy))
-        src = mc.flag_src(item.get("slug") or "", item["name"])
-        if src:
-            parts.append(f'<image href="{esc(src)}" x="{x - fw/2:.1f}" y="{fy:.1f}" '
-                         f'width="{fw}" height="{fh}"/>')
-
-    xo = x_of(own)
-    parts.append(f'<line x1="{xo:.1f}" y1="{base - 16}" x2="{xo:.1f}" y2="{base + 1}" '
-                 'stroke="#2c7a50" stroke-width="3.2"/>')
-
-    def _tw(text: str, heavy: bool = False) -> float:
-        return (7.4 if heavy else 6.2) * len(text) + 4
-
-    boxes: list[tuple[float, float, float, float]] = []
-
-    def box_of(text, lx, y, anchor, heavy):
-        w = _tw(text, heavy)
-        if anchor == "start":
-            return (lx, y - 11, lx + w, y + 2)
-        if anchor == "end":
-            return (lx - w, y - 11, lx, y + 2)
-        return (lx - w / 2, y - 11, lx + w / 2, y + 2)
-
-    def free(box, pad=6):
-        def ov(a, b):
-            return not (a[2] + pad < b[0] or b[2] + pad < a[0]
-                        or a[3] + pad < b[1] or b[3] + pad < a[1])
-        return box[0] >= 2 and box[2] <= width - 2 and not any(ov(box, b) for b in boxes)
-
-    def draw_label(text, lx, y, anchor, heavy=False):
-        box = box_of(text, lx, y, anchor, heavy)
-        boxes.append(box)
-        klass = "strong" if heavy else "hl"
-        parts.append(
-            f'<text x="{lx:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
-            f'class="{klass}" stroke="#fdfdfc" stroke-width="3" '
-            f'paint-order="stroke">{esc(text)}</text>')
-
-    nodes = ([{"name": country, "share": own, "text":
-               f"{country} {mc.share(own).replace(' %', '%')}", "heavy": True,
-               "x": xo}]
-             + [{"name": h["name"], "share": h["share"],
-                 "text": f"{h['name']} {h['share']:.0f}%", "heavy": False,
-                 "x": x_of(h["share"])} for h in marks])
-    nodes.sort(key=lambda n: n["share"])
-    # Clusters of points closer than 10 pts share a vertical stack.
-    clusters: list[list[dict]] = []
-    for n in nodes:
-        if clusters and n["share"] - clusters[-1][-1]["share"] < 10:
-            clusters[-1].append(n)
-        else:
-            clusters.append([n])
-
-    slots = [(16, "end"), (16, "start"), (30, "end"), (30, "start"),
-             (44, "end"), (44, "start")]
-    for cluster in clusters:
-        # Subject in a cluster keeps the first row, on the side facing
-        # the more open side of the scale (away from the cluster mean).
-        mean = sum(n["share"] for n in cluster) / len(cluster)
-        ordered = sorted(cluster, key=lambda n: (not n["heavy"], n["share"]))
-        used = 0
-        for n in ordered:
-            placed = False
-            # Try preferred side first: away from the cluster centre,
-            # or, for an isolated point, away from the edges.
-            want_end = n["x"] > x_of(mean) if len(cluster) > 1 else n["x"] > width * 0.55
-            cand = (slots[1:] + slots[:1]) if not want_end else slots[:]
-            # Isolated points (cluster of 1) prefer a single top row.
-            if len(cluster) == 1:
-                cand = ([(16, "start"), (16, "end"), (30, "start"), (30, "end")]
-                        if not want_end else
-                        [(16, "end"), (16, "start"), (30, "end"), (30, "start")])
-            for y, anchor in cand:
-                lx = n["x"] + (12 if anchor == "start" else -12)
-                if free(box_of(n["text"], lx, y, anchor, n["heavy"])):
-                    draw_label(n["text"], lx, y, anchor, n["heavy"])
-                    placed = True
-                    break
-            if not placed:
-                # Fall back to the next free slot, no dumping on one point.
-                for y, anchor in slots:
-                    lx = n["x"] + (12 if anchor == "start" else -12)
-                    if free(box_of(n["text"], lx, y, anchor, n["heavy"])):
-                        draw_label(n["text"], lx, y, anchor, n["heavy"])
-                        placed = True
-                        break
-            if not placed:
-                draw_label(n["text"], n["x"], 12, "middle", n["heavy"])
-
+    plot_w = width - CMP_LABEL_W
+    body = "".join(_box_strip(m, plot_w) for m in strips)
+    sub = ("Every country in the gallery: box = middle half, dark line = middle of the "
+           "field, whiskers = lowest to highest, one grey tick per country.")
+    if len(strips) > 1:
+        sub += f" Years: the {n_years} with a quoted curve, earliest first."
     if is_region:
-        label = (f"{country} compared with individual countries by BEV share "
-                 f"of new cars, last 12 months.")
-        named = [h["name"] for h in marks]
-        sub = (f'BEV share of new cars, last 12 months. Each line is one country. '
-               f'The group figure is the weighted headline on this brief.')
-        if named:
-            sub += f' Highlighted: {_and_list(named)}.'
-    else:
-        label = (f"{country} ranks {ordinal(rank)} of {len(peers)} countries by BEV share.")
-        sub = (f'<b>{ordinal(rank)} of {len(peers)}</b> countries by BEV share of '
-               f'new cars, last 12 months. Each line is one country; the middle one is at '
-               f'{mc.share(median).replace(" %", "%")}.')
-        named = [h["name"] for h in marks]
-        if named:
-            sub += f' Highlighted: {_and_list(named)}.'
-    svg = (f'<svg class="fl-svg fl-cmp-svg" width="100%" height="{height}" '
-           f'role="img" aria-label="{esc(label)}">{_x_to_pct("".join(parts), width)}</svg>')
-    return (
-        '<section class="fl-sec fl-cmp"><h2>How it compares</h2>'
-        f'<p class="fl-sub">{sub}</p>{svg}</section>')
+        sub += " The group figure is this brief's weighted headline."
+    if named:
+        sub += f" Flags: {_and_list(named)}."
+    return ('<section class="fl-sec fl-cmp"><h2>How it compares</h2>'
+            f'<p class="fl-sub">{sub}</p>{body}</section>')
+
+
+def build_compare_social(country: str, peers: list[tuple[str, float]],
+                         highlights: list[dict] | None = None, subject_slug: str = "",
+                         is_region: bool = False, own_share: float | None = None,
+                         width: int = 960, label_w: int = 300) -> tuple[str, int]:
+    """The mini card's single strip: BEV share, last 12 months, as on the A4
+    brief. Returns (html, height in px) or ("", 0)."""
+    strips, _, _ = compare_strips(country, peers, highlights, subject_slug,
+                                  is_region, own_share)
+    if not strips:
+        return "", 0
+    m = dict(strips[0])
+    m["mid_line"] = f"Box: middle half of {len(peers)} countries"
+    k = 1.7
+    html = _box_strip(m, width - label_w, k=k, cls="sc")
+    return f'<div class="sc-cmp">{html}</div>', round((27 + 11 + 8 + 13) * k) + 14
 
 
 def _x_to_pct(svg: str, width: float) -> str:
@@ -535,6 +592,9 @@ def _x_to_pct(svg: str, width: float) -> str:
         return f'<svg x="{pct(str(x + w / 2))}" overflow="visible">{rest}</svg>'
 
     svg = re.sub(r'<image [^>]*?x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)"[^>]*/>', image, svg)
+    svg = re.sub(r'(<rect\b[^>]*?) x="([-\d.]+)"([^>]*?) width="([\d.]+)"',
+                 lambda m: f'{m.group(1)} x="{pct(m.group(2))}"{m.group(3)} width="{pct(m.group(4))}"',
+                 svg)
     svg = re.sub(r'(<(?:line|text)\b[^>]*?) (x1|x2|x)="([-\d.]+)"',
                  lambda m: f'{m.group(1)} {m.group(2)}="{pct(m.group(3))}"', svg)
     # a second pass for the second coordinate on the same line element
@@ -596,7 +656,8 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 state: dict | None, bands: dict | None, theme_href: str,
                 peers: list[tuple[str, float]] | None = None,
                 market: dict | None = None, brand_mode: str = "chips",
-                logo_href: str = "../../assets/brands") -> str:
+                logo_href: str = "../../assets/brands",
+                peer_years: list[tuple[str, float]] | None = None) -> str:
     country = fm.get("country", "")
     slug = fm.get("slug", "")
     hev_full = fm.get("hev_split") is True
@@ -793,7 +854,9 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     compare = build_compare(country, peers or [], INNER_W,
                             highlights=highlights, subject_slug=slug,
                             is_region=bool(fm.get("region")),
-                            own_share=own_share)
+                            own_share=own_share, peer_years=peer_years,
+                            own_year=year_at_50(state if state is not None
+                                                else fm.get("curve_state")))
 
     kicker = ("Region brief · the shift to battery-electric cars"
               if fm.get("region") else
@@ -935,7 +998,13 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fl-qrbox{flex:none;display:block;text-align:center;font-size:8.5px;line-height:1.25;
   color:var(--muted);text-decoration:none;width:84px}
 .fl-qr{display:block;margin:0 auto 3px}
-.fl-cmp .fl-sub{margin-bottom:0}
+.fl-cmp .fl-sub{margin-bottom:2px}
+.fl-bx{display:grid;grid-template-columns:176px 1fr;align-items:end;column-gap:0}
+.fl-bx-l{display:flex;flex-direction:column;font-size:10.5px;line-height:1.28;color:var(--muted);
+  padding-bottom:12px}
+.fl-bx-l b{color:var(--text);font-size:11px}
+.fl-bx-own{color:#2c7a50;font-weight:600}
+.fl-bx-own b{color:#2c7a50}
 .fl-cmp .fl-sub b{color:var(--text)}
 .fl-foot p{margin:0 0 3px}
 .fl-foot a{color:inherit}

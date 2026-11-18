@@ -415,24 +415,68 @@ def test_flyer_qr_compare_and_fractions():
     assert qr == flyer.build_qr("https://example.org/x")           # byte-stable
     peers = [(f"C{i}", float(i)) for i in range(1, 21)]
     html = flyer.build_compare("C18", peers, 700)
-    assert "<b>3rd of 20</b>" in html and "middle one is at 10.5%" in html
+    assert "<b>3rd of 20</b>" in html and "Middle of the field: 10.5%" in html
+    assert "BEV share, last 12 months" in html and "Fitted curve reaches 50%" not in html
     assert flyer.build_compare("Nowhere", peers, 700) == ""
     assert flyer.build_compare("C1", peers[:5], 700) == ""       # too few to compare
-    # Named highlights, minus the subject, appear with flags omitted if missing.
+    # Named highlights, minus the subject, appear as flagged ticks and in the legend.
     html = flyer.build_compare(
         "C18", peers, 700,
         highlights=[{"name": "C20", "slug": "c20", "share": 20.0},
                     {"name": "C18", "slug": "c18", "share": 18.0},
                     {"name": "C5", "slug": "c5", "share": 5.0}])
-    assert "C20 20%" in html and "C5 5%" in html
-    assert "class=\"hl\">C18" not in html
+    assert "Flags: C20 and C5." in html
+    assert "<title>C20</title>" in html and html.count("<title>C18</title>") == 1
     assert "C18 18.0%" in html
+    # The 50 % year strip: earliest first, only with the subject's own year.
+    years = [(f"C{i}", 2020.0 + i) for i in range(1, 21)]
+    html = flyer.build_compare("C18", peers, 700, peer_years=years)
+    assert "Fitted curve reaches 50%" in html and "C18 2038 · <b>18th of 20</b>" in html
+    assert "Years: the 20 with a quoted curve, earliest first." in html
+    no_year = [(n, y) for n, y in years if n != "C18"]
+    assert "Fitted curve reaches 50%" not in flyer.build_compare("C18", peers, 700,
+                                                                 peer_years=no_year)
+    # A region is placed among the countries, not ranked as one.
+    html = flyer.build_compare("Group", peers, 700, is_region=True, own_share=12.5,
+                               peer_years=years, own_year=2029.5)
+    assert "would be 9th of 20" in html and "Group 2029 · would be 10th of 20" in html
+    html, h = flyer.build_compare_social("C18", peers, [{"name": "C5", "slug": "c5", "share": 5.0}])
+    assert "sc-bx" in html and "<b>3rd of 20</b>" in html and h > 0
+    assert "Fitted curve" not in html
+    assert flyer.build_compare_social("Nowhere", peers) == ("", 0)
     assert [flyer.ordinal(n) for n in (1, 2, 3, 4, 11, 12, 21, 22)] == [
         "1st", "2nd", "3rd", "4th", "11th", "12th", "21st", "22nd"]
     fig = lambda s: {"ttm": {"share": s, "delta": None, "end": "2026-10"}}  # noqa: E731
     assert flyer.verdict("X", fig(39.9), None)[0] == "About 2 in 5 new cars are battery electric."
     assert flyer.verdict("X", fig(33.0), None)[0] == "About 1 in 3 new cars is battery electric."
     assert flyer.verdict("X", fig(50.3), None)[0] == "About half of new cars are battery electric."
+
+
+def test_box_stats_quartiles_and_ranks():
+    st = flyer.box_stats([5, 1, 3, 2, 4])
+    assert (st["min"], st["q1"], st["median"], st["q3"], st["max"], st["n"]) == (1, 2, 3, 4, 5, 5)
+    st = flyer.box_stats([float(i) for i in range(1, 21)])           # type-7 quartiles
+    assert (st["q1"], st["median"], st["q3"]) == (5.75, 10.5, 15.25)
+    assert flyer.box_stats([1, 2, float("nan"), 3, 4]) is None       # fewer than 5 real values
+    assert flyer._rank_of(30, [10, 30, 50], higher_first=True) == 2
+    assert flyer._rank_of(2030, [2025, 2030, 2040], higher_first=False) == 2
+    state = {"quotable": True, "crossings": [{"level": 0.2, "fit": 2024.1},
+                                             {"level": 0.5, "fit": 2031.4}]}
+    assert flyer.year_at_50(state) == 2031.4
+    assert flyer.year_at_50({**state, "quotable": False}) is None
+    assert flyer.year_at_50({"quotable": True, "crossings": [
+        {"level": 0.5, "fit": float("inf")}]}) is None
+
+
+def test_compare_years_follow_the_quotable_fit_rule():
+    entries, _ = bsp.collect_entries()
+    params = bsp.load_params()
+    years = dict(bsp.flyer_peer_years(entries, params))
+    assert len(years) >= 10
+    for fm, _ in entries:
+        fm = bsp.apply_group_defaults(fm)
+        state = mc.model_state(params.get((fm["country"], "Whole")), mc.load_bands(fm["country"]))
+        assert (fm["country"] in years) == (flyer.year_at_50(state) is not None)
 
 
 def test_flyer_draws_no_curve_for_a_fit_without_dates():

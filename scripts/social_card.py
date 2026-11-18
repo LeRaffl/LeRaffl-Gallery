@@ -42,7 +42,9 @@ def x_range(rows: list[dict], state: dict | None) -> tuple[float, float]:
 
 def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
                  bands: dict | None, market: dict | None, mode: str,
-                 theme_href: str, logo_href: str) -> str:
+                 theme_href: str, logo_href: str,
+                 peers: list[tuple[str, float]] | None = None,
+                 highlights: list[dict] | None = None) -> str:
     country = fm.get("country", "")
     slug = fm.get("slug", "")
     through = mc.period_label(rows[-1]["period"], long=True) if rows else ""
@@ -112,7 +114,19 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
         fixed += 30
     if fm.get("acea_social") and ttm:
         fixed += 26   # ACEA's EU HEV line in the glance (EU card)
-    chart_h = int(max(300, H - fixed - market_h - 8))
+    # One box-plot strip, as on the A4 brief: BEV share, last 12 months.
+    cmp_html, cmp_h = "", 0
+    if peers:
+        if highlights is None:
+            try:
+                import region_card as _rc
+                highlights = _rc.reference_points()
+            except Exception:
+                highlights = []
+        cmp_html, cmp_h = flyer.build_compare_social(
+            country, peers, highlights, slug, is_region=bool(fm.get("region")),
+            own_share=ttm.get("share") if ttm else None, width=INNER)
+    chart_h = int(max(300, H - fixed - market_h - cmp_h - 8))
     curve = ""
     if fm.get("region_curve"):
         svg, legend = fm["region_curve"](INNER, chart_h, 58)
@@ -144,7 +158,7 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
 <body><div class="sc">
   <header class="sc-top">{flag}<div class="sc-name"><h1>{esc(country)}</h1>
     <div class="sc-thr">through {esc(through)}</div></div>{qr}</header>
-  {hero}{curve}{market_html}
+  {hero}{curve}{cmp_html}{market_html}
   <footer class="sc-foot"><div class="sc-foot-row"><div>{esc(src)}</div>
     <div><b>{esc(url)}</b> · @LeRaffl</div></div>{cov}
     <div class="sc-gen">{esc(gen)}</div></footer>
@@ -200,6 +214,14 @@ html,body{margin:0;background:#fdfdfc}
 .sc .wc-list .wc-row + .wc-row{margin-top:4px}
 .sc .wc-bev{text-align:right;font-variant-numeric:tabular-nums;color:#55534c;font-size:18px}
 .sc-curve{margin-top:12px;flex-shrink:0}
+.sc-cmp{margin-top:14px;flex-shrink:0}
+.sc-bx{display:grid;grid-template-columns:300px 1fr;align-items:end}
+.sc-bx-l{display:flex;flex-direction:column;font-size:17px;line-height:1.3;color:#77746c;
+  padding-bottom:20px}
+.sc-bx-l b{color:#1a1a18;font-size:18px}
+.sc-bx-own{color:#2c7a50;font-weight:600}
+.sc-bx-own b{color:#2c7a50}
+.sc-svg text.ax{fill:#77746c;font-size:16px;font-family:var(--font-ui),sans-serif}
 .sc-curve .curve{width:960px;display:block;height:auto}
 .sc-curve .curve text{font-size:16px;fill:#77746c;font-family:var(--font-ui),sans-serif}
 .cv-grid{stroke:#e4e2dd;stroke-width:1}.cv-ci{fill:#3d9a68;fill-opacity:.2}
