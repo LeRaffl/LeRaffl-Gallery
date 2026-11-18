@@ -121,12 +121,18 @@ def test_eu_and_northern_europe_split_phev_not_hev():
         assert info["mix_members"] == info["contributors"]
         assert "PHEV" in info["mix_bands"] and "HEV" not in info["mix_bands"]
         keys = [r["key"] for r in info["shift"]["rows"]]
-        assert keys == ["BEV", "PHEV", "REST"]
+        # National split has no HEV; the EU brief adds ACEA's (its own source).
+        assert keys == (["BEV", "PHEV", "HEV", "REST"] if slug == "eu" else ["BEV", "PHEV", "REST"])
+        assert all(r.get("source") == "ACEA" for r in info["shift"]["rows"] if r["key"] == "HEV")
         # Headline BEV and the mix stack agree, and empty HEV was not a 0.
         bev = next(r for r in info["shift"]["rows"] if r["key"] == "BEV")
         phev = next(r for r in info["shift"]["rows"] if r["key"] == "PHEV")
         rest = next(r for r in info["shift"]["rows"] if r["key"] == "REST")
-        assert abs(bev["after"] + phev["after"] + rest["after"] - 100) < 1e-9
+        assert abs(sum(r["after"] for r in info["shift"]["rows"]) - 100) < 1e-9
+        # The mix stack (three-way) still matches: rest + ACEA HEV = its rest.
+        mix_rest = 100 - bev["after"] - phev["after"]
+        hev = sum(r["after"] for r in info["shift"]["rows"] if r["key"] == "HEV")
+        assert abs(rest["after"] + hev - mix_rest) < 1e-9
         assert abs(bev["after"] - info["share"]) < 1e-9
         assert info["fm"]["region_mix_points"][-1]["PHEV"] is not None
         assert info["fm"]["region_mix_points"][-1]["HEV"] is None
@@ -202,15 +208,23 @@ def test_acea_ttm_window_and_delta():
         assert a["window"] == "Oct 2025–Sep 2026", a["window"]
         ok = rc.acea_for_brief("2026-10", ref)
         assert ok["lag"] == 1 and not ok["stale"]
-        row = rc.acea_shift_row(ok)
-        assert row["key"] == "HEV" and abs(row["after"] - 36) < 1e-9
-        note = rc.acea_note(ok)
-        assert "HEV from ACEA (EU, Oct 2025–Sep 2026 vs 12 months before), full + mild hybrids" in note
-        assert "not an extra row" in note and "Oct 2025–Sep 2026" in rc.acea_head(ok)
-        assert "acea-stale" not in note
+        shift = {"rows": [
+            {"key": "BEV", "label": "Battery electric", "before": 16, "after": 24, "delta": 8},
+            {"key": "PHEV", "label": "Plug-in hybrid", "before": 9, "after": 10, "delta": 1},
+            {"key": "REST", "label": "Combustion + hybrids", "before": 75, "after": 66, "delta": -9}]}
+        four = rc.with_acea_hev(shift, ok)
+        assert [r["key"] for r in four["rows"]] == ["BEV", "PHEV", "HEV", "REST"]
+        hev, rest = four["rows"][2], four["rows"][3]
+        assert hev["source"] == "ACEA" and abs(hev["after"] - 36) < 1e-9 and abs(hev["before"] - 30) < 1e-9
+        assert rest["label"] == "Petrol, diesel & other" and "hybrid" not in rest["label"].lower()
+        assert abs(rest["after"] - 30) < 1e-9 and abs(rest["before"] - 45) < 1e-9
+        assert abs(sum(r["delta"] for r in four["rows"])) < 1e-9
+        assert rc.acea_bars_note(ok) == "HEV from ACEA, BEV and PHEV from national data."
+        # A split that already has HEV, or no ACEA figure: left alone.
+        assert rc.with_acea_hev(four, ok) is four and rc.with_acea_hev(shift, None) is shift
         line = rc.acea_line(ok, social=True)
         assert "ACEA, EU · Oct 2025–Sep 2026" in line and "Hybrids (HEV): 36.0" in line
-        assert rc.acea_line(None) == "" and rc.acea_note(None) == "" and rc.acea_shift_row(None) is None
+        assert rc.acea_line(None) == "" and rc.acea_bars_note(None) == ""
 
 
 def test_acea_full_window_rule():
@@ -237,7 +251,7 @@ def test_acea_staleness_guard():
             old = rc.acea_for_brief("2026-12", ref)
         assert old["stale"] and old["lag"] == 3 and "WARNING" in err.getvalue()
         # On the page, not only in the log.
-        assert "Latest ACEA month is 3 months before the data above" in rc.acea_note(old)
+        assert "Latest ACEA month is 3 months before the data above" in rc.acea_bars_note(old)
 
 
 def test_acea_ytd_file_still_reads():
@@ -246,11 +260,11 @@ def test_acea_ytd_file_still_reads():
 
 
 def test_every_region_split_adds_up():
-    # National rows: one member set, one denominator -> ±0 pts and 100 %.
-    # The EU brief's ACEA HEV row is not one of them (it sits below a
-    # divider, see flyer.build_bars(extra=...)).
+    # One split, one denominator: ±0 pts and 100 %. On the EU brief that
+    # includes ACEA's HEV row (the rest is 100 − BEV − PHEV − HEV).
     import contextlib, io, re
     import flyer
+    seen_acea = False
     for slug in rc.REGION_LABELS:
         with contextlib.redirect_stderr(io.StringIO()):
             try:
@@ -261,21 +275,25 @@ def test_every_region_split_adds_up():
         if not shift:
             continue
         rows = flyer.split_rows(shift)
-        assert all(r["key"] != "HEV" or "ACEA" not in r.get("source", "") for r in rows)
         assert abs(sum(r["delta"] for r in rows)) < 0.05, (slug, rows)
         assert abs(sum(r["after"] for r in rows) - 100) < 0.05, (slug, rows)
+        assert abs(sum(r["before"] for r in rows) - 100) < 0.05, (slug, rows)
+        if any(r.get("source") == "ACEA" for r in rows):
+            seen_acea = True
+            assert slug == "eu" and [r["key"] for r in rows] == ["BEV", "PHEV", "HEV", "REST"]
+            assert "hybrid" not in rows[-1]["label"].lower()
+            assert info["fm"]["bars_note"].startswith("HEV from ACEA, BEV and PHEV from national data.")
         # BEV in the split is the headline BEV whenever the split runs on
         # the headline member set.
         if info["mix_members"] == info["contributors"]:
             assert abs(rows[0]["after"] - info["share"]) < 1e-6, slug
-        extra = [info["fm"]["acea_shift_row"]] if info["fm"].get("acea_shift_row") else []
-        html = flyer.build_bars(shift, extra=extra, extra_head="x")
-        top = html.split('class="fb-sep"')[0]
+        html = flyer.build_bars(shift)
         pp = [0.0 if t == "±0" else float(t.replace("−", "-"))
-              for t in re.findall(r'class="fb-pp">([^<]*)<', top)]
-        assert abs(sum(pp)) <= 0.05 * len(pp) + 1e-9, (slug, pp)
-        if extra:
-            assert html.count('fb-ext') == 1 and 'class="fb-sep"' in html
+              for t in re.findall(r'class="fb-pp">([^<]*)<', html)]
+        now = [float(t.replace(" %", "")) for t in re.findall(r'class="fb-now">([^<]*)<', html)]
+        tol = 0.05 * len(pp) + 1e-9
+        assert abs(sum(pp)) <= tol and abs(sum(now) - 100) <= tol, (slug, pp, now)
+    assert seen_acea, "EU brief lost its ACEA HEV row"
 
 
 def test_repo_acea_figure_is_current():

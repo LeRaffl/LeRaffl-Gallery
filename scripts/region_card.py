@@ -170,33 +170,40 @@ def acea_for_brief(t: str, path: Path = ACEA_EU_MONTHLY) -> dict | None:
     return acea
 
 
-def acea_shift_row(acea: dict | None) -> dict | None:
-    """The HEV row for "Who gained, who lost": ACEA's window, not ours."""
-    if not acea:
-        return None
-    return {"key": "HEV", "label": "Hybrids (HEV)", "delta": acea["hev_delta"],
-            "after": acea["hev"], "before": acea["hev_prior"], "source": "ACEA"}
+REST_WITHOUT_HEV = "Petrol, diesel & other"
 
 
-def acea_note(acea: dict | None) -> str:
-    """Under the bars: which window and whose count the HEV row is."""
+def with_acea_hev(shift: dict | None, acea: dict | None) -> dict | None:
+    """EU brief: BEV and PHEV from national data, HEV from ACEA, and the rest
+    as 100 − BEV − PHEV − HEV in each window, so the four rows add up to
+    100 % and ±0 pts. ACEA's window ends one month earlier and counts all 27
+    members (the footnote says so). Unchanged when the split already has an
+    HEV row or a row other than BEV/PHEV/REST."""
+    if not shift or not acea:
+        return shift
+    keys = [r["key"] for r in shift["rows"]]
+    if "HEV" in keys or not set(keys) <= {"BEV", "PHEV", "REST"} or "REST" not in keys:
+        return shift
+    named = [r for r in shift["rows"] if r["key"] != "REST"]
+    hev = {"key": "HEV", "label": "Hybrids (HEV)", "source": "ACEA",
+           "after": acea["hev"], "before": acea["hev_prior"], "delta": acea["hev_delta"]}
+    rest = {"key": "REST", "label": REST_WITHOUT_HEV}
+    for w in ("after", "before"):
+        rest[w] = 100 - sum(r[w] for r in named) - hev[w]
+    rest["delta"] = rest["after"] - rest["before"]
+    if min(rest["after"], rest["before"]) < 0:
+        return shift   # ACEA's HEV larger than our rest: do not draw that
+    return {**shift, "rows": named + [hev, rest]}
+
+
+def acea_bars_note(acea: dict | None) -> str:
+    """The one note under the EU bars."""
     if not acea:
         return ""
-    stale = ""
+    note = "HEV from ACEA, BEV and PHEV from national data."
     if acea.get("stale"):
-        stale = (f' <span class="acea-stale">Latest ACEA month is {acea.get("lag")} '
-                 'months before the data above.</span>')
-    return (f'<p class="fl-sub fl-acea-note">HEV from ACEA (EU, {esc(acea["window"])} '
-            f'vs 12 months before), full + mild hybrids: already inside "Combustion + '
-            f'hybrids", not an extra row. The rows above the line are members\' national '
-            f'data and add up to 100 % and ±0 pts.{stale}</p>')
-
-
-def acea_head(acea: dict | None) -> str:
-    """Caption on the divider above the ACEA row."""
-    if not acea:
-        return ""
-    return f"From ACEA · EU27 · {acea['window']} · not part of the split above"
+        note += f" Latest ACEA month is {acea.get('lag')} months before the data above."
+    return note
 
 
 def acea_line(acea: dict | None, social: bool = False) -> str:
@@ -1029,9 +1036,12 @@ def load(slug: str) -> dict:
     acea = acea_for_brief(t) if slug == "eu" else None
     scope_note = (long_note + (" " + mix_note_long if mix_note_long else "")).strip()
     if acea:
-        scope_note += (f" HEV row: ACEA, EU27, {acea['window']} vs {acea['prior_window']}, "
-                       "months from ACEA's monthly press releases (year-to-date "
-                       "differences).")
+        shift = with_acea_hev(shift, acea)
+    if acea and shift and any(r.get("source") == "ACEA" for r in shift["rows"]):
+        scope_note += (f" Who-gained HEV: ACEA, EU27, {acea['window']} vs 12 months "
+                       "before (one month earlier), full + mild; mix chart stays "
+                       "three-way.")
+
     fm = {
         "country": label,
         "slug": slug,
@@ -1046,9 +1056,9 @@ def load(slug: str) -> dict:
         "hev_split": "HEV" in mix_bands,
         # ACEA's own EU HEV share, printed beside (never inside) our split.
         "acea_hev": acea,
-        "acea_shift_row": acea_shift_row(acea),
-        "acea_shift_note": acea_note(acea),
-        "acea_shift_head": acea_head(acea),
+        "bars_note": (acea_bars_note(acea)
+                      if shift and any(r.get("source") == "ACEA" for r in shift["rows"])
+                      else ""),
         "acea_social": acea_line(acea, social=True),
         # Locator map: every member of the group, in or out of the figure.
         "map_countries": [m["country"] for m in members],
