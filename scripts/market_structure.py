@@ -272,14 +272,17 @@ def _logo_img(brand: str, logo_href: str, h: float) -> str:
 def build_bar(ms: dict, mode: str, logo_href: str, width: float = 702,
               base: float = 17, fs: float = 13, row_h: float = 18,
               gap: float = 2, info: dict | None = None) -> str:
-    """A compact ranked list: logo + name, a 0–100 % bar, and the share.
+    """A compact ranked list: logo + name, a slim bar, and the share.
 
     Every named row has the same structure: a small logo (when we have one)
     in a fixed slot, the brand name immediately after it at a shared x, a
-    bar on a common 0–100 % scale, and a right-aligned share. Brands with
-    no logo leave the slot blank — no chip — so the name still lines up.
-    'Other brands' is the last row, in grey, and is omitted only when the
-    rest is effectively zero.
+    slim bar scaled to the top named brand (not to 100 %), and a
+    right-aligned share. Brands with no logo leave the slot blank — no
+    chip — so the name still lines up. 'Other brands' is the last row,
+    in grey, with the remainder as a number only (no bar — on a spread
+    market the rest is often larger than the leader, and a 0–100 %
+    track was mostly empty grey). It is omitted only when the rest is
+    effectively zero.
     """
     named = list(ms.get("named") or ms["top3"])
     items = list(named)
@@ -292,15 +295,16 @@ def build_bar(ms: dict, mode: str, logo_href: str, width: float = 702,
     logo_slot = min(4.2 * logo_h, 0.08 * width)
     name_w = max(8.0 * fs, 0.16 * width)
     pct_w = 4.8 * fs
-    track_h = max(8.0, 0.42 * row_h)
+    track_h = max(6.0, 0.34 * row_h)
+    top_share = max((b["share"] for b in named), default=0) or 1
 
     rows = []
     for i, b in enumerate(items):
         if b.get("others"):
             slot = '<div class="ms-logo-slot"></div>'
             name = f'<div class="ms-name ms-mute">{esc(b["brand"])}</div>'
-            colour = OTHERS
             klass = "ms-row ms-rest"
+            fill = '<div class="ms-track ms-track-empty" aria-hidden="true"></div>'
         else:
             colour = SEGMENT[min(i, len(SEGMENT) - 1)]
             if mode == "logos" and b["brand"] in BRAND_LOGO:
@@ -310,10 +314,11 @@ def build_bar(ms: dict, mode: str, logo_href: str, width: float = 702,
             slot = f'<div class="ms-logo-slot">{mark}</div>'
             name = f'<div class="ms-name">{esc(b["brand"])}</div>'
             klass = "ms-row"
+            rel = 100.0 * b["share"] / top_share
+            fill = (f'<div class="ms-track" style="height:{track_h:.0f}px">'
+                    f'<span class="ms-fill" style="width:{rel:.2f}%;background:{colour}">'
+                    f'</span></div>')
         ident = f'<div class="ms-id">{slot}{name}</div>'
-        fill = (f'<div class="ms-track" style="height:{track_h:.0f}px">'
-                f'<span class="ms-fill" style="width:{b["share"]:.2f}%;background:{colour}">'
-                f'</span></div>')
         rows.append(
             f'<div class="{klass}">{ident}{fill}'
             f'<div class="ms-val">{esc(_pct(b["share"]))}</div></div>')
@@ -338,6 +343,7 @@ def gap_note(ms: dict) -> str:
 
 
 HEADING = "Top brands · battery-electric registrations, last 12 months"
+SCALE_NOTE = " Bars are scaled to the top brand, not to 100 %."
 
 
 def base_line(ms: dict) -> str:
@@ -362,7 +368,8 @@ def build_block(ms: dict | None, mode: str, logo_href: str,
     klass = "fl-sec ms ms-compact" if compact else "fl-sec ms"
     return (
         f'<section class="{klass}"><h2>{esc(heading)}</h2>'
-        f'<p class="fl-sub">{esc(base_line(ms))}{esc(gap_note(ms))}</p>'
+        f'<p class="fl-sub">{esc(base_line(ms))}{esc(gap_note(ms))}'
+        f'{esc(SCALE_NOTE)}</p>'
         f'<p class="ms-line"><span class="ms-kind ms-{ms["kind"]}">{esc(LABEL[ms["kind"]])}</span>'
         f'{esc(sentence(ms))}</p>'
         f'{build_bar(ms, mode, logo_href)}{model}</section>')
@@ -391,8 +398,9 @@ CSS = """
 .ms-name{font-weight:600;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   min-width:0}
 .ms-mute{font-weight:400;color:#55534c}
-.ms-track{display:block;background:#eceae4;border-radius:3px;overflow:hidden;min-width:0;
+.ms-track{display:block;background:transparent;border-radius:3px;overflow:visible;min-width:0;
   align-self:center}
+.ms-track-empty{height:0}
 .ms-fill{display:block;height:100%;border-radius:3px}
 .ms-val{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;line-height:1;
   white-space:nowrap;color:#1a1a18;align-self:center}

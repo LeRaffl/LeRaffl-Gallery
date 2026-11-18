@@ -412,7 +412,10 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
     box_top, box_h = 27 * k, 11 * k
     mid = box_top + box_h / 2
     rug_top, rug_bot = box_top + box_h + 2 * k, box_top + box_h + 8 * k
-    height = round(rug_bot + 13 * k)
+    # Tick labels need a line under the rug; year strips that share a
+    # scale below keep only a tight follow, so the boxes stay in line.
+    tick_space = 13 * k if metric.get("ticks") else 3 * k
+    height = round(rug_bot + tick_space)
 
     def x_of(v: float) -> float:
         v = max(lo, min(hi, v))
@@ -437,8 +440,14 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
              f'height="{box_h:.1f}" fill="#ebe8e1" {grey}/>')
     p.append(f'<line x1="{md:.1f}" y1="{box_top:.1f}" x2="{md:.1f}" '
              f'y2="{box_top + box_h:.1f}" stroke="#3b3a36" stroke-width="{2 * k:.2f}"/>')
+    # Decade guides on a shared year scale (labels live on the axis row).
+    for tick, _text in metric.get("guides") or []:
+        x = x_of(tick)
+        p.append(f'<line x1="{x:.1f}" y1="{box_top - 2 * k:.1f}" x2="{x:.1f}" '
+                 f'y2="{rug_bot:.1f}" stroke="#8d897c" stroke-opacity=".22" '
+                 f'stroke-width="{0.8 * k:.2f}"/>')
     # Axis labels, all middle-anchored so 0% and 2020 sit on the same inset.
-    for tick, text in metric["ticks"]:
+    for tick, text in metric.get("ticks") or []:
         p.append(f'<text x="{x_of(tick):.1f}" y="{height - 2}" text-anchor="middle" '
                  f'class="ax">{esc(text)}</text>')
 
@@ -467,9 +476,64 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
            f'aria-label="{esc(metric["aria"])}">{_x_to_pct("".join(p), width)}</svg>')
     q = metric.get("q_line") or ""
     q_html = f'<span>{q}</span>' if q else ""
-    return (f'<div class="{cls}-bx"><div class="{cls}-bx-l"><b>{metric["title"]}</b>'
+    tight = "" if metric.get("ticks") else f" {cls}-bx-l-tight"
+    return (f'<div class="{cls}-bx"><div class="{cls}-bx-l{tight}"><b>{metric["title"]}</b>'
             f'<span class="{cls}-bx-own">{metric["own_line"]}</span>'
             f'<span>{metric["mid_line"]}</span>{q_html}</div>{svg}</div>')
+
+
+def _unify_year_axes(strips: list[dict]) -> None:
+    """Put every year strip on the 80 %-scale (the wider of the two).
+
+    The 50 % box then sits further left on a comparable timeline. Tick
+    labels move to a shared axis under the last year strip; faint guides
+    stay on both plots so the block reads as one scale.
+    """
+    years = [s for s in strips if s.get("kind") == "year"]
+    if len(years) < 2:
+        return
+    vals: list[float] = []
+    for s in years:
+        vals.extend(v for _, v in s["values"])
+        vals.append(s["own"]["value"])
+        vals.extend(m["value"] for m in s["marks"])
+    lo = 5 * math.floor(min(vals) / 5)
+    hi = max(5 * math.ceil(max(vals) / 5), lo + 20)
+    ticks = [(float(t), str(t)) for t in range(lo, hi + 1, 5)
+             if t % 10 == 0 or t in (lo, hi)]
+    axis = (float(lo), float(hi))
+    for s in years:
+        s["axis"] = axis
+        s["ticks"] = []
+        s["guides"] = ticks
+    years[-1]["shared_ticks"] = ticks
+
+
+def _year_axis_row(axis: tuple[float, float], ticks: list[tuple[float, str]],
+                   width: float, k: float = 1.0) -> str:
+    """One year scale under the year strips, same inset as the plots."""
+    lo, hi = axis
+    left, right = 22 * k, 22 * k
+    plot = width - left - right
+    height = 14 * k
+
+    def x_of(v: float) -> float:
+        v = max(lo, min(hi, v))
+        return left + plot * (v - lo) / (hi - lo)
+
+    p = [f'<line x1="{x_of(lo):.1f}" y1="1.5" x2="{x_of(hi):.1f}" y2="1.5" '
+         f'stroke="#8d897c" stroke-width="{k:.2f}"/>']
+    for tick, text in ticks:
+        x = x_of(tick)
+        p.append(f'<line x1="{x:.1f}" y1="0" x2="{x:.1f}" y2="4.5" '
+                 f'stroke="#8d897c" stroke-width="{k:.2f}"/>')
+        p.append(f'<text x="{x:.1f}" y="{height - 1}" text-anchor="middle" '
+                 f'class="ax">{esc(text)}</text>')
+    lo_s, hi_s = f"{lo:.0f}", f"{hi:.0f}"
+    svg = (f'<svg class="fl-svg fl-cmp-axis" width="100%" height="{height}" '
+           f'role="img" aria-label="Year scale, {lo_s} to {hi_s}">'
+           f'{_x_to_pct("".join(p), width)}</svg>')
+    return f'<div class="fl-cmp-axis-l" aria-hidden="true"></div>{svg}'
 
 
 def _rank_of(own: float, values: list[float], higher_first: bool) -> int:
@@ -536,6 +600,7 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
         "values": peers, "stats": s_stats, "axis": (0.0, 100.0),
         "ticks": [(t, f"{t:.0f}%") for t in (0, 25, 50, 75, 100)],
         "own": {"name": country, "slug": subject_slug, "value": own},
+        "kind": "share",
         "marks": marks_for("share"),
         "aria": (f"{country}: BEV share {pct(own)}, "
                  f"{'would be ' if is_region else ''}{ordinal(s_rank)} of {len(peers)} countries."),
@@ -562,6 +627,7 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
             "values": years, "stats": y_stats, "axis": (float(lo), float(hi)),
             "ticks": [(float(t), str(t)) for t in range(lo, hi + 1, 5)
                       if t % 10 == 0 or t in (lo, hi)],
+            "kind": "year",
             "own": {"name": country, "slug": subject_slug, "value": y},
             "marks": marks_for(mark_key),
             "aria": (f"{country}: fitted curve reaches {level_label} in "
@@ -575,6 +641,7 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
                              peer_years, own_year, "50%")
     add_year_strip("Fitted curve reaches 80%", "year80",
                    peer_years_80, own_year_80, "80%")
+    _unify_year_axes(strips)
     return strips, named, n_years
 
 
@@ -594,6 +661,9 @@ def build_compare(country: str, peers: list[tuple[str, float]], width: int,
         return ""
     plot_w = width - CMP_LABEL_W
     body = "".join(_box_strip(m, plot_w) for m in strips)
+    last_year = next((m for m in reversed(strips) if m.get("shared_ticks")), None)
+    if last_year:
+        body += _year_axis_row(last_year["axis"], last_year["shared_ticks"], plot_w)
     n = strips[0]["stats"]["n"]
     sub = (f"Box = middle half of the {n} countries in the Gallery; "
            "whiskers = lowest and highest quarter each.")
@@ -1098,6 +1168,9 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fl-bx{display:contents}
 .fl-bx-l{display:flex;flex-direction:column;font-size:10.5px;line-height:1.28;color:var(--muted);
   padding-bottom:8px}
+.fl-bx-l-tight{padding-bottom:2px}
+.fl-cmp-axis-l{min-height:0}
+.fl-cmp-axis{display:block;margin-top:0}
 .fl-bx-l b{color:var(--text);font-size:11px}
 .fl-bx-own{color:#2c7a50;font-weight:600}
 .fl-bx-own b{color:#2c7a50}

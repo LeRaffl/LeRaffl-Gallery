@@ -97,7 +97,8 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
         market_html = (
             f'<div class="sc-ms"><div class="sc-mshead">Top brands '
             f'<span>· battery-electric registrations, last 12 months, '
-            f'of {esc(mc.units(market["units"]))} cars</span></div>'
+            f'of {esc(mc.units(market["units"]))} cars. '
+            f'Bars scaled to the top brand</span></div>'
             f'<p class="sc-msline"><span class="ms-kind ms-{market["kind"]}">'
             f'{esc(mstr.LABEL[market["kind"]])}</span>{esc(mstr.sentence(market))}</p>'
             f'{bar}{model}</div>')

@@ -449,9 +449,20 @@ def test_flyer_qr_compare_and_fractions():
     assert "Fitted curve reaches 80%" in html and "C18 2043 · <b>18th of 20</b>" in html
     assert "50 % 20, 80 % 20" not in html  # same N, one clause
     assert "Years: the 20 with a quoted curve, earliest first." in html
+    # 50 % and 80 % share one year axis; the 50 % box sits further left.
+    strips, _, _ = flyer.compare_strips("C18", peers, peer_years=years, peer_years_80=years80)
+    y50, y80 = [s for s in strips if s.get("kind") == "year"]
+    assert y50["axis"] == y80["axis"]
+    assert y50["axis"][0] <= 2021 and y50["axis"][1] >= 2045
+    assert y50["own"]["value"] < y80["own"]["value"]
+    assert y50["ticks"] == [] and y80.get("shared_ticks")
+    assert 'class="fl-svg fl-cmp-axis"' in html
+    assert html.count(">2020<") == 1 and html.count(">2045<") == 1
+    assert "Year scale, 2020 to 2045" in html
     no80 = [(n, y) for n, y in years80 if n != "C18"]
     html = flyer.build_compare("C18", peers, 700, peer_years=years, peer_years_80=no80)
     assert "Fitted curve reaches 50%" in html and "Fitted curve reaches 80%" not in html
+    assert "fl-cmp-axis" not in html          # a single year strip keeps its own ticks
     # A region is placed among the countries, not ranked as one.
     html = flyer.build_compare("Group", peers, 700, is_region=True, own_share=12.5,
                                peer_years=years, own_year=2029.5,
