@@ -499,11 +499,35 @@ def build_compare(country: str, peers: list[tuple[str, float]], width: int,
         named = [h["name"] for h in marks]
         if named:
             sub += f' Highlighted: {_and_list(named)}.'
-    svg = (f'<svg class="fl-svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
-           f'role="img" aria-label="{esc(label)}">{"".join(parts)}</svg>')
+    svg = (f'<svg class="fl-svg fl-cmp-svg" width="100%" height="{height}" '
+           f'role="img" aria-label="{esc(label)}">{_x_to_pct("".join(parts), width)}</svg>')
     return (
         '<section class="fl-sec fl-cmp"><h2>How it compares</h2>'
         f'<p class="fl-sub">{sub}</p>{svg}</section>')
+
+
+def _x_to_pct(svg: str, width: float) -> str:
+    """Horizontal positions as a share of the width, so the strip spans the
+    column however wide the sheet is laid out (the brief is laid out wider
+    than A4 and scaled to fit). Text and flags keep their pixel size; a flag
+    is wrapped in a nested <svg> placed at its centre."""
+    import re
+
+    def pct(v: str) -> str:
+        return f"{100 * float(v) / width:.3f}%"
+
+    def image(m: re.Match) -> str:
+        x, w = float(m.group(1)), float(m.group(3))
+        rest = m.group(0).replace(f'x="{m.group(1)}"', f'x="{-w / 2:.1f}"', 1)
+        return f'<svg x="{pct(str(x + w / 2))}" overflow="visible">{rest}</svg>'
+
+    svg = re.sub(r'<image [^>]*?x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)"[^>]*/>', image, svg)
+    svg = re.sub(r'(<(?:line|text)\b[^>]*?) (x1|x2|x)="([-\d.]+)"',
+                 lambda m: f'{m.group(1)} {m.group(2)}="{pct(m.group(3))}"', svg)
+    # a second pass for the second coordinate on the same line element
+    svg = re.sub(r'(<line\b[^>]*?) (x2)="([-\d.]+)"',
+                 lambda m: f'{m.group(1)} {m.group(2)}="{pct(m.group(3))}"', svg)
+    return svg
 
 
 def _and_list(names: list[str]) -> str:
@@ -556,11 +580,9 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     through = mc.period_label(rows[-1]["period"], long=True) if rows else ""
 
     flag = mc.flag_img(slug, country, cls="fl-flag") or fm.get("mark_html") or ""
-    where = locator_map.build(fm.get("map_countries") or [country], 74,
+    where = locator_map.build(fm.get("map_countries") or [country], 150,
                               label=f"Where {country} is" if not fm.get("region")
                               else f"{country}: member countries")
-    if where:
-        where = f'<div class="fl-loc">{where}</div>'
 
     # Hero: the one number, and the mix over time.
     hero_num = ""
@@ -600,7 +622,11 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     rng = mc.share_range(rows)
     if rng:
         range_line = f'<p class="fh-range-line">{esc(mc.range_sentence(rng))}</p>'
-    hero = (f'<div class="fl-hero">{hero_num}<div class="fh-mix">{mix}</div></div>{range_line}'
+    # The locator map takes the room right of the mix: the sheet is laid out
+    # wider than A4 and scaled to fit, so a fixed-width mix left it empty.
+    loc = f'<div class="fh-loc">{where}</div>' if where and hero_num else ""
+    hero = (f'<div class="fl-hero{" has-loc" if loc else ""}">{hero_num}'
+            f'<div class="fh-mix">{mix}</div>{loc}</div>{range_line}'
             if (hero_num or mix or range_line) else "")
 
     bars = ""
@@ -744,7 +770,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
               if fm.get("region") else
               "Country brief · the shift to battery-electric cars")
     return FLYER_TEMPLATE.format(
-        country=esc(country), theme_href=theme_href, css=FLYER_CSS, flag=flag, where=where,
+        country=esc(country), theme_href=theme_href, css=FLYER_CSS, flag=flag,
         through=esc(through), head=esc(head), follow=esc(follow), hero=hero,
         two=two, market=fm.get("carriers_html") or mstr.build_block(market, brand_mode, logo_href),
         curve=curve, foot=foot, compare=compare, slug=esc(slug),
@@ -771,9 +797,6 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fl-mark{background:#eceae4}
 .fl-top h1{font-family:var(--font-display);font-size:30px;line-height:1;margin:0;font-weight:600}
 .fl-kick{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:5px}
-.fl-loc{margin-left:auto;flex:none;line-height:0}
-.fl-loc svg{display:block}
-.fl-loc + .fl-date{margin-left:0}
 .fl-date{margin-left:auto;text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
   color:var(--muted);line-height:1.5}
 .fl-date b{display:block;font-size:15px;letter-spacing:0;text-transform:none;color:var(--text)}
@@ -798,6 +821,9 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fh-range-line{font-size:12.5px;color:var(--muted);line-height:1.45;margin:8px 0 0;max-width:100%}
 .fh-ytd{margin-top:3px}
 .fh-mix{flex:1;min-width:0}
+.has-loc .fh-mix{flex:none}
+.fh-loc{flex:1 1 0;min-width:96px;max-width:240px;margin-left:auto;align-self:center;line-height:0}
+.fh-loc svg{display:block;width:100%;height:auto}
 .fh-mix svg text.mix-t{font-size:10.5px;fill:#3a3935;font-weight:600;
   font-family:var(--font-ui),system-ui,sans-serif}
 .fl-mixnote{margin-top:.15em;color:#55534c}
@@ -916,7 +942,7 @@ FLYER_TEMPLATE = """<!doctype html>
 <div class="sheet-box"><article class="sheet"><div class="sheet-in">
   <header class="fl-top">{flag}
     <div><h1>{country}</h1><div class="fl-kick">{kicker}</div></div>
-    {where}<div class="fl-date">Data through<b>{through}</b></div></header>
+    <div class="fl-date">Data through<b>{through}</b></div></header>
   <p class="fl-head">{head}</p>
   <p class="fl-follow">{follow}</p>
   {hero}
