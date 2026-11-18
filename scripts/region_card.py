@@ -174,7 +174,7 @@ def acea_shift_row(acea: dict | None) -> dict | None:
     """The HEV row for "Who gained, who lost": ACEA's window, not ours."""
     if not acea:
         return None
-    return {"key": "HEV", "label": "Hybrid (HEV), ACEA", "delta": acea["hev_delta"],
+    return {"key": "HEV", "label": "Hybrids (HEV)", "delta": acea["hev_delta"],
             "after": acea["hev"], "before": acea["hev_prior"], "source": "ACEA"}
 
 
@@ -187,8 +187,16 @@ def acea_note(acea: dict | None) -> str:
         stale = (f' <span class="acea-stale">Latest ACEA month is {acea.get("lag")} '
                  'months before the data above.</span>')
     return (f'<p class="fl-sub fl-acea-note">HEV from ACEA (EU, {esc(acea["window"])} '
-            f'vs 12 months before), full + mild hybrids. Other rows from members\' '
-            f'national data.{stale}</p>')
+            f'vs 12 months before), full + mild hybrids: already inside "Combustion + '
+            f'hybrids", not an extra row. The rows above the line are members\' national '
+            f'data and add up to 100 % and ±0 pts.{stale}</p>')
+
+
+def acea_head(acea: dict | None) -> str:
+    """Caption on the divider above the ACEA row."""
+    if not acea:
+        return ""
+    return f"From ACEA · EU27 · {acea['window']} · not part of the split above"
 
 
 def acea_line(acea: dict | None, social: bool = False) -> str:
@@ -866,12 +874,12 @@ def region_legend() -> str:
         'trailing 12-month share</span>'
         '<span class="cv-leg-i"><svg class="cv-g" width="22" height="10">'
         '<line x1="1" y1="5" x2="21" y2="5" stroke="#2c7a50" stroke-width="2.4"/></svg>'
-        'Fitted model</span>'
+        'S-curve fit</span>'
         '<span class="cv-leg-i"><svg class="cv-g" width="14" height="10">'
         '<circle cx="7" cy="5" r="2.2" fill="#55534c" fill-opacity=".55"/></svg>'
         'single month</span>'
         '<span class="cv-leg-note">no confidence band available</span>'
-        '<span class="cv-leg-note">The curve is a model, not a forecast.</span>'
+        '<span class="cv-leg-note">a model, not a forecast</span>'
         '</div>')
 
 
@@ -1021,10 +1029,9 @@ def load(slug: str) -> dict:
     acea = acea_for_brief(t) if slug == "eu" else None
     scope_note = (long_note + (" " + mix_note_long if mix_note_long else "")).strip()
     if acea:
-        scope_note += (f" The HEV row in who-gained is ACEA's own EU count ({acea['window']} "
-                       f"vs {acea['prior_window']}, full and mild hybrids), summed from "
-                       "months derived from ACEA's monthly press releases; mix and the "
-                       "other rows come from members' national data.")
+        scope_note += (f" HEV row: ACEA, EU27, {acea['window']} vs {acea['prior_window']}, "
+                       "months from ACEA's monthly press releases (year-to-date "
+                       "differences).")
     fm = {
         "country": label,
         "slug": slug,
@@ -1041,6 +1048,7 @@ def load(slug: str) -> dict:
         "acea_hev": acea,
         "acea_shift_row": acea_shift_row(acea),
         "acea_shift_note": acea_note(acea),
+        "acea_shift_head": acea_head(acea),
         "acea_social": acea_line(acea, social=True),
         # Locator map: every member of the group, in or out of the figure.
         "map_countries": [m["country"] for m in members],

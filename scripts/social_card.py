@@ -69,7 +69,7 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
             glance.append(f'<span class="sc-alone">{esc(mc.period_label(latest["row"]["period"]))} '
                           f'alone: <b>{esc(mc.share(latest["share"]))}</b></span>')
         if rng:
-            glance.append(f'<span class="sc-range">{esc(mc.range_sentence(rng))}</span>')
+            glance.append(f'<span class="sc-range">{esc(mc.range_sentence(rng, short=True))}</span>')
         if fm.get("acea_social"):
             glance.append(fm["acea_social"])
         extra = f'<div class="sc-glance">{"".join(glance)}</div>' if glance else ""
@@ -106,7 +106,7 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
     # Chart fills what is left: 1350 minus padding, header, hero, note,
     # market block and footer (measured from the rendered card).
     # padding + header + compact hero (with glance) + legend + footer
-    fixed = 52 + 40 + 122 + 190 + 28 + 50 + 76
+    fixed = 52 + 40 + 98 + 190 + 28 + 50 + 76   # hero 98: one-line range (range_sentence short)
     if fm.get("coverage_note"):
         # Region cards name their coverage in the footer: two lines there.
         fixed += 30

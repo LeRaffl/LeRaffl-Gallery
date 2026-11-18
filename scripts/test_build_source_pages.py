@@ -445,6 +445,52 @@ def test_flyer_draws_no_curve_for_a_fit_without_dates():
     assert "cv-fit" not in mc.build_curve_svg(rows, bad, None, weak_fit=False)  # brief: none
 
 
+def _shown_sums(html):
+    import re
+    def num(t):
+        return 0.0 if t == "±0" else float(t.replace("−", "-").replace(" %", ""))
+    pp = [num(x) for x in re.findall(r'class="fb-pp">([^<]*)<', html)]
+    now = [num(x) for x in re.findall(r'class="fb-now">([^<]*)<', html)]
+    return pp, now
+
+
+def test_every_country_split_adds_up():
+    # "Who gained, who lost": the rows are one split of one denominator, so
+    # the changes sum to 0 and the shares to 100 % (rounding only), also
+    # after the brief folds rows past its limit into one.
+    import flyer
+    import model_card as mc
+    entries, _ = bsp.collect_entries()
+    checked = 0
+    for fm, _stub in entries:
+        fm = bsp.apply_group_defaults(fm)
+        shift = mc.powertrain_shift(mc.whole_rows(fm.get("data_file")),
+                                    fm.get("hev_split") is True)
+        if not shift:
+            continue
+        checked += 1
+        rows = flyer.split_rows(shift)
+        name = fm.get("country")
+        assert abs(sum(r["delta"] for r in rows)) < 0.05, (name, rows)
+        assert abs(sum(r["after"] for r in rows) - 100) < 0.05, (name, rows)
+        pp, now = _shown_sums(flyer.build_bars(shift))
+        assert len(pp) == len(rows)
+        tol = 0.05 * len(rows) + 1e-9   # each printed value rounds by ≤ 0.05
+        assert abs(sum(pp)) <= tol and abs(sum(now) - 100) <= tol, (name, pp, now)
+    assert checked > 20, checked
+
+
+def test_split_rows_fold_instead_of_drop():
+    import flyer
+    rows = [{"key": k, "label": k, "before": b, "after": a, "delta": a - b}
+            for k, b, a in (("BEV", 10, 20), ("PHEV", 5, 6), ("HEV", 10, 12), ("PETROL", 50, 40),
+                            ("DIESEL", 20, 17), ("LPG", 4, 4.5), ("REST", 1, 0.5))]
+    shown = flyer.split_rows({"rows": rows})
+    assert len(shown) == 6 and shown[-1]["key"] == "REST"
+    assert abs(sum(r["delta"] for r in shown)) < 1e-9
+    assert abs(sum(r["after"] for r in shown) - 100) < 1e-9
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

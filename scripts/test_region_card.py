@@ -206,6 +206,7 @@ def test_acea_ttm_window_and_delta():
         assert row["key"] == "HEV" and abs(row["after"] - 36) < 1e-9
         note = rc.acea_note(ok)
         assert "HEV from ACEA (EU, Oct 2025–Sep 2026 vs 12 months before), full + mild hybrids" in note
+        assert "not an extra row" in note and "Oct 2025–Sep 2026" in rc.acea_head(ok)
         assert "acea-stale" not in note
         line = rc.acea_line(ok, social=True)
         assert "ACEA, EU · Oct 2025–Sep 2026" in line and "Hybrids (HEV): 36.0" in line
@@ -242,6 +243,39 @@ def test_acea_staleness_guard():
 def test_acea_ytd_file_still_reads():
     a = rc.acea_eu_shares()
     assert a and a["period"].startswith("Jan–"), a
+
+
+def test_every_region_split_adds_up():
+    # National rows: one member set, one denominator -> ±0 pts and 100 %.
+    # The EU brief's ACEA HEV row is not one of them (it sits below a
+    # divider, see flyer.build_bars(extra=...)).
+    import contextlib, io, re
+    import flyer
+    for slug in rc.REGION_LABELS:
+        with contextlib.redirect_stderr(io.StringIO()):
+            try:
+                info = rc.load(slug)
+            except RuntimeError:
+                continue
+        shift = info["shift"]
+        if not shift:
+            continue
+        rows = flyer.split_rows(shift)
+        assert all(r["key"] != "HEV" or "ACEA" not in r.get("source", "") for r in rows)
+        assert abs(sum(r["delta"] for r in rows)) < 0.05, (slug, rows)
+        assert abs(sum(r["after"] for r in rows) - 100) < 0.05, (slug, rows)
+        # BEV in the split is the headline BEV whenever the split runs on
+        # the headline member set.
+        if info["mix_members"] == info["contributors"]:
+            assert abs(rows[0]["after"] - info["share"]) < 1e-6, slug
+        extra = [info["fm"]["acea_shift_row"]] if info["fm"].get("acea_shift_row") else []
+        html = flyer.build_bars(shift, extra=extra, extra_head="x")
+        top = html.split('class="fb-sep"')[0]
+        pp = [0.0 if t == "±0" else float(t.replace("−", "-"))
+              for t in re.findall(r'class="fb-pp">([^<]*)<', top)]
+        assert abs(sum(pp)) <= 0.05 * len(pp) + 1e-9, (slug, pp)
+        if extra:
+            assert html.count('fb-ext') == 1 and 'class="fb-sep"' in html
 
 
 def test_repo_acea_figure_is_current():

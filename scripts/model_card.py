@@ -450,11 +450,15 @@ def share_range(rows: list[dict]) -> dict | None:
             "max_period": window[max_i]["period"]}
 
 
-def range_sentence(rng: dict) -> str:
-    """Name the min and max months of the last-12-month range."""
+def range_sentence(rng: dict, short: bool = False) -> str:
+    """Name the min and max months of the last-12-month range. `short` is
+    the social card's one-line form."""
     lo, hi = rng["min"], rng["max"]
     a = period_label(rng["min_period"])
     b = period_label(rng["max_period"])
+    if short:
+        return (f"Single months, last 12: {lo:.1f} % ({a}) to "
+                f"{hi:.1f} % ({b}).")
     return (f"BEV share fluctuated between {lo:.1f} % ({a}) and "
             f"{hi:.1f} % ({b}) over the last 12 months.")
 

@@ -49,7 +49,6 @@ SHORT_LABEL = {
     "Plug-in hybrid incl. range extenders": "Plug-in hybrid + EREV",
     "Petrol, diesel and other combustion": "Combustion",
     "Combustion and anything not split out": "Combustion, not split",
-    "Combustion + hybrids": "Other powertrains",
 }
 
 
@@ -249,28 +248,53 @@ def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> st
 # Blocks
 # --------------------------------------------------------------------------
 
-def build_bars(shift: dict, limit: int = 6) -> str:
-    rows = shift["rows"]
-    if len(rows) > limit:
-        # Keep the ones that moved most; BEV always stays.
-        keep = sorted(rows, key=lambda r: (r["key"] != "BEV", -abs(r["delta"])))[:limit]
-        rows = [r for r in rows if r in keep]
-    neg = max([-r["delta"] for r in rows] + [0.0])
-    pos = max([r["delta"] for r in rows] + [0.0])
+def split_rows(shift: dict, limit: int = 6) -> list[dict]:
+    """The rows the bars show. Past `limit`, the smallest movers fold into
+    one residual row instead of being dropped, so the shown rows still add
+    up to 100 % and ±0 points (powertrain_shift builds them that way)."""
+    rows = list(shift["rows"])
+    if len(rows) <= limit:
+        return rows
+    keep = sorted(rows, key=lambda r: (r["key"] != "BEV", -abs(r["delta"])))[:limit - 1]
+    folded = [r for r in rows if r not in keep]
+    rest = next((r for r in folded if r["key"] == "REST"), None)
+    merged = {"key": "REST", "label": (rest or {}).get("label") or "Other fuels"}
+    if len(folded) > 1 or rest is None:
+        merged["label"] = "Other fuels"
+    for k in ("before", "after", "delta"):
+        merged[k] = sum(r[k] for r in folded)
+    return [r for r in rows if r in keep] + [merged]
+
+
+def build_bars(shift: dict, limit: int = 6, extra: list[dict] | None = None,
+               extra_head: str = "") -> str:
+    """Change bars. `extra` rows (the EU brief's ACEA HEV row) come after a
+    divider with their own caption: not part of the split, so a reader
+    adding up the column above gets ±0 and 100 %."""
+    rows = split_rows(shift, limit)
+    extra = extra or []
+    every = rows + extra
+    neg = max([-r["delta"] for r in every] + [0.0])
+    pos = max([r["delta"] for r in every] + [0.0])
     zero = min(74.0, max(26.0, 100 * neg / ((neg + pos) or 1)))
     scale = min(zero / neg if neg else 1e9, (100 - zero) / pos if pos else 1e9)
-    out = []
-    for row in rows:
+
+    def one(row, cls=""):
         width = abs(row["delta"]) * scale
         left = zero if row["delta"] >= 0 else zero - width
-        out.append(
-            f'<div class="fb-row"><span class="fb-name">'
+        return (
+            f'<div class="fb-row{cls}"><span class="fb-name">'
             f'{esc(SHORT_LABEL.get(row["label"], row["label"]))}</span>'
             f'<span class="fb-track"><i class="fb-zero" style="left:{zero:.2f}%"></i>'
             f'<i class="fb-bar" style="left:{left:.2f}%;width:{width:.2f}%;'
             f'background:{mc.COLORS.get(row["key"], mc.COLORS["REST"])}"></i></span>'
             f'<span class="fb-pp">{mc.points(row["delta"])}</span>'
             f'<span class="fb-now">{mc.share(row["after"])}</span></div>')
+
+    out = [one(r) for r in rows]
+    if extra:
+        out.append(f'<div class="fb-sep">{esc(extra_head)}</div>')
+        out += [one(r, " fb-ext") for r in extra]
     head = ('<div class="fb-head"><span></span><span></span>'
             '<span>Change, pts</span><span>Share, last 12 months</span></div>')
     return head + "".join(out)
@@ -649,16 +673,17 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         note = (f'<p class="fl-sub fl-mixnote">{esc(mix_note)}</p>'
                 if mix_note else "")
         # EU brief: ACEA's HEV row (its own window, labelled under the bars).
-        bar_shift = shift
-        acea_note = ""
+        extra, extra_head, acea_note = [], "", ""
         if fm.get("acea_shift_row"):
-            bar_shift = {**shift, "rows": list(shift["rows"]) + [fm["acea_shift_row"]]}
+            extra = [fm["acea_shift_row"]]
+            extra_head = fm.get("acea_shift_head") or "From ACEA, not part of the split above"
             acea_note = fm.get("acea_shift_note") or ""
         bars = (
             '<section><h2>Who gained, who lost</h2>'
             f'<p class="fl-sub">Change in percentage points, '
             f'{esc(mc.vs_prior_phrase(a1))}.</p>{note}'
-            f'<div class="fb">{build_bars(bar_shift)}</div>{acea_note}</section>')
+            f'<div class="fb">{build_bars(shift, extra=extra, extra_head=extra_head)}</div>'
+            f'{acea_note}</section>')
 
     curve = ""
     if fm.get("region_curve"):
@@ -866,7 +891,7 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fl-sec{margin-top:11px}
 .fl-sec h2{font-family:var(--font-display);font-size:18px;margin:0;font-weight:600;border:0;padding:0}
 .fl-sub{font-size:11.5px;color:var(--muted);margin:2px 0 8px;line-height:1.4}
-.fb-row,.fb-head{display:grid;grid-template-columns:130px 1fr 52px 102px;column-gap:8px}
+.fb-row,.fb-head{display:grid;grid-template-columns:142px 1fr 52px 102px;column-gap:8px}
 .fb-head{align-items:end;font-size:9px;line-height:1.2;color:var(--muted);font-weight:600;
   text-align:right;margin-bottom:3px}
 .fb-row{align-items:center;font-size:13px;height:20px}
@@ -876,6 +901,11 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fb-bar{position:absolute;top:4px;bottom:4px;border-radius:2px;min-width:2px}
 .fb-pp{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
 .fb-now{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.fb-sep{margin:5px 0 1px;padding-top:4px;border-top:1px dashed #b9b5ab;font-size:9.5px;
+  letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.fb-ext .fb-name{font-style:italic}
+.fb-ext .fb-bar{opacity:.85;background-image:repeating-linear-gradient(135deg,transparent 0 3px,
+  rgba(255,255,255,.55) 3px 5px)}
 .fl-curve{display:flex;gap:22px;align-items:flex-start}
 .fl-curve .curve{width:100%;height:auto;display:block}
 .fl-curve>div:first-child{flex:0 1 """ + str(CURVE_W) + """px;min-width:0}
