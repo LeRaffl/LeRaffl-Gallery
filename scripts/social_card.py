@@ -12,6 +12,7 @@ import math
 import re
 
 import flyer
+import locator_map
 import market_structure as mstr
 import model_card as mc
 from model_card import esc
@@ -48,6 +49,11 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
     flag = mc.flag_img(slug, country, cls="sc-flag") or fm.get("mark_html") or ""
     brief_url = f"{mc.SITE}/sources/flyer/{slug}.html"
     qr = f'<div class="sc-qr">{flyer.build_qr(brief_url, size=118)}</div>'
+    where = locator_map.build(fm.get("map_countries") or [country], 118,
+                              label=f"Where {country} is" if not fm.get("region")
+                              else f"{country}: member countries")
+    if where:
+        qr = f'<div class="sc-loc">{where}</div>' + qr
 
     ttm = figures.get("ttm")
     latest, rng = figures.get("latest"), mc.share_range(rows)
@@ -150,6 +156,7 @@ html,body{margin:0;background:#fdfdfc}
 .sc-top h1{font-family:var(--font-display);font-size:60px;line-height:1;margin:0;font-weight:600}
 .sc-thr{font-size:22px;color:#55534c;margin-top:6px}
 .sc-qr{flex:none;width:118px;height:118px}
+.sc-loc{flex:none;line-height:0}.sc-loc svg{display:block}
 .sc-qr svg{display:block}
 .sc-hero{margin-top:14px;display:flex;align-items:center;gap:22px;min-height:96px}
 .sc-big{font-family:var(--font-display);font-size:104px;line-height:.9;font-weight:600;color:#2c7a50;
