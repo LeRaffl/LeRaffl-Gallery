@@ -57,19 +57,16 @@ REGION_LABELS = {
 
 
 ACEA_EU = REPO / "reference" / "acea_eu_shares.csv"
+ACEA_EU_MONTHLY = REPO / "reference" / "acea_eu_monthly.csv"
 # ACEA publishes month M around the 22nd–27th of M+1; national data for the
 # EU's 12-month window usually ends one month later than ACEA's latest
-# year-to-date row. More than this many months behind means the monthly
-# fetch (scripts/fetch_acea.py → reference/acea_eu_shares.csv) stopped.
+# month. More than this many months behind means the monthly fetch
+# (scripts/fetch_acea.py → reference/acea_eu_*.csv) stopped.
 ACEA_MAX_LAG = 2
 
 
 def acea_eu_shares(path: Path = ACEA_EU) -> dict | None:
-    """ACEA's own EU powertrain shares, latest release (reference/SOURCES.md).
-
-    Shown on the EU brief as a separate, labelled line: ACEA's figure for
-    the EU, not part of the weighted split from national data.
-    """
+    """ACEA's own EU year-to-date shares, latest release (reference/SOURCES.md)."""
     import csv
     try:
         with path.open(encoding="utf-8", newline="") as fh:
@@ -86,70 +83,127 @@ def acea_eu_shares(path: Path = ACEA_EU) -> dict | None:
             return float(r[k])
         except (KeyError, TypeError, ValueError):
             return None
-    a, b = mc.period_label(r["period_from"]), mc.period_label(r["period_to"])
-    ya, yb = a.split()[-1], b.split()[-1]
-    period = f"{a.split()[0]}–{b}" if ya == yb else f"{a}–{b}"
     return {"hev": num("HEV_share"), "bev": num("BEV_share"), "phev": num("PHEV_share"),
-            "period": period, "from": r["period_from"], "to": r["period_to"],
+            "period": _span_label(r["period_from"], r["period_to"]),
+            "from": r["period_from"], "to": r["period_to"],
             "definition": r.get("hev_definition") or "", "url": r.get("source_url") or "",
             "release": r.get("release") or ""}
 
 
+def _span_label(a: str, b: str) -> str:
+    la, lb = mc.period_label(a), mc.period_label(b)
+    return f"{la.split()[0]}–{lb}" if la.split()[-1] == lb.split()[-1] else f"{la}–{lb}"
+
+
+def acea_eu_ttm(path: Path = ACEA_EU_MONTHLY) -> dict | None:
+    """ACEA's EU HEV share over the latest 12 months and the 12 before.
+
+    From reference/acea_eu_monthly.csv (months derived from ACEA's
+    year-to-date tables). Full-window rule: the latest month that has all
+    24 months behind it; a gap means no figure, never a partial window."""
+    import csv
+    try:
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = [r for r in csv.DictReader(fh) if (r.get("scope") or "") == "EU"]
+    except OSError:
+        return None
+    by: dict[int, dict] = {}
+    for r in rows:
+        idx = mc.month_index(r.get("period") or "")
+        try:
+            vals = {k: int(r[f"{k}_units"]) for k in ("BEV", "PHEV", "HEV", "TOTAL")}
+        except (KeyError, TypeError, ValueError):
+            continue
+        if idx is not None and vals["TOTAL"] > 0:
+            by[idx] = vals
+    for end in sorted(by, reverse=True):
+        if all(end - k in by for k in range(24)):
+            break
+    else:
+        return None
+
+    def share(key, last):
+        months = [by[last - k] for k in range(12)]
+        return 100 * sum(m[key] for m in months) / sum(m["TOTAL"] for m in months)
+
+    def per(idx):
+        return f"{idx // 12}-{idx % 12 + 1:02d}"
+
+    out = {"end": per(end), "span": ((per(end - 23), per(end - 12)), (per(end - 11), per(end)))}
+    for key in ("HEV", "BEV", "PHEV"):
+        k = key.lower()
+        out[k] = share(key, end)
+        out[f"{k}_prior"] = share(key, end - 12)
+        out[f"{k}_delta"] = out[k] - out[f"{k}_prior"]
+    out["window"] = _span_label(*out["span"][1])
+    out["prior_window"] = _span_label(*out["span"][0])
+    return out
+
+
 def acea_lag_months(acea: dict | None, t: str) -> int | None:
-    """Months between ACEA's period end and the brief's data end `t`."""
+    """Months between ACEA's window end and the brief's data end `t`."""
     if not acea:
         return None
-    a, b = mc.month_index(acea.get("to") or ""), mc.month_index(t or "")
+    a, b = mc.month_index(acea.get("end") or acea.get("to") or ""), mc.month_index(t or "")
     if a is None or b is None:
         return None
     return b - a
 
 
-def acea_for_brief(t: str, path: Path = ACEA_EU) -> dict | None:
-    """acea_eu_shares() plus its lag behind `t`. A lag above ACEA_MAX_LAG
-    (or a missing file) prints a warning; the brief then says on the line
-    itself how old the ACEA figure is. `--check-acea` turns it into a failure."""
+def acea_for_brief(t: str, path: Path = ACEA_EU_MONTHLY) -> dict | None:
+    """acea_eu_ttm() plus its lag behind `t`. A lag above ACEA_MAX_LAG (or
+    no full 24-month window) prints a warning; the brief then says how old
+    the ACEA window is. `--check-acea` turns it into a failure."""
     import sys
-    acea = acea_eu_shares(path)
-    lag = acea_lag_months(acea, t)
+    acea = acea_eu_ttm(path)
     if acea is None:
-        print(f"WARNING: no ACEA EU row in {path}; EU brief prints no HEV line",
-              file=sys.stderr)
+        print(f"WARNING: no full 24-month ACEA EU window in {path}; EU brief "
+              "prints no HEV row", file=sys.stderr)
         return None
+    lag = acea_lag_months(acea, t)
     acea["lag"] = lag
     acea["stale"] = lag is None or lag > ACEA_MAX_LAG
     if acea["stale"]:
-        print(f"WARNING: ACEA EU figure ends {acea['to']}, {lag} months before the "
+        print(f"WARNING: ACEA EU window ends {acea['end']}, {lag} months before the "
               f"EU data ({t}); limit {ACEA_MAX_LAG}. Check fetch-acea.yml.",
               file=sys.stderr)
     return acea
 
 
-def acea_line(acea: dict, social: bool = False) -> str:
-    """'ACEA, EU · Jan–Sep 2026  Hybrids (HEV): 36.3 % of new cars …'.
+def acea_shift_row(acea: dict | None) -> dict | None:
+    """The HEV row for "Who gained, who lost": ACEA's window, not ours."""
+    if not acea:
+        return None
+    return {"key": "HEV", "label": "Hybrid (HEV), ACEA", "delta": acea["hev_delta"],
+            "after": acea["hev"], "before": acea["hev_prior"], "source": "ACEA"}
 
-    A separate, labelled line: ACEA's own EU count (full and mild hybrids),
-    never folded into the brief's BEV / PHEV / combustion split, which is
-    weighted from members' national data. The brief adds ACEA's BEV and
-    PHEV for the same period, so the reader can compare like with like."""
+
+def acea_note(acea: dict | None) -> str:
+    """Under the bars: which window and whose count the HEV row is."""
+    if not acea:
+        return ""
+    stale = ""
+    if acea.get("stale"):
+        stale = (f' <span class="acea-stale">Latest ACEA month is {acea.get("lag")} '
+                 'months before the data above.</span>')
+    return (f'<p class="fl-sub fl-acea-note">HEV from ACEA (EU, {esc(acea["window"])} '
+            f'vs 12 months before), full + mild hybrids. Other rows from members\' '
+            f'national data.{stale}</p>')
+
+
+def acea_line(acea: dict | None, social: bool = False) -> str:
+    """Mini card (no "Who gained" block there): the same ACEA HEV figure as
+    one labelled line. The A4 brief carries it as a bar row instead."""
     if not acea or acea.get("hev") is None:
         return ""
     stale = ""
     if acea.get("stale"):
-        # Visible on the page, not only in a log: the figure is older than usual.
-        stale = (f' <span class="acea-stale">Latest ACEA figure, '
-                 f'{acea.get("lag")} months before the data above.</span>')
-    chip = f'<span class="acea-chip">ACEA, EU · {esc(acea["period"])}</span> '
-    hev = f'<b>Hybrids (HEV): {esc(mc.share(acea["hev"]))}</b>'
-    if social:
-        return (f'<span class="sc-acea">{chip}{hev} (full + mild), '
-                f'ACEA\'s own count.{stale}</span>')
-    cmp_ = ""
-    if acea.get("bev") is not None and acea.get("phev") is not None:
-        cmp_ = (f" (same count: BEV {mc.share(acea['bev'])}, "
-                f"PHEV {mc.share(acea['phev'])})")
-    return (f'<p class="fh-acea">{chip}{hev} of new cars{esc(cmp_)}. Full + mild '
-            f'hybrids; ACEA\'s own figure, not in the split above.{stale}</p>')
+        stale = (f' <span class="acea-stale">Latest ACEA month is {acea.get("lag")} '
+                 'months before the data above.</span>')
+    chip = f'<span class="acea-chip">ACEA, EU · {esc(acea["window"])}</span> '
+    return (f'<span class="sc-acea">{chip}<b>Hybrids (HEV): {esc(mc.share(acea["hev"]))}</b>, '
+            f'{esc(mc.points(acea["hev_delta"]))} pts, '
+            f'full + mild.{stale}</span>')
 
 
 def _csv_for(country: str) -> Path:
@@ -966,10 +1020,11 @@ def load(slug: str) -> dict:
 
     acea = acea_for_brief(t) if slug == "eu" else None
     scope_note = (long_note + (" " + mix_note_long if mix_note_long else "")).strip()
-    if acea and acea.get("hev") is not None:
-        scope_note += (f" Mix and who-gained from members' national data; the HEV "
-                       f"share is ACEA's own EU figure (year to date {acea['period']}, full "
-                       f"and mild hybrids, from ACEA's monthly press release).")
+    if acea:
+        scope_note += (f" The HEV row in who-gained is ACEA's own EU count ({acea['window']} "
+                       f"vs {acea['prior_window']}, full and mild hybrids), summed from "
+                       "months derived from ACEA's monthly press releases; mix and the "
+                       "other rows come from members' national data.")
     fm = {
         "country": label,
         "slug": slug,
@@ -984,7 +1039,8 @@ def load(slug: str) -> dict:
         "hev_split": "HEV" in mix_bands,
         # ACEA's own EU HEV share, printed beside (never inside) our split.
         "acea_hev": acea,
-        "acea_html": acea_line(acea),
+        "acea_shift_row": acea_shift_row(acea),
+        "acea_shift_note": acea_note(acea),
         "acea_social": acea_line(acea, social=True),
         # Locator map: every member of the group, in or out of the figure.
         "map_countries": [m["country"] for m in members],
@@ -1179,21 +1235,22 @@ def build(slug: str, theme_href: str, logo_href: str = "../../assets/brands",
     return brief, social, info
 
 
-def check_acea(path: Path = ACEA_EU) -> int:
+def check_acea(path: Path = ACEA_EU_MONTHLY) -> int:
     """CI guard: 0 when ACEA's EU row is at most ACEA_MAX_LAG months behind
     the EU brief's data end, 1 otherwise (missing file included)."""
     members, _, _ = load_members("eu")
     t, contrib, _ = pick_common_end(members)
-    acea = acea_eu_shares(path)
+    acea = acea_eu_ttm(path)
     lag = acea_lag_months(acea, t)
     if acea is None or lag is None:
-        print(f"FAIL: no usable EU row in {path}")
+        print(f"FAIL: no full 24-month EU window in {path}")
         return 1
-    msg = (f"ACEA EU figure {acea['period']} (to {acea['to']}); EU data ends {t}; "
+    msg = (f"ACEA EU window {acea['window']} (HEV {acea['hev']:.1f} %, "
+           f"{acea['hev_delta']:+.1f} pts); EU data ends {t}; "
            f"lag {lag} month(s), limit {ACEA_MAX_LAG}")
     if lag > ACEA_MAX_LAG:
         print(f"FAIL: {msg}. The monthly ACEA fetch (fetch-acea.yml) has not "
-              "written a newer year-to-date row.")
+              "written a newer month.")
         return 1
     print(f"ok: {msg}")
     return 0
