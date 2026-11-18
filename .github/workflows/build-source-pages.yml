@@ -25,6 +25,8 @@ on:
       - 'scripts/build_source_pages.py'
       - 'scripts/model_card.py'      # the model-card sections of each page
       - 'scripts/flyer.py'           # sources/flyer/<slug>.html
+      - 'scripts/locator_map.py'
+      - 'assets/maps/**'
       - 'footnotes.csv'              # chart footnote repeated under Caveats
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
@@ -46,9 +48,12 @@ on:
       - 'scripts/flyer.py'
       - 'scripts/market_structure.py'  # brand block on the brief
       - 'scripts/social_card.py'       # social cards; generation still a follow-up
+      - 'scripts/locator_map.py'       # locator map on briefs and cards
+      - 'assets/maps/**'
       - 'footnotes.csv'
       - 'scripts/test_build_source_pages.py'
       - 'scripts/test_market_structure.py'
+      - 'scripts/test_locator_map.py'
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
       - 'index.html'
@@ -84,6 +89,10 @@ jobs:
       - name: Generator tests (reconciliation section)
         if: github.event_name == 'pull_request'
         run: python3 scripts/test_build_source_pages.py
+
+      - name: Locator map tests
+        if: github.event_name == 'pull_request'
+        run: cd scripts && python3 test_locator_map.py
 
       # assets/theme.css is generated from index.html's :root block (#221), so
       # a palette change there must not leave the standalone pages behind.

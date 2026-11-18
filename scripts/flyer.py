@@ -18,6 +18,7 @@ import math
 
 import segno
 
+import locator_map
 import market_structure as mstr
 import model_card as mc
 from model_card import esc
@@ -527,7 +528,7 @@ def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
             mix += 18
         mix = max(132, mix)
     mix += spare * 8
-    curve = 128 + spare * 14
+    curve = 160 + spare * 14
     if region:
         # Region briefs have no brand block; a short who-gained list should
         # not leave a gap above the footer.
@@ -547,6 +548,11 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     through = mc.period_label(rows[-1]["period"], long=True) if rows else ""
 
     flag = mc.flag_img(slug, country, cls="fl-flag") or fm.get("mark_html") or ""
+    where = locator_map.build(fm.get("map_countries") or [country], 74,
+                              label=f"Where {country} is" if not fm.get("region")
+                              else f"{country}: member countries")
+    if where:
+        where = f'<div class="fl-loc">{where}</div>'
 
     # Hero: the one number, and the mix over time.
     hero_num = ""
@@ -730,7 +736,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
               if fm.get("region") else
               "Country brief · the shift to battery-electric cars")
     return FLYER_TEMPLATE.format(
-        country=esc(country), theme_href=theme_href, css=FLYER_CSS, flag=flag,
+        country=esc(country), theme_href=theme_href, css=FLYER_CSS, flag=flag, where=where,
         through=esc(through), head=esc(head), follow=esc(follow), hero=hero,
         two=two, market=fm.get("carriers_html") or mstr.build_block(market, brand_mode, logo_href),
         curve=curve, foot=foot, compare=compare, slug=esc(slug),
@@ -757,6 +763,9 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fl-mark{background:#eceae4}
 .fl-top h1{font-family:var(--font-display);font-size:30px;line-height:1;margin:0;font-weight:600}
 .fl-kick{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.fl-loc{margin-left:auto;flex:none;line-height:0}
+.fl-loc svg{display:block}
+.fl-loc + .fl-date{margin-left:0}
 .fl-date{margin-left:auto;text-align:right;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
   color:var(--muted);line-height:1.5}
 .fl-date b{display:block;font-size:15px;letter-spacing:0;text-transform:none;color:var(--text)}
@@ -899,7 +908,7 @@ FLYER_TEMPLATE = """<!doctype html>
 <div class="sheet-box"><article class="sheet"><div class="sheet-in">
   <header class="fl-top">{flag}
     <div><h1>{country}</h1><div class="fl-kick">{kicker}</div></div>
-    <div class="fl-date">Data through<b>{through}</b></div></header>
+    {where}<div class="fl-date">Data through<b>{through}</b></div></header>
   <p class="fl-head">{head}</p>
   <p class="fl-follow">{follow}</p>
   {hero}
