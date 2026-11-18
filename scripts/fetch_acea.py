@@ -173,6 +173,18 @@ manual data-quality review rather than blindly overwritten.
 Other countries on the PDF (Austria, Germany, Ireland, Italy, Portugal,
 United Kingdom, EU/EFTA aggregates) are also intentionally skipped — those
 are handled by separate per-country workflows that aren't built yet.
+
+EU-level shares (reference/acea_eu_shares.csv)
+----------------------------------------------
+One exception to "no aggregates": the EUROPEAN UNION row of the
+YEAR-TO-DATE table is written to reference/acea_eu_shares.csv (BEV, PHEV,
+HEV units and shares of TOTAL, period Jan–<target month>, source URL,
+retrieval date, PDF sha256). It is ACEA's own EU figure, printed as such
+on the EU region brief ("Hybrids (HEV) … · ACEA, EU, <period>"); nothing
+in data/ is derived from it and no country CSV is touched. A row is added
+or replaced only when the units change, so a re-run is a byte-for-byte
+no-op. The latest-period short-circuit does not skip a run while that file
+lags the target month. See reference/SOURCES.md.
 """
 import argparse
 import csv
@@ -189,6 +201,14 @@ from pdfplumber.utils.exceptions import PdfminerException
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import acea_split  # noqa: E402
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+EU_REFERENCE = REPO_ROOT / "reference" / "acea_eu_shares.csv"
+EU_REFERENCE_FIELDS = [
+    "period_from", "period_to", "scope", "BEV_share", "PHEV_share", "HEV_share",
+    "BEV_units", "PHEV_units", "HEV_units", "TOTAL_units", "hev_definition",
+    "release", "published", "source_url", "retrieved", "pdf_sha256",
+]
 
 # --- Constants ------------------------------------------------------------
 
@@ -789,6 +809,109 @@ def parse_monthly_table(pdf_path: str, countries: list[str] | None = None,
         raise RuntimeError("Could not locate the MONTHLY country grid in the PDF")
 
 
+# --- EU year-to-date row (reference/acea_eu_shares.csv) --------------------
+
+def parse_eu_ytd(pdf_path: str) -> tuple[dict[str, int], str | None] | None:
+    """The EUROPEAN UNION row of the YEAR-TO-DATE table: ({fuel: current-year
+    units}, period label like "Jan-Sep"), or None when the text layer does
+    not carry it (the pre-April-2026 generator: no text line for the row)."""
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            text = page.extract_text() or ""
+            if "BY MARKET AND POWER SOURCE" not in text:
+                continue
+            if not re.search(r"YEAR[- ]TO[- ]DATE", text):
+                continue
+            label = None
+            m = re.search(r"\b(Jan(?:uary)?\s*-\s*[A-Z][a-z]+)\b", text)
+            if m:
+                label = re.sub(r"\s+", "", m.group(1))
+            for line in text.split("\n"):
+                line = line.strip()
+                if not line.startswith("EUROPEAN UNION "):
+                    continue
+                pairs = _parse_country_pairs(line[len("EUROPEAN UNION"):])
+                if pairs is None:
+                    return None
+                return {f: cur for f, (cur, _prev) in zip(PDF_FUEL_ORDER, pairs)}, label
+    return None
+
+
+def release_date(pdf_path: str) -> str:
+    """The embargo date on page 1 ("6.00 CEST (4.00 GMT), 22 October 2026")
+    as YYYY-MM-DD, or "" when it is not there."""
+    with pdfplumber.open(pdf_path) as pdf:
+        text = (pdf.pages[0].extract_text() or "") if pdf.pages else ""
+    m = re.search(r"GMT\),?\s+(\d{1,2})\s+([A-Z][a-z]+)\s+(\d{4})", text)
+    if not m or m.group(2) not in ENGLISH_MONTHS:
+        return ""
+    return f"{m.group(3)}-{ENGLISH_MONTHS.index(m.group(2)) + 1:02d}-{int(m.group(1)):02d}"
+
+
+def eu_reference_row(units: dict[str, int], period: str, source_url: str,
+                     pdf_sha256: str, today: date, published: str = "") -> dict | None:
+    """A reference row for the year to `period` (YYYY-MM), or None when the
+    parts do not add up to ACEA's TOTAL (more than 0.5 % apart)."""
+    total = units.get("TOTAL") or 0
+    parts = sum(units.get(k, 0) for k in ("BEV", "PHEV", "HEV", "OTHERS", "PETROL", "DIESEL"))
+    if total <= 0 or abs(parts - total) > 0.005 * total:
+        return None
+    year, month = period.split("-")
+    return {
+        "period_from": f"{year}-01", "period_to": period, "scope": "EU",
+        "BEV_share": f"{100 * units['BEV'] / total:.1f}",
+        "PHEV_share": f"{100 * units['PHEV'] / total:.1f}",
+        "HEV_share": f"{100 * units['HEV'] / total:.1f}",
+        "BEV_units": str(units["BEV"]), "PHEV_units": str(units["PHEV"]),
+        "HEV_units": str(units["HEV"]), "TOTAL_units": str(total),
+        "hev_definition": "full and mild hybrids",
+        "release": (f"ACEA press release: New car registrations, "
+                    f"{ENGLISH_MONTHS[int(month) - 1]} {year} (year-to-date table)"),
+        "published": published,
+        "source_url": source_url, "retrieved": today.isoformat(), "pdf_sha256": pdf_sha256,
+    }
+
+
+def update_eu_reference(path: Path, row: dict) -> bool:
+    """Add or replace the row for (scope, period_to). Returns True when the
+    file changed. Same units → no write, so the retrieval date of the first
+    read stays and a re-run leaves the bytes alone."""
+    rows: list[dict] = []
+    if path.is_file():
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+    key = (row["scope"], row["period_to"])
+    unit_cols = ("BEV_units", "PHEV_units", "HEV_units", "TOTAL_units")
+    for i, r in enumerate(rows):
+        if (r.get("scope"), r.get("period_to")) == key:
+            if all(r.get(c) == row[c] for c in unit_cols):
+                return False
+            # ACEA revised the year-to-date figure: keep what we know of the
+            # release, take the new numbers.
+            row = {**row, "published": r.get("published") or row["published"]}
+            rows[i] = row
+            break
+    else:
+        rows.append(row)
+    rows.sort(key=lambda r: (r.get("scope") or "", r.get("period_to") or ""))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=EU_REFERENCE_FIELDS, lineterminator="\n",
+                           extrasaction="ignore")
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, "") for k in EU_REFERENCE_FIELDS})
+    return True
+
+
+def eu_reference_has(path: Path, period: str) -> bool:
+    if not path.is_file():
+        return False
+    with path.open(encoding="utf-8", newline="") as fh:
+        return any(r.get("scope") == "EU" and r.get("period_to") == period
+                   for r in csv.DictReader(fh))
+
+
 # --- Row construction & decision logic ------------------------------------
 
 def build_row(period: str, parsed: dict[str, tuple[int, int]], use_prev: bool,
@@ -981,6 +1104,9 @@ def main() -> int:
                              "workflow's render matrix. Use after a "
                              "stale-checkout render run lost the renders "
                              "while the data commit succeeded.")
+    parser.add_argument("--eu-reference", default=str(EU_REFERENCE),
+                        help="ACEA's EU year-to-date shares file (reference/acea_eu_shares.csv); "
+                             "'' to skip")
     parser.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"),
                         help="Write `changed_countries=<json>` here (workflow output)")
     args = parser.parse_args()
@@ -1015,10 +1141,15 @@ def main() -> int:
     # back-fills (e.g. a country missing one historical month) don't block us.
     if not args.force:
         max_period = latest_period_across(data_dir, ALWAYS_COUNTRIES)
-        if max_period and max_period >= target_period:
+        ref_ok = (not args.eu_reference
+                  or eu_reference_has(Path(args.eu_reference), target_period))
+        if max_period and max_period >= target_period and ref_ok:
             print(f"All always-list CSVs already at {max_period} ≥ {target_period} — "
                   f"nothing to do.")
             return 0
+        if max_period and max_period >= target_period:
+            print(f"Country CSVs at {max_period}, but {args.eu_reference} has no EU row "
+                  f"for {target_period}: fetching the release for it.")
 
     # PDF source
     pdf_url = args.pdf_url or ACEA_URL_TEMPLATE.format(
@@ -1077,10 +1208,38 @@ def main() -> int:
 
     print(f"\nCountries with CSV changes: {changed}")
 
+    ref_changed = False
+    if args.eu_reference:
+        import hashlib
+        eu = parse_eu_ytd(str(tmp_pdf))
+        if eu is None:
+            print("WARNING: no EUROPEAN UNION year-to-date row in the text layer; "
+                  "reference file left as it is.")
+        else:
+            units, ytd_label = eu
+            expected = f"Jan-{month_name[:3]}"
+            if ytd_label and ytd_label not in (expected, f"January-{month_name}"):
+                print(f"WARNING: year-to-date label {ytd_label!r} is not {expected!r}; "
+                      "reference file left as it is.")
+            else:
+                row = eu_reference_row(units, target_period, pdf_url,
+                                       hashlib.sha256(pdf_bytes).hexdigest(), date.today(),
+                                       release_date(str(tmp_pdf)))
+                if row is None:
+                    print("WARNING: EU year-to-date parts do not add up to TOTAL; "
+                          "reference file left as it is.")
+                else:
+                    ref_changed = update_eu_reference(Path(args.eu_reference), row)
+                    print(f"EU year-to-date {row['period_from']}..{row['period_to']}: "
+                          f"BEV {row['BEV_share']} %, PHEV {row['PHEV_share']} %, "
+                          f"HEV {row['HEV_share']} % — "
+                          f"{'written' if ref_changed else 'unchanged'}")
+
     if args.github_output:
         with open(args.github_output, "a", encoding="utf-8") as f:
             f.write(f"changed_countries={json.dumps(changed)}\n")
             f.write(f"any_changed={'true' if changed else 'false'}\n")
+            f.write(f"reference_changed={'true' if ref_changed else 'false'}\n")
 
     return 0
 

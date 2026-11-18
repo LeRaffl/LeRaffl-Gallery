@@ -4,7 +4,9 @@ name: Fetch ACEA data (multi-country)
 # data/<Country>.csv files for every country in the maintainer-defined lists.
 # Two passes per run:
 #
-#   1. fetch job — parses the PDF and writes the changed CSVs in one commit.
+#   1. fetch job — parses the PDF and writes the changed CSVs in one commit,
+#      together with ACEA's EU year-to-date shares in
+#      reference/acea_eu_shares.csv (EU region brief; see reference/SOURCES.md).
 #      The script self-throttles via the latest period across the always-list
 #      countries, so the cheapest run is "all CSVs already at target, no HTTP".
 #
@@ -65,6 +67,7 @@ jobs:
     outputs:
       changed_countries: ${{ steps.fetch.outputs.changed_countries }}
       any_changed: ${{ steps.fetch.outputs.any_changed }}
+      reference_changed: ${{ steps.fetch.outputs.reference_changed }}
     steps:
       - uses: actions/checkout@v5
 
@@ -100,11 +103,15 @@ jobs:
           FORCE: ${{ (inputs.force == true || inputs.force == 'true') && '1' || '' }}
           FORCE_RENDER: ${{ (inputs.force_render == true || inputs.force_render == 'true') && '1' || '' }}
 
+      # reference/acea_eu_shares.csv is ACEA's own EU year-to-date row
+      # (BEV/PHEV/HEV shares) for the EU region brief; it changes once a
+      # month with the release, independently of the country CSVs. It does
+      # not feed the render matrix below (that is country charts only).
       - name: Commit if changed
-        if: steps.fetch.outputs.any_changed == 'true'
+        if: steps.fetch.outputs.any_changed == 'true' || steps.fetch.outputs.reference_changed == 'true'
         uses: EndBug/add-and-commit@v10
         with:
-          add: data
+          add: "['data', 'reference/acea_eu_shares.csv']"
           message: 'chore: update ACEA data (multi-country)'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a

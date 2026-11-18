@@ -635,6 +635,8 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     rng = mc.share_range(rows)
     if rng:
         range_line = f'<p class="fh-range-line">{esc(mc.range_sentence(rng))}</p>'
+    # EU brief: ACEA's own HEV share, a separate labelled line (region_card).
+    range_line += fm.get("acea_html") or ""
     # The locator map takes the room right of the mix: the sheet is laid out
     # wider than A4 and scaled to fit, so a fixed-width mix left it empty.
     loc = f'<div class="fh-loc">{where}</div>' if where else ""
@@ -832,6 +834,11 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fh-month{font-size:13px;margin-top:6px;color:var(--muted)}
 .fh-month b{color:var(--text)}
 .fh-range-line{font-size:12.5px;color:var(--muted);line-height:1.45;margin:8px 0 0;max-width:100%}
+.fh-acea{font-size:12.5px;color:var(--muted);line-height:1.45;margin:4px 0 0}
+.fh-acea b{color:var(--text);font-weight:600}
+.acea-chip{display:inline-block;padding:0 7px;margin-right:4px;border-radius:999px;background:#eceae4;
+  color:#3a3935;font-size:.9em;font-weight:600;letter-spacing:.02em}
+.acea-stale{color:#9a3324;font-weight:600}
 .fh-ytd{margin-top:3px}
 .fh-mix{flex:1;min-width:0}
 .has-loc .fh-mix{flex:none}

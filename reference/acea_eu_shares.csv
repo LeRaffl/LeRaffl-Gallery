@@ -1,0 +1,2 @@
+period_from,period_to,scope,BEV_share,PHEV_share,HEV_share,BEV_units,PHEV_units,HEV_units,TOTAL_units,hev_definition,release,published,source_url,retrieved,pdf_sha256
+2026-01,2026-09,EU,22.7,10.1,36.3,1931465,860257,3090530,8517059,full and mild hybrids,"ACEA press release: New car registrations, September 2026 (year-to-date table)",2026-10-22,https://www.acea.auto/files/Press_release_car_registrations_September_2026.pdf,2026-11-18,da39032b31a6588189b3604dbb7ca92975fe5fd908020720a020242be044f723

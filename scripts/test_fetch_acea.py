@@ -185,6 +185,68 @@ def test_parse_fixtures():
                 assert parts == v["TOTAL"][i], (month, country, i)
 
 
+def test_eu_ytd_row():
+    april = FIX / "Press_release_car_registrations_April_2026.pdf"
+    units, label = quiet(fa.parse_eu_ytd, str(april))
+    assert label == "Jan-Apr", label
+    assert units == {"BEV": 746899, "PHEV": 364067, "HEV": 1447864, "OTHERS": 87970,
+                     "PETROL": 854843, "DIESEL": 292637, "TOTAL": 3794280}, units
+    assert fa.release_date(str(april)) == "2026-05-27"
+    # The old generator has no text line for the row: no guess, no write.
+    assert quiet(fa.parse_eu_ytd, str(FIX / "Press_release_car_registrations_March_2026.pdf")) is None
+
+    url = "https://www.acea.auto/files/Press_release_car_registrations_April_2026.pdf"
+    row = fa.eu_reference_row(units, "2026-04", url, "ab" * 32, date(2026, 5, 28), "2026-05-27")
+    assert (row["period_from"], row["period_to"], row["scope"]) == ("2026-01", "2026-04", "EU")
+    assert (row["BEV_share"], row["PHEV_share"], row["HEV_share"]) == ("19.7", "9.6", "38.2"), row
+    # Parts that do not add up to TOTAL are refused.
+    assert fa.eu_reference_row({**units, "TOTAL": 1000}, "2026-04", url, "", date(2026, 5, 28)) is None
+
+    with tempfile.TemporaryDirectory() as d:
+        ref = Path(d) / "acea_eu_shares.csv"
+        assert not fa.eu_reference_has(ref, "2026-04")
+        assert fa.update_eu_reference(ref, row)
+        first = ref.read_bytes()
+        assert fa.eu_reference_has(ref, "2026-04")
+        # A re-run a day later with the same units leaves the bytes alone.
+        again = fa.eu_reference_row(units, "2026-04", url, "ab" * 32, date(2026, 5, 29), "2026-05-27")
+        assert not fa.update_eu_reference(ref, again)
+        assert ref.read_bytes() == first
+        # A later month is added, older rows keep their bytes.
+        may = fa.eu_reference_row({k: v * 2 for k, v in units.items()}, "2026-05", url,
+                                  "cd" * 32, date(2026, 6, 25), "2026-06-24")
+        assert fa.update_eu_reference(ref, may)
+        lines = ref.read_text().splitlines()
+        assert lines[0] == ",".join(fa.EU_REFERENCE_FIELDS)
+        assert lines[1] == first.decode().splitlines()[1]
+        assert lines[2].startswith("2026-01,2026-05,EU,")
+        # A revised figure for the same month replaces that row only.
+        rev = fa.eu_reference_row({**units, "OTHERS": units["OTHERS"] + 10,
+                                   "TOTAL": units["TOTAL"] + 10},
+                                  "2026-04", url, "ef" * 32, date(2026, 6, 25))
+        assert fa.update_eu_reference(ref, rev)
+        rows = list(csv.DictReader(ref.open()))
+        assert [r["period_to"] for r in rows] == ["2026-04", "2026-05"]
+        assert rows[0]["TOTAL_units"] == str(units["TOTAL"] + 10)
+        assert rows[0]["published"] == "2026-05-27"
+
+
+def test_repo_eu_reference_file():
+    # The committed file has the header main() writes, so the first
+    # automatic run does not rewrite the rows it already has.
+    ref = Path(__file__).resolve().parent.parent / "reference" / "acea_eu_shares.csv"
+    with ref.open(encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh)
+        assert reader.fieldnames == fa.EU_REFERENCE_FIELDS, reader.fieldnames
+        rows = list(reader)
+    assert rows and all(r["scope"] == "EU" for r in rows)
+    for r in rows:
+        total = int(r["TOTAL_units"])
+        for k in ("BEV", "PHEV", "HEV"):
+            assert r[f"{k}_share"] == f"{100 * int(r[f'{k}_units']) / total:.1f}", (r, k)
+        assert r["source_url"].startswith("https://www.acea.auto/files/"), r["source_url"]
+
+
 def main():
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

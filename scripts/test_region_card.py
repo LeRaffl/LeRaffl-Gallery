@@ -173,6 +173,64 @@ def test_empty_hev_is_unknown_in_window_powertrains():
 
 
 
+def _acea_file(d, rows):
+    import csv
+    ref = Path(d) / "acea_eu_shares.csv"
+    with ref.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["period_from", "period_to", "scope", "BEV_share", "PHEV_share",
+                    "HEV_share", "hev_definition", "release", "source_url"])
+        for r in rows:
+            w.writerow(r)
+    return ref
+
+
+def test_acea_latest_row_and_label():
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        ref = _acea_file(d, [
+            ("2026-01", "2026-09", "EU", "22.7", "10.1", "36.3", "full and mild hybrids", "", "u9"),
+            ("2026-01", "2026-08", "EU", "22.0", "9.9", "36.0", "full and mild hybrids", "", "u8"),
+            ("2026-01", "2026-10", "EFTA", "50", "10", "20", "", "", ""),  # other scope
+        ])
+        a = rc.acea_eu_shares(ref)
+        assert (a["to"], a["hev"], a["bev"], a["phev"]) == ("2026-09", 36.3, 22.7, 10.1)
+        assert a["period"] == "Jan–Sep 2026", a["period"]
+        ok = rc.acea_for_brief("2026-10", ref)
+        assert ok["lag"] == 1 and not ok["stale"]
+        line = rc.acea_line(ok)
+        assert "ACEA, EU · Jan–Sep 2026" in line and "Hybrids (HEV): 36.3" in line
+        assert "BEV 22.7" in line and "not in the split above" in line and "ACEA's own figure" in line
+        assert "acea-stale" not in line
+        assert 'class="sc-acea"' in rc.acea_line(ok, social=True)
+        assert rc.acea_line(None) == ""
+
+
+def test_acea_staleness_guard():
+    import contextlib, io, tempfile
+    with tempfile.TemporaryDirectory() as d:
+        ref = _acea_file(d, [("2026-01", "2026-09", "EU", "22.7", "10.1", "36.3", "", "", "")])
+        assert rc.acea_lag_months(rc.acea_eu_shares(ref), "2026-11") == rc.ACEA_MAX_LAG
+        assert not rc.acea_for_brief("2026-11", ref)["stale"]
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            old = rc.acea_for_brief("2026-12", ref)
+        assert old["stale"] and old["lag"] == 3 and "WARNING" in err.getvalue()
+        # On the page, not only in the log.
+        assert "Latest ACEA figure, 3 months before the data above" in rc.acea_line(old)
+        with contextlib.redirect_stderr(io.StringIO()):
+            assert rc.acea_for_brief("2026-10", Path(d) / "missing.csv") is None
+
+
+def test_repo_acea_figure_is_current():
+    # The CI guard: the committed ACEA EU row may lag the EU brief's data by
+    # at most ACEA_MAX_LAG months. Fails when the monthly fetch stopped.
+    import contextlib, io
+    with contextlib.redirect_stdout(io.StringIO()) as out:
+        rc_ = rc.check_acea()
+    assert rc_ == 0, out.getvalue()
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

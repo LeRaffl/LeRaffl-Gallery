@@ -27,6 +27,7 @@ on:
       - 'scripts/flyer.py'           # sources/flyer/<slug>.html
       - 'scripts/locator_map.py'
       - 'assets/maps/**'
+      - 'reference/**'               # ACEA's EU shares on the EU brief
       - 'footnotes.csv'              # chart footnote repeated under Caveats
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
@@ -51,6 +52,7 @@ on:
       - 'scripts/region_card.py'       # region briefs; generation still a follow-up
       - 'scripts/locator_map.py'       # locator map on briefs and cards
       - 'assets/maps/**'
+      - 'reference/**'                 # ACEA's EU shares on the EU brief
       - 'footnotes.csv'
       - 'scripts/test_build_source_pages.py'
       - 'scripts/test_market_structure.py'
@@ -96,6 +98,13 @@ jobs:
         if: github.event_name == 'pull_request'
         run: cd scripts && python3 test_locator_map.py
 
+      # Includes the ACEA guard: reference/acea_eu_shares.csv (written by
+      # fetch-acea.yml each month) may lag the EU data by at most
+      # region_card.ACEA_MAX_LAG months (reference/SOURCES.md).
+      - name: Region brief tests
+        if: github.event_name == 'pull_request'
+        run: cd scripts && python3 test_region_card.py
+
       # assets/theme.css is generated from index.html's :root block (#221), so
       # a palette change there must not leave the standalone pages behind.
       # --check fails the PR rather than silently serving a stale stylesheet.
@@ -130,3 +139,10 @@ jobs:
           # doc push) that landed on the branch while this job ran, instead of
           # failing the push with non-fast-forward and dropping the commit.
           pull: '--rebase --autostash'
+
+      # Daily on master too: fails the run (after the pages are committed)
+      # when ACEA's EU figure stopped updating, so it shows up before a
+      # stale "Hybrids (HEV) · ACEA" line does.
+      - name: ACEA EU figure is current
+        if: github.event_name != 'pull_request'
+        run: cd scripts && python3 region_card.py --check-acea

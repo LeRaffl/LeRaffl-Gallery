@@ -70,6 +70,8 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
                           f'alone: <b>{esc(mc.share(latest["share"]))}</b></span>')
         if rng:
             glance.append(f'<span class="sc-range">{esc(mc.range_sentence(rng))}</span>')
+        if fm.get("acea_social"):
+            glance.append(fm["acea_social"])
         extra = f'<div class="sc-glance">{"".join(glance)}</div>' if glance else ""
         big = mc.share(ttm["share"]).replace(" %", "")
         hero = (f'<div class="sc-hero"><div class="sc-big">{esc(big)}<span>%</span></div>'
@@ -108,6 +110,8 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
     if fm.get("coverage_note"):
         # Region cards name their coverage in the footer: two lines there.
         fixed += 30
+    if fm.get("acea_social") and ttm:
+        fixed += 26   # ACEA's EU HEV line in the glance (EU card)
     chart_h = int(max(300, H - fixed - market_h - 8))
     curve = ""
     if fm.get("region_curve"):
@@ -179,6 +183,11 @@ html,body{margin:0;background:#fdfdfc}
   font-size:18px;color:#3a3935;line-height:1.4}
 .sc-alone b{font-weight:700;color:#1a1a18;font-variant-numeric:tabular-nums}
 .sc-range{flex:1 1 100%;font-size:17px;color:#55534c;line-height:1.4}
+.sc-acea{flex:1 1 100%;font-size:17px;color:#55534c;line-height:1.4}
+.sc-acea b{color:#1a1a18;font-weight:700}
+.sc .acea-chip{display:inline-block;padding:0 9px;margin-right:6px;border-radius:999px;background:#eceae4;
+  color:#3a3935;font-size:15px;font-weight:700;letter-spacing:.02em}
+.sc .acea-stale{color:#9a3324;font-weight:700}
 .sc .wc-flag{width:32px;height:21px;max-height:21px;object-fit:cover;border-radius:1px;
   box-shadow:0 0 0 1px #dcd9d2;flex:none}
 .sc .wc-list{--ms-logo:36px;--ms-name:180px;--ms-pct:72px;--ms-row:26px}
