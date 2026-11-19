@@ -121,35 +121,35 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2023-12,monthly,Whole,api.statbank.dk (BIL53),9864.0,1717.0,,5865.0,1758.0,,0.0,19204.0,
 2024-01,monthly,Whole,api.statbank.dk (BIL53),3115.0,365.0,,4881.0,500.0,,0.0,8861.0,
 2024-02,monthly,Whole,api.statbank.dk (BIL53),4970.0,522.0,,5120.0,663.0,,0.0,11275.0,
-2024-03,monthly,Whole,api.statbank.dk (BIL53),7071.0,848.0,,7641.0,1388.0,,0.0,16948.0,
-2024-04,monthly,Whole,api.statbank.dk (BIL53),6572.0,768.0,,6988.0,1035.0,,0.0,15363.0,
-2024-05,monthly,Whole,api.statbank.dk (BIL53),7228.0,628.0,,5613.0,1178.0,,0.0,14647.0,
-2024-06,monthly,Whole,api.statbank.dk (BIL53),9931.0,617.0,,7348.0,1682.0,,0.0,19578.0,
-2024-07,monthly,Whole,api.statbank.dk (BIL53),5926.0,442.0,,4369.0,841.0,,0.0,11578.0,
+2024-03,monthly,Whole,api.statbank.dk (BIL53) / ACEA,7071.0,848.0,4021.0,4517.0,491.0,,0.0,16948.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently) (derived: ACEA YTD minus the prior month's YTD)
+2024-04,monthly,Whole,api.statbank.dk (BIL53) / ACEA,6572.0,768.0,2458.0,5059.0,506.0,,0.0,15363.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2024-05,monthly,Whole,api.statbank.dk (BIL53) / ACEA,7228.0,628.0,2557.0,3593.0,641.0,,0.0,14647.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently) (derived: ACEA YTD minus the prior month's YTD)
+2024-06,monthly,Whole,api.statbank.dk (BIL53) / ACEA,9931.0,617.0,3619.0,4313.0,1098.0,,0.0,19578.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently) (derived: ACEA YTD minus the prior month's YTD)
+2024-07,monthly,Whole,api.statbank.dk (BIL53) / ACEA,5926.0,442.0,2111.0,2568.0,531.0,,0.0,11578.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
 2024-08,monthly,Whole,api.statbank.dk (BIL53),7033.0,436.0,,4577.0,819.0,,0.0,12865.0,
 2024-09,monthly,Whole,api.statbank.dk (BIL53),8888.0,610.0,,4943.0,1132.0,,0.0,15573.0,
-2024-10,monthly,Whole,api.statbank.dk (BIL53),8816.0,568.0,,4230.0,771.0,,0.0,14385.0,
-2024-11,monthly,Whole,api.statbank.dk (BIL53),8757.0,570.0,,4424.0,1200.0,,0.0,14951.0,
-2024-12,monthly,Whole,api.statbank.dk (BIL53),10730.0,693.0,,5002.0,988.0,,0.0,17413.0,
-2025-01,monthly,Whole,api.statbank.dk (BIL53),6953.0,190.0,,3268.0,442.0,,0.0,10853.0,
-2025-02,monthly,Whole,api.statbank.dk (BIL53),7718.0,326.0,,3170.0,465.0,,0.0,11679.0,
-2025-03,monthly,Whole,api.statbank.dk (BIL53),9828.0,567.0,,3943.0,724.0,,0.0,15062.0,
-2025-04,monthly,Whole,api.statbank.dk (BIL53),9560.0,524.0,,4275.0,879.0,,0.0,15238.0,
-2025-05,monthly,Whole,api.statbank.dk (BIL53),10939.0,457.0,,5748.0,917.0,,0.0,18061.0,
-2025-06,monthly,Whole,api.statbank.dk (BIL53),12113.0,643.0,,5475.0,876.0,,15.0,19122.0,
-2025-07,monthly,Whole,api.statbank.dk (BIL53),9272.0,426.0,,3374.0,808.0,,13.0,13893.0,
-2025-08,monthly,Whole,api.statbank.dk (BIL53),8979.0,393.0,,2824.0,883.0,,0.0,13079.0,
-2025-09,monthly,Whole,api.statbank.dk (BIL53),12987.0,302.0,,3299.0,1186.0,,0.0,17774.0,
-2025-10,monthly,Whole,api.statbank.dk (BIL53),11392.0,309.0,,3486.0,985.0,,0.0,16172.0,
-2025-11,monthly,Whole,api.statbank.dk (BIL53),11721.0,252.0,,3125.0,839.0,,0.0,15937.0,
-2025-12,monthly,Whole,api.statbank.dk (BIL53),14948.0,437.0,,2437.0,703.0,,0.0,18525.0,
-2026-01,monthly,Whole,api.statbank.dk (BIL53),10609.0,141.0,,1717.0,406.0,,1.0,12874.0,
-2026-02,monthly,Whole,api.statbank.dk (BIL53),9727.0,122.0,,1533.0,675.0,,2.0,12059.0,
-2026-03,monthly,Whole,api.statbank.dk (BIL53),14603.0,147.0,,3474.0,844.0,,0.0,19068.0,
-2026-04,monthly,Whole,api.statbank.dk (BIL53),13715.0,119.0,,2175.0,826.0,,0.0,16835.0,
-2026-05,monthly,Whole,api.statbank.dk (BIL53),15018.0,99.0,,3229.0,828.0,,0.0,19174.0,
-2026-06,monthly,Whole,api.statbank.dk (BIL53),16990.0,85.0,,3448.0,1059.0,,0.0,21582.0,
-2026-07,monthly,Whole,api.statbank.dk (BIL53),11669.0,27.0,,2301.0,683.0,,0.0,14680.0,
-2026-08,monthly,Whole,api.statbank.dk (BIL53),13875.0,18.0,,1593.0,731.0,,0.0,16217.0,
-2026-09,monthly,Whole,api.statbank.dk (BIL53),17777.0,22.0,,1665.0,599.0,,0.0,20063.0,
+2024-10,monthly,Whole,api.statbank.dk (BIL53) / ACEA,8816.0,568.0,2104.0,2354.0,543.0,,0.0,14385.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently) (derived: ACEA YTD minus the prior month's YTD)
+2024-11,monthly,Whole,api.statbank.dk (BIL53) / ACEA,8757.0,570.0,2317.0,2510.0,797.0,,0.0,14951.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2024-12,monthly,Whole,api.statbank.dk (BIL53) / ACEA,10730.0,693.0,2670.0,2793.0,527.0,,0.0,17413.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-01,monthly,Whole,api.statbank.dk (BIL53) / ACEA,6953.0,190.0,1377.0,1978.0,355.0,,0.0,10853.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-02,monthly,Whole,api.statbank.dk (BIL53) / ACEA,7718.0,326.0,1453.0,1956.0,226.0,,0.0,11679.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-03,monthly,Whole,api.statbank.dk (BIL53) / ACEA,9828.0,567.0,2223.0,2011.0,433.0,,0.0,15062.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-04,monthly,Whole,api.statbank.dk (BIL53) / ACEA,9560.0,524.0,2289.0,2464.0,401.0,,0.0,15238.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-05,monthly,Whole,api.statbank.dk (BIL53) / ACEA,10939.0,457.0,2899.0,3327.0,439.0,,0.0,18061.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-06,monthly,Whole,api.statbank.dk (BIL53) / ACEA,12113.0,643.0,2625.0,3260.0,466.0,,15.0,19122.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-07,monthly,Whole,api.statbank.dk (BIL53) / ACEA,9272.0,426.0,1850.0,1924.0,408.0,,13.0,13893.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-08,monthly,Whole,api.statbank.dk (BIL53) / ACEA,8979.0,393.0,1662.0,1590.0,455.0,,0.0,13079.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-09,monthly,Whole,api.statbank.dk (BIL53) / ACEA,12987.0,302.0,2294.0,1619.0,572.0,,0.0,17774.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-10,monthly,Whole,api.statbank.dk (BIL53) / ACEA,11392.0,309.0,2554.0,1424.0,493.0,,0.0,16172.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-11,monthly,Whole,api.statbank.dk (BIL53) / ACEA,11721.0,252.0,2094.0,1515.0,355.0,,0.0,15937.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2025-12,monthly,Whole,api.statbank.dk (BIL53) / ACEA,14948.0,437.0,1808.0,1035.0,297.0,,0.0,18525.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2026-01,monthly,Whole,api.statbank.dk (BIL53) / ACEA,10609.0,141.0,1264.0,604.0,255.0,,1.0,12874.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2026-02,monthly,Whole,api.statbank.dk (BIL53) / ACEA,9727.0,122.0,1165.0,615.0,428.0,,2.0,12059.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2026-03,monthly,Whole,api.statbank.dk (BIL53) / ACEA,14603.0,147.0,2700.0,1258.0,360.0,,0.0,19068.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2026-04,monthly,Whole,api.statbank.dk (BIL53) / ACEA,13715.0,119.0,1655.0,973.0,373.0,,0.0,16835.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2026-05,monthly,Whole,api.statbank.dk (BIL53) / ACEA,15018.0,99.0,2265.0,1325.0,467.0,,0.0,19174.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2026-06,monthly,Whole,api.statbank.dk (BIL53) / ACEA,16990.0,85.0,2653.0,1228.0,626.0,,0.0,21582.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2026-07,monthly,Whole,api.statbank.dk (BIL53) / ACEA,11669.0,27.0,1810.0,795.0,379.0,,0.0,14680.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently); July derived from Aug YTD minus Jun YTD minus Aug monthly (ACEA has no July release)
+2026-08,monthly,Whole,api.statbank.dk (BIL53) / ACEA,13875.0,18.0,1461.0,467.0,396.0,,0.0,16217.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
+2026-09,monthly,Whole,api.statbank.dk (BIL53) / ACEA,17777.0,22.0,1427.0,545.0,292.0,,0.0,20063.0,TOTAL/BEV/PHEV api.statbank.dk (BIL53) statistics; HEV ACEA (counted); petrol/diesel split the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)
 2026-10,monthly,Whole,api.statbank.dk (BIL53),16673.0,26.0,,1745.0,457.0,,0.0,18901.0,

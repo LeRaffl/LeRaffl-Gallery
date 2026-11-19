@@ -121,35 +121,35 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2023-12,monthly,Whole,pxdata.stat.fi (StatFin 121d),2104.0,1503.0,,1850.0,328.0,,16.0,5801.0,
 2024-01,monthly,Whole,pxdata.stat.fi (StatFin 121d),1588.0,1545.0,,3040.0,400.0,,19.0,6592.0,
 2024-02,monthly,Whole,pxdata.stat.fi (StatFin 121d),1330.0,1237.0,,2438.0,331.0,,39.0,5375.0,
-2024-03,monthly,Whole,pxdata.stat.fi (StatFin 121d),1852.0,1406.0,,2903.0,308.0,,18.0,6487.0,
-2024-04,monthly,Whole,pxdata.stat.fi (StatFin 121d),1678.0,1199.0,,2948.0,323.0,,12.0,6160.0,
-2024-05,monthly,Whole,pxdata.stat.fi (StatFin 121d),2223.0,1362.0,,3739.0,443.0,,15.0,7782.0,
-2024-06,monthly,Whole,pxdata.stat.fi (StatFin 121d),1901.0,1068.0,,3307.0,464.0,,26.0,6766.0,
-2024-07,monthly,Whole,pxdata.stat.fi (StatFin 121d),1340.0,949.0,,2579.0,324.0,,6.0,5198.0,
+2024-03,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1852.0,1406.0,2047.0,887.0,275.0,,20.0,6487.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest (derived: ACEA YTD minus the prior month's YTD)
+2024-04,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1678.0,1199.0,2126.0,854.0,289.0,,14.0,6160.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2024-05,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2223.0,1362.0,2728.0,1078.0,377.0,,14.0,7782.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest (derived: ACEA YTD minus the prior month's YTD)
+2024-06,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1901.0,1068.0,2189.0,1163.0,418.0,,27.0,6766.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest (derived: ACEA YTD minus the prior month's YTD)
+2024-07,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1340.0,949.0,1795.0,815.0,293.0,,6.0,5198.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
 2024-08,monthly,Whole,pxdata.stat.fi (StatFin 121d),1893.0,1341.0,,2976.0,333.0,,6.0,6549.0,
 2024-09,monthly,Whole,pxdata.stat.fi (StatFin 121d),1841.0,1042.0,,1539.0,176.0,,5.0,4603.0,
-2024-10,monthly,Whole,pxdata.stat.fi (StatFin 121d),1901.0,1334.0,,2425.0,272.0,,5.0,5937.0,
-2024-11,monthly,Whole,pxdata.stat.fi (StatFin 121d),1995.0,1201.0,,2906.0,238.0,,3.0,6343.0,
-2024-12,monthly,Whole,pxdata.stat.fi (StatFin 121d),2329.0,1179.0,,2572.0,200.0,,3.0,6283.0,
-2025-01,monthly,Whole,pxdata.stat.fi (StatFin 121d),1641.0,1367.0,,2455.0,282.0,,0.0,5745.0,
-2025-02,monthly,Whole,pxdata.stat.fi (StatFin 121d),1563.0,1035.0,,1984.0,204.0,,0.0,4786.0,
-2025-03,monthly,Whole,pxdata.stat.fi (StatFin 121d),2435.0,1208.0,,2282.0,251.0,,0.0,6176.0,
-2025-04,monthly,Whole,pxdata.stat.fi (StatFin 121d),2301.0,1298.0,,2371.0,281.0,,0.0,6251.0,
-2025-05,monthly,Whole,pxdata.stat.fi (StatFin 121d),2296.0,1435.0,,2853.0,268.0,,1.0,6853.0,
-2025-06,monthly,Whole,pxdata.stat.fi (StatFin 121d),2491.0,1553.0,,3094.0,309.0,,5.0,7452.0,
-2025-07,monthly,Whole,pxdata.stat.fi (StatFin 121d),1971.0,1141.0,,2039.0,271.0,,3.0,5425.0,
-2025-08,monthly,Whole,pxdata.stat.fi (StatFin 121d),1941.0,1151.0,,1900.0,270.0,,0.0,5262.0,
-2025-09,monthly,Whole,pxdata.stat.fi (StatFin 121d),2592.0,1106.0,,2092.0,209.0,,0.0,5999.0,
-2025-10,monthly,Whole,pxdata.stat.fi (StatFin 121d),2225.0,1220.0,,2492.0,282.0,,0.0,6219.0,
-2025-11,monthly,Whole,pxdata.stat.fi (StatFin 121d),2337.0,1130.0,,2381.0,328.0,,0.0,6176.0,
-2025-12,monthly,Whole,pxdata.stat.fi (StatFin 121d),2956.0,876.0,,1568.0,148.0,,0.0,5548.0,
-2026-01,monthly,Whole,pxdata.stat.fi (StatFin 121d),2505.0,789.0,,1966.0,202.0,,0.0,5462.0,
-2026-02,monthly,Whole,pxdata.stat.fi (StatFin 121d),2189.0,796.0,,1720.0,244.0,,0.0,4949.0,
-2026-03,monthly,Whole,pxdata.stat.fi (StatFin 121d),3369.0,897.0,,2306.0,221.0,,0.0,6793.0,
-2026-04,monthly,Whole,pxdata.stat.fi (StatFin 121d),2784.0,637.0,,2072.0,213.0,,0.0,5706.0,
-2026-05,monthly,Whole,pxdata.stat.fi (StatFin 121d),3309.0,722.0,,2540.0,212.0,,0.0,6783.0,
-2026-06,monthly,Whole,pxdata.stat.fi (StatFin 121d),3644.0,911.0,,2711.0,300.0,,0.0,7566.0,
-2026-07,monthly,Whole,pxdata.stat.fi (StatFin 121d),3114.0,711.0,,2025.0,196.0,,0.0,6046.0,
-2026-08,monthly,Whole,pxdata.stat.fi (StatFin 121d),3427.0,624.0,,2405.0,187.0,,0.0,6643.0,
-2026-09,monthly,Whole,pxdata.stat.fi (StatFin 121d),4338.0,765.0,,1737.0,145.0,,0.0,6985.0,
+2024-10,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1901.0,1334.0,1623.0,821.0,252.0,,6.0,5937.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest (derived: ACEA YTD minus the prior month's YTD)
+2024-11,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1995.0,1201.0,1765.0,1152.0,222.0,,8.0,6343.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2024-12,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2329.0,1179.0,1411.0,1171.0,190.0,,3.0,6283.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-01,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1641.0,1367.0,1776.0,706.0,255.0,,0.0,5745.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-02,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1563.0,1035.0,1398.0,598.0,190.0,,2.0,4786.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-03,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2435.0,1208.0,1626.0,667.0,240.0,,0.0,6176.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-04,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2301.0,1298.0,1649.0,737.0,266.0,,0.0,6251.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-05,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2296.0,1435.0,1814.0,1048.0,257.0,,3.0,6853.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-06,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2491.0,1553.0,2005.0,1115.0,282.0,,6.0,7452.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-07,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1971.0,1141.0,1425.0,637.0,250.0,,1.0,5425.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-08,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,1941.0,1151.0,1349.0,564.0,257.0,,0.0,5262.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-09,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2592.0,1106.0,1561.0,537.0,203.0,,0.0,5999.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-10,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2225.0,1220.0,1979.0,528.0,267.0,,0.0,6219.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-11,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2337.0,1130.0,1872.0,518.0,319.0,,0.0,6176.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2025-12,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2956.0,876.0,1115.0,461.0,138.0,,2.0,5548.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2026-01,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2505.0,789.0,1488.0,503.0,177.0,,0.0,5462.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2026-02,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2189.0,796.0,1327.0,403.0,234.0,,0.0,4949.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2026-03,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,3369.0,897.0,1807.0,513.0,205.0,,2.0,6793.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2026-04,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,2784.0,637.0,1609.0,478.0,197.0,,1.0,5706.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2026-05,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,3309.0,722.0,2042.0,507.0,203.0,,0.0,6783.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2026-06,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,3644.0,911.0,2102.0,616.0,293.0,,0.0,7566.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2026-07,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,3114.0,711.0,1636.0,398.0,187.0,,0.0,6046.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest; July derived from Aug YTD minus Jun YTD minus Aug monthly (ACEA has no July release)
+2026-08,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,3427.0,624.0,2020.0,399.0,173.0,,0.0,6643.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
+2026-09,monthly,Whole,pxdata.stat.fi (StatFin 121d) / ACEA,4338.0,765.0,1234.0,511.0,136.0,,1.0,6985.0,TOTAL/BEV/PHEV pxdata.stat.fi (StatFin 121d) statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
 2026-10,monthly,Whole,pxdata.stat.fi (StatFin 121d),3417.0,560.0,,1527.0,181.0,,0.0,5685.0,

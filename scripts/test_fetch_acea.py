@@ -175,7 +175,8 @@ def test_parse_fixtures():
         pdf = FIX / f"Press_release_car_registrations_{month}_2026.pdf"
         parsed, label = quiet(fa.parse_monthly_table, str(pdf))
         assert label == f"{month} 2026", label
-        assert set(parsed) == set(fa.ALL_COUNTRIES), set(fa.ALL_COUNTRIES) - set(parsed)
+        assert set(parsed) == set(fa.ALL_COUNTRIES + fa.SPLIT_ONLY_COUNTRIES), \
+            set(fa.ALL_COUNTRIES + fa.SPLIT_ONLY_COUNTRIES) - set(parsed)
         assert parsed["Bulgaria"] == bulgaria, parsed["Bulgaria"]
         for country, v in parsed.items():
             if country == "Malta":
@@ -324,6 +325,89 @@ def main():
         fn()
         print(f"ok  {name}")
     print(f"{len(tests)} passed")
+
+
+# --- SPLIT_ONLY countries (Denmark/Finland, Greece pattern) ----------------
+
+_SPLIT_FIELDS = ["period", "time_interval", "variant", "source", "BEV", "PHEV",
+                 "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL", "notes"]
+_SPLIT_PARSED = {"BEV": (17784, 15000), "PHEV": (23, 400), "HEV": (1427, 900),
+                 "OTHERS": (46, 30), "PETROL": (515, 2500), "DIESEL": (276, 700),
+                 "TOTAL": (20025, 19000)}
+
+
+def _split_csv(tmp, country, source, total=20063.0, bev=17777.0, phev=22.0,
+               petrol=1665.0, diesel=599.0, header_only=False):
+    p = Path(tmp) / f"{country}.csv"
+    with p.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=_SPLIT_FIELDS)
+        w.writeheader()
+        if not header_only:
+            w.writerow({"period": "2026-09", "time_interval": "monthly",
+                        "variant": "Whole", "source": source, "BEV": str(bev),
+                        "PHEV": str(phev), "HEV": "", "PETROL": str(petrol),
+                        "DIESEL": str(diesel), "OTHERS": "", "TOTAL": str(total),
+                        "notes": "https://example.org/national"})
+    return p
+
+
+def test_split_only_merges_acea_split_onto_national_row():
+    """Denmark's merge mode: HEV is ACEA's count; petrol/diesel ratio-scale
+    the national combustion residual (TOTAL-BEV-PHEV-OTHERS-HEV) by ACEA's
+    own petrol:diesel ratio, because statbank BIL53 and ACEA revise the
+    same register independently and the strict counted-split gate (used
+    for Greece/Finland) refuses too many months on Denmark's small PHEV
+    counts. Expected math: residual 20063-17777-22-0=2264, minus HEV 1427
+    = 837, split 515:276 -> petrol round(837*515/791)=545, diesel=292."""
+    with tempfile.TemporaryDirectory() as tmp:
+        p = _split_csv(tmp, "Denmark", "api.statbank.dk (BIL53)")
+        changed = quiet(fa.update_country, Path(tmp), "Denmark",
+                        _SPLIT_PARSED, "2026-09", URL)
+        assert changed
+        row = next(csv.DictReader(p.open(encoding="utf-8")))
+        assert float(row["HEV"]) == 1427 and float(row["PETROL"]) == 545
+        assert float(row["DIESEL"]) == 292
+        assert float(row["PETROL"]) + float(row["DIESEL"]) + float(row["HEV"]) == 2264
+        # national totals stay national
+        assert float(row["TOTAL"]) == 20063 and float(row["BEV"]) == 17777
+        assert float(row["PHEV"]) == 22
+        assert row["source"] == "api.statbank.dk (BIL53) / ACEA"
+        assert "ACEA" in row["notes"]
+        # Denmark's note must describe the ratio-scaled split, not the
+        # strict counted split (Greece/Finland) — regression guard for the
+        # note-selection bug where every country got acea_split.NOTE.
+        assert "ratio" in row["notes"]
+        assert "counted" in row["notes"]  # HEV is still counted
+
+
+def test_split_only_never_creates_a_row():
+    with tempfile.TemporaryDirectory() as tmp:
+        p = _split_csv(tmp, "Denmark", "api.statbank.dk (BIL53)", header_only=True)
+        changed = quiet(fa.update_country, Path(tmp), "Denmark",
+                        _SPLIT_PARSED, "2026-09", URL)
+        assert not changed
+        assert list(csv.DictReader(p.open(encoding="utf-8"))) == []
+
+
+def test_split_only_refuses_a_scope_mismatch():
+    with tempfile.TemporaryDirectory() as tmp:
+        p = _split_csv(tmp, "Denmark", "api.statbank.dk (BIL53)",
+                       total=35529.0, bev=18858.0, phev=6050.0)
+        changed = quiet(fa.update_country, Path(tmp), "Denmark",
+                        _SPLIT_PARSED, "2026-09", URL)
+        assert not changed
+        row = next(csv.DictReader(p.open(encoding="utf-8")))
+        assert row["HEV"] == "" and row["source"] == "api.statbank.dk (BIL53)"
+
+
+def test_netherlands_latvia_are_not_split_candidates():
+    import acea_split
+    for c in ("Netherlands", "Latvia"):
+        assert c not in fa.SPLIT_ONLY_COUNTRIES
+        assert c not in acea_split.NATIONAL_SOURCE
+    assert not fa.should_write("Netherlands", "current",
+                               {"source": "duurzamemobiliteit.databank.nl (RDW)"})
+    assert not fa.should_write("Latvia", "current", {"source": "CSDD"})
 
 
 if __name__ == "__main__":

@@ -22,6 +22,7 @@ variant_notes:
   HDV: New lorries (BILTYPE 4000103000).
   Vans: New vans (BILTYPE 4000102000).
 hev_split: false
+hev_note: "HEV counted by ACEA (full + mild hybrids) on the national TOTAL/BEV/PHEV; petrol/diesel ratio-scale the national combustion residual after HEV by ACEA's ratio (statbank and ACEA revise the same register independently)."
 fcev: folded into OTHERS
 backfill: pre-2018 Whole rows already in data/Denmark.csv
 scope_note: Whole = all new registrations; Private / Industry split by terms of use.
@@ -175,13 +176,37 @@ label text. For us both fold into `OTHERS`, so the ambiguity is moot.
 If a future schema change splits them, `DRIV_TO_COL` in the script needs
 no change.
 
-### The HEV gap
+### HEV from ACEA (counted HEV, ratio-scaled petrol/diesel)
 
-Same as for Netherlands — Statbank does not separately publish full-hybrid
-registrations; they land in `Petrol` or `Diesel`. The downstream TTM
-stacked-shares plot for Denmark has no HEV slice, the post text drops
-the "(of which X%p were HEV)" line, and the BEV/PHEV/ICE trajectory is
-unaffected (ICE share is `(TOTAL − BEV − PHEV − EREV)/TOTAL`).
+Statbank does not separately publish hybrid registrations; they land in
+`Petrol` or `Diesel`. ACEA's release carries a counted HEV figure for the
+same register, so `scripts/fetch_acea.py` merges it onto the national row
+(`scripts/acea_split.py`, Denmark mode): TOTAL, BEV, PHEV and OTHERS stay
+national, HEV becomes ACEA's count, and petrol/diesel split the national
+combustion residual (TOTAL − BEV − PHEV − OTHERS − HEV) by ACEA's own
+petrol:diesel ratio. The seven columns still sum to TOTAL exactly.
+
+Denmark uses this counted-HEV / ratio-scaled mode rather than the strict
+counted split (Greece/Finland) because statbank BIL53 and ACEA relay the
+same register but revise it independently: their TOTAL/BEV agree to <1%
+while PHEV (a few hundred cars a month) drifts by more than the strict 2%
+plugin gate in many months — the strict merge refused ~13 of 35 backfill
+months and left holes. The gate here only confirms same-month (TOTAL and
+BEV within 2%); PHEV is not gated because the national PHEV is kept, not
+ACEA's. The merge is refused when ACEA's HEV exceeds the national
+combustion residual or ACEA reports no petrol+diesel to ratio from. The
+row's source becomes `api.statbank.dk (BIL53) / ACEA`. Denmark is
+SPLIT_ONLY: no national row, no write — ACEA never creates a Danish row.
+
+ACEA's HEV includes mild hybrids (full + mild), so `hev_split` stays false
+and the brief labels the row "Hybrid", not "Full hybrid". The backfill
+(`scripts/backfill_acea_split.py`) covers 2023-11 onward from the public
+release PDFs; July 2026 is derived from the August YTD table minus June
+YTD minus August monthly (ACEA has no July release). The BEV/PHEV/ICE
+trajectory is unaffected (ICE share is `(TOTAL − BEV − PHEV − EREV)/TOTAL`);
+the TTM stacked-shares plot gains its HEV slice from the first fully
+merged 12-month window, and the brief's "Who gained, who lost" shows
+hybrids as their own row instead of hiding them in petrol/diesel.
 
 ## 4. History and the HDV-2021 quirk
 

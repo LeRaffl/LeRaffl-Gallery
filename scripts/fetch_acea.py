@@ -127,10 +127,13 @@ The maintainer enumerated two lists:
   monthly workbook from 2021-01; ACEA only fills a month that workbook has
   not delivered yet, and is replaced by it on the next run.)
 
-Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
-on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
-from national databases/registries that also carry variants ACEA doesn't expose
-(Private / Industry / Used / HDV / Vans / Buses).
+France, Netherlands, Spain, Sweden and Switzerland appear on ACEA's PDF
+but are intentionally out of scope here — the maintainer pulls those from
+national databases/registries that also carry variants ACEA doesn't expose
+(Private / Industry / Used / HDV / Vans / Buses). Denmark and Finland are
+SPLIT_ONLY (below): the national row stays authoritative for TOTAL/BEV/PHEV,
+ACEA contributes only its counted HEV/PETROL/DIESEL, because the national
+fuel split parks hybrids inside petrol/diesel.
 
 Poland is a special case: it is PZPM-primary (scripts/fetch_poland.py, the
 CEP-based upstream behind ACEA's Poland numbers, additionally carrying
@@ -298,6 +301,23 @@ CONDITIONAL_COUNTRIES = [
 # Sweden additionally has a non-standard schema (FLEXFUEL column) that ACEA
 # can't fill. Each is handled by its own workflow.
 ALL_COUNTRIES = ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES
+
+# Split-only countries: the national registry is authoritative for
+# TOTAL/BEV/PHEV, but its fuel split parks hybrids inside petrol/diesel
+# (Denmark BIL53, Finland StatFin 121d). ACEA's release carries the counted
+# HEV/PETROL/DIESEL for the same register, so merge_split puts ACEA's split
+# on the national row (Greece/SEAA pattern, scripts/acea_split.py). These
+# countries are NEVER created from ACEA: no national row, no write.
+#
+# Not on this list, for cause:
+# * Netherlands — RDW's duurzame-mobiliteit databank and ACEA's NL figure
+#   are different scopes (Sep 2026: TOTAL 35,529 vs 36,259, PHEV 6,050 vs
+#   6,409); the merge tolerances refuse it, and loosening them would mix
+#   definitions in one series. Needs the narrower RDW connection first.
+# * Latvia — CSDD counts every hybrid inside petrol/diesel and ACEA relays
+#   CSDD's own classification (Sep 2026: ACEA HEV = 0). There is no counted
+#   HEV to merge; CSDD must break it out first (issue #413).
+SPLIT_ONLY_COUNTRIES = ["Denmark", "Finland"]
 
 ENGLISH_MONTHS = [
     "January", "February", "March", "April", "May", "June",
@@ -805,7 +825,7 @@ def parse_monthly_table(pdf_path: str, countries: list[str] | None = None,
     `countries` defaults to the countries this fetcher writes; a caller that
     only reads the release (fetch_switzerland.py --acea-check) names its own.
     """
-    wanted = set(countries or ALL_COUNTRIES)
+    wanted = set(countries or ALL_COUNTRIES + SPLIT_ONLY_COUNTRIES)
     with pdfplumber.open(pdf_path) as pdf:
         countries, period_label = _parse_via_text(pdf, wanted)
         if countries:
@@ -1199,7 +1219,7 @@ def merge_split(country: str, period: str, kind: str, existing: dict,
     Returns True if the row changed."""
     idx = 1 if use_prev else 0
     acea = {fuel: float(vals[idx]) for fuel, vals in parsed.items()}
-    merged = acea_split.merge(existing, acea)
+    merged = acea_split.merge(existing, acea, country=country)
     if merged is None:
         print(f"    {country} {period} ({kind}): {acea_split.why_not(existing, acea)}")
         return False
@@ -1210,7 +1230,8 @@ def merge_split(country: str, period: str, kind: str, existing: dict,
     new["source"] = acea_split.MERGED_SOURCE[country]
     prov = (existing.get("notes") or "").startswith("provisional")
     nat = acea_split.NATIONAL_SOURCE[country] + (" press release" if prov else "")
-    new["notes"] = ("provisional — " if prov else "") + acea_split.NOTE.format(nat=nat)
+    note = acea_split.DK_NOTE if country == "Denmark" else acea_split.NOTE
+    new["notes"] = ("provisional — " if prov else "") + note.format(nat=nat)
     if all(str(new[k]) == str(existing.get(k)) for k in new) or (
             (existing.get("source") or "").strip() == new["source"]
             and all(abs(float(existing.get(k) or 0) - float(new[k])) < 0.5
@@ -1237,6 +1258,10 @@ def update_country(data_dir: Path, country: str,
         ("previous_year", prev_year_period(target_period), True),
     ):
         existing = by_period.get(period)
+        if country in SPLIT_ONLY_COUNTRIES and existing is None:
+            print(f"    {country} {period} ({kind}): skipped "
+                  "(split-only: no national row to merge into)")
+            continue
         national = acea_split.NATIONAL_SOURCE.get(country)
         if existing is not None and national and (existing.get("source") or "").strip() in (
                 national, acea_split.MERGED_SOURCE[country]):
@@ -1329,7 +1354,7 @@ def main() -> int:
               f"matrix for {len(ALL_COUNTRIES)} countries.")
         if args.github_output:
             with open(args.github_output, "a", encoding="utf-8") as f:
-                f.write(f"changed_countries={json.dumps(list(ALL_COUNTRIES))}\n")
+                f.write(f"changed_countries={json.dumps(list(ALL_COUNTRIES + SPLIT_ONLY_COUNTRIES))}\n")
                 f.write("any_changed=true\n")
         return 0
 
@@ -1407,7 +1432,7 @@ def main() -> int:
                      f"{expected_label!r} — refusing to write mismatched data.")
     print(f"Countries parsed: {sorted(parsed_all.keys())}")
 
-    missing = set(ALL_COUNTRIES) - set(parsed_all.keys())
+    missing = set(ALL_COUNTRIES + SPLIT_ONLY_COUNTRIES) - set(parsed_all.keys())
     if missing:
         print(f"WARNING: countries missing from PDF: {sorted(missing)}")
 
@@ -1423,7 +1448,7 @@ def main() -> int:
                       f"(Δ={s - total})")
 
     changed: list[str] = []
-    for country in ALL_COUNTRIES:
+    for country in ALL_COUNTRIES + SPLIT_ONLY_COUNTRIES:
         if country not in parsed_all:
             continue
         if update_country(data_dir, country, parsed_all[country], target_period, pdf_url):

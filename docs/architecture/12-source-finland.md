@@ -24,6 +24,7 @@ variant_notes:
   Vans: Vans (vehicle class 02).
   Buses: Buses and coaches (vehicle class 04) — very low volume.
 hev_split: false
+hev_note: "Counted HEV/petrol/diesel from ACEA (full + mild hybrids) on the national TOTAL/BEV/PHEV; StatFin has no non-plug-in hybrid code, so hybrids fold into petrol."
 backfill: none
 scope_note: Region MA1 (Mainland Finland); Åland is not in the table.
 caveats:
@@ -201,15 +202,26 @@ Driving-power code (`Käyttövoima`) → canonical CSV column:
 `TOTAL` is the sum of the fetched per-fuel cells, never the `YH` "Total"
 code, so the written `TOTAL` always equals the breakdown.
 
-### The HEV gap (different cause than Denmark, same outcome)
+### HEV from ACEA (different cause than Denmark, same fix)
 
 Finland **does** split plug-in hybrids (codes 39 and 44 → PHEV). But there
 is **no driving-power code for a non-plug-in full hybrid** (a "self-charging"
 HEV). Those vehicles are classified by their combustion fuel, i.e. they fold
-into `Petrol` (01). So like Denmark and Netherlands, the `HEV` column stays
-blank and the renderer recovers ICE share from `(TOTAL − BEV − PHEV)`. If
-Statistics Finland ever adds a full-hybrid code, add it to `DRIV_TO_COL` and
-the post text starts emitting the HEV line automatically.
+into `Petrol` (01). ACEA's release counts them separately for the same
+register, so `scripts/fetch_acea.py` merges ACEA's counted HEV/PETROL/DIESEL
+onto the national row (`scripts/acea_split.py`, the Greece/SEAA pattern):
+TOTAL, BEV and PHEV stay national, the split becomes ACEA's counts, OTHERS
+is the residual, and the source becomes `pxdata.stat.fi (StatFin 121d) / ACEA`.
+The same tolerances as Denmark apply (1% of TOTAL, 2% of BEV/PHEV); a
+refusal leaves the national row untouched. Finland is SPLIT_ONLY: ACEA
+never creates a Finnish row.
+
+ACEA's HEV includes mild hybrids, so `hev_split` stays false ("Hybrid",
+not "Full hybrid"). The backfill (`scripts/backfill_acea_split.py`) covers
+2023-11 onward; July 2026 is derived as for Denmark. If Statistics Finland
+ever adds a full-hybrid code, add it to `DRIV_TO_COL` — the national split
+can then take over from ACEA, and the merge tolerances will keep the two
+honest while both run.
 
 ### Region: MA1 excludes Åland
 
