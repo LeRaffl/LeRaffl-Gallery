@@ -253,14 +253,17 @@ Each phase is its own PR against master, independent of the flyer stack.
 No phase merges without the maintainer's explicit OK on the reconciled
 output (same rule as the flyer stack: no merge without review).
 
-## 8. Open questions for the maintainer (before Phase 0 starts)
+## 8. Decisions (maintainer, 2026-11-19)
 
-1. Is the ~5-week Traficom publication lag acceptable for Finland's HEV
-   row, given StatFin already delivers TOTAL/BEV/PHEV faster? (The HEV
-   row would lag the rest of the brief by up to a month.)
-2. Should the register's counted petrol/diesel split *replace* the
-   current ratio-scale (Denmark-style) once reconciliation passes, or
-   stay HEV-only with petrol/diesel still derived? Counted is cleaner but
-   changes two more columns, not one.
-3. Revision-log threshold N (§4) and switch-over window (§5): 3 months /
-   6 months are suggestions, not decisions.
+1. **Traficom lag: accepted.** Finland's HEV row may lag the rest of the
+   brief by up to ~5 weeks; StatFin keeps delivering TOTAL/BEV/PHEV on its
+   own cadence.
+2. **Counted petrol/diesel: yes.** Once reconciliation passes, the
+   register's counted petrol/diesel split replaces the ratio-scale — not
+   HEV-only. Two more columns change, and the doc must say so.
+3. **Thresholds (revision-log N, switch-over window): deferred** until
+   the first real diffs are visible. The spike reports actual deltas
+   before any threshold is fixed.
+
+Primary-source work happens in a separate session; the flyer stack is the
+current focus. This branch stays plan-only until that session picks it up.
