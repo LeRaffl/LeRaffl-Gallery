@@ -26,6 +26,8 @@ def test_index_cards_keep_the_grid_when_a_flag_is_missing():
         # rank, then a flag slot (img or empty span) — never a shifted grid
         assert re.search(r'<span class="ix-rank">[^<]*</span>'
                          r'(?:<img |<span class="ix-noflag">)', card), card[:160]
+        # seven grid children even without a flag or a delta (Malta)
+        assert len(re.findall(r'<(?:span|img)\b', card)) == 7, card[:160]
 
 
 def test_index_pins_light_and_lists_regions():

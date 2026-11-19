@@ -1015,10 +1015,11 @@ def build_index(items: list[dict], theme_href: str) -> str:
         flag = (f'<img src="{esc(src)}" alt="">' if src
                 else '<span class="ix-noflag"></span>')
         num = mc.share(item["share"]) if item["share"] is not None else "—"
-        delta = ""
         if item["delta"] is not None:
             cls = "up" if item["delta"] >= 0.05 else "down" if item["delta"] <= -0.05 else "flat"
             delta = f'<span class="ix-d {cls}">{mc.points(item["delta"])}</span>'
+        else:
+            delta = '<span class="ix-d-none"></span>'
         cards.append(
             f'<a class="ix-card" href="{esc(item["slug"])}.html">'
             f'<span class="ix-rank">{n}</span>{flag}'
