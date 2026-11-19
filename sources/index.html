@@ -125,9 +125,12 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 .swatch.phev::before{background:#6f9ed4}
 .swatch.bev::before{background:#3d9a68}
 .mix-doc{margin-left:auto;font-weight:600}
-.file-kicker{margin:20px 0 8px;font-size:12px;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--muted)}
-.file-kicker .chip{text-transform:none;letter-spacing:.03em;margin-left:8px}
+.poster--plain{padding-bottom:14px}
+.poster--plain .poster-top{margin:0}
+.mix-what{font-size:12px;color:var(--muted);margin:4px 0 0}
+h2.part{font-family:var(--font-ui),sans-serif;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);border-bottom:1.5px solid var(--text);
+  margin:44px 0 14px}
 
 /* Coverage timeline — one hue, no legend needed (a single series). */
 .cov{display:block;margin:6px 0 0;max-width:100%}
@@ -250,6 +253,8 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
 <div class="wrap">
   <a class="back" href="../">← Back to gallery</a>
   <h1>Data sources</h1>
+  <p class="lead"><a href="flyer/"><strong>Country briefs →</strong></a> one page per country
+     on how far the shift to battery-electric cars has come, ready to save as PDF.</p>
   <p class="lead">Where each country's numbers come from, how they're acquired,
      what they count, and what to be careful about. 61 countries, each tagged by
      acquisition method — API, Scrape, PDF, File or Manual. 26 of them also

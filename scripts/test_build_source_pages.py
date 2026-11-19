@@ -64,9 +64,9 @@ def test_text_is_escaped():
 
 
 def test_numeric_detection():
-    for v in ("62,590", "−9,807", "+5.3 %", "23,627 · 2,171 · 113", "0", "±100", "51,013 ✓"):
+    for v in ("62,590", "−9,807", "+5.3%", "23,627 · 2,171 · 113", "0", "±100", "51,013 ✓"):
         assert bsp._NUMERIC.match(v), v
-    for v in ("VAMA", "2025-07", "about 5 %", "−2 % to +10 %"):
+    for v in ("VAMA", "2025-07", "about 5%", "−2% to +10%"):
         assert not bsp._NUMERIC.match(v), v
 
 
@@ -94,7 +94,7 @@ def test_checks_file_renders_and_missing_file_is_silent():
          "gap": -11, "gap_pct": -0.02, "tolerance": "0", "status": "warn",
          "note": "article used VinFast 11,490"},
         {"period": "2026-H1", "check": "Police registrations", "ours": 343126,
-         "theirs": None, "status": "missing", "tolerance": "−2 % … +15 %"},
+         "theirs": None, "status": "missing", "tolerance": "−2% … +15%"},
     ]}
     with tempfile.TemporaryDirectory() as tmp:
         old = bsp.REPO
@@ -145,7 +145,7 @@ def test_germany_shift_matches_the_published_window():
     assert abs(shift["dB"] - 9.4068) < 0.01
     assert abs(shift["dI"] + 10.0114) < 0.01
     assert bsp._shift_line(shift) == (
-        "Petrol and diesel lost 10 points. Battery electric took 9.4 of them."
+        "Combustion lost 10 points. Battery electric took 9.4 of them."
     )
     points = bsp.mix_series({"data_file": data_file})
     assert points is not None
@@ -158,6 +158,271 @@ def test_repo_front_matter_still_valid():
     entries, problems = bsp.collect_entries()
     assert not problems, problems
     assert entries
+
+
+# --- model card (scripts/model_card.py) ------------------------------------
+
+import datetime as dt  # noqa: E402
+
+import model_card as mc  # noqa: E402
+
+
+def _rows(n, start=(2024, 1), interval="monthly", **cols):
+    """n periods; each column is a function of the row number."""
+    out = []
+    step = 3 if interval == "quarterly" else 1
+    for i in range(n):
+        idx = start[0] * 12 + start[1] - 1 + i * step
+        row = {"period": f"{idx // 12}-{idx % 12 + 1:02d}", "time_interval": interval,
+               "variant": "Whole"}
+        for name, fn in cols.items():
+            value = fn(i)
+            row[name] = "" if value is None else str(value)
+        out.append(row)
+    return out
+
+
+def test_card_shift_sums_to_zero_and_splits_only_full_columns():
+    rows = _rows(24, TOTAL=lambda i: 100, BEV=lambda i: 10 if i < 12 else 20,
+                 PHEV=lambda i: 5, HEV=lambda i: 10,
+                 PETROL=lambda i: 60 if i < 12 else 50, DIESEL=lambda i: 15)
+    shift = mc.powertrain_shift(rows, hev_full=True)
+    keys = [r["key"] for r in shift["rows"]]
+    assert keys == ["BEV", "PHEV", "HEV", "PETROL", "DIESEL"]  # no empty residual
+    assert abs(sum(r["delta"] for r in shift["rows"])) < 1e-9
+    by = {r["key"]: r for r in shift["rows"]}
+    assert by["BEV"]["delta"] == 10 and by["PETROL"]["delta"] == -10
+    assert by["HEV"]["label"] == "Full hybrid"
+    assert shift["span"] == (("2024-01", "2024-12"), ("2025-01", "2025-12"))
+    assert "Lost share: Petrol 10.0." in mc.shift_sentence(shift)
+
+
+def test_card_shift_empty_cell_is_unknown_not_zero():
+    # One empty PETROL cell: petrol and diesel fall back into the residual.
+    rows = _rows(24, TOTAL=lambda i: 100, BEV=lambda i: 10, HEV=lambda i: 10,
+                 PETROL=lambda i: None if i == 3 else 60, DIESEL=lambda i: 20)
+    shift = mc.powertrain_shift(rows)
+    assert [r["key"] for r in shift["rows"]] == ["BEV", "HEV", "REST"]
+    assert shift["rows"][-1]["label"] == "Combustion and anything not split out"
+    # An empty BEV or TOTAL cell means no picture at all.
+    rows[5]["BEV"] = ""
+    assert mc.powertrain_shift(rows) is None
+    assert mc.build_shift(None) == ""
+
+
+def test_card_shift_needs_a_gapless_single_cadence_tail():
+    rows = _rows(24, TOTAL=lambda i: 100, BEV=lambda i: 10)
+    assert mc.powertrain_shift(rows) is not None
+    assert mc.powertrain_shift(rows[:20]) is None
+    assert mc.powertrain_shift(rows[:10] + rows[11:] + _rows(1, start=(2026, 1), TOTAL=lambda i: 100, BEV=lambda i: 1)) is None
+    quarterly = _rows(8, interval="quarterly", TOTAL=lambda i: 100, BEV=lambda i: i)
+    shift = mc.powertrain_shift(quarterly)
+    assert shift["interval"] == "quarterly"
+    assert shift["span"][0] == ("2023-11", "2024-10")
+
+
+def test_card_rows_are_read_in_period_order():
+    # Malta's CSV appends a late block after older rows; file order would
+    # make an older month the "latest" and break the 24-month tail.
+    import csv as _csv
+    rows = _rows(26, TOTAL=lambda i: 100, BEV=lambda i: i)
+    shuffled = rows[:10] + rows[20:] + rows[10:20]
+    with tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False, dir=mc.REPO,
+                                     encoding="utf-8", newline="") as fh:
+        writer = _csv.DictWriter(fh, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(shuffled + [{**rows[0], "variant": "Vans"}])
+        name = Path(fh.name).name
+    try:
+        got = mc.whole_rows(name)
+        assert [r["period"] for r in got] == [r["period"] for r in rows]
+        assert mc.powertrain_shift(got) is not None
+        assert [r["variant"] for r in mc.series_rows(name, "Vans")] == ["Vans"]
+    finally:
+        (mc.REPO / name).unlink()
+
+
+def test_card_ttm_only_from_a_full_window_at_the_latest_period():
+    rows = _rows(14, TOTAL=lambda i: 100, BEV=lambda i: 10)
+    window = mc.ttm_window(rows)
+    assert window["share"] == 10 and window["end"] == rows[-1]["period"]
+    # A gap or an empty BEV cell inside the last 12 months: unknown, and no
+    # fallback to an older window or to params.csv.
+    assert mc.ttm_window(rows[:5] + rows[6:]) is None
+    rows[-3]["BEV"] = ""
+    assert mc.ttm_window(rows) is None
+    figures = mc.key_figures(rows, None, {"ttm_bev_share": "0.5", "data_per": "2025-02"},
+                             {"weight": "1200"})
+    assert "ttm" not in figures and "volume" not in figures
+
+
+def test_card_latest_table_shows_an_empty_bev_cell_as_unknown():
+    # A month published with a total but no fuel split yet (Indonesia's PDF
+    # can arrive like that) must neither crash the build nor read as 0 %.
+    rows = _rows(13, TOTAL=lambda i: 100, BEV=lambda i: None if i == 12 else 10)
+    html = mc.build_latest_table(rows, hev_full=False)
+    newest = html.split("<tr>")[2]
+    assert newest.count(">—<") == 3 and "0.0" not in newest
+
+
+def test_card_shift_refuses_overlapping_columns():
+    rows = _rows(24, TOTAL=lambda i: 100, BEV=lambda i: 10, HEV=lambda i: 50,
+                 MHEV=lambda i: 45)
+    assert mc.powertrain_shift(rows) is None
+
+
+def test_card_fit_gate_mirrors_fit_core():
+    today = dt.date(2026, 11, 16)
+    good = {"v1": "-6.48e-5", "v2": "3.1", "t0": "2011", "data_per": "2026-10",
+            "ttm_bev_share": "0.27", "refit_swing": "1.7"}
+    assert mc.fit_reliability(good, today)["status"] == "ok"
+    assert mc.fit_reliability({**good, "refit_swing": "9"}, today)["status"] == "provisional"
+    assert mc.fit_reliability({**good, "refit_swing": "Inf"}, today)["reasons"] == ["unsettled"]
+    assert mc.fit_reliability({**good, "data_per": "2025-01"}, today)["reasons"] == ["stale"]
+    assert "collapsed" in mc.fit_reliability({**good, "v1": "-1e-30", "v2": "32"}, today)["reasons"]
+    assert mc.has_no_transition({**good, "ttm_bev_share": "0.004"})
+    assert not mc.has_no_transition(good)
+    assert abs(mc.fit_year(0.5, -6.481759365635e-05, 3.1016795876, 2011) - 2030.92) < 0.05
+
+
+def test_card_dates_only_from_a_reliable_fit_and_a_usable_band():
+    today = dt.date(2026, 11, 16)
+    good = {"v1": "-6.48e-5", "v2": "3.1", "t0": "2011", "data_per": "2026-10",
+            "ttm_bev_share": "0.27", "refit_swing": "1.7", "model_date": "2026-11-04"}
+    band = {"data_per": "2026-10", "quality": {"usable": True, "reasons": []},
+            "crossing": [{"share": 0.5, "fit": 2030.9, "ci": [2028.9, 2035.7]},
+                         {"share": 0.9, "fit": 2040.3, "ci": [2034.3, None]}]}
+    state = mc.model_state(good, band, today)
+    assert state["quotable"] and state["band_ok"]
+    half = next(c for c in state["crossings"] if c["level"] == 0.5)
+    assert mc._ci_text(half["ci"]) == "2028–2035"
+    assert mc._ci_text((2034.3, None)) == "2034 or later"
+    html = mc.build_model("X", [], state, band, [])
+    assert "95% confidence band" in html and "not an official forecast" in html
+    # Unusable band: years stay, the interval goes.
+    weak = mc.model_state(good, {**band, "quality": {"usable": False, "reasons": ["short"]}}, today)
+    assert weak["quotable"] and not weak["band_ok"]
+    assert "No confidence band is shown" in mc.build_model("X", [], weak, band, [])
+    # A band built for an older month is not this curve's band.
+    assert not mc.model_state(good, {**band, "data_per": "2026-09"}, today)["band_ok"]
+    # Excluded fit: no dates at all.
+    bad = mc.model_state({**good, "refit_swing": "Inf"}, band, today)
+    assert not bad["quotable"] and bad["crossings"] == []
+    assert "not reliable enough" in mc.build_model("X", [], bad, band, [])
+    assert mc.model_state(None, band) is None
+
+
+def test_card_slug_mirrors_slug_country():
+    assert mc.band_slug("Hong Kong") == "hong_kong"
+    assert mc.band_slug("Türkiye") == "tuerkiye"
+    assert mc.band_slug("Germany", "Vans") == "germany_vans"
+
+
+def test_card_formatting():
+    assert mc.share(0.44) == "0.44%" and mc.share(27.19) == "27.2%"
+    assert mc.points(0.02) == "±0" and mc.points(-2.46) == "−2.5"
+    assert mc.units(2_970_000) == "2.97 M" and mc.units(808679) == "808,679"
+    assert mc.period_label("2026-10", long=True) == "October 2026"
+
+
+# --- flyer (scripts/flyer.py) -----------------------------------------------
+
+import flyer  # noqa: E402
+
+
+def test_flyer_verdict_says_how_far_and_which_way():
+    def fig(share, delta):
+        return {"ttm": {"share": share, "delta": delta, "end": "2026-10"}}
+    assert flyer.verdict("X", fig(27.2, 9.4), None) == (
+        "About 1 in 4 new cars is battery electric.",
+        "The share is rising fast: up 9.4 points in a year.")
+    assert flyer.verdict("X", fig(0.4, 0.0), None) == (
+        "Fewer than 1 in 100 new cars is battery electric.",
+        "The share has barely moved in a year.")
+    assert flyer.verdict("X", fig(95.0, 2.0), None)[0].startswith("Almost every new car")
+    assert flyer.verdict("X", fig(62.0, -3.0), None) == (
+        "Most new cars are battery electric: 62 in 100.",
+        "The share fell by 3.0 points in a year.")
+    assert flyer.verdict("X", {}, None) == ("X: new registrations by powertrain", "")
+    # The follow-up names the biggest mover as a fact, not as a cause.
+    shift = {"rows": [{"key": "BEV", "label": "Battery electric", "delta": 1.9},
+                      {"key": "PETROL", "label": "Petrol", "delta": -4.0},
+                      {"key": "CNG", "label": "CNG", "delta": 2.8}]}
+    assert flyer.verdict("X", fig(5.9, 1.9), shift)[1].endswith("Petrol lost the most: 4.0 points.")
+
+
+def test_flyer_mix_keeps_unknown_columns_out_of_their_own_band():
+    rows = _rows(30, TOTAL=lambda i: 100, BEV=lambda i: 10 + i,
+                 HEV=lambda i: None if i < 6 else 10)
+    points = flyer.mix_points(rows)
+    assert len(points) == 19 and points[-1]["period"] == "2026-06"
+    assert points[0]["HEV"] is None and points[-1]["HEV"] == 10
+    assert points[-1]["PHEV"] is None
+    assert abs(points[-1]["BEV"] + points[-1]["HEV"] + points[-1]["REST"] - 100) < 1e-9
+    assert flyer.mix_points(rows[:20]) == []          # too short to draw
+
+
+def test_flyer_mix_never_calls_a_rest_with_plug_ins_combustion():
+    full = _rows(30, TOTAL=lambda i: 100, BEV=lambda i: 10, PHEV=lambda i: 5, HEV=lambda i: 10)
+    assert ">Combustion 75.0%<" in flyer.build_mix(flyer.mix_points(full), False, 470, 146)
+    no_plug = _rows(30, TOTAL=lambda i: 100, BEV=lambda i: 10, HEV=lambda i: 10)
+    svg = flyer.build_mix(flyer.mix_points(no_plug), False, 470, 146)
+    assert ">Everything else 80.0%<" in svg and ">Combustion" not in svg
+
+
+def test_flyer_says_when_the_dates_are_provisional():
+    rows = _rows(30, start=(2024, 1), TOTAL=lambda i: 1000, BEV=lambda i: 100 + 10 * i)
+    param = {"v1": "-6.48e-5", "v2": "3.1", "t0": "2011", "data_per": "2026-06",
+             "ttm_bev_share": "0.27", "refit_swing": "9"}
+    state = mc.model_state(param, None, dt.date(2026, 7, 1))
+    assert state["quotable"] and state["rel"]["status"] == "provisional"
+    html = flyer.build_flyer({"country": "X", "slug": "x"}, rows, None, {}, state, None, "t.css")
+    assert "Provisional: the 80% year moved by 9 years" in html
+    ok = mc.model_state({**param, "refit_swing": "1"}, None, dt.date(2026, 7, 1))
+    assert "Provisional" not in flyer.build_flyer({"country": "X", "slug": "x"}, rows, None, {},
+                                                  ok, None, "t.css")
+
+
+def test_flyer_page_builds_without_data():
+    html = flyer.build_flyer({"country": "Nowhere", "slug": "nowhere"}, [], None, {}, None, None, "t.css")
+    assert "Nowhere" in html and "fl-foot" in html
+
+
+def test_flyer_qr_compare_and_fractions():
+    qr = flyer.build_qr("https://example.org/x")
+    assert qr.startswith("<svg") and "QR code: https://example.org/x" in qr
+    assert qr == flyer.build_qr("https://example.org/x")           # byte-stable
+    peers = [(f"C{i}", float(i)) for i in range(1, 21)]
+    html = flyer.build_compare("C18", peers, 700)
+    assert "<b>3rd of 20</b>" in html and "middle one is at 10.5%" in html
+    assert flyer.build_compare("Nowhere", peers, 700) == ""
+    assert flyer.build_compare("C1", peers[:5], 700) == ""       # too few to compare
+    assert [flyer.ordinal(n) for n in (1, 2, 3, 4, 11, 12, 21, 22)] == [
+        "1st", "2nd", "3rd", "4th", "11th", "12th", "21st", "22nd"]
+    fig = lambda s: {"ttm": {"share": s, "delta": None, "end": "2026-10"}}  # noqa: E731
+    assert flyer.verdict("X", fig(39.9), None)[0] == "About 2 in 5 new cars are battery electric."
+    assert flyer.verdict("X", fig(33.0), None)[0] == "About 1 in 3 new cars is battery electric."
+    assert flyer.verdict("X", fig(50.3), None)[0] == "About half of new cars are battery electric."
+
+
+def test_flyer_draws_no_curve_for_a_fit_without_dates():
+    rows = _rows(30, TOTAL=lambda i: 1000, BEV=lambda i: 5 + i)
+    bad = mc.model_state({"v1": "-1e-30", "v2": "32", "t0": "2011", "data_per": "2026-06",
+                          "ttm_bev_share": "0.02", "refit_swing": "1"}, None,
+                         dt.date(2026, 7, 1))
+    assert not bad["quotable"]
+    assert "cv-fit" in mc.build_curve_svg(rows, bad, None)                      # source page: dashed
+    assert "cv-fit" not in mc.build_curve_svg(rows, bad, None, weak_fit=False)  # brief: none
+
+
+def test_hero_percent_sign_once():
+    import re
+    entries, _ = bsp.collect_entries()
+    fm = next(fm for fm, _ in entries if fm.get("country") == "Ireland")
+    params = bsp.load_params()
+    html = bsp.build_flyer_page(fm, params)
+    assert "%%" not in html
+    assert re.search(r'fh-big">[\d.]+<span>%</span>', html)
 
 
 if __name__ == "__main__":

@@ -42,6 +42,9 @@ from pathlib import Path
 
 import yaml
 
+import flyer
+import model_card as mc
+
 REPO = Path(__file__).resolve().parent.parent
 DOCS = REPO / "docs" / "architecture"
 PARAMS = REPO / "params.csv"
@@ -698,7 +701,8 @@ def build_column_matrix(variant_facts: list[tuple[str, dict | None]]) -> str:
         'this source. Hover a cell for the row count.</p></section>')
 
 
-def build_variants_table(fm: dict, variant_facts: list[tuple[str, dict | None]]) -> str:
+def build_variants_table(fm: dict, variant_facts: list[tuple[str, dict | None]],
+                         params: dict | None = None, weights: dict | None = None) -> str:
     """One row per variant: what it counts, what we hold, and the raw CSV."""
     if not variant_facts:
         return ""
@@ -717,14 +721,18 @@ def build_variants_table(fm: dict, variant_facts: list[tuple[str, dict | None]])
             f'<tr><th>{esc(variant)}</th>'
             f'<td>{esc(notes.get(variant, "—"))}</td>'
             f'<td class="nowrap">{held}</td>'
-            f'<td>{raw}</td></tr>')
+            + "".join(f'<td class="num">{esc(v)}</td>' for v in mc.variant_figures(
+                variant_file(fm, variant), variant))
+            + f'<td>{raw}</td></tr>')
     return (
         '<section><h2>Variants</h2>'
         '<p class="fig-lead">Each variant is its own series with its own CSV. '
         'Not every variant is charted in the gallery — the CSV is the '
-        'authoritative record either way.</p>'
+        'authoritative record either way. BEV share and volume cover the '
+        'last twelve months of each series.</p>'
         '<div class="scroll"><table class="vars">'
         '<tr><th>Variant</th><th>What it counts</th><th>Held</th>'
+        '<th class="num">BEV share</th><th class="num">Registrations</th>'
         '<th>Raw data</th></tr>'
         f'{"".join(rows)}</table></div></section>')
 
@@ -773,7 +781,11 @@ def build_definitions(fm: dict) -> str:
 
 
 def build_caveats(fm: dict) -> str:
-    caveats = fm.get("caveats") or []
+    caveats = list(fm.get("caveats") or [])
+    # The footnote printed under the country's charts belongs on the card too.
+    note = mc.footnote(fm.get("country", ""))
+    if note and note not in caveats:
+        caveats.append(f"Printed under the charts: {note}")
     if not caveats:
         return ""
     items = "".join(f"<li>{esc(c)}</li>" for c in caveats)
@@ -1667,7 +1679,7 @@ _SHIFT_ROWS = (
     ("bev", "Battery electric", "b1", "dB"),
     ("phev", "Plug-in hybrid", "p1", "dP"),
     ("hev", "Full hybrid", "h1", "dH"),
-    ("ice", "Petrol and diesel", "i1", "dI"),
+    ("ice", "Combustion", "i1", "dI"),
 )
 
 
@@ -1877,7 +1889,7 @@ def build_mix_svg(points: list[dict]) -> str:
     last_x = -999.0
     for n, (i, year) in enumerate(kept):
         x = x_of(points[i]["period"])
-        if labels and x - last_x < 46:
+        if labels and x - last_x < 64:
             continue
         anchor = "start" if not labels else "end" if n == len(kept) - 1 else "middle"
         labels.append(
@@ -1897,11 +1909,11 @@ def _shift_line(shift: dict) -> str:
     lost = -shift["dI"]
     hybrid = "Full hybrids" if shift["hev_full"] else "Hybrids"
     if shift["i1"] < 1.5 and abs(lost) < 1.5:
-        return "There is almost no petrol and diesel left."
+        return "There is almost no pure combustion left."
     if lost < 0.5:
         if shift["dB"] <= -1:
-            return "Battery electric lost share, and petrol and diesel did not shrink."
-        return "Petrol and diesel barely moved."
+            return "Battery electric lost share, and combustion did not shrink."
+        return "Combustion barely moved."
     gains = (
         ("Battery electric", shift["dB"]),
         ("Plug-in hybrids", shift["dP"]),
@@ -1910,16 +1922,16 @@ def _shift_line(shift: dict) -> str:
     name, gained = max(gains, key=lambda item: item[1])
     lost_s = _pp(lost)
     if gained <= 0.3:
-        return (f"Petrol and diesel lost {lost_s} points. "
+        return (f"Combustion lost {lost_s} points. "
                 "None of it showed up in an electric column.")
     gained_s = _pp(gained)
     if gained > lost + 0.8:
-        return f"Petrol and diesel lost {lost_s} points. {name} gained {gained_s}."
+        return f"Combustion lost {lost_s} points. {name} gained {gained_s}."
     if gained >= lost * 0.75:
-        return f"Petrol and diesel lost {lost_s} points. {name} took {gained_s} of them."
+        return f"Combustion lost {lost_s} points. {name} took {gained_s} of them."
     if gained >= lost * 0.45:
-        return f"Petrol and diesel lost {lost_s} points. Most of that went to {name.lower()}."
-    return f"Petrol and diesel lost {lost_s} points, split across the electric columns."
+        return f"Combustion lost {lost_s} points. Most of that went to {name.lower()}."
+    return f"Combustion lost {lost_s} points, split across the electric columns."
 
 
 def _shift_rows(shift: dict) -> str:
@@ -1945,60 +1957,93 @@ def _shift_rows(shift: dict) -> str:
     return "".join(rows)
 
 
-def build_header(fm: dict) -> tuple[str, str]:
-    """Poster when the CSV can carry it, otherwise the plain title.
-
-    The second value is the file-card kicker, empty when there is no poster.
-    """
+def build_header(fm: dict, asof: str = "") -> str:
+    """Flag, name and reference line, with the mix picture when the CSV carries it."""
     country = esc(fm.get("country", "Unknown"))
-    chip = method_chip(fm.get("method", ""))
-    title = f"<h1>{country}</h1>"
-    shift = combustion_shift(fm)
-    if not shift:
-        return f"<h1>{country} {chip}</h1>", ""
-    caption = (f"Last 12 months against the 12 before, through "
-               f"{_month_label(shift['end'])}.")
     flag = ""
     slug = fm.get("slug") or ""
     if slug and (REPO / "assets" / "flags" / f"{slug}.png").is_file():
         flag = f'<img class="flag" src="../assets/flags/{esc(slug)}.png" alt="">'
+    top = f'<div class="poster-top">{flag}<div><h1>{country}</h1>{asof}</div></div>'
+    shift = combustion_shift(fm)
     points = mix_series(fm)
-    picture = f'<div class="shift">{_shift_rows(shift)}</div>'
-    if points:
-        hybrid = "Full hybrid" if shift["hev_full"] else "Hybrids"
-        names = {
-            "BEV": "Battery electric",
-            "PHEV": "Plug-in hybrid",
-            "HEV": hybrid,
-            "ICE": "Petrol and diesel",
-        }
-        legend = "".join(
-            f'<span class="swatch {key.lower()}">{esc(names[key])}</span>'
-            for key, _ in _MIX
-        )
-        proof = latest_proof(fm)
-        proof_html = ""
-        if proof:
-            period, url, kind = proof
-            if kind == "document":
-                text = f"{_month_label(period)} document"
-            else:
-                text = (fm.get("source_name") or "source").split("—")[0].strip()
-                if len(text) > 28:
-                    text = text[:27].rstrip() + "…"
-            proof_html = (
-                f'<a class="mix-doc" href="{esc(url)}">{esc(text)} ↗</a>'
-            )
-        picture = (
-            f'<div class="mix-panel" data-theme="light">{build_mix_svg(points)}'
-            f'<div class="mix-foot">{legend}{proof_html}</div></div>'
-        )
-    poster = (
-        f'<figure class="poster"><div class="poster-top">{flag}<div>{title}</div></div>'
-        f'{picture}'
+    if not shift or not points:
+        return f'<header class="poster poster--plain">{top}</header>'
+    caption = (f"Last 12 months against the 12 before, through "
+               f"{_month_label(shift['end'])}.")
+    hybrid = "Full hybrid" if shift["hev_full"] else "Hybrids"
+    names = {
+        "BEV": "Battery electric",
+        "PHEV": "Plug-in hybrid",
+        "HEV": hybrid,
+        "ICE": "Combustion",
+    }
+    legend = "".join(
+        f'<span class="swatch {key.lower()}">{esc(names[key])}</span>'
+        for key, _ in _MIX
+    )
+    proof = latest_proof(fm)
+    proof_html = ""
+    if proof:
+        period, url, kind = proof
+        if kind == "document":
+            text = f"{_month_label(period)} document"
+        else:
+            text = (fm.get("source_name") or "source").split("—")[0].strip()
+            if len(text) > 28:
+                text = text[:27].rstrip() + "…"
+        proof_html = f'<a class="mix-doc" href="{esc(url)}">{esc(text)} ↗</a>'
+    return (
+        f'<figure class="poster">{top}'
+        f'<div class="mix-panel" data-theme="light">{build_mix_svg(points)}'
+        f'<div class="mix-foot">{legend}{proof_html}</div></div>'
+        f'<p class="mix-what">Share of new registrations, trailing twelve months, in percent.</p>'
         f'<figcaption>{esc(_shift_line(shift))} {esc(caption)}</figcaption></figure>'
     )
-    return poster, f'<p class="file-kicker">The file {chip}</p>'
+
+
+def build_flyer_page(fm: dict, params: dict, peers: list | None = None) -> str:
+    """The one-page reader flyer, from the same figures as the source page."""
+    fm = apply_group_defaults(fm)
+    country = fm.get("country", "Unknown")
+    whole = params.get((country, "Whole")) or {}
+    rows = mc.whole_rows(fm.get("data_file"))
+    bands = mc.load_bands(country)
+    shift = mc.powertrain_shift(rows, fm.get("hev_split") is True)
+    figures = mc.key_figures(rows, shift, whole,
+                             mc.read_keyed("weights.csv").get((country, "Whole")))
+    return flyer.build_flyer(fm, rows, shift, figures, mc.model_state(whole, bands),
+                             bands, "../../assets/theme.css", peers)
+
+
+def flyer_summary(fm: dict, params: dict) -> dict:
+    """One row of the brief directory."""
+    fm = apply_group_defaults(fm)
+    country = fm.get("country", "Unknown")
+    whole = params.get((country, "Whole")) or {}
+    rows = mc.whole_rows(fm.get("data_file"))
+    shift = mc.powertrain_shift(rows, fm.get("hev_split") is True)
+    figures = mc.key_figures(rows, shift, whole,
+                             mc.read_keyed("weights.csv").get((country, "Whole")))
+    ttm = figures.get("ttm") or {}
+    return {"country": country, "slug": fm.get("slug", ""),
+            "share": ttm.get("share"), "delta": ttm.get("delta"),
+            "head": flyer.verdict(country, figures, shift)[0],
+            "through": mc.period_label(rows[-1]["period"]) if rows else ""}
+
+
+def flyer_peers(entries, params: dict) -> list[tuple[str, float]]:
+    """(country, 12-month BEV share in percent) for every country with a page.
+
+    The same CSV window as each brief's own large number, so a country's
+    place in the comparison matches the share printed above it.
+    """
+    out = []
+    for fm, _ in entries:
+        window = mc.ttm_window(mc.whole_rows(fm.get("data_file")))
+        if window:
+            out.append((fm["country"], window["share"]))
+    return out
 
 
 def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
@@ -2047,19 +2092,30 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
         model_note = (f'Curves in the gallery are fitted through '
                       f'<code>{esc(latest_period)}</code>.<br>')
 
-    header, file_kicker = build_header(fm)
+    rows = mc.whole_rows(fm.get("data_file"))
+    weights = mc.read_keyed("weights.csv")
+    bands = mc.load_bands(country)
+    state = mc.model_state(whole, bands)
+    shift = mc.powertrain_shift(rows, fm.get("hev_split") is True)
+    figures = mc.key_figures(rows, shift, whole, weights.get((country, "Whole")))
+    chip = method_chip(fm.get("method", ""))
+    header = build_header(fm, mc.reference_line(rows, state, chip))
     return TEMPLATE.format(
         theme_href=THEME_HREF,
         css=BASE_CSS,
         country=esc(country),
         method_chip=method_chip(fm.get("method", "")),
         header=header,
-        file_kicker=file_kicker,
+        slug=esc(fm.get("slug", "")),
+        card_css=mc.CARD_CSS,
+        card_js=mc.CARD_JS,
+        glance=mc.build_glance(figures, state),
+        shift=mc.build_shift(shift),
+        latest=mc.build_latest_table(rows, fm.get("hev_split") is True),
+        model=mc.build_model(country, rows, state, bands, mc.latest_images(country)),
+        cite=mc.build_cite(country, fm.get("slug", ""), rows, fm.get("source_name", "")),
         banner=banner,
         summary=esc(fm.get("summary", "")),
-        latest_period=esc(latest_period),
-        ttm=esc(ttm),
-        n_variants=len(variants),
         sources=build_sources_section(fm, last_row),
         notes=build_notes(fm),
         reconciliation=build_reconciliation(fm),
@@ -2067,7 +2123,7 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
         classification=build_classification(fm),
         flow=build_flow(fm),
         definitions=build_definitions(fm),
-        variants_table=build_variants_table(fm, variant_facts),
+        variants_table=build_variants_table(fm, variant_facts, params, weights),
         coverage=build_coverage(variant_facts),
         matrix=build_column_matrix(variant_facts),
         group_note=build_group_note(fm),
@@ -2283,9 +2339,12 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 .swatch.phev::before{background:#6f9ed4}
 .swatch.bev::before{background:#3d9a68}
 .mix-doc{margin-left:auto;font-weight:600}
-.file-kicker{margin:20px 0 8px;font-size:12px;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--muted)}
-.file-kicker .chip{text-transform:none;letter-spacing:.03em;margin-left:8px}
+.poster--plain{padding-bottom:14px}
+.poster--plain .poster-top{margin:0}
+.mix-what{font-size:12px;color:var(--muted);margin:4px 0 0}
+h2.part{font-family:var(--font-ui),sans-serif;font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);border-bottom:1.5px solid var(--text);
+  margin:44px 0 14px}
 
 /* Coverage timeline — one hue, no legend needed (a single series). */
 .cov{display:block;margin:6px 0 0;max-width:100%}
@@ -2409,24 +2468,30 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{country} — data source · BEV Trajectories</title>
+<title>{country} — model card and data source · BEV Trajectories</title>
 <meta name="description" content="{summary}">
 <link rel="stylesheet" href="{theme_href}">
-<style>{css}</style>
+<meta property="og:title" content="{country} — BEV model card">
+<meta property="og:description" content="{summary}">
+<style>{css}{card_css}</style>
 </head>
 <body>
 <div class="wrap">
-  <a class="back" href="./">← All sources</a>
+  <div class="cardbar"><a class="back" href="./">← All sources</a>
+    <nav aria-label="Sections"></nav>
+    <a class="flyer-link" href="flyer/{slug}.html">Country brief (one page, PDF)</a></div>
   {header}
   {banner}
-  {file_kicker}
-  <p class="lead">{summary}</p>
+  {glance}
 
-  <div class="stats">
-    <div class="stat"><div class="n">{csv_period}</div><div class="l">{period_label}</div></div>
-    <div class="stat"><div class="n">{ttm}</div><div class="l">TTM BEV share (Whole)</div></div>
-    <div class="stat"><div class="n">{n_variants}</div><div class="l">Variants</div></div>
-  </div>
+  {shift}
+
+  {latest}
+
+  {model}
+
+  <h2 class="part">Where the numbers come from</h2>
+  <p class="lead">{summary}</p>
 
   {notes}
 
@@ -2461,7 +2526,10 @@ TEMPLATE = """<!doctype html>
        Row source string: <code>{csv_source}</code></p>
     {dev_note}
   </div>
+
+  {cite}
 </div>
+{card_js}
 </body>
 </html>
 """
@@ -2480,6 +2548,8 @@ INDEX_TEMPLATE = """<!doctype html>
 <div class="wrap">
   <a class="back" href="../">← Back to gallery</a>
   <h1>Data sources</h1>
+  <p class="lead"><a href="flyer/"><strong>Country briefs →</strong></a> one page per country
+     on how far the shift to battery-electric cars has come, ready to save as PDF.</p>
   <p class="lead">Where each country's numbers come from, how they're acquired,
      what they count, and what to be careful about. {n} countries, each tagged by
      acquisition method — API, Scrape, PDF, File or Manual. {n_mkt} of them also
@@ -2818,9 +2888,17 @@ def main() -> int:
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     built = []
+    peers = flyer_peers(entries, params)
+    (OUT_DIR / "flyer").mkdir(exist_ok=True)
+    (OUT_DIR / "flyer" / "index.html").write_text(
+        flyer.build_index([flyer_summary(fm, params) for fm, _ in entries],
+                          "../../assets/theme.css"), encoding="utf-8")
     for fm, is_stub in entries:
         page = build_page(fm, params, is_stub=is_stub)
         (OUT_DIR / f"{fm['slug']}.html").write_text(page, encoding="utf-8")
+        (OUT_DIR / "flyer").mkdir(exist_ok=True)
+        (OUT_DIR / "flyer" / f"{fm['slug']}.html").write_text(
+            build_flyer_page(fm, params, peers), encoding="utf-8")
         whole = params.get((fm.get("country"), "Whole")) or {}
         # Same rule as the page itself: the directory card shows what we
         # actually hold, falling back to the model's period only if the CSV

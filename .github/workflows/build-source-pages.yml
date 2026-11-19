@@ -23,6 +23,9 @@ on:
       - 'docs/architecture/country_source_stubs.yaml'
       - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
+      - 'scripts/model_card.py'      # the model-card sections of each page
+      - 'scripts/flyer.py'           # sources/flyer/<slug>.html
+      - 'footnotes.csv'              # chart footnote repeated under Caveats
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
       - 'index.html'                 # the palette's source of truth (#221)
@@ -39,6 +42,9 @@ on:
       - 'docs/architecture/country_source_stubs.yaml'
       - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
+      - 'scripts/model_card.py'
+      - 'scripts/flyer.py'
+      - 'footnotes.csv'
       - 'scripts/test_build_source_pages.py'
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
@@ -65,7 +71,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install deps
-        run: pip install pyyaml
+        run: pip install pyyaml segno==1.6.6   # segno: QR code on the country briefs
 
       # On pull requests, only validate the content model — never commit.
       - name: Validate front-matter + stubs

@@ -543,6 +543,49 @@ scripts, if they still exist on the maintainer's Mac, are not a source.
 
 ---
 
+## Country model cards (`scripts/model_card.py`)
+
+Each `sources/<slug>.html` is the country's **model card**: what the numbers say first, where they come from second. `scripts/build_source_pages.py` builds the page; the card sections come from `scripts/model_card.py` and are derived at build time, never hand-maintained.
+
+| Section | Read from | Left out when |
+|---|---|---|
+| Reference line ("Data through …, curve fitted …") | last Whole row of `data/<Country>.csv`, `model_date` in `params.csv` | no CSV |
+| Key figures | the CSV; `params.csv` / `weights.csv` only when the CSV has no two full windows | a figure cannot be computed |
+| Who gained, who lost | the CSV: last 12 months against the 12 before (4 quarters against 4 for a quarterly tail) | the tail has a gap, mixes cadences, or `BEV` / `TOTAL` has an empty cell |
+| The latest periods | the last 13 Whole rows | fewer than two rows |
+| The fitted curve | `params.csv`, `bands/<slug>.json`, `manifest.json` | no parameters and no charts |
+| Using this card | front-matter | never |
+
+Rules that keep the card honest:
+
+- **A powertrain is its own row only where every period of both windows fills that column.** Everything else is one residual row (`TOTAL − named`), so the changes sum to zero and an empty cell is never read as 0 (invariant 4). EREV folds into PHEV, as in the three-curve chart.
+- **Dates come from the fitted line and its CI only** ([44-uncertainty-bands.md](44-uncertainty-bands.md) §7). The milestone table is shown only when the row passes the reliability gate and is not a "no transition" row; the CI column only when `quality.usable` is true and the band was built for the same `data_per`.
+- `fit_reliability()` / `has_no_transition()` mirror `fitReliability()` / `rowHasNoTransition()` in `assets/fit_core.js`, and `band_slug()` mirrors `slug_country()` / `bandSlug()`. Change them together.
+- The page carries no build date, only the data month and the model date, so a rebuild without new data produces no diff.
+
+### The country brief (`scripts/flyer.py` → `sources/flyer/<slug>.html`)
+
+The source page is for checking a series; the brief is for a reader who wants to see at a glance where a country stands, and for passing on. One fixed A4 sheet per country (794 × 1123 px, scaled down on a narrow screen, printed 1:1 by its *Save as PDF* button), built in the same run from the same computed figures as the source page, so the two cannot disagree. `sources/flyer/index.html` lists all briefs, highest BEV share first; the source page and `sources/index.html` link to it.
+
+On the sheet, top to bottom:
+
+| Block | Says |
+|---|---|
+| Header | Country, "data through" month (the reference date) |
+| Verdict (`verdict()`) | How many new cars in N are battery electric, which way the share moved in a year, and which powertrain moved most. Stated as a fact, never as a cause |
+| Hero | The 12-month BEV share as the one large number, next to the mix over time with direct labels |
+| Who gained, who lost · In numbers | At most six bars; four facts |
+| Where the curve points | Curve, band and milestone years, or, for a fit that carries no dates, only the observed shares on a zoomed axis and one sentence why there is no projection |
+| How it compares | Every country's 12-month BEV share (`params.csv`) on one line, this one marked, with its rank. Shares are comparable across countries, volumes are not |
+| Footer | What BEV / plug-in hybrid / hybrid mean, source and scope, link to the source page, licence, and a QR code to the brief's own URL (current edition, and from there all countries) |
+
+No pipeline detail belongs on it.
+
+- The same gates as the source page apply: no dates from an unreliable fit, no interval from an unusable band. An unreliable fit is **not drawn at all** on the brief (the source page dashes it): a sheet that gets passed on must not show a curve nobody should quote.
+- **The sheet must not overflow.** Everything that varies in length is bounded (at most six bars, a clipped scope line), and the layout leaves room for every country at build time. Fonts are system fonts and differ between machines, so the page also shrinks its content as a whole when it is taller than the sheet (`fitIn()` in the template). After a layout change, open a few long cases (India, Czechia, Slovenia) and check the footer.
+- In the mix, plug-ins and hybrids are their own band only where the 12-month window fills that column; before that they are inside the combustion band.
+- The QR code is drawn by `segno` (pinned in `build-source-pages.yml`, the only dependency besides `pyyaml`) as one SVG path, error level L so the modules stay large enough to scan from print.
+
 ## 2.12 Theme Extractor (`scripts/build_theme.py`)
 
 ### What it is

@@ -46,10 +46,11 @@ jobs:
         with:
           python-version: '3.12'
       # Union of what the tests import: pdfplumber (ACEA / Greece PDFs),
-      # openpyxl + xlrd (Excel fixtures), bs4 (HTML fixtures), pypdf, pyyaml.
+      # openpyxl + xlrd (Excel fixtures), bs4 (HTML fixtures), pypdf, pyyaml,
+      # segno (QR code on the country briefs; same pin as build-source-pages).
       # They are all small wheels, so the tests that need them run instead of
       # being skipped.
-      - run: pip install requests pyyaml pdfplumber openpyxl xlrd beautifulsoup4 pypdf
+      - run: pip install requests pyyaml segno==1.6.6 pdfplumber openpyxl xlrd beautifulsoup4 pypdf
       - name: Run every scripts/test_*.py
         run: |
           shopt -s nullglob
