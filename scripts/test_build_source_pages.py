@@ -137,6 +137,20 @@ def _germany_through_october_2026() -> str:
     return tmp.name
 
 
+
+def test_hero_chart_fills_the_number_column():
+    rows = _rows(18, TOTAL=lambda i: 100, BEV=lambda i: 10 + i)
+    figures = {"ttm": {"share": 24.1, "delta": 7.2, "end": "2026-10"},
+               "latest": {"row": {"period": "2026-10"}, "share": 30.7}}
+    mix, curve = flyer.hero_chart_heights(figures, rows, spare=0)
+    assert mix >= 180 and mix > 132
+    mix0, _ = flyer.hero_chart_heights({"ttm": {"share": 10, "delta": None, "end": "2026-10"}},
+                                       [], spare=0)
+    assert mix0 >= 132
+    _, curve_r = flyer.hero_chart_heights(figures, rows, spare=0, region=True)
+    assert curve_r > curve
+
+
 def test_germany_shift_matches_the_published_window():
     data_file = _germany_through_october_2026()
     shift = bsp.combustion_shift({"data_file": data_file, "hev_split": True})
@@ -335,20 +349,27 @@ def test_flyer_verdict_says_how_far_and_which_way():
         return {"ttm": {"share": share, "delta": delta, "end": "2026-10"}}
     assert flyer.verdict("X", fig(27.2, 9.4), None) == (
         "About 1 in 4 new cars is battery electric.",
-        "The share is rising fast: up 9.4 points in a year.")
+        "Nov 2025–Oct 2026 vs the 12 months before: BEV up 9.4 points.")
     assert flyer.verdict("X", fig(0.4, 0.0), None) == (
         "Fewer than 1 in 100 new cars is battery electric.",
-        "The share has barely moved in a year.")
+        "Nov 2025–Oct 2026 vs the 12 months before: BEV barely moved.")
     assert flyer.verdict("X", fig(95.0, 2.0), None)[0].startswith("Almost every new car")
     assert flyer.verdict("X", fig(62.0, -3.0), None) == (
         "Most new cars are battery electric: 62 in 100.",
-        "The share fell by 3.0 points in a year.")
+        "Nov 2025–Oct 2026 vs the 12 months before: BEV down 3.0 points.")
     assert flyer.verdict("X", {}, None) == ("X: new registrations by powertrain", "")
     # The follow-up names the biggest mover as a fact, not as a cause.
     shift = {"rows": [{"key": "BEV", "label": "Battery electric", "delta": 1.9},
                       {"key": "PETROL", "label": "Petrol", "delta": -4.0},
                       {"key": "CNG", "label": "CNG", "delta": 2.8}]}
-    assert flyer.verdict("X", fig(5.9, 1.9), shift)[1].endswith("Petrol lost the most: 4.0 points.")
+    assert flyer.verdict("X", fig(5.9, 1.9), shift)[1] == (
+        "Nov 2025–Oct 2026 vs the 12 months before: BEV up 1.9 points, petrol down 4.0.")
+    # A residual "everything else" row only mirrors BEV; it is not named.
+    residual = {"rows": [{"key": "BEV", "label": "Battery electric", "delta": 3.7},
+                         {"key": "REST", "label": "Everything else", "delta": -3.7}]}
+    follow = flyer.verdict("X", fig(20.2, 3.7), residual)[1]
+    assert follow == "Nov 2025–Oct 2026 vs the 12 months before: BEV up 3.7 points."
+    assert "everything else" not in follow.lower()
 
 
 def test_flyer_mix_keeps_unknown_columns_out_of_their_own_band():
@@ -397,6 +418,15 @@ def test_flyer_qr_compare_and_fractions():
     assert "<b>3rd of 20</b>" in html and "middle one is at 10.5%" in html
     assert flyer.build_compare("Nowhere", peers, 700) == ""
     assert flyer.build_compare("C1", peers[:5], 700) == ""       # too few to compare
+    # Named highlights, minus the subject, appear with flags omitted if missing.
+    html = flyer.build_compare(
+        "C18", peers, 700,
+        highlights=[{"name": "C20", "slug": "c20", "share": 20.0},
+                    {"name": "C18", "slug": "c18", "share": 18.0},
+                    {"name": "C5", "slug": "c5", "share": 5.0}])
+    assert "C20 20%" in html and "C5 5%" in html
+    assert "class=\"hl\">C18" not in html
+    assert "C18 18.0%" in html
     assert [flyer.ordinal(n) for n in (1, 2, 3, 4, 11, 12, 21, 22)] == [
         "1st", "2nd", "3rd", "4th", "11th", "12th", "21st", "22nd"]
     fig = lambda s: {"ttm": {"share": s, "delta": None, "end": "2026-10"}}  # noqa: E731

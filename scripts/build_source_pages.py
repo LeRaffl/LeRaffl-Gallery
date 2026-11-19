@@ -43,6 +43,7 @@ from pathlib import Path
 import yaml
 
 import flyer
+import market_structure
 import model_card as mc
 
 REPO = Path(__file__).resolve().parent.parent
@@ -2002,7 +2003,8 @@ def build_header(fm: dict, asof: str = "") -> str:
     )
 
 
-def build_flyer_page(fm: dict, params: dict, peers: list | None = None) -> str:
+def build_flyer_page(fm: dict, params: dict, peers: list | None = None,
+                     brand_mode: str = "logos") -> str:
     """The one-page reader flyer, from the same figures as the source page."""
     fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
@@ -2013,7 +2015,8 @@ def build_flyer_page(fm: dict, params: dict, peers: list | None = None) -> str:
     figures = mc.key_figures(rows, shift, whole,
                              mc.read_keyed("weights.csv").get((country, "Whole")))
     return flyer.build_flyer(fm, rows, shift, figures, mc.model_state(whole, bands),
-                             bands, "../../assets/theme.css", peers)
+                             bands, "../../assets/theme.css", peers,
+                             market=market_structure.load(fm, rows), brand_mode=brand_mode)
 
 
 def flyer_summary(fm: dict, params: dict) -> dict:
