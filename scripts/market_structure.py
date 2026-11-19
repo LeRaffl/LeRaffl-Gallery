@@ -307,12 +307,16 @@ def build_bar(ms: dict, mode: str, logo_href: str, width: float = 702,
             # Quiet residual bar on the same top-brand scale as the ranked
             # rows, capped at full width: on a spread market the rest is
             # larger than the leader (cap), on a dominant market it is a
-            # short proportional bar. When capped, a small fading elbow
-            # turns the corner to show the bar would run on beyond the scale.
+            # short proportional bar. When capped, the bar's right end fades
+            # out and a small chevron below it says the value runs on beyond
+            # the scale — quieter and sturdier than a turned elbow.
             rest_w = min(100.0, 100.0 * rest_share / top_share)
             over = " ms-fill-over" if rest_w >= 99.99 else ""
+            cue = ('<svg class="ms-over-cue" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">'
+                   '<path d="M2 1 L8 6 L2 11" fill="none" stroke="#a5a196" stroke-width="2.5" '
+                   'stroke-linecap="round" stroke-linejoin="round"/></svg>') if over else ""
             fill = (f'<div class="ms-track" style="height:{track_h:.0f}px">'
-                    f'<span class="ms-fill ms-fill-rest{over}" style="width:{rest_w:.2f}%"></span></div>')
+                    f'<span class="ms-fill ms-fill-rest{over}" style="width:{rest_w:.2f}%">{cue}</span></div>')
         else:
             colour = SEGMENT[min(i, len(SEGMENT) - 1)]
             if mode == "logos" and b["brand"] in BRAND_LOGO:
@@ -418,12 +422,8 @@ CSS = """
 .ms-rest .ms-val{font-weight:600;color:#3a3935}
 .ms-rest{margin-top:7px;padding-bottom:18px}
 .ms-fill-rest{background:#c7c3b7;position:relative}
-.ms-fill-over::after{content:"";position:absolute;right:0;top:100%;
-  width:16px;height:18px;
-  border-right:var(--ms-bar-h) solid #b3afa2;border-bottom:var(--ms-bar-h) solid #b3afa2;
-  border-bottom-right-radius:10px;
-  -webkit-mask-image:linear-gradient(to bottom,#000 70%,transparent);
-  mask-image:linear-gradient(to bottom,#000 70%,transparent)}
+.ms-fill-over{background:linear-gradient(to right,#c7c3b7 calc(100% - 26px),rgba(199,195,183,0))}
+.ms-over-cue{position:absolute;right:1px;top:100%;margin-top:2px;overflow:visible}
 .ms-model{font-size:12.5px;margin:6px 0 0;color:#3a3935}
 .ms-compact{--ms-logo:28px;--ms-name:88px;--ms-pct:42px;--ms-row:16px;--ms-logo-h:11px}
 .ms-compact .ms-line{font-size:13.5px;margin:0 0 6px}
