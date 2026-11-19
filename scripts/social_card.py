@@ -77,7 +77,7 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
         extra = f'<div class="sc-glance">{"".join(glance)}</div>' if glance else ""
         big = mc.share(ttm["share"]).removesuffix("%")
         hero = (f'<div class="sc-hero"><div class="sc-big">{esc(big)}<span>%</span></div>'
-                f'<div class="sc-hcol"><div class="sc-kick">of new cars are fully electric</div>'
+                f'<div class="sc-hcol"><div class="sc-kick">of new cars are battery electric</div>'
                 f'<div class="sc-what">12 months to {esc(mc.period_label(ttm["end"], long=True))}'
                 f'</div>{delta}{extra}</div></div>')
 

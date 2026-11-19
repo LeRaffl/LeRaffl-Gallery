@@ -636,7 +636,7 @@ def test_hero_windows_are_labelled():
     assert "alone:" not in a4 and "so far:" not in a4
     social = bsp.build_social_page(fm, params, bsp.flyer_peers(entries, params))
     # the big number reads as a plain-language sentence, no BEV jargon hook
-    assert "of new cars are fully electric" in social
+    assert "of new cars are battery electric" in social
     assert "Single month ·" in social
 
 
