@@ -137,6 +137,38 @@ def band_slug(country: str, variant: str = "Whole") -> str:
     return base if variant in ("", "Whole", None) else f"{base}_{part(variant)}"
 
 
+def flag_filename(slug: str = "", country: str = "") -> str | None:
+    """Basename under assets/flags/ if a PNG exists.
+
+    Page slugs sometimes use hyphens (`new-zealand`) while flag files use
+    the underscore form from band_slug (`new_zealand.png`). Try both, then
+    the country name.
+    """
+    seen: list[str] = []
+    for raw in (slug, (slug or "").replace("-", "_"),
+                band_slug(country) if country else ""):
+        if raw and raw not in seen:
+            seen.append(raw)
+    for name in seen:
+        if (REPO / "assets" / "flags" / f"{name}.png").is_file():
+            return f"{name}.png"
+    return None
+
+
+def flag_src(slug: str = "", country: str = "",
+             prefix: str = "../../assets/flags") -> str | None:
+    name = flag_filename(slug, country)
+    return f"{prefix}/{name}" if name else None
+
+
+def flag_img(slug: str = "", country: str = "", cls: str = "fl-flag",
+             prefix: str = "../../assets/flags", alt: str = "") -> str:
+    src = flag_src(slug, country, prefix)
+    if not src:
+        return ""
+    return f'<img class="{esc(cls)}" src="{esc(src)}" alt="{esc(alt)}">'
+
+
 def load_bands(country: str) -> dict | None:
     path = REPO / "bands" / f"{band_slug(country)}.json"
     if not path.is_file():

@@ -661,9 +661,9 @@ def build_index(items: list[dict], theme_href: str) -> str:
     """`items`: country, slug, share, delta, head, through. Highest share first."""
     cards = []
     for n, item in enumerate(sorted(items, key=lambda i: -(i["share"] or -1)), 1):
-        flag = ""
-        if (mc.REPO / "assets" / "flags" / f"{item['slug']}.png").is_file():
-            flag = f'<img src="../../assets/flags/{esc(item["slug"])}.png" alt="">'
+        src = mc.flag_src(item["slug"], item["country"])
+        flag = (f'<img src="{esc(src)}" alt="">' if src
+                else '<span class="ix-noflag"></span>')
         num = mc.share(item["share"]) if item["share"] is not None else "—"
         delta = ""
         if item["delta"] is not None:
@@ -711,7 +711,7 @@ h1{font-size:30px;margin:0 0 8px}
 """
 
 INDEX_TEMPLATE = """<!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
