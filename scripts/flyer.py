@@ -614,7 +614,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
             month += (f'<div class="fh-month fh-ytd">{esc(mc.period_label(ytd["from"]).split()[0])}–'
                       f'{esc(mc.period_label(ytd["to"]))} so far: '
                       f'<b>{esc(mc.share(ytd["share"]))}</b></div>')
-        big = mc.share(ttm["share"])
+        big = mc.share(ttm["share"]).removesuffix("%")
         hero_num = (
             '<div class="fh-num"><div class="fh-kicker">BEV share of new cars</div>'
             f'<div class="fh-big">{esc(big)}<span>%</span></div>'
