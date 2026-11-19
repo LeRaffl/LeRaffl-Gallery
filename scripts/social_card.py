@@ -68,8 +68,8 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
                      f'last 12 months</div>')
         glance = []
         if latest:
-            glance.append(f'<span class="sc-alone">{esc(mc.period_label(latest["row"]["period"]))} '
-                          f'alone: <b>{esc(mc.share(latest["share"]))}</b></span>')
+            glance.append(f'<span class="sc-alone">Single month · {esc(mc.period_label(latest["row"]["period"]))}: '
+                          f'<b>{esc(mc.share(latest["share"]))}</b></span>')
         if rng:
             glance.append(f'<span class="sc-range">{esc(mc.range_sentence(rng, short=True))}</span>')
         if fm.get("acea_social"):
@@ -77,7 +77,7 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
         extra = f'<div class="sc-glance">{"".join(glance)}</div>' if glance else ""
         big = mc.share(ttm["share"]).removesuffix("%")
         hero = (f'<div class="sc-hero"><div class="sc-big">{esc(big)}<span>%</span></div>'
-                f'<div class="sc-hcol"><div class="sc-kick">BEV share of new cars</div>'
+                f'<div class="sc-hcol"><div class="sc-kick">of new cars are fully electric</div>'
                 f'<div class="sc-what">12 months to {esc(mc.period_label(ttm["end"], long=True))}'
                 f'</div>{delta}{extra}</div></div>')
 
@@ -188,16 +188,16 @@ html,body{margin:0;background:#fdfdfc}
   letter-spacing:-.02em;font-variant-numeric:tabular-nums;flex:none}
 .sc-big span{font-size:50px;margin-left:4px;letter-spacing:0}
 .sc-hcol{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;column-gap:16px;align-items:center}
-.sc-kick{font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#55534c;line-height:1.25;
+.sc-kick{font-size:25px;color:#1a1a18;line-height:1.2;font-weight:600;letter-spacing:-.01em;
   grid-column:1}
-.sc-what{font-size:22px;color:#1a1a18;margin-top:2px;grid-column:1}
+.sc-what{font-size:18px;color:#55534c;margin-top:4px;grid-column:1}
 .sc-delta{grid-column:2;grid-row:1/3;padding:8px 14px;border-radius:999px;font-size:19px;font-weight:700;
   white-space:nowrap}
 .sc-delta.up{background:#dcefe4;color:#1f6a43}.sc-delta.down{background:#f6e0dc;color:#9a3324}
 .sc-delta.flat{background:#eceae4;color:#55534c}
 .sc-glance{grid-column:1/-1;display:flex;align-items:flex-start;flex-wrap:wrap;gap:4px 16px;margin-top:6px;
   font-size:18px;color:#3a3935;line-height:1.4}
-.sc-alone b{font-weight:700;color:#1a1a18;font-variant-numeric:tabular-nums}
+.sc-alone b{font-weight:600;color:#3a3935;font-variant-numeric:tabular-nums}
 .sc-range{flex:1 1 100%;font-size:17px;color:#55534c;line-height:1.4}
 .sc-acea{flex:1 1 100%;font-size:17px;color:#55534c;line-height:1.4}
 .sc-acea b{color:#1a1a18;font-weight:700}

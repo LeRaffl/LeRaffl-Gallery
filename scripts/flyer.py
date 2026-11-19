@@ -830,12 +830,12 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         month = ""
         latest, rng = figures.get("latest"), mc.share_range(rows)
         if latest:
-            month += (f'<div class="fh-month">{esc(mc.period_label(latest["row"]["period"]))} '
-                      f'alone: <b>{esc(mc.share(latest["share"]))}</b></div>')
+            month += (f'<div class="fh-month">Single month · {esc(mc.period_label(latest["row"]["period"]))}: '
+                      f'<b>{esc(mc.share(latest["share"]))}</b></div>')
         ytd = mc.ytd_window(rows)
         if ytd:
-            month += (f'<div class="fh-month fh-ytd">{esc(mc.period_label(ytd["from"]).split()[0])}–'
-                      f'{esc(mc.period_label(ytd["to"]))} so far: '
+            month += (f'<div class="fh-month fh-ytd">Year to date · {esc(mc.period_label(ytd["from"]).split()[0])}–'
+                      f'{esc(mc.period_label(ytd["to"]))}: '
                       f'<b>{esc(mc.share(ytd["share"]))}</b></div>')
         big = mc.share(ttm["share"]).removesuffix("%")
         hero_num = (
@@ -1068,8 +1068,8 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fh-delta.up{background:#dcefe4;color:#1f6a43}
 .fh-delta.down{background:#f6e0dc;color:#9a3324}
 .fh-delta.flat{background:#eceae4;color:#55534c}
-.fh-month{font-size:13px;margin-top:6px;color:var(--muted)}
-.fh-month b{color:var(--text)}
+.fh-month{font-size:12.5px;margin-top:6px;color:var(--muted)}
+.fh-month b{color:#3a3935;font-weight:500}
 .fh-range-line{font-size:12.5px;color:var(--muted);line-height:1.45;margin:6px 0 0;max-width:100%}
 .acea-stale{color:#9a3324;font-weight:600}
 .fh-ytd{margin-top:3px}

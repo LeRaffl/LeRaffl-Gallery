@@ -621,6 +621,25 @@ def test_hero_percent_sign_once():
     assert re.search(r'fh-big">[\d.]+<span>%</span>', html)
 
 
+def test_hero_windows_are_labelled():
+    """The three 'current' numbers must be unmistakably different windows:
+    the hero is the 12-month average, the single month and year-to-date are
+    labelled secondary lines — not a second bold 'current' share competing
+    with the hero (the ambiguity a reader hit on the Ireland brief)."""
+    entries, _ = bsp.collect_entries()
+    fm = next(fm for fm, _ in entries if fm.get("country") == "Ireland")
+    params = bsp.load_params()
+    a4 = bsp.build_flyer_page(fm, params)
+    assert "12 months to" in a4
+    assert "Single month ·" in a4
+    assert "Year to date ·" in a4
+    assert "alone:" not in a4 and "so far:" not in a4
+    social = bsp.build_social_page(fm, params, bsp.flyer_peers(entries, params))
+    # the big number reads as a plain-language sentence, no BEV jargon hook
+    assert "of new cars are fully electric" in social
+    assert "Single month ·" in social
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:
