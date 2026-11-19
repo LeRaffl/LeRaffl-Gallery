@@ -611,6 +611,16 @@ def test_region_pages_written_with_own_qr():
             bsp.OUT_DIR = old
 
 
+def test_hero_percent_sign_once():
+    import re
+    entries, _ = bsp.collect_entries()
+    fm = next(fm for fm, _ in entries if fm.get("country") == "Ireland")
+    params = bsp.load_params()
+    html = bsp.build_flyer_page(fm, params)
+    assert "%%" not in html
+    assert re.search(r'fh-big">[\d.]+<span>%</span>', html)
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:
