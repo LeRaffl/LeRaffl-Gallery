@@ -415,6 +415,16 @@ def test_flyer_draws_no_curve_for_a_fit_without_dates():
     assert "cv-fit" not in mc.build_curve_svg(rows, bad, None, weak_fit=False)  # brief: none
 
 
+def test_hero_percent_sign_once():
+    import re
+    entries, _ = bsp.collect_entries()
+    fm = next(fm for fm, _ in entries if fm.get("country") == "Ireland")
+    params = bsp.load_params()
+    html = bsp.build_flyer_page(fm, params)
+    assert "%%" not in html
+    assert re.search(r'fh-big">[\d.]+<span>%</span>', html)
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:
