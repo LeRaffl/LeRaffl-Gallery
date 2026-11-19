@@ -379,7 +379,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         if latest:
             month = (f'<div class="fh-month">{esc(mc.row_label(latest["row"]))} alone: '
                      f'<b>{esc(mc.share(latest["share"]))}</b></div>')
-        big = mc.share(ttm["share"])
+        big = mc.share(ttm["share"]).removesuffix("%")
         hero_num = (
             '<div class="fh-num"><div class="fh-kicker">BEV share of new cars</div>'
             f'<div class="fh-big">{esc(big)}<span>%</span></div>'
