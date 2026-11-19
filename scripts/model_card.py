@@ -211,8 +211,8 @@ def units(value: float) -> str:
 def share(value: float) -> str:
     """A share in percent. Two decimals below 1 % so small markets do not read 0.0."""
     if 0 < abs(value) < 0.995:
-        return f"{value:.2f} %"
-    return f"{value:.1f} %"
+        return f"{value:.2f}%"
+    return f"{value:.1f}%"
 
 
 def points(value: float) -> str:
@@ -492,7 +492,7 @@ FIT_STALE_MONTHS = 12
 MIN_TRANSITION_SLOPE = 0.01
 
 REASON_TEXT = {
-    "unsettled": "the 80 % date still moves by more than 25 years from one re-fit to the next",
+    "unsettled": "the 80% date still moves by more than 25 years from one re-fit to the next",
     "collapsed": "the curve is a near-vertical step the data has not reached",
     "stale": "the newest data point is more than twelve months old",
 }
@@ -682,7 +682,7 @@ def build_glance(figures: dict, state: dict | None) -> str:
     if volume:
         sub = "last 12 months"
         if volume["growth"] is not None:
-            sub += f' · {points(volume["growth"])} % in a year'
+            sub += f' · {points(volume["growth"])}% in a year'
         tiles.append(_tile(esc(units(volume["total"])), "New registrations", sub))
         if volume["bev"] is not None:
             tiles.append(_tile(esc(units(volume["bev"])), "Battery electric registered",
@@ -703,9 +703,9 @@ def build_glance(figures: dict, state: dict | None) -> str:
             nxt = ahead[0]
             sub = "fitted S-curve, not a forecast"
             if nxt["ci"]:
-                sub = f'95 % CI {esc(_ci_text(nxt["ci"]))} · ' + sub
+                sub = f'95% CI {esc(_ci_text(nxt["ci"]))} · ' + sub
             tiles.append(_tile(esc(year_text(nxt["fit"])),
-                               f'Curve reaches {nxt["level"] * 100:.0f} % BEV', sub))
+                               f'Curve reaches {nxt["level"] * 100:.0f}% BEV', sub))
     if not tiles:
         return ""
     return f'<section id="glance" class="glance"><div class="stats">{"".join(tiles)}</div></section>'
@@ -754,7 +754,7 @@ def build_latest_table(rows: list[dict], hev_full: bool, count: int = 13) -> str
             f'<td class="num">{total:,.0f}</td>'
             f'<td class="num">{"—" if bev is None else f"{bev:,.0f}"}</td>{"".join(cells)}'
             f'<td class="num">{rest}</td></tr>')
-    head = "".join(f'<th class="num">{esc(label)} %</th>' for _, label in cols)
+    head = "".join(f'<th class="num">{esc(label)}%</th>' for _, label in cols)
     note = ("<sup>e</sup> partly estimated from annual data, see the row's "
             "<code>notes</code> in the CSV. " if flagged else "")
     rest = "All other" if len(cols) == 3 else "Everything else"
@@ -762,7 +762,7 @@ def build_latest_table(rows: list[dict], hev_full: bool, count: int = 13) -> str
         '<section id="latest"><h2>The latest periods</h2>'
         '<div class="scroll"><table class="vars latest">'
         '<tr><th>Period</th><th class="num">All registrations</th>'
-        f'<th class="num">BEV</th>{head}<th class="num">{rest} %</th></tr>'
+        f'<th class="num">BEV</th>{head}<th class="num">{rest}%</th></tr>'
         f'{"".join(body)}</table></div>'
         f'<p class="fig-note">{note}Shares are the column divided by the '
         "source's own total. The last column is what remains after the columns "
@@ -899,7 +899,7 @@ def build_model(country: str, rows: list[dict], state: dict | None,
             legend = ['<span class="key key-pt">observed share per period</span>',
                       '<span class="key key-fit">fitted S-curve</span>']
             if state["band_ok"]:
-                legend.append('<span class="key key-ci">95 % confidence interval of the curve</span>')
+                legend.append('<span class="key key-ci">95% confidence band of the curve</span>')
             out.append(f'<figure class="curve-fig" data-theme="light">{curve}'
                        f'<figcaption>{"".join(legend)}</figcaption></figure>')
         if state["flat"]:
@@ -913,19 +913,19 @@ def build_model(country: str, rows: list[dict], state: dict | None,
             body = []
             for c in state["crossings"]:
                 ci = f'<td>{esc(_ci_text(c["ci"]))}</td>' if state["band_ok"] else ""
-                body.append(f'<tr><th>{c["level"] * 100:.0f} %</th>'
+                body.append(f'<tr><th>{c["level"] * 100:.0f}%</th>'
                             f'<td>{esc(year_text(c["fit"]))}</td>{ci}</tr>')
-            ci_head = "<th>95 % confidence interval</th>" if state["band_ok"] else ""
+            ci_head = "<th>95% confidence band</th>" if state["band_ok"] else ""
             out.append('<div class="scroll"><table class="vars miles">'
                        f'<tr><th>BEV share</th><th>Curve reaches it in</th>{ci_head}</tr>'
                        f'{"".join(body)}</table></div>')
             notes = []
             if state["rel"]["status"] == "provisional":
-                notes.append("The fit is provisional: its 80 % date moved by "
+                notes.append("The fit is provisional: its 80% date moved by "
                              f"{state['rel']['swing']:.0f} years across recent re-fits.")
             if not state["band_ok"]:
                 reasons = "; ".join(state["band_reasons"])
-                notes.append("No confidence interval is shown: none can be stated "
+                notes.append("No confidence band is shown: none can be stated "
                              "reliably for this series" + (f" ({reasons})." if reasons else "."))
             else:
                 notes.append("The interval is for the fitted line, point by point, and "

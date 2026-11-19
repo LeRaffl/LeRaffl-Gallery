@@ -216,7 +216,7 @@ def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> st
         parts.append(f'<rect x="{x}" y="{y - 5:.1f}" width="8" height="8" fill="{mc.COLORS[key]}"/>')
         bold = ' class="strong"' if key == "BEV" else ""
         parts.append(f'<text x="{x + 13}" y="{y + 3:.1f}"{bold}>{esc(name)} '
-                     f'{mc.share(value).replace(" %", "%")}</text>')
+                     f'{mc.share(value)}</text>')
     label = (f"Share of new registrations by powertrain, trailing twelve months, "
              f"through {mc.period_label(end['period'])}.")
     return (f'<svg class="fl-svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
@@ -266,7 +266,7 @@ def build_miles(state: dict) -> str:
         elif past:
             ci = '<span class="fm-ci">passed</span>'
         rows.append(f'<div class="fm-row{" fm-past" if past else ""}">'
-                    f'<span class="fm-lvl">{c["level"] * 100:.0f} %</span>'
+                    f'<span class="fm-lvl">{c["level"] * 100:.0f}%</span>'
                     f'<span class="fm-year">{esc(mc.year_text(c["fit"]))}</span>{ci}</div>')
     return "".join(rows)
 
@@ -338,7 +338,7 @@ def build_compare(country: str, peers: list[tuple[str, float]], width: int) -> s
     own_anchor = "start" if xo < width * 0.72 else "end"
     own_x = xo + (6 if own_anchor == "start" else -6)
     parts.append(f'<text x="{own_x:.1f}" y="{base - 18}" text-anchor="{own_anchor}" class="strong">'
-                 f'{esc(country)} {mc.share(own).replace(" %", "%")}</text>')
+                 f'{esc(country)} {mc.share(own)}</text>')
     lead_name, lead = ranked[0]
     if lead_name != country and abs(x_of(lead) - xo) > 150:
         parts.append(f'<text x="{x_of(lead):.1f}" y="{base - 13}" text-anchor="end" class="ax">'
@@ -350,7 +350,7 @@ def build_compare(country: str, peers: list[tuple[str, float]], width: int) -> s
         '<section class="fl-sec fl-cmp"><h2>How it compares</h2>'
         f'<p class="fl-sub"><b>{ordinal(rank)} of {len(peers)}</b> countries by BEV share of '
         f'new cars, last 12 months. Each line is one country; the middle one is at '
-        f'{mc.share(median).replace(" %", "%")}.</p>{svg}</section>')
+        f'{mc.share(median)}.</p>{svg}</section>')
 
 
 def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
@@ -379,7 +379,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         if latest:
             month = (f'<div class="fh-month">{esc(mc.row_label(latest["row"]))} alone: '
                      f'<b>{esc(mc.share(latest["share"]))}</b></div>')
-        big = mc.share(ttm["share"]).replace(" %", "")
+        big = mc.share(ttm["share"])
         hero_num = (
             '<div class="fh-num"><div class="fh-kicker">BEV share of new cars</div>'
             f'<div class="fh-big">{esc(big)}<span>%</span></div>'
@@ -404,14 +404,14 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         if svg and state["quotable"]:
             shown_ci = state["band_ok"] and '"fm-ci">passed' not in build_miles(state).replace(
                 '<span class="fm-ci">passed</span>', "", 3) and "–" in build_miles(state)
-            band = ('<p class="fm-note">Range: 95 % confidence interval.</p>' if shown_ci else "")
+            band = ('<p class="fm-note">Range: 95% confidence band.</p>' if shown_ci else "")
             if state["rel"]["status"] == "provisional":
                 # Same caveat as the source page: the dates still move.
-                band += ('<p class="fm-note">Provisional: the 80 % year moved by '
+                band += ('<p class="fm-note">Provisional: the 80% year moved by '
                          f'{state["rel"]["swing"]:.0f} years across recent re-fits.</p>')
             legend = "Dots: observed share per period. Line: fitted S-curve."
             if state["band_ok"]:
-                legend += " Band: 95 % confidence interval."
+                legend += " Band: 95% confidence band."
             curve = (
                 '<section class="fl-sec"><h2>Where the curve points</h2>'
                 '<p class="fl-sub">An S-curve fitted to the BEV share so far. It is this '
@@ -437,7 +437,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     if volume:
         sub = "last 12 months"
         if volume["growth"] is not None:
-            sub += f', {mc.points(volume["growth"])} % in a year'
+            sub += f', {mc.points(volume["growth"])}% in a year'
         facts.append(_fact(mc.units(volume["total"]), "new registrations", sub))
         if volume["bev"] is not None:
             facts.append(_fact(mc.units(volume["bev"]), "of them battery electric", "last 12 months"))
