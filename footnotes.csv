@@ -4,7 +4,7 @@ Canada,Whole,Pre-2017 figures are passenger cars only; SUVs/crossovers included 
 Israel,Whole,MoT registry snapshot of currently-registered private cars: older months slightly undercount (deregistered vehicles drop out). HEV/PHEV split via the official model-catalogue join.
 Israel,Vans,MoT registry snapshot; sug_degem M = light commercial vehicles up to 3.5t. Same snapshot/undercount and catalogue-join caveats as Whole. Low volume (roughly 500-1100/month).
 Türkiye,Whole,"Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE trajectory, which omits a PHEV curve because this source never measures one."
-Georgia,Whole,"All vehicle categories, first registrations incl. used imports (79 % over 2 years old, Q3 2026). One combined hybrid figure, counted within ICE, no PHEV curve."
+Georgia,Whole,"All vehicle categories, first registrations incl. used imports (79% over 2 years old, Q3 2026). One combined hybrid figure, counted within ICE, no PHEV curve."
 Colombia,Whole,"Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE trajectory, which omits a PHEV curve because this source never measures one."
 Malaysia,Whole,"JPJ registrations incl. recon (used) imports. No PHEV/HEV split: shown as 'Hybrid', counted within ICE, no PHEV curve."
 Singapore,Whole,Monthly BEV/PHEV/HEV split reported by LTA from Jul 2022; earlier electrified cars sit in 'Others'. Pre-automation series compiled by R. Andrew.
@@ -24,12 +24,12 @@ Nepal,Whole,Customs imports (HS 8703 cars/jeeps/vans; no domestic production - i
 Nepal,3-Wheelers,Customs imports of passenger three-wheelers: petrol auto-rickshaws and electric e-rickshaws (HS 8703). Nepali-calendar months labelled by their Gregorian end month.
 France,Whole,SDES registry série — new EU M1 passenger cars (SUVs incl.; vans/trucks/buses separate). Raw counts from 2011; higher than the seasonally-adjusted SDES/Insee CVS-CJO headline.
 Japan,Whole,Registered passenger cars only; excludes kei cars (about a third of the market) and most kei-BEVs.
-India,Whole,"EU M1 passenger cars (VAHAN classes MOTOR CAR/CAB/LUXURY CAB). HEV includes mild hybrids (VAHAN */HYBRID); strong hybrids alone are about 2 % (2025-26). Latest 1-2 months provisional; running month excluded."
-Belgium,Whole,"HEV includes mild hybrids (about 2.5x ACEA's full-hybrid figure), so petrol/diesel run lower than ACEA's. The April 2025 file is about 13 % short."
+India,Whole,"EU M1 passenger cars (VAHAN classes MOTOR CAR/CAB/LUXURY CAB). HEV includes mild hybrids (VAHAN */HYBRID); strong hybrids alone are about 2% (2025-26). Latest 1-2 months provisional; running month excluded."
+Belgium,Whole,"HEV includes mild hybrids (about 2.5x ACEA's full-hybrid figure), so petrol/diesel run lower than ACEA's. The April 2025 file is about 13% short."
 Belgium,Private,"New passenger cars whose keeper is not VAT-registered (DIV keeper type Natural/Legal Person: in practice private persons, plus small non-VAT bodies), monthly from 2013-01. Private + Industry = Whole. HEV includes mild hybrids."
 Belgium,Industry,"New passenger cars kept by VAT-registered legal persons (company, leasing and rental fleets). Private + Industry = Whole. HEV includes mild hybrids."
 Belgium,Vans,"New light goods vehicles up to 3.5 t, with BEV / PHEV / hybrids counted separately."
-Belgium,HDV,"New lorries and tractor units for semi-trailers (over 3.5 t), monthly from 2013-01 (DIV registration files). Almost all diesel. Agrees with ACEA's quarterly figures (data/Belgium_legacy.csv) within about 0-4 % per quarter."
+Belgium,HDV,"New lorries and tractor units for semi-trailers (over 3.5 t), monthly from 2013-01 (DIV registration files). Almost all diesel. Agrees with ACEA's quarterly figures (data/Belgium_legacy.csv) within about 0-4% per quarter."
 Belgium,Buses,"New buses and coaches. Low volume (about 30-190 a month), so single electric-bus deliveries swing the shares."
 Bulgaria,Vans,"ACEA quarterly figures (rebuilt from year-to-date totals). From ~2024 'EV' is ACEA's combined 'Electrically Chargeable Vehicle' bucket (BEV+PHEV), not pure BEV - not comparable to the Whole BEV share."
 Bulgaria,HDV,"ACEA quarterly figures (rebuilt from year-to-date totals). From ~2024 'EV' is ACEA's combined 'Electrically Chargeable Vehicle' bucket (BEV+PHEV), not pure BEV - not comparable to the Whole BEV share."

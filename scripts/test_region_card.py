@@ -21,7 +21,7 @@ BASE = ([f"2024-{m:02d}" for m in range(11, 13)]
 
 
 def test_pick_latest_month_that_covers_80_percent():
-    # A+B are 90 % of the weight and run through October; C stops in August.
+    # A+B are 90% of the weight and run through October; C stops in August.
     A = member("A", 85, BASE)
     B = member("B", 5, BASE)
     C = member("C", 10, [p for p in BASE if p <= "2026-08"])
@@ -114,7 +114,7 @@ def test_reference_points_include_the_named_set():
     assert pts["Norway"]["share"] > 80
     assert pts["USA"]["share"] < 15
     assert pts["World"]["share"] < pts["EU"]["share"] < pts["China"]["share"]
-    # 50 % year for the compare box plot: the same fitted-curve rule as each brief.
+    # 50% year for the compare box plot: the same fitted-curve rule as each brief.
     assert pts["Norway"]["year50"] < pts["Germany"]["year50"] < pts["USA"]["year50"]
     assert pts["EU"]["year50"] == flyer.year_at_50(rc.load("eu")["fm"]["curve_state"])
 
@@ -187,7 +187,7 @@ def test_south_america_splits_hev_not_phev():
     assert info["fm"]["region_mix_points"][-1]["HEV"] is not None
     assert info["fm"]["region_mix_points"][-1]["PHEV"] is None
     assert "Colombia" in (info["mix_note"] or "")
-    assert "6.9 %" in info["mix_note"] and "6.3 %" in info["mix_note"]
+    assert "6.9%" in info["mix_note"] and "6.3%" in info["mix_note"]
 
 
 def test_empty_hev_is_unknown_in_window_powertrains():
@@ -222,7 +222,7 @@ M24 = [f"2024-{m:02d}" for m in range(10, 13)] + [f"2025-{m:02d}" for m in range
 def test_acea_ttm_window_and_delta():
     import tempfile
     with tempfile.TemporaryDirectory() as d:
-        # 30 % before Oct 2025, 36 % from then on: +6 pts on the 12 months before.
+        # 30% before Oct 2025, 36% from then on: +6 pts on the 12 months before.
         ref = _acea_monthly(d, M24, hev=lambda p: 36 if p >= "2025-10" else 30)
         a = rc.acea_eu_ttm(ref)
         assert a["end"] == "2026-09" and a["span"] == (("2024-10", "2025-09"), ("2025-10", "2026-09"))
@@ -282,7 +282,7 @@ def test_acea_ytd_file_still_reads():
 
 
 def test_every_region_split_adds_up():
-    # One split, one denominator: ±0 pts and 100 %. On the EU brief that
+    # One split, one denominator: ±0 pts and 100%. On the EU brief that
     # includes ACEA's HEV row (the rest is 100 − BEV − PHEV − HEV).
     import contextlib, io, re
     import flyer
@@ -312,7 +312,7 @@ def test_every_region_split_adds_up():
         html = flyer.build_bars(shift)
         pp = [0.0 if t == "±0" else float(t.replace("−", "-"))
               for t in re.findall(r'class="fb-pp">([^<]*)<', html)]
-        now = [float(t.replace(" %", "")) for t in re.findall(r'class="fb-now">([^<]*)<', html)]
+        now = [float(t.replace("%", "")) for t in re.findall(r'class="fb-now">([^<]*)<', html)]
         tol = 0.05 * len(pp) + 1e-9
         assert abs(sum(pp)) <= tol and abs(sum(now) - 100) <= tol, (slug, pp, now)
     assert seen_acea, "EU brief lost its ACEA HEV row"

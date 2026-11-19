@@ -239,7 +239,7 @@ def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> st
         labels_out.append(f'<rect x="8" y="{y - 5:.1f}" width="8" height="8" fill="{mc.COLORS[key]}"/>')
         bold = ' class="strong"' if key == "BEV" else ""
         labels_out.append(f'<text x="21" y="{y + 3:.1f}"{bold}>{esc(name)} '
-                          f'{mc.share(value).replace(" %", "%")}</text>')
+                          f'{mc.share(value)}</text>')
     label = (f"Share of new registrations by powertrain, trailing twelve months, "
              f"through {mc.period_label(end['period'])}.")
     title = '<text x="0" y="12" class="mix-t">Trailing 12-month share by powertrain</text>'
@@ -318,7 +318,7 @@ def build_miles(state: dict) -> str:
         elif past:
             ci = '<span class="fm-ci">passed</span>'
         rows.append(f'<div class="fm-row{" fm-past" if past else ""}">'
-                    f'<span class="fm-lvl">{c["level"] * 100:.0f} %</span>'
+                    f'<span class="fm-lvl">{c["level"] * 100:.0f}%</span>'
                     f'<span class="fm-year">{esc(mc.year_text(c["fit"]))}</span>{ci}</div>')
     return "".join(rows)
 
@@ -837,7 +837,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
             month += (f'<div class="fh-month fh-ytd">{esc(mc.period_label(ytd["from"]).split()[0])}–'
                       f'{esc(mc.period_label(ytd["to"]))} so far: '
                       f'<b>{esc(mc.share(ytd["share"]))}</b></div>')
-        big = mc.share(ttm["share"]).replace(" %", "")
+        big = mc.share(ttm["share"])
         hero_num = (
             '<div class="fh-num"><div class="fh-kicker">BEV share of new cars</div>'
             f'<div class="fh-big">{esc(big)}<span>%</span></div>'
@@ -900,11 +900,12 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         if svg and state["quotable"]:
             shown_ci = state["band_ok"] and '"fm-ci">passed' not in build_miles(state).replace(
                 '<span class="fm-ci">passed</span>', "", 3) and "–" in build_miles(state)
-            band = ('<p class="fm-note">95 % confidence band.</p>' if shown_ci else "")
+            band = ('<p class="fm-note">95% confidence band.</p>' if shown_ci else "")
             if state["rel"]["status"] == "provisional":
                 # Same caveat as the source page: the dates still move.
-                band += ('<p class="fm-note">Provisional: the 80 % year moved by '
+                band += ('<p class="fm-note">Provisional: the 80% year moved by '
                          f'{state["rel"]["swing"]:.0f} years across recent re-fits.</p>')
+
             curve = (
                 '<section class="fl-sec"><h2>Where the curve points</h2>'
                 f'<p class="fl-sub">{esc(CURVE_MODEL_NOTE)}</p>'

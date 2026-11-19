@@ -38,10 +38,10 @@ def test_others_label():
 def test_growth_phrase():
     assert mc.growth_phrase(855.3) == "×9.6"
     assert mc.growth_phrase(100) == "×2"
-    assert mc.growth_phrase(54) == "+54 %"
-    assert mc.growth_phrase(4.8) == "+4.8 %"
-    assert mc.growth_phrase(-8.5) == "−8.5 %"
-    assert mc.growth_phrase(0.01) == "±0 %"
+    assert mc.growth_phrase(54) == "+54%"
+    assert mc.growth_phrase(4.8) == "+4.8%"
+    assert mc.growth_phrase(-8.5) == "−8.5%"
+    assert mc.growth_phrase(0.01) == "±0%"
 
 
 def test_share_range_needs_a_full_monthly_window():
@@ -220,9 +220,9 @@ def test_chart_legend_names_a_missing_band():
     fit = {"quotable": True, "band_ok": False, "rel": {"status": "ok"}}
     html = mc.chart_legend(fit)
     assert "no confidence band available" in html
-    assert "95 % confidence band" not in html
+    assert "95% confidence band" not in html
     ok = {"quotable": True, "band_ok": True, "rel": {"status": "ok"}}
-    assert "95 % confidence band" in mc.chart_legend(ok)
+    assert "95% confidence band" in mc.chart_legend(ok)
     assert "no confidence band available" not in mc.chart_legend(ok)
     none = {"quotable": False, "band_ok": False, "rel": {"status": "excluded"}}
     assert "no stable fit yet" in mc.chart_legend(none)

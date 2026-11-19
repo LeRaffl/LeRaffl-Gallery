@@ -417,14 +417,14 @@ def _split_note(contrib: list[dict], members: list[dict], bands: list[str],
                 and round(bev_sub, 1) == round(bev_all, 1))
         short.append(
             f"Powertrain split from {len(members)} of {len(contrib)} countries "
-            f"in the headline ({cov:.0f} % of contributor weight).")
+            f"in the headline ({cov:.0f}% of contributor weight).")
         long.append(
             f"The mix and who-gained split use {len(members)} of "
-            f"{len(contrib)} headline countries ({cov:.0f} % of contributor "
+            f"{len(contrib)} headline countries ({cov:.0f}% of contributor "
             f"weight); not in that split: {_and_list(omitted)}"
             + ("." if same else
-               f" (BEV in this subset is {bev_sub:.1f} %, against "
-               f"{bev_all:.1f} % in the headline)."))
+               f" (BEV in this subset is {bev_sub:.1f}%, against "
+               f"{bev_all:.1f}% in the headline)."))
     hev_miss = skipped.get("HEV") or []
     if "HEV" not in bands and hev_miss:
         if "PHEV" in bands:
@@ -449,7 +449,7 @@ def _split_note(contrib: list[dict], members: list[dict], bands: list[str],
         if bev_all is not None and bev_sub is not None:
             line = (f"Plug-in hybrid is not split out: leaving out "
                     f"{_and_list(phev_miss)}, who have no PHEV series, would "
-                    f"move BEV from {bev_all:.1f} % to {bev_sub:.1f} %.")
+                    f"move BEV from {bev_all:.1f}% to {bev_sub:.1f}%.")
         else:
             line = (f"Plug-in hybrid is not split out: {_and_list(phev_miss)} "
                     f"{'has' if len(phev_miss) == 1 else 'have'} no PHEV series.")
@@ -608,14 +608,14 @@ def coverage_notes(label: str, members: list[dict], contrib: list[dict],
     """Return (short social note, longer A4 note)."""
     n, N = len(contrib), len(members)
     through = mc.period_label(t, long=True)
-    short = (f"{n} of {N} {label} countries, {cov:.0f} % of registration "
+    short = (f"{n} of {N} {label} countries, {cov:.0f}% of registration "
              f"weight, 12 months to {through}")
     if n == N:
         short = (f"All {N} {label} countries, 12 months to {through}")
     used = {m["country"] for m in contrib}
     missing = [m["country"] for m in members if m["country"] not in used]
     long = (f"Weighted 12-month BEV share of {n} of {N} {label} countries, "
-            f"12 months to {through}, covering {cov:.0f} % of the group's "
+            f"12 months to {through}, covering {cov:.0f}% of the group's "
             f"registration weight.")
     if n == N:
         if N <= 6:
@@ -1281,7 +1281,7 @@ def check_acea(path: Path = ACEA_EU_MONTHLY) -> int:
     if acea is None or lag is None:
         print(f"FAIL: no full 24-month EU window in {path}")
         return 1
-    msg = (f"ACEA EU window {acea['window']} (HEV {acea['hev']:.1f} %, "
+    msg = (f"ACEA EU window {acea['window']} (HEV {acea['hev']:.1f}%, "
            f"{acea['hev_delta']:+.1f} pts); EU data ends {t}; "
            f"lag {lag} month(s), limit {ACEA_MAX_LAG}")
     if lag > ACEA_MAX_LAG:

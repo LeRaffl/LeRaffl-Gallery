@@ -217,7 +217,7 @@ LABEL = {"dominant": "One brand dominates", "ahead": "Wide lead",
 
 
 def _pct(v: float) -> str:
-    return f"{v:.1f}\u00a0%"
+    return f"{v:.1f}%"
 
 
 def others_label(ms: dict) -> str:

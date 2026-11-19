@@ -1082,7 +1082,7 @@ def update_eu_files(pdf_path: str, pdf_bytes: bytes, period: str, source_url: st
         return False
     changed = update_eu_reference(shares_path, row)
     print(f"EU year-to-date {row['period_from']}..{row['period_to']}: "
-          f"BEV {row['BEV_share']} %, PHEV {row['PHEV_share']} %, HEV {row['HEV_share']} % — "
+          f"BEV {row['BEV_share']}%, PHEV {row['PHEV_share']}%, HEV {row['HEV_share']}% — "
           f"{'written' if changed else 'unchanged'}")
     if monthly_path is not None:
         table = eu.get("month")
