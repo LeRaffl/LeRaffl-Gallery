@@ -334,12 +334,16 @@ def build_bar(ms: dict, mode: str, logo_href: str, width: float = 702,
     return f'<div class="ms-list" style="{style}">{"".join(rows)}</div>'
 
 
-def gap_note(ms: dict) -> str:
-    """Say so when the brand table counts a different BEV total than the CSV."""
+def gap_note(ms: dict, where: str = "above") -> str:
+    """Say so when the brand table counts a different BEV total than the CSV.
+
+    Any difference, not just a large one: two totals on one sheet that
+    disagree by 15 cars are still a question the reader should not have
+    to guess at."""
     csv = ms.get("csv_bev")
-    if not csv or abs(ms["units"] / csv - 1) < 0.001:
+    if not csv or ms["units"] == csv:
         return ""
-    return f" The brand table counts slightly differently from the {mc.units(csv)} above."
+    return f" The brand table counts slightly differently from the {mc.units(csv)} {where}."
 
 
 HEADING = "Top brands · battery-electric registrations, last 12 months"

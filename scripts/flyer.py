@@ -800,7 +800,7 @@ def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
 def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 state: dict | None, bands: dict | None, theme_href: str,
                 peers: list[tuple[str, float]] | None = None,
-                market: dict | None = None, brand_mode: str = "chips",
+                market: dict | None = None, brand_mode: str = "logos",
                 logo_href: str = "../../assets/brands",
                 peer_years: list[tuple[str, float]] | None = None,
                 peer_years_80: list[tuple[str, float]] | None = None) -> str:
@@ -1269,9 +1269,9 @@ def build_index(items: list[dict], theme_href: str,
     `regions`: the same fields for the group briefs, listed below the countries."""
     cards = []
     for n, item in enumerate(sorted(items, key=lambda i: -(i["share"] or -1)), 1):
-        flag = ""
-        if (mc.REPO / "assets" / "flags" / f"{item['slug']}.png").is_file():
-            flag = f'<img src="../../assets/flags/{esc(item["slug"])}.png" alt="">'
+        src = mc.flag_src(item["slug"], item["country"])
+        flag = (f'<img src="{esc(src)}" alt="">' if src
+                else '<span class="ix-noflag"></span>')
         num = mc.share(item["share"]) if item["share"] is not None else "—"
         delta = ""
         if item["delta"] is not None:
@@ -1288,9 +1288,9 @@ def build_index(items: list[dict], theme_href: str,
     if regions:
         rcards = []
         for item in sorted(regions, key=lambda i: -(i["share"] or -1)):
-            flag = ""
-            if (mc.REPO / "assets" / "flags" / f"{item['slug']}.png").is_file():
-                flag = f'<img src="../../assets/flags/{esc(item["slug"])}.png" alt="">'
+            src = mc.flag_src(item["slug"], item["country"])
+            flag = (f'<img src="{esc(src)}" alt="">' if src
+                    else '<span class="ix-noflag"></span>')
             num = mc.share(item["share"]) if item["share"] is not None else "—"
             delta = ""
             if item["delta"] is not None:
@@ -1347,7 +1347,7 @@ h1{font-size:30px;margin:0 0 8px}
 """
 
 INDEX_TEMPLATE = """<!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

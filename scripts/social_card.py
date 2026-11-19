@@ -100,7 +100,8 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
             f'of {esc(mc.units(market["units"]))} cars. '
             f'Bars scaled to the top brand</span></div>'
             f'<p class="sc-msline"><span class="ms-kind ms-{market["kind"]}">'
-            f'{esc(mstr.LABEL[market["kind"]])}</span>{esc(mstr.sentence(market))}</p>'
+            f'{esc(mstr.LABEL[market["kind"]])}</span>{esc(mstr.sentence(market))}'
+            f'{esc(mstr.gap_note(market, where="in the brief"))}</p>'
             f'{bar}{model}</div>')
         # heading + sentence + ranked list + model line. Fewer named rows
         # shrink this, and the chart below grows into the space.

@@ -2006,7 +2006,7 @@ def build_header(fm: dict, asof: str = "") -> str:
 
 
 def build_flyer_page(fm: dict, params: dict, peers: list | None = None,
-                     brand_mode: str = "chips", peer_years: list | None = None,
+                     brand_mode: str = "logos", peer_years: list | None = None,
                      peer_years_80: list | None = None) -> str:
     """The one-page reader flyer, from the same figures as the source page."""
     fm = apply_group_defaults(fm)
