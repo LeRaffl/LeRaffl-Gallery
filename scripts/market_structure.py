@@ -304,7 +304,15 @@ def build_bar(ms: dict, mode: str, logo_href: str, width: float = 702,
             slot = '<div class="ms-logo-slot"></div>'
             name = f'<div class="ms-name ms-mute">{esc(b["brand"])}</div>'
             klass = "ms-row ms-rest"
-            fill = '<div class="ms-track ms-track-empty" aria-hidden="true"></div>'
+            # Quiet residual bar on the same top-brand scale as the ranked
+            # rows, capped at full width: on a spread market the rest is
+            # larger than the leader (cap), on a dominant market it is a
+            # short proportional bar. When capped, a small fading elbow
+            # turns the corner to show the bar would run on beyond the scale.
+            rest_w = min(100.0, 100.0 * rest_share / top_share)
+            over = " ms-fill-over" if rest_w >= 99.99 else ""
+            fill = (f'<div class="ms-track" style="height:{track_h:.0f}px">'
+                    f'<span class="ms-fill ms-fill-rest{over}" style="width:{rest_w:.2f}%"></span></div>')
         else:
             colour = SEGMENT[min(i, len(SEGMENT) - 1)]
             if mode == "logos" and b["brand"] in BRAND_LOGO:
@@ -324,7 +332,7 @@ def build_bar(ms: dict, mode: str, logo_href: str, width: float = 702,
             f'<div class="ms-val">{esc(_pct(b["share"]))}</div></div>')
 
     style = (f'--ms-logo:{logo_slot:.0f}px;--ms-name:{name_w:.0f}px;--ms-pct:{pct_w:.0f}px;'
-             f'--ms-row:{row_h:.0f}px;--ms-logo-h:{logo_h:.0f}px')
+             f'--ms-row:{row_h:.0f}px;--ms-logo-h:{logo_h:.0f}px;--ms-bar-h:{track_h:.0f}px')
     n = len(items)
     height = n * row_h + max(0, n - 1) * 3
     if info is not None:
@@ -372,8 +380,7 @@ def build_block(ms: dict | None, mode: str, logo_href: str,
     klass = "fl-sec ms ms-compact" if compact else "fl-sec ms"
     return (
         f'<section class="{klass}"><h2>{esc(heading)}</h2>'
-        f'<p class="fl-sub">{esc(base_line(ms))}{esc(gap_note(ms))}'
-        f'{esc(SCALE_NOTE)}</p>'
+        f'<p class="fl-sub">{esc(base_line(ms))}{esc(gap_note(ms))}</p>'
         f'<p class="ms-line"><span class="ms-kind ms-{ms["kind"]}">{esc(LABEL[ms["kind"]])}</span>'
         f'{esc(sentence(ms))}</p>'
         f'{build_bar(ms, mode, logo_href)}{model}</section>')
@@ -386,7 +393,7 @@ CSS = """
   vertical-align:2px;background:#eceae4;color:#3a3935}
 .ms-dominant{background:#1f6a43;color:#fff}
 .ms-close{background:#f3e3b5;color:#5c4400}
-.ms-spread{background:#dde7f1;color:#1d3d5e}
+.ms-spread{background:#e4ece6;color:#1f4a33}
 .ms-leader{background:#e4ece6;color:#1f4a33}
 .ms-ahead{background:#e8ddd0;color:#5a3a16}
 .ms-list{--ms-logo:50px;--ms-name:112px;--ms-pct:64px;--ms-row:18px;--ms-logo-h:12px}
@@ -409,6 +416,14 @@ CSS = """
 .ms-val{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;line-height:1;
   white-space:nowrap;color:#1a1a18;align-self:center}
 .ms-rest .ms-val{font-weight:600;color:#3a3935}
+.ms-rest{margin-top:7px;padding-bottom:18px}
+.ms-fill-rest{background:#c7c3b7;position:relative}
+.ms-fill-over::after{content:"";position:absolute;right:0;top:100%;
+  width:16px;height:18px;
+  border-right:var(--ms-bar-h) solid #b3afa2;border-bottom:var(--ms-bar-h) solid #b3afa2;
+  border-bottom-right-radius:10px;
+  -webkit-mask-image:linear-gradient(to bottom,#000 70%,transparent);
+  mask-image:linear-gradient(to bottom,#000 70%,transparent)}
 .ms-model{font-size:12.5px;margin:6px 0 0;color:#3a3935}
 .ms-compact{--ms-logo:28px;--ms-name:88px;--ms-pct:42px;--ms-row:16px;--ms-logo-h:11px}
 .ms-compact .ms-line{font-size:13.5px;margin:0 0 6px}

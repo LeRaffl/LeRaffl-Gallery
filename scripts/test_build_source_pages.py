@@ -421,7 +421,7 @@ def test_flyer_qr_compare_and_fractions():
     assert "<b>3rd of 20</b>" in html and "Median: 10.5%" in html
     assert "25%: 5.8%" in html and "75%: 15.2%" in html
     assert "Box = middle half of the 20 countries in the Gallery" in html
-    assert "whiskers = lowest and highest quarter each." in html
+    assert "the lines reach" not in html   # whisker/lines explanation dropped
     assert "BEV share, last 12 months" in html and "Fitted curve reaches 50%" not in html
     assert flyer.build_compare("Nowhere", peers, 700) == ""
     assert flyer.build_compare("C1", peers[:5], 700) == ""       # too few to compare
@@ -431,14 +431,14 @@ def test_flyer_qr_compare_and_fractions():
         highlights=[{"name": "C20", "slug": "c20", "share": 20.0},
                     {"name": "C18", "slug": "c18", "share": 18.0},
                     {"name": "C5", "slug": "c5", "share": 5.0}])
-    assert "Flags: C20 and C5." in html
+    assert "Flags:" not in html   # the flag legend sentence was dropped; ticks remain
     assert "<title>C20</title>" in html and html.count("<title>C18</title>") == 1
     assert "C18 18.0%" in html
     # The 50 % year strip: earliest first, only with the subject's own year.
     years = [(f"C{i}", 2020.0 + i) for i in range(1, 21)]
     html = flyer.build_compare("C18", peers, 700, peer_years=years)
     assert "Fitted curve reaches 50%" in html and "C18 2038 · <b>18th of 20</b>" in html
-    assert "Years: the 20 with a quoted curve, earliest first." in html
+    assert "Years:" not in html   # years explanation dropped
     assert "Median: 2030" in html
     no_year = [(n, y) for n, y in years if n != "C18"]
     assert "Fitted curve reaches 50%" not in flyer.build_compare("C18", peers, 700,
@@ -448,7 +448,7 @@ def test_flyer_qr_compare_and_fractions():
     html = flyer.build_compare("C18", peers, 700, peer_years=years, peer_years_80=years80)
     assert "Fitted curve reaches 80%" in html and "C18 2043 · <b>18th of 20</b>" in html
     assert "50 % 20, 80 % 20" not in html  # same N, one clause
-    assert "Years: the 20 with a quoted curve, earliest first." in html
+    assert "Years:" not in html   # years explanation dropped
     # 50 % and 80 % share one year axis; the 50 % box sits further left.
     strips, _, _ = flyer.compare_strips("C18", peers, peer_years=years, peer_years_80=years80)
     y50, y80 = [s for s in strips if s.get("kind") == "year"]

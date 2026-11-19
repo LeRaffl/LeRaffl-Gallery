@@ -122,8 +122,9 @@ def test_every_row_shows_logo_and_name():
     assert 'class="ms-row ms-rest"' in html
     assert "other brands" in html
     assert "width:100.00%" in html          # scaled to the leading brand
-    assert "width:27.10%" not in html       # remainder has no bar
-    assert "ms-track-empty" in html
+    assert "width:27.10%" not in html       # remainder rescaled to the top-brand scale
+    assert "ms-fill-rest" in html
+    assert "ms-fill-over" not in html       # dominant market: rest fits, no overflow elbow
     # Logo and printed name on the same row; no empty name cell, no chip.
     assert "byd." in html.lower()
     assert ">BYD</div>" in html
@@ -163,9 +164,10 @@ def test_bars_are_scaled_to_the_top_brand():
     assert "width:100.00%" in html          # Kia
     assert "width:95.65%" in html           # 11.0 / 11.5
     assert "width:90.43%" in html           # 10.4 / 11.5
-    assert "50.7" in html and "ms-track-empty" in html
+    assert "50.7" in html and "ms-fill-rest" in html
+    assert "ms-fill-over" in html          # rest > leader: capped bar with overflow elbow
     block = ms.build_block(ms_, "logos", "assets/brands")
-    assert "scaled to the top brand" in block
+    assert "scaled to the top brand" not in block   # scale note dropped (clear from context)
 
 
 def test_generated_stamp_is_reproducible():

@@ -660,27 +660,14 @@ def build_compare(country: str, peers: list[tuple[str, float]], width: int,
     if not strips:
         return ""
     plot_w = width - CMP_LABEL_W
-    body = "".join(_box_strip(m, plot_w) for m in strips)
+    body = "".join(_box_strip(m, plot_w, k=1.12) for m in strips)
     last_year = next((m for m in reversed(strips) if m.get("shared_ticks")), None)
     if last_year:
-        body += _year_axis_row(last_year["axis"], last_year["shared_ticks"], plot_w)
+        body += _year_axis_row(last_year["axis"], last_year["shared_ticks"], plot_w, k=1.12)
     n = strips[0]["stats"]["n"]
-    sub = (f"Box = middle half of the {n} countries in the Gallery; "
-           "whiskers = lowest and highest quarter each.")
-    if len(strips) > 1:
-        year_ns = [s["stats"]["n"] for s in strips[1:]]
-        if len(set(year_ns)) == 1:
-            sub += f" Years: the {year_ns[0]} with a quoted curve, earliest first."
-        else:
-            bits = []
-            for s, yn in zip(strips[1:], year_ns):
-                label = "50 %" if "50%" in s["title"] else "80 %"
-                bits.append(f"{label} {yn}")
-            sub += f" Years: {', '.join(bits)}, earliest first."
+    sub = f"Box = middle half of the {n} countries in the Gallery."
     if is_region:
         sub += " The group figure is this brief's weighted headline."
-    if named:
-        sub += f" Flags: {_and_list(named)}."
     return ('<section class="fl-sec fl-cmp"><h2>How it compares</h2>'
             f'<p class="fl-sub">{sub}</p>'
             f'<div class="fl-cmp-strips">{body}</div></section>')
@@ -1157,7 +1144,7 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .ff-l{font-size:11.5px;margin-top:1px;line-height:1.25}
 .ff-s{font-size:10.5px;color:var(--muted);line-height:1.25}
 .fl-one .fl-facts{grid-template-columns:repeat(4,1fr)}
-.fl-foot{margin-top:auto;padding-top:10px;font-size:10.5px;line-height:1.42;color:var(--muted);
+.fl-foot{margin-top:auto;padding-top:10px;font-size:11px;line-height:1.5;color:var(--muted);
   display:flex;flex-wrap:wrap;column-gap:18px;align-items:flex-end}
 .nw{white-space:nowrap}
 .fl-foot-text{flex:1;min-width:0}
@@ -1167,16 +1154,17 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fl-cmp .fl-sub{margin-bottom:2px}
 .fl-cmp-strips{display:grid;grid-template-columns:176px minmax(0,1fr);align-items:end;row-gap:2px}
 .fl-bx{display:contents}
-.fl-bx-l{display:flex;flex-direction:column;font-size:10.5px;line-height:1.28;color:var(--muted);
+.fl-bx-l{display:flex;flex-direction:column;font-size:11.5px;line-height:1.32;color:var(--muted);
   padding-bottom:8px}
 .fl-bx-l-tight{padding-bottom:2px}
 .fl-cmp-axis-l{min-height:0}
 .fl-cmp-axis{display:block;margin-top:0}
-.fl-bx-l b{color:var(--text);font-size:11px}
+.fl-bx-l b{color:var(--text);font-size:12px}
 .fl-bx-own{color:#2c7a50;font-weight:600}
 .fl-bx-own b{color:#2c7a50}
+.fl-cmp-svg text.ax{font-size:11.5px}
 .fl-cmp .fl-sub b{color:var(--text)}
-.fl-foot p{margin:0 0 3px}
+.fl-foot p{margin:0 0 5px}
 .fl-foot a{color:inherit}
 .fl-foot b{color:var(--text)}
 .fl-brand{flex-basis:100%;margin:6px 0 0!important;padding-top:6px;border-top:2px solid var(--text);
