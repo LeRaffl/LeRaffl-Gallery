@@ -45,6 +45,8 @@ import yaml
 import flyer
 import market_structure
 import model_card as mc
+import region_card
+import social_card
 
 REPO = Path(__file__).resolve().parent.parent
 DOCS = REPO / "docs" / "architecture"
@@ -2021,6 +2023,22 @@ def build_flyer_page(fm: dict, params: dict, peers: list | None = None,
                              peer_years=peer_years, peer_years_80=peer_years_80)
 
 
+def build_social_page(fm: dict, params: dict, peers: list | None = None) -> str:
+    """The 1080x1350 social card, from the same figures as the brief."""
+    fm = apply_group_defaults(fm)
+    country = fm.get("country", "Unknown")
+    whole = params.get((country, "Whole")) or {}
+    rows = mc.whole_rows(fm.get("data_file"))
+    bands = mc.load_bands(country)
+    shift = mc.powertrain_shift(rows, fm.get("hev_split") is True)
+    figures = mc.key_figures(rows, shift, whole,
+                             mc.read_keyed("weights.csv").get((country, "Whole")))
+    return social_card.build_social(fm, rows, figures, mc.model_state(whole, bands),
+                                    bands, market_structure.load(fm, rows), "logos",
+                                    "../../assets/theme.css", "../../assets/brands",
+                                    peers=peers or [])
+
+
 def flyer_summary(fm: dict, params: dict) -> dict:
     """One row of the brief directory."""
     fm = apply_group_defaults(fm)
@@ -2880,6 +2898,32 @@ def collect_candidates(gallery_slugs: set[str]) -> tuple[list[dict], list[str]]:
     return out, problems
 
 
+def build_regions(peers: list, peer_years: list | None = None,
+                  peer_years_80: list | None = None) -> list[dict]:
+    """Region briefs + social cards, one per group with a common window.
+
+    Written beside the country briefs (sources/flyer/<slug>.html) so the QR
+    on each sheet resolves to the sheet itself. A group without a common
+    12-month window is skipped with a warning, never drawn half."""
+    items = []
+    for slug in region_card.REGION_LABELS:
+        try:
+            brief, social, info = region_card.build(
+                slug, "../../assets/theme.css", peers=peers,
+                peer_years=peer_years, peer_years_80=peer_years_80)
+        except RuntimeError as exc:
+            print(f"  ! region {slug}: {exc}", file=sys.stderr)
+            continue
+        (OUT_DIR / "flyer" / f"{slug}.html").write_text(brief, encoding="utf-8")
+        (OUT_DIR / "flyer" / f"{slug}_social.html").write_text(social, encoding="utf-8")
+        ttm = info["figures"].get("ttm") or {}
+        items.append({"country": info["label"], "slug": slug,
+                      "share": ttm.get("share"), "delta": ttm.get("delta"),
+                      "head": flyer.verdict(info["label"], info["figures"], info["shift"])[0],
+                      "through": mc.period_label(info["t"])})
+    return items
+
+
 def main() -> int:
     check_only = "--check" in sys.argv
     params = load_params()
@@ -2912,9 +2956,6 @@ def main() -> int:
     peer_years = flyer_peer_years(entries, params)
     peer_years_80 = flyer_peer_years(entries, params, level=0.8)
     (OUT_DIR / "flyer").mkdir(exist_ok=True)
-    (OUT_DIR / "flyer" / "index.html").write_text(
-        flyer.build_index([flyer_summary(fm, params) for fm, _ in entries],
-                          "../../assets/theme.css"), encoding="utf-8")
     for fm, is_stub in entries:
         page = build_page(fm, params, is_stub=is_stub)
         (OUT_DIR / f"{fm['slug']}.html").write_text(page, encoding="utf-8")
@@ -2922,6 +2963,8 @@ def main() -> int:
         (OUT_DIR / "flyer" / f"{fm['slug']}.html").write_text(
             build_flyer_page(fm, params, peers, peer_years=peer_years,
                                    peer_years_80=peer_years_80), encoding="utf-8")
+        (OUT_DIR / "flyer" / f"{fm['slug']}_social.html").write_text(
+            build_social_page(fm, params, peers), encoding="utf-8")
         whole = params.get((fm.get("country"), "Whole")) or {}
         # Same rule as the page itself: the directory card shows what we
         # actually hold, falling back to the model's period only if the CSV
@@ -2938,6 +2981,12 @@ def main() -> int:
             "market": market_summary(fm),
             "is_stub": is_stub,
         })
+
+    region_items = build_regions(peers, peer_years, peer_years_80)
+    (OUT_DIR / "flyer" / "index.html").write_text(
+        flyer.build_index([flyer_summary(fm, params) for fm, _ in entries],
+                          "../../assets/theme.css", regions=region_items),
+        encoding="utf-8")
 
     for c in candidates:
         (OUT_DIR / f"{c['slug']}.html").write_text(build_candidate_page(c),
@@ -2962,6 +3011,8 @@ def main() -> int:
 
     n_full = sum(1 for b in built if not b["is_stub"])
     print(f"  ✓ {len(built)} pages ({n_full} full, {len(built) - n_full} stub) "
+          f"+ {len(region_items)} region briefs "
+          f"+ {len(built) + len(region_items)} social cards "
           f"+ {len(candidates)} candidate pages "
           f"+ sources/index.html + sources/sources.json")
     return 0

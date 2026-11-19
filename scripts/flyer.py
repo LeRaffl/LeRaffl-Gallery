@@ -837,7 +837,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
             month += (f'<div class="fh-month fh-ytd">{esc(mc.period_label(ytd["from"]).split()[0])}–'
                       f'{esc(mc.period_label(ytd["to"]))} so far: '
                       f'<b>{esc(mc.share(ytd["share"]))}</b></div>')
-        big = mc.share(ttm["share"])
+        big = mc.share(ttm["share"]).removesuffix("%")
         hero_num = (
             '<div class="fh-num"><div class="fh-kicker">BEV share of new cars</div>'
             f'<div class="fh-big">{esc(big)}<span>%</span></div>'
@@ -969,12 +969,12 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
     url = f"{mc.SITE}/sources/{slug}.html"
     flyer_url = f"{mc.SITE}/sources/flyer/{slug}.html"
     if fm.get("region"):
-        url = flyer_url = mc.SITE
+        url = flyer_url = f"{mc.SITE}/sources/flyer/{slug}.html"
         source_line = (
             f'<p><b>Source:</b> {esc(source)}. '
             f'{esc(fm.get("scope_note") or fm.get("coverage_note") or "")}</p>')
         method = '<p>Scopes differ between countries.</p>'
-        qr_cap = 'Gallery home'
+        qr_cap = 'Current edition<br>and all countries'
     else:
         scope = _clip(mc.footnote(country) or fm.get("scope_note") or "", 140)
         source_line = f'<p><b>Source:</b> {esc(source)}.'
@@ -1263,8 +1263,10 @@ FLYER_TEMPLATE = """<!doctype html>
 # The directory of all briefs, sources/flyer/index.html
 # --------------------------------------------------------------------------
 
-def build_index(items: list[dict], theme_href: str) -> str:
-    """`items`: country, slug, share, delta, head, through. Highest share first."""
+def build_index(items: list[dict], theme_href: str,
+                regions: list[dict] | None = None) -> str:
+    """`items`: country, slug, share, delta, head, through. Highest share first.
+    `regions`: the same fields for the group briefs, listed below the countries."""
     cards = []
     for n, item in enumerate(sorted(items, key=lambda i: -(i["share"] or -1)), 1):
         flag = ""
@@ -1282,8 +1284,35 @@ def build_index(items: list[dict], theme_href: str) -> str:
             f'<span class="ix-num">{esc(num)}</span>{delta}'
             f'<span class="ix-head">{esc(item["head"])}</span>'
             f'<span class="ix-date">{esc(item["through"])}</span></a>')
+    region_html = ""
+    if regions:
+        rcards = []
+        for item in sorted(regions, key=lambda i: -(i["share"] or -1)):
+            flag = ""
+            if (mc.REPO / "assets" / "flags" / f"{item['slug']}.png").is_file():
+                flag = f'<img src="../../assets/flags/{esc(item["slug"])}.png" alt="">'
+            num = mc.share(item["share"]) if item["share"] is not None else "—"
+            delta = ""
+            if item["delta"] is not None:
+                cls = "up" if item["delta"] >= 0.05 else "down" if item["delta"] <= -0.05 else "flat"
+                delta = f'<span class="ix-d {cls}">{mc.points(item["delta"])}</span>'
+            rcards.append(
+                f'<a class="ix-card" href="{esc(item["slug"])}.html">'
+                f'<span class="ix-rank"></span>{flag}'
+                f'<span class="ix-name">{esc(item["country"])}</span>'
+                f'<span class="ix-num">{esc(num)}</span>{delta}'
+                f'<span class="ix-head">{esc(item["head"])}</span>'
+                f'<span class="ix-date">{esc(item["through"])}</span></a>')
+        region_html = (
+            '<h2 class="ix-h2">Region briefs</h2>'
+            '<p class="lead">The same sheet for groups of countries, weighted from the '
+            'member sources over one common 12-month window. Scopes differ between '
+            'members; each brief names the countries that carry the figure.</p>'
+            '<div class="ix-headrow"><span></span><span></span><span>Region</span>'
+            '<span class="r">BEV share</span><span>Change, pts</span><span>In one sentence</span>'
+            '<span class="r">Data through</span></div>' + "".join(rcards))
     return INDEX_TEMPLATE.format(theme_href=theme_href, css=INDEX_CSS,
-                                 n=len(items), cards="".join(cards))
+                                 n=len(items), cards="".join(cards), regions=region_html)
 
 
 INDEX_CSS = """
@@ -1309,6 +1338,7 @@ h1{font-size:30px;margin:0 0 8px}
 .ix-head{color:var(--muted);font-size:14px}
 .ix-date{color:var(--muted);font-size:12.5px;text-align:right;white-space:nowrap}
 .r{text-align:right}
+.ix-h2{font-size:22px;margin:36px 0 8px}
 @media (max-width:700px){
   .ix-headrow{display:none}
   .ix-card{grid-template-columns:24px 30px 1fr auto auto;row-gap:2px}
@@ -1338,6 +1368,7 @@ INDEX_TEMPLATE = """<!doctype html>
     <span class="r">BEV share</span><span>Change, pts</span><span>In one sentence</span>
     <span class="r">Data through</span></div>
   {cards}
+  {regions}
   <p class="lead" style="font-size:13px;margin-top:18px">BEV share: battery-electric share of new
     registrations over the last 12 months, as each source counts them. "Change, pts": change in
     percentage points, last 12 months vs the 12 months before. Scopes differ between countries; each

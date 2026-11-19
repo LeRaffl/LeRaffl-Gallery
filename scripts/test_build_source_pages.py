@@ -573,6 +573,44 @@ def test_split_rows_fold_instead_of_drop():
     assert abs(sum(r["after"] for r in shown) - 100) < 1e-9
 
 
+def test_social_page_uses_the_brief_figures():
+    import re
+    entries, _ = bsp.collect_entries()
+    fm = next(fm for fm, _ in entries if fm.get("country") == "Ireland")
+    params = bsp.load_params()
+    html = bsp.build_social_page(fm, params, bsp.flyer_peers(entries, params))
+    assert "sources/flyer/ireland.html" in html      # QR resolves to the brief
+    assert "sc-qr" in html
+    assert not re.search(r"\d %", html)              # repo percent convention
+    assert "%%" not in html                          # hero sign appended once
+    assert re.search(r'sc-big">[\d.]+<span>%</span>', html)
+
+
+def test_region_pages_written_with_own_qr():
+    import flyer
+    entries, _ = bsp.collect_entries()
+    params = bsp.load_params()
+    peers = bsp.flyer_peers(entries, params)
+    old = bsp.OUT_DIR
+    with tempfile.TemporaryDirectory() as tmp:
+        bsp.OUT_DIR = Path(tmp)
+        try:
+            (bsp.OUT_DIR / "flyer").mkdir()
+            items = bsp.build_regions(peers)
+            slugs = {i["slug"] for i in items}
+            assert {"eu", "world"} <= slugs, slugs
+            eu = (bsp.OUT_DIR / "flyer" / "eu.html").read_text(encoding="utf-8")
+            assert "sources/flyer/eu.html" in eu     # QR resolves to itself, not home
+            assert "%%" not in eu
+            assert (bsp.OUT_DIR / "flyer" / "eu_social.html").is_file()
+            assert (bsp.OUT_DIR / "flyer" / "world_social.html").is_file()
+            idx = flyer.build_index([bsp.flyer_summary(fm, params) for fm, _ in entries],
+                                    "../../assets/theme.css", regions=items)
+            assert "Region briefs" in idx and 'href="eu.html"' in idx
+        finally:
+            bsp.OUT_DIR = old
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

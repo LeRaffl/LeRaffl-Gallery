@@ -457,10 +457,10 @@ def range_sentence(rng: dict, short: bool = False) -> str:
     a = period_label(rng["min_period"])
     b = period_label(rng["max_period"])
     if short:
-        return (f"Single months, last 12: {lo:.1f} % ({a}) to "
-                f"{hi:.1f} % ({b}).")
-    return (f"BEV share fluctuated between {lo:.1f} % ({a}) and "
-            f"{hi:.1f} % ({b}) over the last 12 months.")
+        return (f"Single months, last 12: {lo:.1f}% ({a}) to "
+                f"{hi:.1f}% ({b}).")
+    return (f"BEV share fluctuated between {lo:.1f}% ({a}) and "
+            f"{hi:.1f}% ({b}) over the last 12 months.")
 
 
 def range_bar_svg(rng: dict, width: float = 120, height: float = 16) -> str:

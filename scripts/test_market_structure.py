@@ -58,8 +58,8 @@ def test_share_range_needs_a_full_monthly_window():
     assert rng["end"] == "2026-12"
     assert rng["min_period"] == "2026-01" and rng["max_period"] == "2026-12"
     assert mc.range_sentence(rng) == (
-        "BEV share fluctuated between 10.0 % (Jan 2026) and "
-        "20.0 % (Dec 2026) over the last 12 months.")
+        "BEV share fluctuated between 10.0% (Jan 2026) and "
+        "20.0% (Dec 2026) over the last 12 months.")
     assert mc.vs_prior_phrase("2026-10") == "Nov 2025–Oct 2026 vs the 12 months before"
     assert mc.window_span_label("2026-09") == "Oct 2025–Sep 2026"
 

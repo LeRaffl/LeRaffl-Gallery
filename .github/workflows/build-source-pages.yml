@@ -48,8 +48,8 @@ on:
       - 'scripts/model_card.py'
       - 'scripts/flyer.py'
       - 'scripts/market_structure.py'  # brand block on the brief
-      - 'scripts/social_card.py'       # social cards; generation still a follow-up
-      - 'scripts/region_card.py'       # region briefs; generation still a follow-up
+      - 'scripts/social_card.py'       # social cards (sources/flyer/<slug>_social.html)
+      - 'scripts/region_card.py'       # region briefs (sources/flyer/<slug>.html)
       - 'scripts/locator_map.py'       # locator map on briefs and cards
       - 'assets/maps/**'
       - 'reference/**'                 # ACEA's EU shares on the EU brief

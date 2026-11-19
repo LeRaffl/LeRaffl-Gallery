@@ -1,4 +1,4 @@
-"""A 1080 x 1350 social card per country. MOCKUP (local branch only).
+"""A 1080 x 1350 social card per country and region.
 
 Same figures as the brief and the source page: the 12-month BEV share only
 from a full window ending at the latest period (model_card.key_figures), the
@@ -75,7 +75,7 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
         if fm.get("acea_social"):
             glance.append(fm["acea_social"])
         extra = f'<div class="sc-glance">{"".join(glance)}</div>' if glance else ""
-        big = mc.share(ttm["share"])
+        big = mc.share(ttm["share"]).removesuffix("%")
         hero = (f'<div class="sc-hero"><div class="sc-big">{esc(big)}<span>%</span></div>'
                 f'<div class="sc-hcol"><div class="sc-kick">BEV share of new cars</div>'
                 f'<div class="sc-what">12 months to {esc(mc.period_label(ttm["end"], long=True))}'
