@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-18T13:24:12Z",
- "today": "2026-11-18",
+ "generated": "2026-11-19T20:33:45Z",
+ "today": "2026-11-19",
  "countries": [
   {
    "country": "Albania",
@@ -4478,11 +4478,11 @@
    "source_url": "https://www.anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates-historical-data",
    "cadence_text": "daily from the 10th to the end of the month, 10:30 UTC — ANL publishes about 6–7 weeks after the month (the Aug-2026 PDF is dated 17 Sep 2026)",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4529,14 +4529,14 @@
     ],
     "workflow": ".github/workflows/fetch-usa.yml"
    },
-   "last_render": "2026-10-26",
+   "last_render": "2026-11-18",
    "flag": "🇺🇸",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2010-12",
-     "rows": 190,
+     "rows": 191,
      "cadence": "monthly",
      "in_repo": true
     }
