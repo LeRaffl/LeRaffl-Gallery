@@ -450,13 +450,17 @@ def share_range(rows: list[dict]) -> dict | None:
             "max_period": window[max_i]["period"]}
 
 
-def range_sentence(rng: dict) -> str:
-    """Name the min and max months of the last-12-month range."""
+def range_sentence(rng: dict, short: bool = False) -> str:
+    """Name the min and max months of the last-12-month range. `short` is
+    the social card's one-line form."""
     lo, hi = rng["min"], rng["max"]
     a = period_label(rng["min_period"])
     b = period_label(rng["max_period"])
-    return (f"BEV share fluctuated between {lo:.1f} % ({a}) and "
-            f"{hi:.1f} % ({b}) over the last 12 months.")
+    if short:
+        return (f"Single months, last 12: {lo:.1f}% ({a}) to "
+                f"{hi:.1f}% ({b}).")
+    return (f"BEV share fluctuated between {lo:.1f}% ({a}) and "
+            f"{hi:.1f}% ({b}) over the last 12 months.")
 
 
 def range_bar_svg(rng: dict, width: float = 120, height: float = 16) -> str:
@@ -1016,12 +1020,12 @@ def _sci(value: float) -> str:
 # one. Set to False for one even tone. STEP_LINE = False brings the old dots
 # back everywhere.
 STEP_LINE = True
-STEP_VOLUME_OPACITY = True
+STEP_VOLUME_OPACITY = False
 STEP_MIN_OPACITY = 0.28
 # The bold line: rolling 12-month share, only where a full window exists.
-# With it on, the single months are drawn faint behind it.
+# With it on, the single months are drawn as a lighter step line behind it.
 STEP_TTM = True
-STEP_FAINT = 0.38
+STEP_FAINT = 0.75
 # Do not let the x-axis run past the last data year plus this many years
 # (a slow fit can otherwise stretch to 2050+).
 CURVE_HORIZON_YEARS = 15
@@ -1033,7 +1037,7 @@ def step_legend(state: dict | None = None) -> str:
     if not STEP_LINE:
         return "Dots: observed share per period."
     if STEP_TTM:
-        text = "Bold: trailing 12-month share; faint: single months"
+        text = "Bold: trailing 12-month share; steps: single months"
     else:
         text = "Steps: observed share per period"
     if STEP_VOLUME_OPACITY:
@@ -1041,7 +1045,7 @@ def step_legend(state: dict | None = None) -> str:
     return text + "."
 
 
-def chart_legend(state: dict | None) -> str:
+def chart_legend(state: dict | None, model_note: bool = True) -> str:
     """Compact visual key for the step line, the months and the fit."""
     def step(color: str, width: float, opacity: float = 1.0) -> str:
         return (f'<svg class="cv-g" width="28" height="10" viewBox="0 0 28 10" aria-hidden="true">'
@@ -1056,7 +1060,7 @@ def chart_legend(state: dict | None) -> str:
 
     items = [
         f'{step(TTM_STROKE, 2.4)} trailing 12-month share',
-        f'{step("#3a3935", 1.6, 0.55)} single month',
+        f'{step("#3a3935", 2.2, 0.75)} single month',
     ]
     if state and state.get("quotable"):
         if state.get("band_ok"):
@@ -1064,10 +1068,11 @@ def chart_legend(state: dict | None) -> str:
         else:
             items.append(f'{step("#2c7a50", 1.8)} S-curve fit')
             items.append('<span class="cv-leg-note">no confidence band available</span>')
-        note = "a model, not a forecast"
-        if (state.get("rel") or {}).get("status") == "provisional":
-            note = "provisional · " + note
-        items.append(f'<span class="cv-leg-note">{note}</span>')
+        if model_note:
+            note = "a model, not a forecast"
+            if (state.get("rel") or {}).get("status") == "provisional":
+                note = "provisional · " + note
+            items.append(f'<span class="cv-leg-note">{note}</span>')
     else:
         items.append('<span class="cv-leg-note">No projection: no stable fit yet</span>')
     return ('<div class="cv-leg">' +
@@ -1100,10 +1105,9 @@ def _step_segments(rows: list[dict], x_of, y_of) -> list[str]:
             op *= STEP_FAINT
         x0, x1, y = x_of(a / 12), x_of(b / 12), y_of(value)
         if prev and prev[0] == a:
-            # Contiguous: a thin, faint riser from the last level, so the
-            # flat steps (and their volume tone) carry the reading.
+            # Contiguous: a riser from the last level connects the steps.
             out.append(f'<path d="M{x0:.1f},{prev[1]:.1f}V{y:.1f}" class="cv-rise" '
-                       f'stroke-opacity="{0.45 * min(op, prev[2]):.2f}"/>')
+                       f'stroke-opacity="{0.7 * min(op, prev[2]):.2f}"/>')
         cls = "cv-step cv-step-est" if est else "cv-step"
         out.append(f'<path d="M{x0:.1f},{y:.1f}H{x1:.1f}" class="{cls}" stroke-opacity="{op:.2f}"/>')
         prev = (b, y, op)
@@ -1243,14 +1247,13 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
     shown = in_x(rows)
     if STEP_LINE:
         body.extend(_step_segments(shown, x_of, y_of))
-    if not STEP_LINE or draw_fit:
-        # The dots are the fit's input: with the step line they stay only
-        # where a curve is drawn, faint, behind it.
-        faint = " cv-pt-bg" if STEP_LINE else ""
+    if not STEP_LINE:
+        # Dots only in the legacy dots-only mode; with the step line the
+        # months are the steps themselves, no scatter behind them.
         for t, value, est in observed:
             if t < start:
                 continue
-            cls = ("cv-pt cv-est" if est else "cv-pt") + faint
+            cls = "cv-pt cv-est" if est else "cv-pt"
             body.append(f'<circle cx="{x_of(t):.1f}" cy="{y_of(value):.1f}" r="1.9" class="{cls}"/>')
     if STEP_TTM:
         ttm = [w for w in ttm_series(rows) if w[0] / 12 >= start]
@@ -1450,9 +1453,9 @@ table.miles{max-width:520px}
 .cv-weak{stroke-dasharray:5 4;stroke:#8d897c}
 .cv-pt{fill:#55534c;fill-opacity:.55}
 .cv-est{fill:none;stroke:#55534c}
-.cv-step{fill:none;stroke:#3a3935;stroke-width:1.4;stroke-linejoin:miter}
+.cv-step{fill:none;stroke:#3a3935;stroke-width:2.2;stroke-linejoin:miter}
 .cv-step-est{stroke-dasharray:3 2}
-.cv-rise{fill:none;stroke:#3a3935;stroke-width:.8}
+.cv-rise{fill:none;stroke:#3a3935;stroke-width:1.6}
 .cv-ttm{fill:none;stroke:#154a30;stroke-width:2.2;stroke-linejoin:round}
 .cv-pt-bg{fill-opacity:.18}
 .cv-now{stroke:#8d897c;stroke-width:1;stroke-dasharray:2 3}

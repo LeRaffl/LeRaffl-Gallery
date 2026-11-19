@@ -185,6 +185,139 @@ def test_parse_fixtures():
                 assert parts == v["TOTAL"][i], (month, country, i)
 
 
+def test_eu_ytd_row():
+    april = FIX / "Press_release_car_registrations_April_2026.pdf"
+    units, label = quiet(fa.parse_eu_ytd, str(april))
+    assert label == "Jan-Apr", label
+    assert units == {"BEV": 746899, "PHEV": 364067, "HEV": 1447864, "OTHERS": 87970,
+                     "PETROL": 854843, "DIESEL": 292637, "TOTAL": 3794280}, units
+    assert fa.release_date(str(april)) == "2026-05-27"
+    # March 2026 draws the year-to-date table as rotated glyphs: pdfplumber
+    # has no line for the row, poppler's pdftotext -layout does. Without
+    # pdftotext: no guess, no write.
+    import shutil
+    march = quiet(fa.parse_eu_rows, str(FIX / "Press_release_car_registrations_March_2026.pdf"))
+    assert march["month"]["TOTAL"] == 1158316 and march["month_method"] == "pdfplumber text"
+    if shutil.which("pdftotext"):
+        assert march["ytd_method"] == "pdftotext -layout", march
+        assert march["ytd"] == {"BEV": 546937, "PHEV": 268344, "HEV": 1089421, "OTHERS": 62848,
+                                "PETROL": 636502, "DIESEL": 218565, "TOTAL": 2822616}
+        assert march["ytd_label"] == "Jan-Mar"
+    else:
+        assert "ytd" not in march
+
+    url = "https://www.acea.auto/files/Press_release_car_registrations_April_2026.pdf"
+    row = fa.eu_reference_row(units, "2026-04", url, "ab" * 32, date(2026, 5, 28), "2026-05-27")
+    assert (row["period_from"], row["period_to"], row["scope"]) == ("2026-01", "2026-04", "EU")
+    assert (row["BEV_share"], row["PHEV_share"], row["HEV_share"]) == ("19.7", "9.6", "38.2"), row
+    # Parts that do not add up to TOTAL are refused.
+    assert fa.eu_reference_row({**units, "TOTAL": 1000}, "2026-04", url, "", date(2026, 5, 28)) is None
+
+    with tempfile.TemporaryDirectory() as d:
+        ref = Path(d) / "acea_eu_shares.csv"
+        assert not fa.eu_reference_has(ref, "2026-04")
+        assert fa.update_eu_reference(ref, row)
+        first = ref.read_bytes()
+        assert fa.eu_reference_has(ref, "2026-04")
+        # A re-run a day later with the same units leaves the bytes alone.
+        again = fa.eu_reference_row(units, "2026-04", url, "ab" * 32, date(2026, 5, 29), "2026-05-27")
+        assert not fa.update_eu_reference(ref, again)
+        assert ref.read_bytes() == first
+        # A later month is added, older rows keep their bytes.
+        may = fa.eu_reference_row({k: v * 2 for k, v in units.items()}, "2026-05", url,
+                                  "cd" * 32, date(2026, 6, 25), "2026-06-24")
+        assert fa.update_eu_reference(ref, may)
+        lines = ref.read_text().splitlines()
+        assert lines[0] == ",".join(fa.EU_REFERENCE_FIELDS)
+        assert lines[1] == first.decode().splitlines()[1]
+        assert lines[2].startswith("2026-01,2026-05,EU,")
+        # A revised figure for the same month replaces that row only.
+        rev = fa.eu_reference_row({**units, "OTHERS": units["OTHERS"] + 10,
+                                   "TOTAL": units["TOTAL"] + 10},
+                                  "2026-04", url, "ef" * 32, date(2026, 6, 25))
+        assert fa.update_eu_reference(ref, rev)
+        rows = list(csv.DictReader(ref.open()))
+        assert [r["period_to"] for r in rows] == ["2026-04", "2026-05"]
+        assert rows[0]["TOTAL_units"] == str(units["TOTAL"] + 10)
+        assert rows[0]["published"] == "2026-05-27"
+
+
+def _ytd(period, total, hev, src="u"):
+    units = {"BEV": total // 5, "PHEV": total // 10, "HEV": hev, "OTHERS": 0,
+             "DIESEL": total // 10}
+    units["PETROL"] = total - sum(units.values())
+    units["TOTAL"] = total
+    r = {"scope": "EU", "period_to": period, "source_url": src}
+    r.update({f"{k}_units": str(v) for k, v in units.items()})
+    return r
+
+
+def test_eu_month_rows_from_ytd_differences():
+    ytd = [_ytd("2026-01", 100, 30, "jan"), _ytd("2026-02", 210, 66, "feb"),
+           _ytd("2026-06", 600, 200, "jun"), _ytd("2026-08", 800, 260, "aug")]
+    (jan,) = fa.eu_month_rows(ytd, "2026-01")
+    assert (jan["method"], jan["HEV_units"], jan["TOTAL_units"]) == ("ytd_january", "30", "100")
+    (feb,) = fa.eu_month_rows(ytd, "2026-02", {"HEV": 35, "TOTAL": 111})
+    assert (feb["method"], feb["HEV_units"], feb["TOTAL_units"]) == ("ytd_diff", "36", "110")
+    assert (feb["source_url"], feb["minus_source_url"]) == ("feb", "jan")
+    assert (feb["table_HEV_units"], feb["table_TOTAL_units"]) == ("35", "111")
+    # No July release (summer break): August from its own monthly table,
+    # July = YTD(Aug) − YTD(Jun) − August, so July + August stay exact.
+    aug_table = {"BEV": 20, "PHEV": 10, "HEV": 25, "OTHERS": 0, "PETROL": 35,
+                 "DIESEL": 10, "TOTAL": 100}
+    jul, aug = fa.eu_month_rows(ytd, "2026-08", aug_table)
+    assert (jul["period"], jul["method"], jul["HEV_units"], jul["TOTAL_units"]) == \
+        ("2026-07", "ytd_diff_less_next_month", "35", "100")
+    assert (aug["period"], aug["method"], aug["HEV_units"]) == ("2026-08", "monthly_table", "25")
+    # Without the monthly table, or two releases missing: nothing, not a guess.
+    assert fa.eu_month_rows(ytd, "2026-08") == []
+    assert fa.eu_month_rows(ytd, "2026-06") == []
+    with tempfile.TemporaryDirectory() as d:
+        path = Path(d) / "m.csv"
+        assert fa.update_eu_monthly(path, [jan, feb])
+        first = path.read_bytes()
+        assert not fa.update_eu_monthly(path, [feb])
+        assert path.read_bytes() == first
+        assert fa.update_eu_monthly(path, [jul, aug])
+        assert [r["period"] for r in csv.DictReader(path.open())] == \
+            ["2026-01", "2026-02", "2026-07", "2026-08"]
+
+
+def test_repo_eu_monthly_matches_ytd_file():
+    # The committed monthly file is exactly what the YTD rows give, and the
+    # months of each year add up to that year's latest year-to-date row.
+    root = Path(__file__).resolve().parent.parent / "reference"
+    ytd = list(csv.DictReader((root / "acea_eu_shares.csv").open(encoding="utf-8")))
+    months = {r["period"]: r for r in csv.DictReader((root / "acea_eu_monthly.csv").open(encoding="utf-8"))}
+    for r in ytd:
+        for want in fa.eu_month_rows(ytd, r["period_to"]):
+            got = months[want["period"]]
+            for f in fa.EU_FUELS:
+                assert got[f"{f}_units"] == want[f"{f}_units"], (want["period"], f)
+    for r in ytd:
+        y = r["period_to"][:4]
+        ms = [m for p, m in months.items() if p[:4] == y and p <= r["period_to"]]
+        if len(ms) == int(r["period_to"][5:]):
+            for f in fa.EU_FUELS:
+                assert sum(int(m[f"{f}_units"]) for m in ms) == int(r[f"{f}_units"]), (r["period_to"], f)
+
+
+def test_repo_eu_reference_file():
+    # The committed file has the header main() writes, so the first
+    # automatic run does not rewrite the rows it already has.
+    ref = Path(__file__).resolve().parent.parent / "reference" / "acea_eu_shares.csv"
+    with ref.open(encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh)
+        assert reader.fieldnames == fa.EU_REFERENCE_FIELDS, reader.fieldnames
+        rows = list(reader)
+    assert rows and all(r["scope"] == "EU" for r in rows)
+    for r in rows:
+        total = int(r["TOTAL_units"])
+        for k in ("BEV", "PHEV", "HEV"):
+            assert r[f"{k}_share"] == f"{100 * int(r[f'{k}_units']) / total:.1f}", (r, k)
+        assert r["source_url"].startswith("https://www.acea.auto/files/"), r["source_url"]
+
+
 def main():
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

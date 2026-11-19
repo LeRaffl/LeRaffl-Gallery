@@ -182,7 +182,7 @@ def main(argv=None) -> int:
     for c in checks:
         if c["status"] == "warn":
             print(f"::warning title=Vietnam check {c['period']}::{c['check']}: ours {c['ours']:,} vs "
-                  f"{c['theirs']:,} ({c['gap_pct']:+.2f} %) — {c['note']}")
+                  f"{c['theirs']:,} ({c['gap_pct']:+.2f}%) — {c['note']}")
     md = "\n".join(lines)
     print(md or "Nothing due.")
     if args.due:

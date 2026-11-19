@@ -1,4 +1,4 @@
-"""A 1080 x 1350 social card per country. MOCKUP (local branch only).
+"""A 1080 x 1350 social card per country and region.
 
 Same figures as the brief and the source page: the 12-month BEV share only
 from a full window ending at the latest period (model_card.key_figures), the
@@ -42,7 +42,9 @@ def x_range(rows: list[dict], state: dict | None) -> tuple[float, float]:
 
 def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
                  bands: dict | None, market: dict | None, mode: str,
-                 theme_href: str, logo_href: str) -> str:
+                 theme_href: str, logo_href: str,
+                 peers: list[tuple[str, float]] | None = None,
+                 highlights: list[dict] | None = None) -> str:
     country = fm.get("country", "")
     slug = fm.get("slug", "")
     through = mc.period_label(rows[-1]["period"], long=True) if rows else ""
@@ -66,14 +68,16 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
                      f'last 12 months</div>')
         glance = []
         if latest:
-            glance.append(f'<span class="sc-alone">{esc(mc.period_label(latest["row"]["period"]))} '
-                          f'alone: <b>{esc(mc.share(latest["share"]))}</b></span>')
+            glance.append(f'<span class="sc-alone">Single month · {esc(mc.period_label(latest["row"]["period"]))}: '
+                          f'<b>{esc(mc.share(latest["share"]))}</b></span>')
         if rng:
-            glance.append(f'<span class="sc-range">{esc(mc.range_sentence(rng))}</span>')
+            glance.append(f'<span class="sc-range">{esc(mc.range_sentence(rng, short=True))}</span>')
+        if fm.get("acea_social"):
+            glance.append(fm["acea_social"])
         extra = f'<div class="sc-glance">{"".join(glance)}</div>' if glance else ""
         big = mc.share(ttm["share"]).removesuffix("%")
         hero = (f'<div class="sc-hero"><div class="sc-big">{esc(big)}<span>%</span></div>'
-                f'<div class="sc-hcol"><div class="sc-kick">BEV share of new cars</div>'
+                f'<div class="sc-hcol"><div class="sc-kick">of new cars are battery electric</div>'
                 f'<div class="sc-what">12 months to {esc(mc.period_label(ttm["end"], long=True))}'
                 f'</div>{delta}{extra}</div></div>')
 
@@ -93,7 +97,7 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
         market_html = (
             f'<div class="sc-ms"><div class="sc-mshead">Top brands '
             f'<span>· battery-electric registrations, last 12 months, '
-            f'of {esc(mc.units(market["units"]))} cars</span></div>'
+            f'of {esc(mc.units(market["units"]))} cars.</span></div>'
             f'<p class="sc-msline"><span class="ms-kind ms-{market["kind"]}">'
             f'{esc(mstr.LABEL[market["kind"]])}</span>{esc(mstr.sentence(market))}'
             f'{esc(mstr.gap_note(market, where="in the brief"))}</p>'
@@ -105,8 +109,25 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
     # Chart fills what is left: 1350 minus padding, header, hero, note,
     # market block and footer (measured from the rendered card).
     # padding + header + compact hero (with glance) + legend + footer
-    fixed = 52 + 40 + 122 + 190 + 28 + 50 + 76
-    chart_h = int(max(300, H - fixed - market_h - 8))
+    fixed = 52 + 40 + 98 + 190 + 28 + 50 + 76   # hero 98: one-line range (range_sentence short)
+    if fm.get("coverage_note"):
+        # Region cards name their coverage in the footer: two lines there.
+        fixed += 30
+    if fm.get("acea_social") and ttm:
+        fixed += 26   # ACEA's EU HEV line in the glance (EU card)
+    # One box-plot strip, as on the A4 brief: BEV share, last 12 months.
+    cmp_html, cmp_h = "", 0
+    if peers:
+        if highlights is None:
+            try:
+                import region_card as _rc
+                highlights = _rc.reference_points()
+            except Exception:
+                highlights = []
+        cmp_html, cmp_h = flyer.build_compare_social(
+            country, peers, highlights, slug, is_region=bool(fm.get("region")),
+            own_share=ttm.get("share") if ttm else None, width=INNER)
+    chart_h = int(max(300, H - fixed - market_h - cmp_h - 8))
     curve = ""
     if fm.get("region_curve"):
         svg, legend = fm["region_curve"](INNER, chart_h, 58)
@@ -123,8 +144,10 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
     brand_src = mstr.brand_source(fm, market)
     short = re.sub(r"\s*\(.*?\)", "", source)
     src = f"Share: {short} · Brands: {brand_src}" if brand_src else f"Source: {source}"
+    cov = ""
     if fm.get("coverage_note"):
-        src = src + f' · {fm["coverage_note"]}'
+        # Its own line: appended to the source it wrapped onto three lines.
+        cov = f'<div class="sc-cov">{esc(fm["coverage_note"])}</div>'
     url = mc.SITE.replace("https://", "")
     end = rows[-1]["period"] if rows else ""
     gen = mc.generated_line(end)
@@ -136,9 +159,9 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
 <body><div class="sc">
   <header class="sc-top">{flag}<div class="sc-name"><h1>{esc(country)}</h1>
     <div class="sc-thr">through {esc(through)}</div></div>{qr}</header>
-  {hero}{curve}{market_html}
+  {hero}{curve}{cmp_html}{market_html}
   <footer class="sc-foot"><div class="sc-foot-row"><div>{esc(src)}</div>
-    <div><b>{esc(url)}</b> · @LeRaffl</div></div>
+    <div><b>{esc(url)}</b> · @LeRaffl</div></div>{cov}
     <div class="sc-gen">{esc(gen)}</div></footer>
 </div></body></html>"""
 
@@ -164,17 +187,22 @@ html,body{margin:0;background:#fdfdfc}
   letter-spacing:-.02em;font-variant-numeric:tabular-nums;flex:none}
 .sc-big span{font-size:50px;margin-left:4px;letter-spacing:0}
 .sc-hcol{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;column-gap:16px;align-items:center}
-.sc-kick{font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#55534c;line-height:1.25;
+.sc-kick{font-size:25px;color:#1a1a18;line-height:1.2;font-weight:600;letter-spacing:-.01em;
   grid-column:1}
-.sc-what{font-size:22px;color:#1a1a18;margin-top:2px;grid-column:1}
+.sc-what{font-size:18px;color:#55534c;margin-top:4px;grid-column:1}
 .sc-delta{grid-column:2;grid-row:1/3;padding:8px 14px;border-radius:999px;font-size:19px;font-weight:700;
   white-space:nowrap}
 .sc-delta.up{background:#dcefe4;color:#1f6a43}.sc-delta.down{background:#f6e0dc;color:#9a3324}
 .sc-delta.flat{background:#eceae4;color:#55534c}
 .sc-glance{grid-column:1/-1;display:flex;align-items:flex-start;flex-wrap:wrap;gap:4px 16px;margin-top:6px;
   font-size:18px;color:#3a3935;line-height:1.4}
-.sc-alone b{font-weight:700;color:#1a1a18;font-variant-numeric:tabular-nums}
+.sc-alone b{font-weight:600;color:#3a3935;font-variant-numeric:tabular-nums}
 .sc-range{flex:1 1 100%;font-size:17px;color:#55534c;line-height:1.4}
+.sc-acea{flex:1 1 100%;font-size:17px;color:#55534c;line-height:1.4}
+.sc-acea b{color:#1a1a18;font-weight:700}
+.sc .acea-chip{display:inline-block;padding:0 9px;margin-right:6px;border-radius:999px;background:#eceae4;
+  color:#3a3935;font-size:15px;font-weight:700;letter-spacing:.02em}
+.sc .acea-stale{color:#9a3324;font-weight:700}
 .sc .wc-flag{width:32px;height:21px;max-height:21px;object-fit:cover;border-radius:1px;
   box-shadow:0 0 0 1px #dcd9d2;flex:none}
 .sc .wc-list{--ms-logo:36px;--ms-name:180px;--ms-pct:72px;--ms-row:26px}
@@ -187,6 +215,14 @@ html,body{margin:0;background:#fdfdfc}
 .sc .wc-list .wc-row + .wc-row{margin-top:4px}
 .sc .wc-bev{text-align:right;font-variant-numeric:tabular-nums;color:#55534c;font-size:18px}
 .sc-curve{margin-top:12px;flex-shrink:0}
+.sc-cmp{margin-top:14px;flex-shrink:0}
+.sc-bx{display:grid;grid-template-columns:300px 1fr;align-items:end}
+.sc-bx-l{display:flex;flex-direction:column;font-size:17px;line-height:1.3;color:#77746c;
+  padding-bottom:20px}
+.sc-bx-l b{color:#1a1a18;font-size:18px}
+.sc-bx-own{color:#2c7a50;font-weight:600}
+.sc-bx-own b{color:#2c7a50}
+.sc-svg text.ax{fill:#77746c;font-size:16px;font-family:var(--font-ui),sans-serif}
 .sc-curve .curve{width:960px;display:block;height:auto}
 .sc-curve .curve text{font-size:16px;fill:#77746c;font-family:var(--font-ui),sans-serif}
 .cv-grid{stroke:#e4e2dd;stroke-width:1}.cv-ci{fill:#3d9a68;fill-opacity:.2}
@@ -216,6 +252,8 @@ html,body{margin:0;background:#fdfdfc}
 .sc-foot{margin-top:auto;padding-top:14px;border-top:3px solid #1a1a18;display:flex;
   flex-direction:column;gap:6px;font-size:18px;color:#55534c}
 .sc-foot-row{display:flex;justify-content:space-between;gap:20px}
+.sc-foot-row>div:last-child{flex:none;white-space:nowrap}
 .sc-foot b{color:#1a1a18}
+.sc-cov{font-size:17px;line-height:1.3}
 .sc-gen{font-size:15px;color:#77746c}
 """

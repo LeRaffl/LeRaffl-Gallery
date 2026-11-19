@@ -4,7 +4,10 @@ name: Fetch ACEA data (multi-country)
 # data/<Country>.csv files for every country in the maintainer-defined lists.
 # Two passes per run:
 #
-#   1. fetch job — parses the PDF and writes the changed CSVs in one commit.
+#   1. fetch job — parses the PDF and writes the changed CSVs in one commit,
+#      together with ACEA's EU year-to-date row in reference/acea_eu_shares.csv
+#      and the EU months derived from it in reference/acea_eu_monthly.csv
+#      (EU region brief; see reference/SOURCES.md).
 #      The script self-throttles via the latest period across the always-list
 #      countries, so the cheapest run is "all CSVs already at target, no HTTP".
 #
@@ -65,6 +68,7 @@ jobs:
     outputs:
       changed_countries: ${{ steps.fetch.outputs.changed_countries }}
       any_changed: ${{ steps.fetch.outputs.any_changed }}
+      reference_changed: ${{ steps.fetch.outputs.reference_changed }}
     steps:
       - uses: actions/checkout@v5
 
@@ -72,8 +76,13 @@ jobs:
         with:
           python-version: '3.12'
 
+      # poppler-utils: pdftotext -layout reads the EU year-to-date row on
+      # releases whose table pdfplumber cannot (rotated glyphs, e.g. March
+      # 2026); see parse_eu_rows in scripts/fetch_acea.py.
       - name: Install dependencies
-        run: pip install requests pdfplumber
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+          pip install requests pdfplumber
 
       # How each "not published yet" answer is classified and the parser
       # against two real releases; offline, so they gate the fetch.
@@ -100,11 +109,15 @@ jobs:
           FORCE: ${{ (inputs.force == true || inputs.force == 'true') && '1' || '' }}
           FORCE_RENDER: ${{ (inputs.force_render == true || inputs.force_render == 'true') && '1' || '' }}
 
+      # reference/acea_eu_shares.csv is ACEA's own EU year-to-date row
+      # (BEV/PHEV/HEV shares) for the EU region brief; it changes once a
+      # month with the release, independently of the country CSVs. It does
+      # not feed the render matrix below (that is country charts only).
       - name: Commit if changed
-        if: steps.fetch.outputs.any_changed == 'true'
+        if: steps.fetch.outputs.any_changed == 'true' || steps.fetch.outputs.reference_changed == 'true'
         uses: EndBug/add-and-commit@v10
         with:
-          add: data
+          add: "['data', 'reference/acea_eu_shares.csv', 'reference/acea_eu_monthly.csv']"
           message: 'chore: update ACEA data (multi-country)'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a

@@ -58,8 +58,8 @@ def test_share_range_needs_a_full_monthly_window():
     assert rng["end"] == "2026-12"
     assert rng["min_period"] == "2026-01" and rng["max_period"] == "2026-12"
     assert mc.range_sentence(rng) == (
-        "BEV share fluctuated between 10.0 % (Jan 2026) and "
-        "20.0 % (Dec 2026) over the last 12 months.")
+        "BEV share fluctuated between 10.0% (Jan 2026) and "
+        "20.0% (Dec 2026) over the last 12 months.")
     assert mc.vs_prior_phrase("2026-10") == "Nov 2025–Oct 2026 vs the 12 months before"
     assert mc.window_span_label("2026-09") == "Oct 2025–Sep 2026"
 
@@ -121,8 +121,11 @@ def test_every_row_shows_logo_and_name():
     assert html.count('class="ms-row') == 2          # leader + other brands
     assert 'class="ms-row ms-rest"' in html
     assert "other brands" in html
-    assert "width:72.90%" in html
-    assert "width:27.10%" in html
+    assert "width:100.00%" in html          # scaled to the leading brand
+    assert "width:27.10%" not in html       # remainder rescaled to the top-brand scale
+    assert "ms-fill-rest" in html
+    assert "ms-fill-over" not in html       # dominant market: rest fits, no overflow cue
+    assert "ms-over-cue" not in html
     # Logo and printed name on the same row; no empty name cell, no chip.
     assert "byd." in html.lower()
     assert ">BYD</div>" in html
@@ -150,6 +153,23 @@ def test_others_row_omitted_when_the_rest_is_zero():
     assert "other brands" not in html
     assert html.count('class="ms-row') == 1
 
+
+
+def test_bars_are_scaled_to_the_top_brand():
+    ms_ = _sample_ms()
+    ms_["named"] = [{"brand": "Kia", "share": 11.5},
+                    {"brand": "Volkswagen", "share": 11.0},
+                    {"brand": "Hyundai", "share": 10.4}]
+    ms_["others"] = 50.7
+    html = ms.build_bar(ms_, "logos", "assets/brands", width=702)
+    assert "width:100.00%" in html          # Kia
+    assert "width:95.65%" in html           # 11.0 / 11.5
+    assert "width:90.43%" in html           # 10.4 / 11.5
+    assert "50.7" in html and "ms-fill-rest" in html
+    assert "ms-fill-over" in html          # rest > leader: capped bar, fade + chevron
+    assert html.count("ms-over-cue") == 1
+    block = ms.build_block(ms_, "logos", "assets/brands")
+    assert "scaled to the top brand" not in block   # scale note dropped (clear from context)
 
 
 def test_generated_stamp_is_reproducible():
@@ -188,7 +208,7 @@ def test_generated_stamp_is_reproducible():
 def test_flag_filename_accepts_hyphen_or_underscore_slugs():
     assert mc.flag_filename("new-zealand", "New Zealand") == "new_zealand.png"
     assert mc.flag_filename("eu", "EU") == "eu.png"
-    # World's emblem ships with the region-flyer work; EU is already in-tree.
+    assert mc.flag_filename("world", "World") == "world.png"
     assert mc.flag_src("netherlands", "Netherlands").endswith("/netherlands.png")
 
 
@@ -226,6 +246,7 @@ if __name__ == "__main__":
     test_every_row_shows_logo_and_name()
     test_no_logo_leaves_a_blank_slot_and_keeps_the_name()
     test_others_row_omitted_when_the_rest_is_zero()
+    test_bars_are_scaled_to_the_top_brand()
     test_generated_stamp_is_reproducible()
     test_flag_filename_accepts_hyphen_or_underscore_slugs()
     test_range_chip_has_no_bar_by_default()
