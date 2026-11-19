@@ -153,7 +153,7 @@ MAX_UNKNOWN_SHARE = 0.02
 MIN_MONTH_FRACTION = 0.25
 WARN_MONTH_FRACTION = 0.50
 ACEA_WARN = 0.02                  # report a Whole month > 2 % off ACEA
-ACEA_FLAG = "; CHECK: more than 2 % off ACEA, the DIV file may be incomplete"
+ACEA_FLAG = "; CHECK: more than 2% off ACEA, the DIV file may be incomplete"
 
 NOTES = {
     "Whole": "new passenger cars by fuel (HEV incl. mild hybrids)",

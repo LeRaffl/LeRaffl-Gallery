@@ -238,7 +238,7 @@ def build_mix(points: list[dict], hev_full: bool, width: int, height: int) -> st
         parts.append(f'<rect x="{x}" y="{y - 5:.1f}" width="8" height="8" fill="{mc.COLORS[key]}"/>')
         bold = ' class="strong"' if key == "BEV" else ""
         parts.append(f'<text x="{x + 13}" y="{y + 3:.1f}"{bold}>{esc(name)} '
-                     f'{mc.share(value).replace(" %", "%")}</text>')
+                     f'{mc.share(value)}</text>')
     label = (f"Share of new registrations by powertrain, trailing twelve months, "
              f"through {mc.period_label(end['period'])}.")
     return (f'<svg class="fl-svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
@@ -290,7 +290,7 @@ def build_miles(state: dict) -> str:
         elif past:
             ci = '<span class="fm-ci">passed</span>'
         rows.append(f'<div class="fm-row{" fm-past" if past else ""}">'
-                    f'<span class="fm-lvl">{c["level"] * 100:.0f} %</span>'
+                    f'<span class="fm-lvl">{c["level"] * 100:.0f}%</span>'
                     f'<span class="fm-year">{esc(mc.year_text(c["fit"]))}</span>{ci}</div>')
     return "".join(rows)
 
@@ -433,7 +433,7 @@ def build_compare(country: str, peers: list[tuple[str, float]], width: int,
             f'paint-order="stroke">{esc(text)}</text>')
 
     nodes = ([{"name": country, "share": own, "text":
-               f"{country} {mc.share(own).replace(' %', '%')}", "heavy": True,
+               f"{country} {mc.share(own)}", "heavy": True,
                "x": xo}]
              + [{"name": h["name"], "share": h["share"],
                  "text": f"{h['name']} {h['share']:.0f}%", "heavy": False,
@@ -495,7 +495,7 @@ def build_compare(country: str, peers: list[tuple[str, float]], width: int,
         label = (f"{country} ranks {ordinal(rank)} of {len(peers)} countries by BEV share.")
         sub = (f'<b>{ordinal(rank)} of {len(peers)}</b> countries by BEV share of '
                f'new cars, last 12 months. Each line is one country; the middle one is at '
-               f'{mc.share(median).replace(" %", "%")}.')
+               f'{mc.share(median)}.')
         named = [h["name"] for h in marks]
         if named:
             sub += f' Highlighted: {_and_list(named)}.'
@@ -614,7 +614,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
             month += (f'<div class="fh-month fh-ytd">{esc(mc.period_label(ytd["from"]).split()[0])}–'
                       f'{esc(mc.period_label(ytd["to"]))} so far: '
                       f'<b>{esc(mc.share(ytd["share"]))}</b></div>')
-        big = mc.share(ttm["share"]).replace(" %", "")
+        big = mc.share(ttm["share"])
         hero_num = (
             '<div class="fh-num"><div class="fh-kicker">BEV share of new cars</div>'
             f'<div class="fh-big">{esc(big)}<span>%</span></div>'
@@ -672,11 +672,12 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         if svg and state["quotable"]:
             shown_ci = state["band_ok"] and '"fm-ci">passed' not in build_miles(state).replace(
                 '<span class="fm-ci">passed</span>', "", 3) and "–" in build_miles(state)
-            band = ('<p class="fm-note">95 % confidence band.</p>' if shown_ci else "")
+            band = ('<p class="fm-note">95% confidence band.</p>' if shown_ci else "")
             if state["rel"]["status"] == "provisional":
                 # Same caveat as the source page: the dates still move.
-                band += ('<p class="fm-note">Provisional: the 80 % year moved by '
+                band += ('<p class="fm-note">Provisional: the 80% year moved by '
                          f'{state["rel"]["swing"]:.0f} years across recent re-fits.</p>')
+
             curve = (
                 '<section class="fl-sec"><h2>Where the curve points</h2>'
                 '<p class="fl-sub">An S-curve fitted to the BEV share so far. It is this '

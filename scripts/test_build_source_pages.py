@@ -64,9 +64,9 @@ def test_text_is_escaped():
 
 
 def test_numeric_detection():
-    for v in ("62,590", "−9,807", "+5.3 %", "23,627 · 2,171 · 113", "0", "±100", "51,013 ✓"):
+    for v in ("62,590", "−9,807", "+5.3%", "23,627 · 2,171 · 113", "0", "±100", "51,013 ✓"):
         assert bsp._NUMERIC.match(v), v
-    for v in ("VAMA", "2025-07", "about 5 %", "−2 % to +10 %"):
+    for v in ("VAMA", "2025-07", "about 5%", "−2% to +10%"):
         assert not bsp._NUMERIC.match(v), v
 
 
@@ -94,7 +94,7 @@ def test_checks_file_renders_and_missing_file_is_silent():
          "gap": -11, "gap_pct": -0.02, "tolerance": "0", "status": "warn",
          "note": "article used VinFast 11,490"},
         {"period": "2026-H1", "check": "Police registrations", "ours": 343126,
-         "theirs": None, "status": "missing", "tolerance": "−2 % … +15 %"},
+         "theirs": None, "status": "missing", "tolerance": "−2% … +15%"},
     ]}
     with tempfile.TemporaryDirectory() as tmp:
         old = bsp.REPO
@@ -312,7 +312,7 @@ def test_card_dates_only_from_a_reliable_fit_and_a_usable_band():
     assert mc._ci_text(half["ci"]) == "2028–2035"
     assert mc._ci_text((2034.3, None)) == "2034 or later"
     html = mc.build_model("X", [], state, band, [])
-    assert "95 % confidence band" in html and "not an official forecast" in html
+    assert "95% confidence band" in html and "not an official forecast" in html
     # Unusable band: years stay, the interval goes.
     weak = mc.model_state(good, {**band, "quality": {"usable": False, "reasons": ["short"]}}, today)
     assert weak["quotable"] and not weak["band_ok"]
@@ -333,7 +333,7 @@ def test_card_slug_mirrors_slug_country():
 
 
 def test_card_formatting():
-    assert mc.share(0.44) == "0.44 %" and mc.share(27.19) == "27.2 %"
+    assert mc.share(0.44) == "0.44%" and mc.share(27.19) == "27.2%"
     assert mc.points(0.02) == "±0" and mc.points(-2.46) == "−2.5"
     assert mc.units(2_970_000) == "2.97 M" and mc.units(808679) == "808,679"
     assert mc.period_label("2026-10", long=True) == "October 2026"
@@ -398,7 +398,7 @@ def test_flyer_says_when_the_dates_are_provisional():
     state = mc.model_state(param, None, dt.date(2026, 7, 1))
     assert state["quotable"] and state["rel"]["status"] == "provisional"
     html = flyer.build_flyer({"country": "X", "slug": "x"}, rows, None, {}, state, None, "t.css")
-    assert "Provisional: the 80 % year moved by 9 years" in html
+    assert "Provisional: the 80% year moved by 9 years" in html
     ok = mc.model_state({**param, "refit_swing": "1"}, None, dt.date(2026, 7, 1))
     assert "Provisional" not in flyer.build_flyer({"country": "X", "slug": "x"}, rows, None, {},
                                                   ok, None, "t.css")

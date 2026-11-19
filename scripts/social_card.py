@@ -71,7 +71,7 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
         if rng:
             glance.append(f'<span class="sc-range">{esc(mc.range_sentence(rng))}</span>')
         extra = f'<div class="sc-glance">{"".join(glance)}</div>' if glance else ""
-        big = mc.share(ttm["share"]).replace(" %", "")
+        big = mc.share(ttm["share"])
         hero = (f'<div class="sc-hero"><div class="sc-big">{esc(big)}<span>%</span></div>'
                 f'<div class="sc-hcol"><div class="sc-kick">BEV share of new cars</div>'
                 f'<div class="sc-what">12 months to {esc(mc.period_label(ttm["end"], long=True))}'
