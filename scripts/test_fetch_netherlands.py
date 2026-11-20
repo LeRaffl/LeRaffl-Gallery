@@ -290,6 +290,22 @@ def test_enrich_keeps_swing_total_and_refuses_a_negative_residual():
     assert fn.enrich_swing(swing, register, diesel="register") is None
 
 
+def test_choose_cohort_sticks_to_swing_and_refuses_the_rest():
+    """The cohort whose total sticks to Swing, or nothing.
+
+    Stay wins when it is as close as the since-exported cohort. Since-exported
+    cars win when they are closer and still inside the band, including when
+    stay has drifted past it. Neither match means leave the month blank.
+    """
+    assert fn.choose_cohort(35529, 35333, 36086) == "stay"          # 2026-09
+    assert fn.choose_cohort(29250, 27529, 29145) == "with_exports"  # 2022-06
+    assert fn.choose_cohort(40401, 39550, 40504) == "with_exports"  # 2023-06, stay -2.1%
+    assert fn.choose_cohort(34668, 34389, 34933) == "with_exports"  # 2024-06, exports closer
+    assert fn.choose_cohort(10000, 10100, 9900) == "stay"           # tie: stay
+    assert fn.choose_cohort(10000, 9000, 8000) is None              # both past 2%
+    assert fn.choose_cohort(0, 100, 100) is None
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn_ in tests:

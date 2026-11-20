@@ -612,14 +612,13 @@ def next_month(period: str) -> str:
     return f"{y + m // 12}-{m % 12 + 1:02d}"
 
 
-def fetch_new_cars(session: requests.Session, period: str,
-                   variant: str = "Whole") -> list[dict]:
-    """The plates counted for `period`: first NL registration in the month,
-    not exported since, and
+def new_car_where(period: str, variant: str = "Whole",
+                  exported: bool | None = False) -> str:
+    """Socrata filter for one month's plates.
 
-    * Whole — first admission in the same month (a new car);
-    * Used  — first admission BEFORE the month (a used import: the car had
-      been admitted, and driven, abroad before it was registered here).
+    ``exported=False`` is export_indicator=Nee, the live scope. ``True`` is
+    the since-exported plates only. ``None`` keeps both, which is the cohort
+    a historical fill uses when stay has drifted off Swing.
     """
     a, b = f"{period}-01", f"{next_month(period)}-01"
     admitted = (f"datum_eerste_toelating_dt >= '{a}' and datum_eerste_toelating_dt < '{b}'"
@@ -627,8 +626,28 @@ def fetch_new_cars(session: requests.Session, period: str,
     where = ("voertuigsoort='Personenauto' "
              f"and datum_eerste_tenaamstelling_in_nederland_dt >= '{a}' "
              f"and datum_eerste_tenaamstelling_in_nederland_dt < '{b}' "
-             f"and {admitted} "
-             "and export_indicator='Nee'")
+             f"and {admitted}")
+    if exported is True:
+        where += " and export_indicator='Ja'"
+    elif exported is False:
+        where += " and export_indicator='Nee'"
+    return where
+
+
+def fetch_new_cars(session: requests.Session, period: str,
+                   variant: str = "Whole",
+                   exported: bool | None = False) -> list[dict]:
+    """The plates counted for `period`: first NL registration in the month,
+    and
+
+    * Whole — first admission in the same month (a new car);
+    * Used  — first admission BEFORE the month (a used import: the car had
+      been admitted, and driven, abroad before it was registered here).
+
+    ``exported`` defaults to Nee so the brand tables and the live shadow keep
+    the scope market_top already validates.
+    """
+    where = new_car_where(period, variant, exported)
     rows: list[dict] = []
     while True:
         page = rdw_get(session, RDW_VEHICLES, {
@@ -637,6 +656,16 @@ def fetch_new_cars(session: requests.Session, period: str,
         rows += page
         if len(page) < PAGE:
             return rows
+
+
+def count_new_cars(session: requests.Session, period: str,
+                   variant: str = "Whole",
+                   exported: bool | None = False) -> int:
+    """How many plates `fetch_new_cars` would return, without pulling them."""
+    rows = rdw_get(session, RDW_VEHICLES, {
+        "$select": "count(*) as n",
+        "$where": new_car_where(period, variant, exported)})
+    return int(rows[0]["n"])
 
 
 def fetch_fuels(session: requests.Session, plates: list[str]) -> dict[str, list]:
@@ -723,6 +752,33 @@ def enrich_swing(swing: dict, register: dict, diesel: str = "swing") -> dict | N
             "PETROL": petrol, "DIESEL": die, "OTHERS": others}
 
 
+HEV_MATCH_BAND = 0.02
+
+
+def choose_cohort(swing_total: float, stay: int, with_exports: int,
+                  band: float = HEV_MATCH_BAND) -> str | None:
+    """Which register cohort may fill HEV onto a Swing row.
+
+    ``stay`` is export_indicator=Nee. ``with_exports`` is the same new-car
+    scope with the since-exported plates put back. The closer one wins, and
+    only if it is within ``band`` of Swing's total. A tie keeps stay, the
+    scope the live fetch already uses. None means leave HEV blank — ACEA is
+    not a fill.
+    """
+    if not swing_total:
+        return None
+
+    def drift(n: int) -> float:
+        return abs(n / swing_total - 1)
+
+    stay_d, exp_d = drift(stay), drift(with_exports)
+    if stay_d <= band and stay_d <= exp_d:
+        return "stay"
+    if exp_d <= band:
+        return "with_exports"
+    return None
+
+
 def shadow_hev(period: str) -> dict | None:
     """Print the register split against the Swing row. Writes nothing.
 
@@ -755,6 +811,37 @@ def shadow_hev(period: str) -> dict | None:
               ("TOTAL", "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")))
         print("  wrote nothing")
     return enriched
+
+
+def backfill_plan(start: str, end: str) -> list[dict]:
+    """Print which months a historical HEV fill may touch. Writes nothing.
+
+    One count per cohort, no fuel join. The closer cohort within
+    HEV_MATCH_BAND wins; a month outside it stays blank.
+    """
+    session = rdw_session()
+    with open(CSV_PATHS["Whole"], encoding="utf-8", newline="") as f:
+        rows = [r for r in csv.DictReader(f)
+                if r["variant"] == "Whole" and r["time_interval"] == "monthly"
+                and r.get("TOTAL") and start <= r["period"] <= end]
+    rows.sort(key=lambda r: r["period"])
+    decisions = []
+    for row in rows:
+        period = row["period"]
+        swing = float(row["TOTAL"])
+        stay = count_new_cars(session, period, exported=False)
+        both = count_new_cars(session, period, exported=None)
+        choice = choose_cohort(swing, stay, both)
+        print(f"{period}  Swing {swing:.0f}  stay {(stay / swing - 1) * 100:+.1f}%  "
+              f"+export {(both / swing - 1) * 100:+.1f}%  -> {choice or 'blank'}")
+        decisions.append({"period": period, "swing": swing, "stay": stay,
+                          "with_exports": both, "choice": choice})
+    n_stay = sum(d["choice"] == "stay" for d in decisions)
+    n_exp = sum(d["choice"] == "with_exports" for d in decisions)
+    n_blank = sum(d["choice"] is None for d in decisions)
+    print(f"plan {start}..{end}: {n_stay} stay, {n_exp} with_exports, "
+          f"{n_blank} blank, wrote nothing")
+    return decisions
 
 
 # Display names only — the CSV never sees them. RDW's `merk` is consistent
@@ -1125,8 +1212,16 @@ def main() -> None:
         "--shadow-hev", metavar="YYYY-MM",
         help="Print the RDW HEV/petrol split against the Swing row. Writes nothing.",
     )
+    parser.add_argument(
+        "--backfill-hev", metavar="YYYY-MM:YYYY-MM",
+        help="Print which months the register may fill with HEV. Writes nothing.",
+    )
     args = parser.parse_args()
 
+    if args.backfill_hev:
+        start, end = args.backfill_hev.split(":")
+        backfill_plan(start, end)
+        return
     if args.shadow_hev:
         shadow_hev(args.shadow_hev)
         return

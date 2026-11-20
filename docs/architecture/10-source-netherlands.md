@@ -282,6 +282,16 @@ hybrid class: pure petrol already matches RDC (1,837 vs 1,832). The shadow
 keeps `export_indicator=Nee` because that is the scope that matches Swing,
 so a gap to ACEA/RDC is expected and is not a reason to switch scope.
 
+A historical fill uses the same register, not ACEA. `--backfill-hev 2020-01:2026-10`
+counts both cohorts and writes nothing. The closer one wins, and only inside
+2% of Swing's total (`choose_cohort`). A counted plan on 2026-11-20: 2022-01
+through 2026-10 is a continuous window (58 months, no hole). Through 2024 the
+closer cohort is usually the one that puts the since-exported plates back;
+from 2025-01 it is `export_indicator=Nee`. 2020 is blank even with those
+plates put back (still 4–8% under Swing — the cars are gone, not just
+flagged exported). 2021 has four months inside the band and eight outside;
+filling the four would open holes, so the fill starts at 2022-01.
+
 ### Number formatting
 
 Dutch locale: `.` is the thousands separator (so `"10.075"` is ten-thousand-
