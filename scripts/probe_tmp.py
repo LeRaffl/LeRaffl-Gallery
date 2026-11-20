@@ -1,60 +1,47 @@
 """TEMPORARY probe (42-adding-a-country.md Phase 0). Removed before merge.
 
-Round 2: does Traficom's monthly make/model workbook (MM.xlsx) or the
-first-registration workbooks carry a fuel / hybrid split, and what update
-cadence does the open-data FAQ give the vehicle snapshot?
+The Finland HEV backfill, run where ACEA and Traficom are reachable:
+ACEA's monthly Finland row 2022-01..2026-10, then the Traficom register
+snapshot for 2025-01 on. Also prints ACEA against the register for the
+months both cover, so the 2025-01 seam can be checked. Writes
+data/Finland.csv and probe_out/finland_backfill.txt (committed for review).
 """
+import contextlib
 import io
+import sys
 from pathlib import Path
 
-import requests
-import openpyxl
-from pypdf import PdfReader
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fetch_finland_register as fr  # noqa: E402
 
-OUT = Path("probe_out"); OUT.mkdir(exist_ok=True)
-lines = []
-def say(*a):
-    s = " ".join(str(x) for x in a); print(s); lines.append(s)
+out = io.StringIO()
+with contextlib.redirect_stdout(out):
+    before = fr.whole_rows()
+    acea_seen = {}
+    real = fr.apply_acea
 
-s = requests.Session(); s.headers["User-Agent"] = "Mozilla/5.0 (research probe)"
-B = "https://tieto.traficom.fi"
-for url in (B + "/files/media/file/MM.xlsx",
-            B + "/files/media/file/Ensirekister%C3%B6innit-ajoneuvoluokan-ja-k%C3%A4yt%C3%B6n-mukaan.xlsx",
-            B + "/files/media/file/Yksitt%C3%A4inmaahantuotujen-uusien-autojen-m%C3%A4%C3%A4r%C3%A4t-kuukausittain.xlsx"):
-    say("== xlsx", url)
-    try:
-        r = s.get(url, timeout=120); say("HTTP", r.status_code, len(r.content))
-        wb = openpyxl.load_workbook(io.BytesIO(r.content), read_only=True, data_only=True)
-        for ws in wb.worksheets:
-            say(f"  sheet '{ws.title}' dims={ws.max_row}x{ws.max_column}")
-            for i, row in enumerate(ws.iter_rows(values_only=True)):
-                if i >= 14: break
-                say("   ", [c for c in row[:16]])
-            hits = set()
-            for row in ws.iter_rows(values_only=True):
-                for c in row:
-                    if isinstance(c, str) and ("hybrid" in c.lower() or "käyttövoima" in c.lower()):
-                        hits.add(c.strip()[:80])
-            say("   hybrid/käyttövoima cells:", sorted(hits)[:30])
-    except Exception as e:
-        say("ERR", e)
-
-for url in (B + "/files/media/file/Avoin%20Data%20Usein%20Kysytyimm%C3%A4t%20Kysymykset.pdf",):
-    say("== pdf", url)
-    try:
-        r = s.get(url, timeout=120); say("HTTP", r.status_code, len(r.content))
-        text = "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(r.content)).pages)
-        for ln in text.splitlines():
-            if any(w in ln.lower() for w in ("päivit", "neljännes", "kuukau", "kerran", "vuodessa")):
-                say("  ", ln.strip()[:200])
-    except Exception as e:
-        say("ERR", e)
-
-say("== zip HEAD")
-try:
-    r = s.head("https://opendata.traficom.fi/Content/Ajoneuvorekisteri.zip", timeout=60, allow_redirects=True)
-    say("HTTP", r.status_code, {k: r.headers.get(k) for k in ("Last-Modified", "Content-Length", "ETag")})
-except Exception as e:
-    say("ERR", e)
-
-(OUT / "finland_probe2.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    def spy(period, acea, csv_path=fr.CSV_PATH):
+        acea_seen[period] = acea
+        return real(period, acea, csv_path)
+    fr.apply_acea = spy
+    print("== ACEA backfill")
+    fr.acea_backfill("2022-01", "2026-10")
+    fr.apply_acea = real
+    print("\n== Traficom register")
+    snap = fr.fetch_snapshot(Path("/tmp/Ajoneuvorekisteri.zip"), force=True)
+    fr.apply_register(snap)
+    print("\n== ACEA vs register / StatFin, 2025-01 on")
+    after = fr.whole_rows()
+    for p, row in sorted(after.items()):
+        if p < "2022-01":
+            continue
+        a = acea_seen.get(p)
+        line = (f"{p} StatFin T{float(row['TOTAL']):.0f} | {fr.split_kind(row) or 'blank':8s} "
+                f"HEV {row['HEV'] or '-':>7s} PET {row['PETROL']:>7s} OTH {row['OTHERS']:>6s}")
+        if a:
+            line += (f" | ACEA T{a['TOTAL']:.0f} B{a['BEV']:.0f} P{a['PHEV']:.0f} "
+                     f"HEV {a['HEV']:.0f} PET {a['PETROL']:.0f} DIE {a['DIESEL']:.0f}")
+        print(line)
+Path("probe_out").mkdir(exist_ok=True)
+Path("probe_out/finland_backfill.txt").write_text(out.getvalue(), encoding="utf-8")
+print(out.getvalue())

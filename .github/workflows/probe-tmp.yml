@@ -13,21 +13,23 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
         with:
-          sparse-checkout: scripts
+          sparse-checkout: |
+            scripts
+            data
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - run: pip install requests openpyxl pypdf
+      - run: pip install requests pdfplumber
       - run: python scripts/probe_tmp.py
       - name: Commit probe output
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add --sparse -f probe_out
+          git add --sparse -f probe_out data/Finland.csv
           git commit -m "chore: probe output (temporary)" || exit 0
           git pull --rebase
           git push
