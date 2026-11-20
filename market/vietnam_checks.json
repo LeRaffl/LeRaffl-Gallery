@@ -265,6 +265,19 @@
    "note": ""
   },
   {
+   "period": "2026-10",
+   "check": "Media: whole market, every vehicle type",
+   "source": "",
+   "url": "",
+   "ours": null,
+   "theirs": null,
+   "gap": null,
+   "gap_pct": null,
+   "tolerance": "",
+   "status": "missing",
+   "note": "reference figure not entered yet"
+  },
+  {
    "period": "2021",
    "check": "Media: year total, every vehicle type",
    "source": "sum of our monthly inputs (VAMA + VinFast + TC Group)",
