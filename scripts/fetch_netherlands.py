@@ -715,7 +715,16 @@ def plate_bucket(fuels: list) -> str:
         return "PHEV"
     if any(k.startswith("NOVC-HEV") for k in kinds):
         return "HEV"
+    # A hybrid class with no electricity is not a hybrid. RDW files some
+    # combustion cars (mostly diesel) under NOVC-FCHV; counting that as HEV
+    # would inflate a historical fill. September 2026 had none.
     names = {f for f, _ in fuels if f}
+    if "Elektriciteit" not in names and "Waterstof" not in names:
+        if names == {"Diesel"}:
+            return "DIESEL"
+        if names == {"Benzine"}:
+            return "PETROL"
+        return "OTHERS"
     if names == {"Elektriciteit"}:
         return "BEV"
     if names == {"Benzine"}:
