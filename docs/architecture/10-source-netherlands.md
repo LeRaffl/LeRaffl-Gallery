@@ -17,18 +17,21 @@ variant_notes:
   Whole: New passenger cars (Instroom Personenauto Nieuw).
   Used: Imported used passenger cars at first Dutch registration (Personenauto Occasion import).
   HDV: New heavy commercial vehicles (Zware bedrijfsvoertuigen) — broader than EU N2/N3.
-hev_split: false
+hev_split: true
+hev_note: "Whole from 2022-01: full hybrids (RDW's NOVC-HEV class) are counted from the RDW open-data register, one cohort for the whole series, and taken out of petrol; TOTAL, BEV, PHEV and diesel stay Swing's, and OTHERS is the slack that makes the row sum. Before 2022-01 they are inside petrol (the register no longer holds those months completely). Used and HDV have no HEV column — full hybrids are inside petrol/diesel."
 fcev: folded into OTHERS (~1 unit/month Whole, ~30/month Used)
 backfill: pre-2018 Whole rows already in data/Netherlands.csv
 scope_note: HDV ≈ Zware bedrijfsvoertuigen, not a strict EU N-class.
 column_map:
   BEV: BEV
   PHEV: PHEV
-  Benzine: PETROL
+  Benzine: PETROL (pure petrol from 2022-01, register)
+  NOVC-HEV (register): HEV (from 2022-01)
   Diesel: DIESEL
-  Overig + FCEV: OTHERS
+  Overig + FCEV: OTHERS (the slack from 2022-01)
 caveats:
-- RDW doesn't split full hybrids; HEV lands in Petrol/Diesel.
+- Swing doesn't split full hybrids. For Whole from 2022-01 HEV and pure petrol are counted from the RDW register record by record; OTHERS then also holds the few hundred cars the register and Swing count differently (mostly motorhomes), so it is slack, not a fuel.
+- Before 2022-01 full hybrids are inside petrol; the TTM chart shows petrol incl. hybrids until twelve months of the split exist.
 - Publication date varies within the first half of the month.
 - The portal blocks GitHub Actions and Cloudflare IPs; data is fetched via a Deno Deploy relay.
 fetcher: scripts/fetch_netherlands.py
@@ -37,13 +40,13 @@ fragility_doc: docs/architecture/10-source-netherlands.md
 data_file: data/Netherlands.csv
 market_breakdown: market/netherlands_top.json
 market_designation_note: a "designation" is RDW's trade name with the brand prefix and the engine, power and trim codes removed, so the versions of one model rank together (ID.4 PRO 210KW and ID.4 GTX → ID.4).
-market_powertrain_note: Powertrain from RDW's fuel table — BEV is electricity as the only fuel, PHEV an externally chargeable hybrid, petrol the only combustion fuel; full hybrids are not split, they are inside petrol, as in the charts. Diesel is not ranked — the register's diesel new cars are mostly motorhomes the chart's diesel does not count. Counted from the register record by record, so a month can differ from the chart's total by about 1–3%.
-market_class_labels:
-  PETROL: Petrol, full hybrids included (not split, as in the charts)
+market_powertrain_note: Powertrain from RDW's fuel table — BEV is electricity as the only fuel, PHEV an externally chargeable hybrid, HEV a full hybrid (NOVC-HEV), petrol the only combustion fuel with no hybrid class — the same split as the chart's Whole. Diesel is not ranked — the register's diesel new cars are mostly motorhomes the chart's diesel does not count. Counted from the register record by record, so a month can differ from the chart's total by about 1–3%.
 market_breakdown_extra:
 - path: market/netherlands_used_top.json
   id: market-used
   heading: Who sells the imported used electrified cars
+  class_labels:
+    PETROL: Petrol, full hybrids included (the Used chart does not split them)
   note: "Imported used passenger cars at their first Dutch registration (the Used variant): cars that were admitted, and usually driven, abroad before they were registered here. Counted from the register as first registration in the month with an earlier first admission; about 1–3% above the Used chart's total."
 ---
 
@@ -242,35 +245,59 @@ Source columns (Swing pivot, Dutch labels) → canonical CSV columns:
 | `Benzine` | `PETROL` | Includes petrol-HEV (RDW doesn't split full hybrids out) |
 | `Diesel` | `DIESEL` | Includes diesel-HEV |
 | `Overig` + `FCEV` | `OTHERS` | FCEV folded — single-digit units/month for Whole, ~30/month for Used. Negligible effect on the ICE/BEV trajectory and the headline TTM stack. |
-| (none) | `HEV` | **Always blank** — see "HEV gap" below |
+| (register) | `HEV` | Whole from 2022-01: RDW register `NOVC-HEV`, see "HEV from the register" below; blank before and for Used/HDV |
 
-### The HEV gap
+### HEV from the register
 
 The Swing pivots do not separately show full-hybrid registrations. They land in
-the `Benzine` or `Diesel` bucket. (The record-level open-data fuel table
-*does* flag them — `NOVC-HEV` — see §11b; the CSV keeps the pivots' convention.)
-The downstream effect is that:
+the `Benzine` or `Diesel` bucket. The record-level open-data fuel table
+(`8ys7-d773`, §11b) *does* flag them — `klasse_hybride_elektrisch_voertuig =
+NOVC-HEV` — so for **Whole from 2022-01** the fetcher counts them itself:
 
-- The TTM stacked-shares plot for Netherlands has no HEV slice (correct —
-  it really isn't reported).
-- The social-media post text drops the "(of which X%p were HEV)" annotation.
-  This is automatic via [`R/post_text.R::.pt_pp_if`](../../R/post_text.R)
-  which only emits the parens when `extra_value > 0`.
-- The headline ICE/BEV/PHEV trajectory is unaffected, because ICE share is
-  computed as `(TOTAL - BEV - PHEV - EREV) / TOTAL` — the breakdown
-  *within* ICE doesn't change the curve.
+- **TOTAL, BEV, PHEV, DIESEL** stay Swing's.
+- **HEV** = register plates of the month with a `NOVC-HEV` row and electricity;
+  **PETROL** = plates whose only fuel is petrol with no hybrid class
+  (`plate_bucket`). A combustion car RDW files under `NOVC-FCHV` keeps its fuel;
+  a real fuel-cell hybrid is OTHERS.
+- **OTHERS** = TOTAL − BEV − PHEV − HEV − PETROL − DIESEL: the slack that makes
+  the row sum (bi-fuel, fuel cell, and the cars the register and Swing count
+  differently). Not a counted fuel. A negative slack refuses the month.
+- One cohort for the whole series (`HEV_COHORT`, chosen by `--backfill-hev`'s
+  `window_cohort`), and a month only where that cohort's plate count is inside
+  2 % of Swing's TOTAL. The row's `notes` names the cohort.
 
-If RDW ever adds an HEV split, the scraper's `FUEL_MAP` and the
-`to_csv_rows` function need one new entry and the post text starts emitting
-the HEV line automatically.
+How it stays current (`fetch-netherlands.yml`, every run):
 
-`python scripts/fetch_netherlands.py --shadow-hev YYYY-MM` prints what that
-row would look like if HEV and pure petrol came from the register and
-TOTAL / BEV / PHEV / DIESEL stayed Swing's. It writes nothing. Register
-diesel is mostly campers, so it is not copied onto the row — that residual
-lands in OTHERS, and a negative residual refuses the month. OTHERS on an
-enriched row is that slack, not a counted class. Not wired into the daily
-fetch until a shadow window is accepted.
+1. Swing's 36-month window is upserted as before. A month that already has the
+   split keeps HEV and pure petrol; TOTAL/BEV/PHEV/DIESEL take Swing's new
+   values and OTHERS is recomputed (`carry_register_split`). If that slack
+   would be negative the split is dropped and the month is counted again.
+2. `fill_register_hev` counts every Whole month from 2022-01 that has no split
+   yet — normally just the new month, at most `HEV_MAX_MONTHS` per run, newest
+   first — and writes only those lines (invariant 2). It also runs when the CSV
+   is already current, so a month RDW could not serve is retried the next day.
+   It is guarded: an RDW failure never stops the Swing data from being
+   committed; that month's HEV is blank until the next run fills it.
+3. The brand tables (`market/netherlands_top.json`) use the same classes:
+   Whole ranks HEV and pure petrol (`market_class`); Used keeps full hybrids in
+   petrol, like its CSV.
+
+Before 2022-01 HEV is blank and full hybrids stay inside petrol: the register no
+longer holds those months completely (see the plan below). The TTM chart keeps
+that history — `compute_ttm_long` folds a late-starting HEV column into petrol
+until twelve months of the split exist ([02](02-components.md) key invariants),
+then the HEV band appears. The post text's "(of which X%p were HEV)" appears
+automatically ([`R/post_text.R::.pt_pp_if`](../../R/post_text.R)). The headline
+ICE/BEV/PHEV trajectory is unaffected: ICE is `TOTAL − BEV − PHEV − EREV`.
+
+The interactive gallery (`series/`) still folds HEV into petrol for the
+Netherlands, as it does for Czechia: `build_series.py` stage 7 keeps one band
+set per series and HEV covers less than its threshold of the history.
+
+`python scripts/fetch_netherlands.py --fill-hev START:END` writes a range with
+no per-run cap (the one-off backfill). `--shadow-hev YYYY-MM` prints one
+month's row with the register split and writes nothing. Register diesel is
+mostly motorhomes, so it is never copied onto the row: diesel stays Swing's.
 
 ACEA's Netherlands HEV is not a second register. The September 2026 release
 repeats the RDC figure BOVAG and RAI publish (36,259 cars). RDC freezes the

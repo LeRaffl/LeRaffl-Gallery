@@ -41,8 +41,10 @@ Brief recap (so the script reads on its own):
   --probe-swing / --probe-open diagnose the portal (docs 10, section 11).
 * Dutch label -> canonical column:
       BEV -> BEV;  PHEV -> PHEV;  Benzine -> PETROL;  Diesel -> DIESEL;
-      FCEV + Overig -> OTHERS;  HEV column is always blank (RDW doesn't
-      split it; full hybrids fold into Benzine/Diesel upstream).
+      FCEV + Overig -> OTHERS. Swing has no full-hybrid split; for Whole
+      from HEV_FROM (2022-01) the register's counted HEV and pure petrol
+      replace it after the upsert, OTHERS being the slack (fill_register_hev,
+      carry_register_split; docs 10, "HEV from the register").
 * Dutch locale: "." is thousands separator (6.863 == 6863). Empty cell == 0.
 * Table orientation varies by view. Whole/HDV return periods-in-rows with one
   column per fuel. Used returns periods-in-rows too, but with fuels on the
