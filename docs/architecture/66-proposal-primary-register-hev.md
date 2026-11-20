@@ -508,11 +508,12 @@ flowchart TB
         SF -->|"BEV · PHEV · Benzine inkl. HEV · Diesel"| FCSV["data/Finland.csv · Whole"]
     end
     subgraph PLAN["Geplant · Phase 2 · noch nicht gebaut"]
-        TRA -->|"ensirekisterointipvm im Monat<br/>kein ko-Filter (§13) · M1+M1G"| NEU["Neu-Kohorte"]
-        TRA --> US["Used-Import-Kohorte · eigener ko-Filter<br/>nicht zur StatFin-Reparatur"]
+        TRA -->|"Split auf kayttoonottopvm<br/>vs. ensirekisterointipvm im Monat"| SPLIT{"ko=Monat?"}
+        SPLIT -->|"ja · echte Neuwagen"| NEU["Neu-Kohorte M1+M1G"]
+        SPLIT -->|"nein · ~30%, bestätigt<br/>Gebrauchtimport (94% privat)"| US["Used-Kohorte M1+M1G"]
         NEU -->|"luokka 02→HEV · luokka 01→PHEV"| FSP["Register-Split<br/>+ Delta zu StatFin dokumentiert"]
         FSP -->|"Shadow-Run · Maintainer-OK"| FCSV
-        US -.->|"Spin-off · eigenes Proposal nach Phase 2"| FUV["data/Finland_Used.csv · neu"]
+        US -->|"gleicher PR wie Whole"| FUV["data/Finland_Used.csv · neu"]
     end
 ```
 
@@ -543,22 +544,25 @@ flowchart TB
 
 ### Finland (Phase 2)
 
-1. **Fetcher `fetch_finland_register.py`**: Traficom-Snapshot, **M1+M1G**,
-   Neu-Kohorte = `ensirekisterointipvm` im Zulassungsmonat (**kein**
-   `kayttoonottopvm`-Filter, siehe §13-Korrektur); HEV aus `luokka 02`,
-   PHEV aus `luokka 01`; Datum DD.MM.YYYY parsen.
+1. **Fetcher `fetch_finland_register.py` produziert beide CSVs aus einem
+   Snapshot**: M1+M1G, Split auf `kayttoonottopvm` vs. `ensirekisterointipvm`
+   im Zulassungsmonat — `ko=Monat` → `data/Finland.csv` (Whole, ersetzt
+   StatFin), `ko<Monat` → `data/Finland_Used.csv` (neu, ~30% Volumen,
+   bestätigt echte Gebrauchtimporte). HEV aus `luokka 02`, PHEV aus
+   `luokka 01`; Datum DD.MM.YYYY parsen.
 2. **Delta zu StatFin ist Snapshot-Drift, dokumentieren statt jagen**
-   (§13): je älter der Monat, desto größer das Minus. Toleranz/Revisions-
-   Log (§4) daraus ableiten, keine weitere Scope-Suche.
-3. **StatFin bleibt primary für TOTAL/BEV/PHEV** (Proposal §3); Register
-   liefert HEV + die saubere M1-Kategorie. Das Delta zu StatFin kommt in
-   `12-source-finland.md` (und in die Footnote, wo es die Kurve ändert).
-4. **Spin-off `Finland_Used`** (§8.6, §13): eigener Filter
-   `kayttoonottopvm` deutlich vor `ensirekisterointipvm`, als Differenzier-
-   ungsmerkmal, nicht als StatFin-Reparatur; eigenes Proposal/PR nach
-   Phase 2 mit eigener Drift-Policy.
+   (gilt innerhalb der `ko=Monat`-Kohorte): je älter der Monat, desto
+   größer das Minus. Toleranz/Revisions-Log (§4) daraus ableiten.
+3. **StatFin bleibt primary für TOTAL/BEV/PHEV bis Switch-over**
+   (Proposal §3); Register liefert HEV + die saubere M1-Kategorie für
+   Whole. Das Delta zu StatFin kommt in `12-source-finland.md`.
+4. **`Finland_Used` ist Teil von Phase 2, kein späteres Spin-off mehr**
+   (Erkenntnis aus der Scope-Klärung): eigene Fuel-Split, eigene
+   Drift-Policy, aber im selben PR wie der Whole-Fetcher, weil beide aus
+   demselben Snapshot-Join entstehen.
 5. Doku (§6): `12-source-finland.md` mit `hev_split`, Datums-Falle,
-   Delta-Tabelle, Herkunfts-Diagramm — vor dem Fetcher-Merge.
+   ko-Split-Definition (Whole vs. Used), Delta-Tabelle,
+   Herkunfts-Diagramm — vor dem Fetcher-Merge.
 
 ## 13. Spike round 3 (2026-11-20): NL über mehr Monate, FI-Korrektur
 
@@ -581,61 +585,70 @@ Entscheidung (aus §10, jetzt mit 4 Monaten Beleg):** Swing-Diesel so
 betrifft nur die eine Spalte, nicht das Total, und ist damit kein Blocker
 mehr für Phase 1.
 
-### Finland — KORREKTUR: StatFin zählt Used Imports selbst, die ko-Grenze war falsch herum
+### Finland — KORREKTUR Nr. 2: round 3 war selbst unpräzise, jetzt mit Beleg
 
-> **Korrektur (round 2 lag falsch).** Tilastokeskus' eigene Methodendoku
-> (stat.fi/fi/tilasto/dokumentaatio/merek/…, abgerufen 2026-11-20) sagt klar:
-> die Grundgesamtheit der 121d-Statistik ist *"Manner-Suomen liikenneasioiden
-> rekisteriin merkityt ensirekisteröidyt **uudet sekä käytettynä maahantuodut**
-> ajoneuvot"* — StatFin zählt Neuwagen **und** Gebrauchtimporte zusammen,
-> sofern es die erste Zulassung **in Finnland** ist. Mein ko-Monat-Filter
-> (round 2) hat Gebrauchtimporte aus der Neu-Kohorte rausgefiltert, weil ich
-> annahm, StatFin würde sie nicht zählen — das war falsch herum.
+> **Zwei Fehler übereinander, jetzt entwirrt.** Round 2 filterte
+> Gebrauchtimporte fälschlich raus. Round 3 behauptete, die Korrektur sei
+> „`ensirekisterointipvm` im Monat, **kein** ko-Filter" — das war die
+> Beschreibung, aber nicht die tatsächlich verwendete Zahl: die
+> Tabellenwerte (7.125 / 7.276 / 6.809) stammen aus `fi_m1g.py`s
+> `new`-Bucket, der weiterhin nach `ko[:6]==Zulassungsmonat` filtert. Die
+> wirklich ungefilterte Zahl (jede finnische Erstzulassung, unabhängig von
+> `kayttoonottopvm`) ist für 2026-06 **10.383**, nicht 7.276.
 >
-> Zusätzlich trennt Tilastokeskus zwei ähnlich benannte, aber verschiedene
-> Begriffe: **„Ensirekisteröinti"** (das Statistik-Ereignis) = erste Zulassung
-> *in Finnland*; **„Moottoriajoneuvon ensirekisteröintipäivä"** (das Datumsfeld)
-> = Datum der ersten Zulassung als Neuwagen **irgendwo**, „unabhängig vom
-> Zulassungsstaat". Die CSV-Spalte `ensirekisterointipvm` verhält sich in der
-> Praxis (Stichprobe: ein 2020 erstmals zugelassener Tesla erscheint mit
-> `ensirekisterointipvm=2026-06`, nicht 2020) wie das **Finnland-spezifische**
-> Zulassungsdatum — die wörtliche Glossar-Definition des Feldnamens passt
-> also nicht exakt auf den offenen Datensatz; das bleibt eine kleine
-> Unschärfe, aber für unseren Zweck ist klar: `ensirekisterointipvm` im Monat
-> ist die richtige "neu in Finnland zugelassen"-Kohorte, **ohne** ko-Filter.
+> Tilastokeskus' Methodentext ("uudet sekä käytettynä maahantuodut") stimmt
+> wörtlich — aber **StatFins tatsächlich veröffentlichte Zahl folgt dem
+> `ko=Monat`-Teil, nicht der vollen Erstzulassungs-Menge**. Das ist aus den
+> Daten selbst sichtbar: 7.276 (ko=Monat) liegt −3,8 % unter StatFin
+> (7.566) — das bekannte Snapshot-Drift-Band; 10.383 (alle) liegt +37 %
+> darüber, viel zu weit für Drift. Ob der Methodentext sich auf ein anderes
+> Aggregat bezieht oder StatFin intern enger filtert, bleibt offen — aber
+> die **empirische** Übereinstimmung ist eindeutig.
 
-**Korrigierte Kohorte: M1+M1G, `ensirekisterointipvm` im Monat, kein
-`kayttoonottopvm`-Filter** (= die "NEW"-Zeile aus §10's Tabelle):
+**Was die ko<Monat-Kohorte wirklich ist (nachgeprüft, nicht nur vermutet):**
+für 2026-06 sind das 3.107 Fahrzeuge (30 % der vollen Erstzulassungs-Menge).
+Cross-Tab mit `ajoneuvonkaytto` (Nutzungsart) und Marken:
 
-| Monat | Kohorte | StatFin | Δ |
+- **94,2 % `ajoneuvonkaytto=01` (privat)**, nur 3,8 % `05`
+  (Verkaufslager/Vorführwagen) — keine Händler-Demo-Flotte.
+- `kayttoonottopvm`-Jahr überwiegend **2022–2025** (85 % der 01-Kohorte),
+  nicht brandneu.
+- Top-Marken: Mercedes-Benz, Volvo, VW, BMW, Toyota, **Polestar**, Audi,
+  Tesla, Škoda — das Profil re-importierter deutscher/schwedischer
+  Leasingrückläufer, kein Hinweis auf Dateneingabefehler.
+
+→ **Echte Gebrauchtimporte, kein Messfehler.** Du hast richtig
+nachgefragt: diese 30 % gehören nicht automatisch in "Whole".
+
+### Antwort auf die Scope-Frage: Whole = nur `ko=Monat` (echte Neuwagen), Used als eigene Variante
+
+**Empfehlung, aus den Zahlen begründet:**
+1. **Whole bleibt auf die `ko=Monat`-Kohorte beschränkt** (die historisch
+   bekannte, die mit StatFin übereinstimmt) — kein Strukturbruch beim
+   Switch-over, kein Rückgriff auf einen Methodentext, der empirisch nicht
+   zur veröffentlichten Zahl passt.
+2. **Die ko<Monat-Kohorte (~30 %, echte Gebrauchtimporte) wird `Finland_Used`**
+   — exakt das Muster, das die Niederlande schon haben
+   (`Netherlands_Used.csv`, "Occasion import"). Nicht als StatFin-Reparatur,
+   sondern als eigene, gleichwertige Variante.
+3. Die Drift-Erklärung aus dem vorigen Absatz (Delta schrumpft mit
+   Aktualität des Monats) gilt weiterhin **innerhalb** der `ko=Monat`-
+   Kohorte — das war der Teil, der schon richtig war.
+
+| Kohorte (2026-06, M1+M1G) | n | Anteil | Ziel |
 |---|---|---|---|
-| 2025-06 | 7.125 | 7.452 | −4,4 % |
-| 2026-06 | 7.276 | 7.566 | −3,8 % |
-| 2026-09 | 6.809 | 6.985 | −2,5 % |
-
-Das Delta **schrumpft mit der Aktualität** des Monats (ältere Monate
-größeres Minus) — das ist exakt das Live-Register-Drift-Muster, das die
-NL- und Lettland-Docs schon kennen (Proposal §0 zitiert Lettland: "record
-counts drift up to ~1,5% below the headline table written at the time").
-Je länger ein Monat zurückliegt, desto mehr Fahrzeuge sind seither
-abgemeldet/exportiert worden und fehlen im **heutigen** Snapshot — StatFin
-hatte den Monat zum Zeitpunkt der Veröffentlichung eingefroren. Kein
-Scope-Fehler, keine Used-Import-Verwechslung — dieselbe Erklärung wie bei
-NL, nur in die andere Richtung (Snapshot *jünger* als Swing bei NL macht
-ihn höher; hier macht der Snapshot-Abstand den Live-Wert *niedriger*).
+| `ko=Monat` (echte Neuwagen) | 7.276 | 70 % | `data/Finland.csv` · Whole (ersetzt StatFin ab Switch-over) |
+| `ko<Monat` (Gebrauchtimport, 94 % privat, Marken-Profil bestätigt) | 3.107 | 30 % | `data/Finland_Used.csv` · neue Variante |
 
 **Was das für Phase 2 ändert:**
-- **Keine ko-Grenze nötig.** Der M1G-Fix (§10) war der eigentliche Fund;
-  die ko-Distanz-Buckets aus round 2 waren eine Fehlinterpretation der
-  „near-new import"-Hypothese, nicht die Ursache des Deltas.
-- **Die Used-Import-Variante (`Finland_Used`, §8.6) bleibt sinnvoll**, aber
-  nicht um StatFin zu treffen — Traficom hat trotzdem beide Zulassungsarten
-  im selben Snapshot, eine eigene Variante bräuchte einen eigenen Filter
-  (z. B. `kayttoonottopvm` deutlich vor `ensirekisterointipvm`, als reines
-  Differenzierungsmerkmal „jung vs. gebraucht importiert", nicht als
-  StatFin-Reparatur).
-- **Revisions-Log statt Scope-Jagd.** Das Delta ist jetzt wie bei NL einfach
-  erklärt (Snapshot-Drift) — Phase 2 braucht dieselbe Revisions-Log-
-  Infrastruktur (§4), keine weitere Scope-Suche.
+- **Die ko-Grenze ist jetzt der Scope selbst, nicht nur ein Used-Spin-off.**
+  Whole-Fetcher UND Used-Fetcher brauchen beide den `kayttoonottopvm`-Split
+  von Anfang an — nicht "Whole erst, Used irgendwann danach".
+- Delta zu StatFin bleibt Snapshot-Drift (−4,4 % … −2,5 %, schrumpft mit
+  Aktualität) — **innerhalb** der `ko=Monat`-Kohorte, dokumentieren statt
+  jagen (wie bei NL).
+- `Finland_Used`-Variante ist kein späteres Spin-off mehr, sondern Teil von
+  Phase 2 selbst: der Fetcher produziert beide CSVs aus demselben Snapshot.
+
 
 
