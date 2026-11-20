@@ -1,0 +1,166 @@
+[rdw] opendata.rdw.nl does not resolve; using Socrata's EU edge (https://api.eu.socrata.com/resource/) with Host: opendata.rdw.nl
+2018-01  Swing 59015  stay -19.4%  +export -16.2%  -> blank
+2018-02  Swing 34848  stay -18.3%  +export -15.1%  -> blank
+2018-03  Swing 41273  stay -17.0%  +export -13.9%  -> blank
+2018-04  Swing 33736  stay -17.3%  +export -14.4%  -> blank
+2018-05  Swing 36158  stay -16.6%  +export -13.7%  -> blank
+2018-06  Swing 46806  stay -16.8%  +export -14.0%  -> blank
+2018-07  Swing 35852  stay -17.7%  +export -14.7%  -> blank
+2018-08  Swing 40953  stay -18.0%  +export -14.9%  -> blank
+2018-09  Swing 28941  stay -18.3%  +export -15.0%  -> blank
+2018-10  Swing 29915  stay -20.2%  +export -17.1%  -> blank
+2018-11  Swing 34676  stay -20.4%  +export -17.0%  -> blank
+2018-12  Swing 19916  stay -27.2%  +export -22.9%  -> blank
+2019-01  Swing 47585  stay -17.7%  +export -14.4%  -> blank
+2019-02  Swing 29585  stay -16.3%  +export -12.7%  -> blank
+2019-03  Swing 38612  stay -17.4%  +export -13.9%  -> blank
+2019-04  Swing 32288  stay -16.3%  +export -12.9%  -> blank
+2019-05  Swing 35951  stay -15.5%  +export -11.9%  -> blank
+2019-06  Swing 41069  stay -17.9%  +export -13.9%  -> blank
+2019-07  Swing 32873  stay -15.6%  +export -11.7%  -> blank
+2019-08  Swing 33622  stay -16.2%  +export -12.0%  -> blank
+2019-09  Swing 37495  stay -20.0%  +export -14.2%  -> blank
+2019-10  Swing 33613  stay -16.9%  +export -11.1%  -> blank
+2019-11  Swing 38820  stay -19.2%  +export -9.2%  -> blank
+2019-12  Swing 40842  stay -27.8%  +export -7.3%  -> blank
+2020-01  Swing 43621  stay -13.3%  +export -7.5%  -> blank
+2020-02  Swing 29592  stay -15.1%  +export -7.6%  -> blank
+2020-03  Swing 29052  stay -16.9%  +export -7.5%  -> blank
+2020-04  Swing 14959  stay -14.1%  +export -5.1%  -> blank
+2020-05  Swing 14479  stay -13.2%  +export -6.2%  -> blank
+2020-06  Swing 24426  stay -13.3%  +export -5.1%  -> blank
+2020-07  Swing 34184  stay -13.4%  +export -5.5%  -> blank
+2020-08  Swing 26062  stay -14.8%  +export -5.3%  -> blank
+2020-09  Swing 28959  stay -15.7%  +export -5.2%  -> blank
+2020-10  Swing 31597  stay -16.8%  +export -5.0%  -> blank
+2020-11  Swing 32891  stay -16.7%  +export -4.6%  -> blank
+2020-12  Swing 42139  stay -26.5%  +export -4.2%  -> blank
+2021-01  Swing 34321  stay -11.1%  +export -3.4%  -> blank
+2021-02  Swing 21232  stay -9.9%  +export -2.6%  -> blank
+2021-03  Swing 23389  stay -11.0%  +export -2.6%  -> blank
+2021-04  Swing 22969  stay -9.6%  +export -2.0%  -> with_exports
+2021-05  Swing 24772  stay -10.7%  +export -2.3%  -> blank
+2021-06  Swing 32196  stay -11.1%  +export -2.4%  -> blank
+2021-07  Swing 25594  stay -10.5%  +export -2.5%  -> blank
+2021-08  Swing 21025  stay -10.5%  +export -1.9%  -> with_exports
+2021-09  Swing 23991  stay -10.8%  +export -2.5%  -> blank
+2021-10  Swing 23482  stay -10.1%  +export -1.8%  -> with_exports
+2021-11  Swing 26710  stay -9.7%  +export -2.1%  -> blank
+2021-12  Swing 35072  stay -10.3%  +export -1.8%  -> with_exports
+2022-01  Swing 29933  stay -7.0%  +export -1.2%  -> with_exports
+2022-02  Swing 22253  stay -6.7%  +export -1.1%  -> with_exports
+2022-03  Swing 24007  stay -5.5%  +export +0.0%  -> with_exports
+2022-04  Swing 20998  stay -4.4%  +export +0.8%  -> with_exports
+2022-05  Swing 22620  stay -4.8%  +export +0.1%  -> with_exports
+2022-06  Swing 29250  stay -5.9%  +export -0.4%  -> with_exports
+2022-07  Swing 21299  stay -4.8%  +export -0.1%  -> with_exports
+2022-08  Swing 22972  stay -5.0%  +export -0.7%  -> with_exports
+2022-09  Swing 25185  stay -4.8%  +export -0.5%  -> with_exports
+2022-10  Swing 28277  stay -4.0%  +export -0.2%  -> with_exports
+2022-11  Swing 27050  stay -4.2%  +export -0.5%  -> with_exports
+2022-12  Swing 30415  stay -3.6%  +export +0.0%  -> with_exports
+2023-01  Swing 32285  stay -2.9%  +export -0.3%  -> with_exports
+2023-02  Swing 27382  stay -2.6%  +export +0.2%  -> with_exports
+2023-03  Swing 36324  stay -2.1%  +export +0.7%  -> with_exports
+2023-04  Swing 28701  stay -3.3%  +export -0.5%  -> with_exports
+2023-05  Swing 32541  stay -2.6%  +export -0.2%  -> with_exports
+2023-06  Swing 40401  stay -2.1%  +export +0.3%  -> with_exports
+2023-07  Swing 27027  stay -1.6%  +export +0.7%  -> with_exports
+2023-08  Swing 27237  stay -1.5%  +export +0.6%  -> with_exports
+2023-09  Swing 29195  stay -1.8%  +export +0.5%  -> with_exports
+2023-10  Swing 27690  stay -1.5%  +export +0.5%  -> with_exports
+2023-11  Swing 27519  stay -0.9%  +export +1.2%  -> stay
+2023-12  Swing 25969  stay -1.1%  +export +0.6%  -> with_exports
+2024-01  Swing 33904  stay -0.6%  +export +0.7%  -> stay
+2024-02  Swing 29826  stay -1.3%  +export +0.5%  -> with_exports
+2024-03  Swing 36317  stay -1.0%  +export +0.6%  -> with_exports
+2024-04  Swing 27570  stay -0.0%  +export +1.3%  -> stay
+2024-05  Swing 27555  stay -1.0%  +export +0.5%  -> with_exports
+2024-06  Swing 34668  stay -0.8%  +export +0.8%  -> with_exports
+2024-07  Swing 26116  stay -0.2%  +export +0.9%  -> stay
+2024-08  Swing 27067  stay -1.6%  +export -0.2%  -> with_exports
+2024-09  Swing 30597  stay -1.0%  +export +0.3%  -> with_exports
+2024-10  Swing 31733  stay -1.5%  +export -0.1%  -> with_exports
+2024-11  Swing 34148  stay -1.0%  +export +0.6%  -> with_exports
+2024-12  Swing 36790  stay -1.2%  +export +0.8%  -> with_exports
+2025-01  Swing 32437  stay -1.3%  +export +1.3%  -> stay
+2025-02  Swing 27112  stay +0.3%  +export +1.8%  -> stay
+2025-03  Swing 30614  stay -0.2%  +export +2.1%  -> stay
+2025-04  Swing 26348  stay +0.2%  +export +3.3%  -> stay
+2025-05  Swing 29476  stay -1.3%  +export +2.6%  -> stay
+2025-06  Swing 34267  stay -1.5%  +export +2.1%  -> stay
+2025-07  Swing 28264  stay -0.8%  +export +2.6%  -> stay
+2025-08  Swing 25729  stay +0.3%  +export +1.7%  -> stay
+2025-09  Swing 31710  stay -0.5%  +export +1.3%  -> stay
+2025-10  Swing 33929  stay -0.9%  +export +1.4%  -> stay
+2025-11  Swing 34697  stay -0.6%  +export +1.3%  -> stay
+2025-12  Swing 47434  stay +0.6%  +export +1.3%  -> stay
+2026-01  Swing 27434  stay -0.0%  +export +1.9%  -> stay
+2026-02  Swing 21426  stay +1.8%  +export +3.6%  -> stay
+2026-03  Swing 30550  stay -0.1%  +export +2.5%  -> stay
+2026-04  Swing 24739  stay +1.0%  +export +3.1%  -> stay
+2026-05  Swing 29039  stay +1.2%  +export +2.4%  -> stay
+2026-06  Swing 37779  stay +1.3%  +export +2.5%  -> stay
+2026-07  Swing 27036  stay +1.8%  +export +2.6%  -> stay
+2026-08  Swing 25795  stay +1.0%  +export +2.3%  -> stay
+2026-09  Swing 35529  stay -0.6%  +export +1.6%  -> stay
+2026-10  Swing 32075  stay +0.2%  +export +1.9%  -> stay
+plan 2018-01..2026-10: 26 stay, 36 with_exports, 44 blank
+window cohort: with_exports — 50 of 106 months inside 2% of Swing with that one cohort
+  2025-03: only stay fits, left blank under with_exports
+  2025-04: only stay fits, left blank under with_exports
+  2025-05: only stay fits, left blank under with_exports
+  2025-06: only stay fits, left blank under with_exports
+  2025-07: only stay fits, left blank under with_exports
+  2026-02: only stay fits, left blank under with_exports
+  2026-03: only stay fits, left blank under with_exports
+  2026-04: only stay fits, left blank under with_exports
+  2026-05: only stay fits, left blank under with_exports
+  2026-06: only stay fits, left blank under with_exports
+  2026-07: only stay fits, left blank under with_exports
+  2026-08: only stay fits, left blank under with_exports
+  longest run without a hole: 2021-12..2025-02
+wrote nothing
+
+== fill: cohort with_exports, run ('2021-12', '2025-02')
+[rdw] opendata.rdw.nl does not resolve; using Socrata's EU edge (https://api.eu.socrata.com/resource/) with Host: opendata.rdw.nl
+  HEV 2021-12: with_exports 34458 plates, HEV 4305, petrol 7434, slack 645
+  HEV 2022-01: with_exports 29587 plates, HEV 8312, petrol 13890, slack 818
+  HEV 2022-02: with_exports 22001 plates, HEV 6214, petrol 9220, slack 474
+  HEV 2022-03: with_exports 24008 plates, HEV 6199, petrol 8357, slack 470
+  HEV 2022-04: with_exports 21166 plates, HEV 5454, petrol 7362, slack 357
+  HEV 2022-05: with_exports 22652 plates, HEV 5342, petrol 9008, slack 450
+  HEV 2022-06: with_exports 29145 plates, HEV 6563, petrol 11983, slack 948
+  HEV 2022-07: with_exports 21273 plates, HEV 5207, petrol 8755, slack 455
+  HEV 2022-08: with_exports 22808 plates, HEV 5370, petrol 9093, slack 424
+  HEV 2022-09: with_exports 25069 plates, HEV 6248, petrol 9322, slack 463
+  HEV 2022-10: with_exports 28213 plates, HEV 7838, petrol 10282, slack 516
+  HEV 2022-11: with_exports 26909 plates, HEV 7011, petrol 9558, slack 760
+  HEV 2022-12: with_exports 30421 plates, HEV 5497, petrol 8890, slack 389
+  HEV 2023-01: with_exports 32176 plates, HEV 7570, petrol 15181, slack 500
+  HEV 2023-02: with_exports 27426 plates, HEV 6330, petrol 9581, slack 361
+  HEV 2023-03: with_exports 36569 plates, HEV 7460, petrol 10250, slack 370
+  HEV 2023-04: with_exports 28552 plates, HEV 6778, petrol 9237, slack 742
+  HEV 2023-05: with_exports 32461 plates, HEV 7298, petrol 9539, slack 687
+  HEV 2023-06: with_exports 40504 plates, HEV 9203, petrol 11884, slack 758
+  HEV 2023-07: with_exports 27215 plates, HEV 7098, petrol 8373, slack 482
+  HEV 2023-08: with_exports 27400 plates, HEV 6656, petrol 7723, slack 359
+  HEV 2023-09: with_exports 29344 plates, HEV 7674, petrol 7437, slack 408
+  HEV 2023-10: with_exports 27827 plates, HEV 7587, petrol 8133, slack 457
+  HEV 2023-11: with_exports 27840 plates, HEV 7144, petrol 7552, slack 426
+  HEV 2023-12: with_exports 26130 plates, HEV 6831, petrol 5476, slack 505
+  HEV 2024-01: with_exports 34145 plates, HEV 9977, petrol 10074, slack 367
+  HEV 2024-02: with_exports 29974 plates, HEV 8835, petrol 8120, slack 454
+  HEV 2024-03: with_exports 36553 plates, HEV 10152, petrol 7839, slack 617
+  HEV 2024-04: with_exports 27917 plates, HEV 8318, petrol 5877, slack 443
+  HEV 2024-05: with_exports 27682 plates, HEV 7971, petrol 5512, slack 457
+  HEV 2024-06: with_exports 34933 plates, HEV 10074, petrol 7621, slack 470
+  HEV 2024-07: with_exports 26358 plates, HEV 8355, petrol 5462, slack 285
+  HEV 2024-08: with_exports 27009 plates, HEV 8064, petrol 5434, slack 552
+  HEV 2024-09: with_exports 30684 plates, HEV 8276, petrol 6019, slack 288
+  HEV 2024-10: with_exports 31704 plates, HEV 9215, petrol 6258, slack 485
+  HEV 2024-11: with_exports 34356 plates, HEV 8538, petrol 6810, slack 166
+  HEV 2024-12: with_exports 37094 plates, HEV 8013, petrol 7763, slack 240
+  HEV 2025-01: with_exports 32861 plates, HEV 9448, petrol 6418, slack 56
+  HEV 2025-02: with_exports 27593 plates, HEV 8045, petrol 4742, slack 49
+filled 39: ['2021-12', '2022-01', '2022-02'] .. ['2024-12', '2025-01', '2025-02']
