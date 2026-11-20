@@ -650,5 +650,49 @@ nachgefragt: diese 30 % gehören nicht automatisch in "Whole".
 - `Finland_Used`-Variante ist kein späteres Spin-off mehr, sondern Teil von
   Phase 2 selbst: der Fetcher produziert beide CSVs aus demselben Snapshot.
 
+## 14. Konsistenz-Check (2026-11-20, Raphaels Fragen): kein Bruch, zwei echte Grenzen
+
+**"StatFin aktuell ist schon korrekter Scope, bleibt korrekt, wir
+bekommen nur mehr geschenkt?"** — Ja, genau das. Share-Prozentpunkte
+(BEV%, PHEV%) zwischen Register (`ko=Monat`) und StatFin stimmen eng:
+
+| Monat | BEV% Register | BEV% StatFin | Δ | PHEV% Register | PHEV% StatFin | Δ | TOTAL Δ |
+|---|---|---|---|---|---|---|---|
+| 2025-06 | 34,5 % | 33,4 % | +1,0pp | 20,1 % | 20,8 % | −0,8pp | −4,4 % |
+| 2026-06 | 48,7 % | 48,2 % | +0,6pp | 11,9 % | 12,0 % | −0,2pp | −3,8 % |
+| 2026-09 | 62,9 % | 62,1 % | +0,8pp | 10,8 % | 11,0 % | −0,2pp | −2,5 % |
+
+Die Share-Differenz ist klein und stabil (≤1pp) — **kein Scope-Bruch**.
+Die TOTAL-Differenz (−2,5…−4,4 %) ist der dokumentierte Snapshot-Drift,
+kein zweiter Fehler. Nach dem Switch-over **einfach weiterschreiben**:
+gleicher Scope, nur HEV (+ gezähltes Petrol) kommt dazu. Einzige Pflicht:
+das Gate aus §5 bei jedem Monat prüfen, bevor geschrieben wird — nicht,
+weil der Scope kippt, sondern als Generalvorsicht gegen eine einmalige
+StatFin-Anomalie.
+
+**"Used sogar historisch geschenkt?"** — Teilweise. Die Used-Kohorte
+(`ko<Monat`) lässt sich für jeden Monat im Snapshot ziehen, **aber der
+Snapshot ist eine Momentaufnahme von heute**: für weit zurückliegende
+Monate (z. B. 2020) sind viele der damaligen Gebrauchtimporte inzwischen
+selbst abgemeldet/exportiert und fehlen im heutigen Register — die
+Used-Historie degradiert nach hinten **stärker** als Whole, weil
+importierte Gebrauchtwagen im Schnitt älter sind. Für die letzten paar
+Jahre (die Spanne, die für die Trajektorie zählt) ist "geschenkt"
+zutreffend; für sehr alte Jahre nicht ohne Weiteres.
+
+**"Hersteller/Modelle akkurat als Geschenk?"** — Ja, `merkkiSelvakielinen`
+/ `mallimerkinta` sind im Snapshot (bereits die gleiche Machart wie der
+`market_top.py`-Pfad für NL).
+
+**"Alle anderen Variants auch?"** — Eine echte Grenze gefunden:
+
+| Variante | Im Traficom-Snapshot? | Begründung |
+|---|---|---|
+| HDV, Vans, Buses | **Ja** | Klassen N1 (281.932), N1G (55.441), N2 (31.818), N3 (51.521), M2 (2.354), M3 (9.434) sind alle im Snapshot — dieselbe HEV/Fuel-Split-Logik funktioniert dort genauso. |
+| Private, Industry | **Nein** | Der offene Snapshot hat **kein `haltija`-Feld** (Halter-Typ: Privatperson/Firma), das StatFin für den Private/Industry-Split braucht (`12-source-finland.md`: "Industry = Total − Private person", possessor-basiert). `ajoneuvonkaytto` (Nutzungsart: privat/vermietet/Taxi/Schule) ist eine **andere** Dimension und ersetzt das nicht. Diese zwei Varianten bleiben auf StatFin angewiesen, unabhängig vom HEV-Split. |
+
+**Konsequenz für §12:** Phase 2 liefert Whole + Used + HDV + Vans + Buses
+aus dem Register; Private + Industry bleiben StatFin-primary (mit
+HEV-Lücke wie bisher, da Traficom-primary dort keinen Mehrwert bringt).
 
 
