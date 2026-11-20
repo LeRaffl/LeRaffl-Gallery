@@ -1,0 +1,43 @@
+== fill: cohort stay, 2023-07..2026-10
+[rdw] opendata.rdw.nl does not resolve; using Socrata's EU edge (https://api.eu.socrata.com/resource/) with Host: opendata.rdw.nl
+  HEV 2023-07: stay 26592 plates, HEV 7004, petrol 8117, slack 832
+  HEV 2023-08: stay 26831 plates, HEV 6551, petrol 7529, slack 658
+  HEV 2023-09: stay 28663 plates, HEV 7541, petrol 7207, slack 771
+  HEV 2023-10: stay 27281 plates, HEV 7481, petrol 7936, slack 760
+  HEV 2023-11: stay 27282 plates, HEV 7059, petrol 7366, slack 697
+  HEV 2023-12: stay 25671 plates, HEV 6755, petrol 5404, slack 653
+  HEV 2024-01: stay 33716 plates, HEV 9902, petrol 9935, slack 581
+  HEV 2024-02: stay 29453 plates, HEV 8753, petrol 7921, slack 735
+  HEV 2024-03: stay 35940 plates, HEV 10025, petrol 7661, slack 922
+  HEV 2024-04: stay 27558 plates, HEV 8253, petrol 5795, slack 590
+  HEV 2024-05: stay 27282 plates, HEV 7904, petrol 5398, slack 638
+  HEV 2024-06: stay 34389 plates, HEV 9970, petrol 7461, slack 734
+  HEV 2024-07: stay 26057 plates, HEV 8301, petrol 5392, slack 409
+  HEV 2024-08: stay 26623 plates, HEV 8006, petrol 5337, slack 707
+  HEV 2024-09: stay 30294 plates, HEV 8213, petrol 5891, slack 479
+  HEV 2024-10: stay 31256 plates, HEV 9019, petrol 6165, slack 774
+  HEV 2024-11: stay 33797 plates, HEV 8442, petrol 6756, slack 316
+  HEV 2024-12: stay 36361 plates, HEV 7828, petrol 7525, slack 663
+  HEV 2025-01: stay 32023 plates, HEV 9300, petrol 6245, slack 377
+  HEV 2025-02: stay 27203 plates, HEV 7868, petrol 4650, slack 318
+  HEV 2025-03: stay 30561 plates, HEV 9111, petrol 3874, slack 553
+  HEV 2025-04: stay 26407 plates, HEV 7399, petrol 3758, slack 303
+  HEV 2025-05: stay 29087 plates, HEV 7882, petrol 4157, slack 350
+  HEV 2025-06: stay 33753 plates, HEV 10009, petrol 4075, slack 427
+  HEV 2025-07: stay 28043 plates, HEV 7507, petrol 4417, slack 302
+  HEV 2025-08: stay 25815 plates, HEV 6929, petrol 4063, slack 351
+  HEV 2025-09: stay 31544 plates, HEV 8575, petrol 4426, slack 517
+  HEV 2025-10: stay 33616 plates, HEV 8683, petrol 3994, slack 703
+  HEV 2025-11: stay 34475 plates, HEV 8359, petrol 3065, slack 534
+  HEV 2025-12: stay 47698 plates, HEV 8335, petrol 3322, slack 429
+  HEV 2026-01: stay 27430 plates, HEV 9220, petrol 3316, slack 367
+  HEV 2026-02: stay 21801 plates, HEV 7325, petrol 2087, slack 189
+  HEV 2026-03: stay 30526 plates, HEV 9411, petrol 2335, slack 703
+  HEV 2026-04: stay 24983 plates, HEV 7263, petrol 1917, slack 312
+  HEV 2026-05: stay 29391 plates, HEV 8141, petrol 2079, slack 197
+  HEV 2026-06: stay 38254 plates, HEV 10624, petrol 2218, slack 432
+  HEV 2026-07: stay 27519 plates, HEV 6194, petrol 2113, slack 199
+  HEV 2026-08: stay 26065 plates, HEV 6283, petrol 1621, slack 355
+  HEV 2026-09: stay 35333 plates, HEV 8254, petrol 1837, slack 520
+  HEV 2026-10: stay 32125 plates, HEV 6693, petrol 1796, slack 440
+filled 40: ['2023-07', '2023-08', '2023-09'] .. ['2026-08', '2026-09', '2026-10']
