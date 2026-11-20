@@ -78,8 +78,9 @@ jobs:
       # they come from Traficom's open register snapshot, published about
       # quarterly. Every run sends one HEAD; the 200 MB zip is downloaded only
       # when it is newer than the snapshot already in data/Finland.csv. Months
-      # after the snapshot keep ACEA's figure (fetch-acea.yml) until the next
-      # one. Optional: a failure here never blocks the StatFin commit.
+      # after the snapshot carry an estimate (the previous month's share, then
+      # ACEA's via fetch-acea.yml) until the next one replaces it with counts.
+      # Optional: a failure here never blocks the StatFin commit.
       - name: Apply a new Traficom register snapshot (HEV)
         if: ${{ !inputs.variant || inputs.variant == 'all' || inputs.variant == 'whole' }}
         continue-on-error: true

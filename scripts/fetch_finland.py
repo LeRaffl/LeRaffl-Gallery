@@ -842,6 +842,11 @@ def main() -> None:
         added, updated = upsert_csv(VARIANT_CONFIG[variant]["csv"], keyed)
         print(f"[{variant}] {added} added, {updated} updated "
               f"-> {VARIANT_CONFIG[variant]['csv']}")
+        if variant == "Whole":
+            # A new month has no HEV split yet (ACEA is weeks later, the
+            # Traficom snapshot quarterly): estimate it from the previous
+            # month's share, flagged in notes, so the TTM does not stop early.
+            fetch_finland_register.estimate_newest(Path(VARIANT_CONFIG["Whole"]["csv"]))
     latest = latest_whole_period()
     if latest and ("Whole" in targets or not market_top.top_is_current(
             market_top.MARKET_DIR / f"{TOP_SLUG}_top.json", latest)):

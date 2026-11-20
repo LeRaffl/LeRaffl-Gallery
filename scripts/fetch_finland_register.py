@@ -5,16 +5,27 @@ full-hybrid code (they sit in petrol). Neither do Traficom's monthly tables.
 HEV and pure petrol therefore come from two counted sources, and OTHERS is
 the slack that makes the row sum:
 
-  2022-01 .. 2024-12  ACEA's monthly release (same total as StatFin)
-  2025-01 ..          Traficom's open register snapshot (Ajoneuvorekisteri.zip,
-                      quarterly); a month newer than the latest snapshot gets
-                      ACEA's figure until the next snapshot covers it
-  before 2022         blank (the TTM folds the hybrids into petrol there)
+  from 2025-01, covered by the latest register snapshot
+      counted: Traficom's open register (Ajoneuvorekisteri.zip, quarterly),
+      hybrid class 02; OTHERS is the slack
+  newer months, once ACEA has published them
+      estimate: StatFin's own petrol split by ACEA's HEV share of HEV+petrol
+  newer months before that
+      estimate: StatFin's petrol split by the previous month's HEV share
+  before 2025-01
+      blank (the register is thinned there and ACEA's archive has no
+      monthly country table before 2024-11); the TOTAL/BEV/PHEV curves
+      are unaffected and the TTM folds the hybrids into petrol
 
-The row's `notes` names the source of the split. fetch_finland.py keeps the
-split when StatFin restates a month (carry_split); fetch_acea.py merges
-ACEA's month (acea_merge); --write-register applies a snapshot. The
---shadow-* modes still print and write nothing.
+ACEA is never used as a count: its HEV+petrol runs 10-30 cars above
+StatFin's petrol (2024-11 .. 2026-09), so a counted merge leaves a
+negative slack. Its share is what it adds. Every estimate says so in
+`notes` (invariant 6), and the next snapshot replaces it with counts.
+
+fetch_finland.py keeps the split when StatFin restates a month
+(carry_split) and estimates a new month (estimate_newest); fetch_acea.py
+puts ACEA's share on (apply_acea); fetch-finland.yml applies a new
+snapshot (--write-register --download). --shadow-* print and write nothing.
 
 Dates are not ISO. ``ensirekisterointipvm`` is DD.MM.YYYY.
 ``kayttoonottopvm`` is YYYYMMDD. Whole is M1+M1G with both dates in the
@@ -41,10 +52,16 @@ REGISTER_NOTE = ("TOTAL/BEV/PHEV/DIESEL StatFin 121d; HEV/PETROL Traficom "
                  "register (counted, M1+M1G, first use in the registration "
                  "month); OTHERS = TOTAL minus the rest")
 
-ACEA_NOTE = ("TOTAL/BEV/PHEV/DIESEL StatFin 121d; HEV/PETROL ACEA (counted); "
-             "OTHERS = TOTAL minus the rest")
-ACEA_FROM = "2022-01"          # ACEA's monthly table; before it only quarters
-ACEA_SPLIT = ("HEV", "PETROL")  # StatFin keeps its counted diesel
+ACEA_NOTE = ("TOTAL/BEV/PHEV/DIESEL/OTHERS StatFin 121d; HEV/PETROL estimated: "
+             "StatFin petrol split by ACEA's HEV share of HEV+petrol for the month, "
+             "until a Traficom register snapshot covers it")
+PREVIOUS_NOTE = ("TOTAL/BEV/PHEV/DIESEL/OTHERS StatFin 121d; HEV/PETROL estimated: "
+                 "StatFin petrol split by {prev}'s HEV share, until ACEA or a "
+                 "Traficom register snapshot covers the month")
+PREVIOUS_PREFIX = PREVIOUS_NOTE.split("{prev}")[0]
+# ACEA's Finland row must be StatFin's month (the acea_split / Greece bands).
+ACEA_TOTAL_TOLERANCE = 0.01
+ACEA_PLUGIN_TOLERANCE = 0.02
 SNAPSHOT_URL = "https://opendata.traficom.fi/Content/Ajoneuvorekisteri.zip"
 # A snapshot is published 2-3 weeks after its data date, then quarterly.
 # Anything modified more than this after the newest data date already in
@@ -65,7 +82,29 @@ def split_kind(row: dict) -> str | None:
         return "register"
     if notes.startswith(ACEA_NOTE):
         return "acea"
+    if notes.startswith(PREVIOUS_PREFIX):
+        return "previous"
     return None
+
+
+def hev_share(row: dict) -> float | None:
+    """HEV / (HEV + pure petrol) of a row that has a split."""
+    hev, pet = _f(row, "HEV"), _f(row, "PETROL")
+    return hev / (hev + pet) if hev + pet > 0 else None
+
+
+def split_petrol(petrol: float, share: float) -> tuple[float, float]:
+    """StatFin's petrol (full hybrids included) into (HEV, pure petrol)."""
+    hev = float(round(petrol * share))
+    return hev, petrol - hev
+
+
+def statfin_petrol(row: dict) -> float:
+    """StatFin's own petrol figure, hybrids included, for a row that is
+    blank or carries an estimate (an estimate never changes the sum)."""
+    if split_kind(row) in ("acea", "previous"):
+        return _f(row, "HEV") + _f(row, "PETROL")
+    return _f(row, "PETROL")
 
 
 def _f(row: dict, k: str) -> float:
@@ -84,6 +123,14 @@ def carry_split(old: dict, new: dict) -> dict:
     kind = split_kind(old)
     if kind is None:
         return new
+    if kind in ("acea", "previous"):
+        # An estimate is a share of StatFin's petrol: apply it to the new
+        # petrol, so the row keeps summing with StatFin's own OTHERS.
+        share = hev_share(old)
+        if share is None:
+            return new
+        hev, pet = split_petrol(_f(new, "PETROL"), share)
+        return {**new, "HEV": hev, "PETROL": pet, "notes": old["notes"]}
     others = (_f(new, "TOTAL") - _f(new, "BEV") - _f(new, "PHEV")
               - _f(old, "HEV") - _f(old, "PETROL") - _f(new, "DIESEL"))
     if others < 0:
@@ -94,22 +141,58 @@ def carry_split(old: dict, new: dict) -> dict:
             "OTHERS": others, "notes": old["notes"]}
 
 
-def acea_merge(row: dict, acea: dict) -> dict | None:
-    """ACEA's counted HEV / petrol on a StatFin row, or None.
+def same_month(row: dict, acea: dict) -> bool:
+    """ACEA's TOTAL / BEV / PHEV are StatFin's month (Greece's bands)."""
+    for k, tol, floor in (("TOTAL", ACEA_TOTAL_TOLERANCE, 0.0),
+                          ("BEV", ACEA_PLUGIN_TOLERANCE, 5.0),
+                          ("PHEV", ACEA_PLUGIN_TOLERANCE, 5.0)):
+        n, a = _f(row, k), float(acea.get(k) or 0)
+        if abs(a - n) > max(floor, tol * n):
+            return False
+    return True
 
-    Only from ACEA_FROM, never over a register split, and only when ACEA's
-    TOTAL / BEV / PHEV are StatFin's month (acea_split tolerances) and the
-    slack is not negative.
+
+def acea_merge(row: dict, acea: dict) -> dict | None:
+    """StatFin's petrol split by ACEA's HEV share for the month, or None.
+
+    Only from HEV_FILL_FROM, never over a register count, and only when
+    ACEA's TOTAL / BEV / PHEV are StatFin's month. TOTAL, BEV, PHEV,
+    DIESEL and OTHERS stay StatFin's; HEV + PETROL = StatFin's petrol.
     """
-    import acea_split
-    if row.get("period", "") < ACEA_FROM or split_kind(row) == "register":
+    if (row.get("period", "") < HEV_FILL_FROM or split_kind(row) == "register"
+            or not same_month(row, acea)):
         return None
-    merged = acea_split.merge(row, acea, split=ACEA_SPLIT)
-    if merged is None:
+    a_hev, a_pet = float(acea.get("HEV") or 0), float(acea.get("PETROL") or 0)
+    if a_hev + a_pet <= 0:
         return None
-    vals, _ = merged
-    return {"HEV": vals["HEV"], "PETROL": vals["PETROL"], "OTHERS": vals["OTHERS"],
-            "notes": ACEA_NOTE}
+    hev, pet = split_petrol(statfin_petrol(row), a_hev / (a_hev + a_pet))
+    return {"HEV": hev, "PETROL": pet, "OTHERS": _f(row, "OTHERS"), "notes": ACEA_NOTE}
+
+
+def estimate_newest(csv_path: Path = CSV_PATH) -> list[str]:
+    """Give every month from HEV_FILL_FROM that has no split yet the
+    previous month's HEV share of StatFin's petrol. StatFin is out weeks
+    before ACEA and months before the next snapshot; without this the
+    newest month would be HEV-blank and the TTM would stop a month early.
+    Returns the periods written."""
+    rows = whole_rows(csv_path)
+    filled: dict[str, dict] = {}
+    prev = None
+    for period in sorted(rows):
+        row = {**rows[period], **filled.get(period, {})}
+        if period >= HEV_FILL_FROM and split_kind(row) is None and prev is not None:
+            share = hev_share(prev)
+            if share is not None:
+                hev, pet = split_petrol(statfin_petrol(row), share)
+                filled[period] = {"HEV": hev, "PETROL": pet, "OTHERS": _f(row, "OTHERS"),
+                                  "notes": PREVIOUS_NOTE.format(prev=prev["period"])}
+                row = {**row, **{k: str(v) for k, v in filled[period].items()}}
+                print(f"  {period}: HEV {hev:.0f} estimated from {prev['period']}'s share "
+                      f"({share:.1%} of petrol)")
+        prev = row if split_kind(row) else None
+    if filled:
+        write_split(csv_path, filled)
+    return sorted(filled)
 
 
 def _fmt(v) -> str:
@@ -151,9 +234,9 @@ def apply_acea(period: str, acea: dict, csv_path: Path = CSV_PATH) -> bool:
         return False
     upd = acea_merge(row, acea)
     if upd is None:
-        why = ("register split kept" if split_kind(row) == "register"
-               else "before ACEA's monthly table" if period < ACEA_FROM
-               else "ACEA's TOTAL/BEV/PHEV not StatFin's month, or negative slack")
+        why = ("register counts kept" if split_kind(row) == "register"
+               else f"before {HEV_FILL_FROM}" if period < HEV_FILL_FROM
+               else "ACEA's TOTAL/BEV/PHEV are not StatFin's month")
         print(f"    Finland {period}: ACEA HEV not merged ({why})")
         return False
     if (split_kind(row) == "acea" and all(abs(_f(row, k) - float(upd[k])) < 0.5
@@ -161,7 +244,7 @@ def apply_acea(period: str, acea: dict, csv_path: Path = CSV_PATH) -> bool:
         return False
     write_split(csv_path, {period: upd})
     print(f"    Finland {period}: HEV {upd['HEV']:.0f} / petrol {upd['PETROL']:.0f} "
-          f"from ACEA on the StatFin row (slack {upd['OTHERS']:.0f})")
+          f"(StatFin petrol split by ACEA's HEV share)")
     return True
 
 
@@ -512,7 +595,7 @@ def main() -> None:
                            "(every month from 2025-01 it covers in full).")
     mode.add_argument("--acea-backfill", metavar="YYYY-MM:YYYY-MM",
                       help="Merge ACEA's monthly HEV / petrol for each month in the "
-                           "range from the public release PDFs (from 2022-01).")
+                           "range from the public release PDFs (HEV share, from 2025-01).")
     parser.add_argument("--snapshot", type=Path,
                         help="Traficom open-data Ajoneuvorekisteri.zip (a local copy).")
     parser.add_argument("--download", action="store_true",

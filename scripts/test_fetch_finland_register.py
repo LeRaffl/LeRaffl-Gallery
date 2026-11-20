@@ -147,31 +147,52 @@ def _csv(tmp: Path, lines: list[str]) -> Path:
     return path
 
 
-def test_acea_split_keeps_national_diesel_when_told():
-    import acea_split
-    statfin = {"TOTAL": 6985, "BEV": 4338, "PHEV": 765, "DIESEL": 145}
-    acea = {"TOTAL": 6985, "BEV": 4338, "PHEV": 765, "HEV": 1240, "PETROL": 450, "DIESEL": 150}
-    row, _ = acea_split.merge(statfin, acea, split=("HEV", "PETROL"))
-    assert row["DIESEL"] == 145 and row["HEV"] == 1240 and row["PETROL"] == 450
-    assert row["OTHERS"] == 6985 - 4338 - 765 - 1240 - 450 - 145
-    # Greece's default split is unchanged: ACEA's diesel.
-    row, _ = acea_split.merge(statfin, acea)
-    assert row["DIESEL"] == 150
-
-
-def test_acea_merge_rules():
-    """From 2022-01, never over a register split, only on StatFin's month."""
-    row = {"period": "2023-05", "TOTAL": "7000.0", "BEV": "2000.0", "PHEV": "800.0",
-           "HEV": "", "PETROL": "3200.0", "DIESEL": "900.0", "OTHERS": "100.0", "notes": ""}
-    acea = {"TOTAL": 7010, "BEV": 2001, "PHEV": 801, "HEV": 1500, "PETROL": 1650, "DIESEL": 905}
+def test_acea_merge_splits_statfin_petrol_by_acea_share():
+    """ACEA's HEV+petrol runs above StatFin's petrol (2024-11: 2,917 vs
+    2,906), so it is a share, not a count. From 2025-01, never over the
+    register, only on StatFin's month."""
+    row = {"period": "2025-07", "TOTAL": "5425.0", "BEV": "1971.0", "PHEV": "1141.0",
+           "HEV": "", "PETROL": "2042.0", "DIESEL": "250.0", "OTHERS": "21.0", "notes": ""}
+    acea = {"TOTAL": 5425, "BEV": 1971, "PHEV": 1141, "HEV": 1425, "PETROL": 637, "DIESEL": 250}
     upd = fn.acea_merge(row, acea)
-    assert upd["HEV"] == 1500 and upd["PETROL"] == 1650 and upd["notes"] == fn.ACEA_NOTE
-    assert upd["OTHERS"] == 7000 - 2000 - 800 - 1500 - 1650 - 900
-    assert fn.acea_merge(dict(row, period="2021-12"), acea) is None
-    reg = dict(row, HEV="1400.0", notes=fn.register_note("2026-09-30"))
+    assert upd["HEV"] == round(2042 * 1425 / 2062) and upd["HEV"] + upd["PETROL"] == 2042
+    assert upd["OTHERS"] == 21.0 and upd["notes"] == fn.ACEA_NOTE
+    assert "estimated" in fn.ACEA_NOTE                                    # invariant 6
+    # A second merge reads StatFin's petrol back from HEV + PETROL.
+    again = fn.acea_merge(dict(row, HEV=str(upd["HEV"]), PETROL=str(upd["PETROL"]),
+                               notes=fn.ACEA_NOTE), acea)
+    assert again["HEV"] == upd["HEV"] and again["PETROL"] == upd["PETROL"]
+    assert fn.acea_merge(dict(row, period="2024-12"), acea) is None
+    reg = dict(row, HEV="1361.0", notes=fn.register_note("2026-09-30"))
     assert fn.acea_merge(reg, acea) is None
-    assert fn.acea_merge(row, dict(acea, TOTAL=7500)) is None          # not the same month
-    assert fn.acea_merge(row, dict(acea, HEV=3000)) is None            # negative slack
+    assert fn.acea_merge(row, dict(acea, TOTAL=5600)) is None          # not the same month
+    assert fn.acea_merge(row, dict(acea, BEV=2100)) is None
+
+
+def test_estimate_newest_uses_the_previous_months_share():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        lines = [
+            "2024-12,monthly,Whole,StatFin,1.0,0.0,,100.0,0.0,,0.0,101.0,",
+            "2026-09,monthly,Whole,StatFin,4338.0,765.0,1197.0,481.0,145.0,,59.0,6985.0,"
+            + '"' + fn.register_note("2026-09-30") + '"',
+            "2026-10,monthly,Whole,StatFin,3000.0,600.0,,1527.0,100.0,,0.0,5227.0,",
+            "2026-11,monthly,Whole,StatFin,3000.0,600.0,,1000.0,100.0,,0.0,4700.0,",
+        ]
+        path = _csv(tmp, lines)
+        with contextlib.redirect_stdout(io.StringIO()):
+            assert fn.estimate_newest(path) == ["2026-10", "2026-11"]
+            assert fn.estimate_newest(path) == []
+        text = path.read_text(encoding="utf-8").splitlines()
+        rows = {r["period"]: r for r in csv.DictReader(text)}
+    share = 1197 / (1197 + 481)
+    assert float(rows["2026-10"]["HEV"]) == round(1527 * share)
+    assert float(rows["2026-10"]["HEV"]) + float(rows["2026-10"]["PETROL"]) == 1527
+    assert float(rows["2026-10"]["OTHERS"]) == 0.0
+    assert "2026-09's HEV share" in rows["2026-10"]["notes"]
+    assert "2026-10's HEV share" in rows["2026-11"]["notes"]           # chains
+    assert fn.split_kind(rows["2026-11"]) == "previous"
+    assert text[1] == lines[0] and rows["2024-12"]["HEV"] == ""          # before 2025: blank
 
 
 def test_carry_split_keeps_hev_through_a_statfin_restatement():
@@ -187,6 +208,12 @@ def test_carry_split_keeps_hev_through_a_statfin_restatement():
         assert fn.carry_split(old, dict(new, TOTAL=5000.0)) is not None
         assert fn.carry_split(old, dict(new, TOTAL=5000.0))["HEV"] == ""   # dropped
     assert fn.carry_split(dict(old, notes="manual"), new) is new          # not ours
+    # An estimate keeps its share of the new StatFin petrol; OTHERS stays StatFin's.
+    est = {"period": "2026-10", "HEV": "1089.0", "PETROL": "438.0", "OTHERS": "0.0",
+           "notes": fn.PREVIOUS_NOTE.format(prev="2026-09")}
+    moved = fn.carry_split(est, dict(new, PETROL=1600.0, OTHERS=3.0))
+    assert moved["HEV"] == round(1600 * 1089 / 1527) and moved["HEV"] + moved["PETROL"] == 1600
+    assert moved["OTHERS"] == 3.0 and moved["notes"] == est["notes"]
 
 
 def test_apply_register_covers_full_months_and_replaces_acea():
@@ -204,7 +231,7 @@ def test_apply_register_covers_full_months_and_replaces_acea():
         zpath = tmp / "Ajoneuvorekisteri.zip"
         _snapshot(zpath, rows)
         lines = [
-            "2024-06,monthly,Whole,StatFin,1.0,0.0,1.0,2.0,0.0,,0.0,4.0," + '"' + fn.ACEA_NOTE + '"',
+            "2024-06,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,,0.0,4.0,",
             "2026-08,monthly,Whole,StatFin,1.0,0.0,1.0,2.0,0.0,,0.0,4.0," + '"' + fn.ACEA_NOTE + '"',
             "2026-09,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,,0.0,4.0,",
             "2026-10,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,,0.0,4.0,",
@@ -236,38 +263,48 @@ def test_covered_through():
 def test_apply_acea_writes_one_line_and_skips_register_months():
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
-        lines = ["2023-05,monthly,Whole,StatFin,2000.0,800.0,,3200.0,900.0,,100.0,7000.0,",
+        lines = ["2026-10,monthly,Whole,StatFin,2000.0,800.0,,3200.0,900.0,,100.0,7000.0,",
                  "2026-09,monthly,Whole,StatFin,1.0,0.0,1.0,2.0,0.0,,0.0,4.0,"
                  + '"' + fn.register_note("2026-09-30") + '"']
         path = _csv(tmp, lines)
-        acea = {"TOTAL": 7000, "BEV": 2000, "PHEV": 800, "HEV": 1500, "PETROL": 1650, "DIESEL": 900}
+        acea = {"TOTAL": 7000, "BEV": 2000, "PHEV": 800, "HEV": 1500, "PETROL": 1700, "DIESEL": 900}
         with contextlib.redirect_stdout(io.StringIO()):
-            assert fn.apply_acea("2023-05", acea, path)
-            assert not fn.apply_acea("2023-05", acea, path)                 # no-op the 2nd time
+            assert fn.apply_acea("2026-10", acea, path)
+            assert not fn.apply_acea("2026-10", acea, path)                 # no-op the 2nd time
             assert not fn.apply_acea("2026-09", dict(acea, TOTAL=4, BEV=1, PHEV=0), path)
             assert not fn.apply_acea("2026-11", acea, path)                 # no StatFin row yet
         text = path.read_text(encoding="utf-8").splitlines()
         assert text[2] == lines[1]
-        assert next(csv.DictReader([text[0], text[1]]))["HEV"] == "1500.0"
+        row = next(csv.DictReader([text[0], text[1]]))
+        assert row["HEV"] == "1500.0" and row["PETROL"] == "1700.0" and row["OTHERS"] == "100.0"
 
 
 def test_fetch_finland_upsert_keeps_the_split():
     import fetch_finland as ff
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
-        path = _csv(tmp, ["2023-05,monthly,Whole,pxdata.stat.fi (StatFin 121d),2000.0,800.0,1500.0,"
-                          "1650.0,900.0,,150.0,7000.0," + '"' + fn.ACEA_NOTE + '"'])
-        new = {("2023-05", "Whole"): {
-            "period": "2023-05", "time_interval": "monthly", "variant": "Whole",
-            "source": ff.SOURCE, "BEV": 2000.0, "PHEV": 800.0, "HEV": "", "PETROL": 3160.0,
-            "DIESEL": 900.0, "FLEXFUEL": "", "OTHERS": 150.0, "TOTAL": 7010.0, "notes": ""}}
+        path = _csv(tmp, [
+            "2025-05,monthly,Whole,pxdata.stat.fi (StatFin 121d),2296.0,1435.0,1643.0,"
+            "994.0,257.0,,217.0,6842.0," + '"' + fn.register_note("2026-09-30") + '"',
+            "2026-10,monthly,Whole,pxdata.stat.fi (StatFin 121d),3000.0,600.0,1089.0,"
+            "438.0,100.0,,0.0,5227.0," + '"' + fn.PREVIOUS_NOTE.format(prev="2026-09") + '"'])
+
+        def statfin(period, total, bev, phev, petrol, diesel, others):
+            return {"period": period, "time_interval": "monthly", "variant": "Whole",
+                    "source": ff.SOURCE, "BEV": bev, "PHEV": phev, "HEV": "", "PETROL": petrol,
+                    "DIESEL": diesel, "FLEXFUEL": "", "OTHERS": others, "TOTAL": total, "notes": ""}
+        new = {("2025-05", "Whole"): statfin("2025-05", 6853.0, 2296.0, 1435.0, 2854.0, 257.0, 11.0),
+               ("2026-10", "Whole"): statfin("2026-10", 5230.0, 3000.0, 600.0, 1530.0, 100.0, 0.0)}
         with contextlib.redirect_stdout(io.StringIO()) as out:
             ff.upsert_csv(str(path), new)
-        row = next(csv.DictReader(path.read_text(encoding="utf-8").splitlines()))
-    assert float(row["HEV"]) == 1500 and float(row["PETROL"]) == 1650 and float(row["TOTAL"]) == 7010
-    assert float(row["OTHERS"]) == 7010 - 2000 - 800 - 1500 - 1650 - 900
-    assert row["notes"] == fn.ACEA_NOTE and "WARNING" not in out.getvalue()
-
+        rows = {r["period"]: r for r in csv.DictReader(path.read_text(encoding="utf-8").splitlines())}
+    reg = rows["2025-05"]
+    assert float(reg["HEV"]) == 1643 and float(reg["PETROL"]) == 994 and float(reg["TOTAL"]) == 6853
+    assert float(reg["OTHERS"]) == 6853 - 2296 - 1435 - 1643 - 994 - 257
+    assert reg["notes"].startswith(fn.REGISTER_NOTE)
+    est = rows["2026-10"]
+    assert float(est["HEV"]) + float(est["PETROL"]) == 1530 and float(est["OTHERS"]) == 0
+    assert "WARNING" not in out.getvalue()
 
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]

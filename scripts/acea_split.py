@@ -36,18 +36,12 @@ def _num(v) -> float | None:
         return None
 
 
-def merge(national: dict, acea: dict, split: tuple = SPLIT) -> tuple[dict, str] | None:
+def merge(national: dict, acea: dict) -> tuple[dict, str] | None:
     """`national` and `acea` map BEV/PHEV/HEV/PETROL/DIESEL/TOTAL to numbers
     (or numeric strings). Returns (row, why) with the merged fuel values, or
-    None and the reason is printed by the caller via `why_not`.
-
-    `split` names the columns ACEA supplies (Greece: HEV, PETROL, DIESEL).
-    A combustion column of SPLIT that is not in it stays the national
-    count — Finland keeps StatFin's diesel and takes only HEV and petrol.
-    """
-    kept = tuple(k for k in SPLIT if k not in split)
-    n = {k: _num(national.get(k)) for k in ("TOTAL", "BEV", "PHEV") + kept}
-    a = {k: _num(acea.get(k)) for k in ("TOTAL", "BEV", "PHEV") + split}
+    None and the reason is printed by the caller via `why_not`."""
+    n = {k: _num(national.get(k)) for k in ("TOTAL", "BEV", "PHEV")}
+    a = {k: _num(acea.get(k)) for k in ("TOTAL", "BEV", "PHEV") + SPLIT}
     if None in n.values() or None in a.values():
         return None
     if abs(a["TOTAL"] - n["TOTAL"]) > TOTAL_TOLERANCE * n["TOTAL"]:
@@ -55,12 +49,11 @@ def merge(national: dict, acea: dict, split: tuple = SPLIT) -> tuple[dict, str] 
     for k in ("BEV", "PHEV"):
         if abs(a[k] - n[k]) > max(5.0, PLUGIN_TOLERANCE * n[k]):
             return None
-    others = (n["TOTAL"] - n["BEV"] - n["PHEV"] - sum(a[k] for k in split)
-              - sum(n[k] for k in kept))
+    others = n["TOTAL"] - n["BEV"] - n["PHEV"] - sum(a[k] for k in SPLIT)
     if others < 0:
         return None
     row = dict(n)
-    row.update({k: a[k] for k in split})
+    row.update({k: a[k] for k in SPLIT})
     row["OTHERS"] = others
     return row, (f"ACEA TOTAL {a['TOTAL']:,.0f} vs {n['TOTAL']:,.0f}, "
                  f"BEV {a['BEV']:,.0f} vs {n['BEV']:,.0f}, "

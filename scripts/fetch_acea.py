@@ -132,9 +132,10 @@ on ACEA's PDF but are intentionally out of scope here — the maintainer pulls t
 from national databases/registries that also carry variants ACEA doesn't expose
 (Private / Industry / Used / HDV / Vans / Buses).
 Finland is parsed all the same (HEV_MERGE_COUNTRIES): StatFin has no
-full-hybrid code, so ACEA's counted HEV / pure petrol is merged onto the
-StatFin row by scripts/fetch_finland_register.py (apply_acea), from 2022-01
-and never over a Traficom-register split. The row stays StatFin's otherwise.
+full-hybrid code, so ACEA's HEV share of HEV + petrol splits the StatFin
+row's petrol for a month the Traficom register snapshot does not cover yet
+(scripts/fetch_finland_register.py, apply_acea; an estimate, flagged in
+notes). Never over register counts; the row stays StatFin's otherwise.
 
 Poland is a special case: it is PZPM-primary (scripts/fetch_poland.py, the
 CEP-based upstream behind ACEA's Poland numbers, additionally carrying
@@ -303,10 +304,10 @@ CONDITIONAL_COUNTRIES = [
 # can't fill. Each is handled by its own workflow.
 ALL_COUNTRIES = ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES
 # Countries whose rows ACEA never writes but whose national row lacks a
-# full-hybrid split: only ACEA's counted HEV / petrol is merged, by the
-# country's own module. Finland: StatFin keeps TOTAL/BEV/PHEV/diesel;
+# full-hybrid split: ACEA's HEV share is applied by the country's own
+# module. Finland: StatFin keeps TOTAL/BEV/PHEV/diesel/others;
 # scripts/fetch_finland_register.py (acea_merge) decides, and never
-# overwrites a Traficom-register split (docs/architecture/12-source-finland.md).
+# overwrites Traficom-register counts (docs/architecture/12-source-finland.md).
 HEV_MERGE_COUNTRIES = ["Finland"]
 
 ENGLISH_MONTHS = [
