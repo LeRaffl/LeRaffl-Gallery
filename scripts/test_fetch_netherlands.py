@@ -441,6 +441,115 @@ def test_shadow_takes_the_window_cohort_and_acea_only_cross_checks():
             assert fn.shadow_hev("2026-09", cohort="with_exports") is None
 
 
+def _write_csv(path, rows):
+    head = "period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes\n"
+    Path(path).write_text(head + "".join(r + "\n" for r in rows), encoding="utf-8")
+
+
+def test_fill_register_hev_is_line_level_and_refuses_outside_the_band():
+    """Only the filled Whole lines change; a month outside the band, or one
+    that already has the split, is not touched; the cap takes the newest."""
+    import contextlib
+    import io
+    import tempfile
+    lines = [
+        "2021-12,monthly,Whole,S,5000.0,2000.0,,9000.0,10.0,,100.0,16110.0,workspace_guid=x",
+        "2022-01,monthly,Whole,S,5000.0,2000.0,,9000.0,10.0,,100.0,16110.0,workspace_guid=x",
+        "2022-02,monthly,Whole,S,5000.0,2000.0,,9000.0,10.0,,100.0,16110.0,workspace_guid=x",
+        "2022-03,monthly,Whole,S,5000.0,2000.0,,9000.0,10.0,,100.0,16110.0,workspace_guid=x",
+        "2022-04,monthly,Whole,S,5000.0,2000.0,4000.0,4900.0,10.0,,200.0,16110.0,"
+        + '"' + fn.register_note("with_exports") + '"',
+    ]
+    counts = {p: {"stay": 16000, "with_exports": 16100} for p in ("2022-01", "2022-02", "2022-03")}
+    counts["2022-02"]["with_exports"] = 17000          # +5.5 %: outside the band
+    split = {"BEV": 5000, "PHEV": 2000, "HEV": 4000, "PETROL": 4800, "DIESEL": 200, "OTHERS": 100}
+    splits = {(p, "with_exports"): split for p in counts}
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "NL_under_test.csv"
+        _write_csv(path, lines)
+        with _PlanStub(tmp, {}, counts, splits):
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                filled = fn.fill_register_hev(str(path), cohort="with_exports", limit=None)
+        text = path.read_text(encoding="utf-8").splitlines()
+    assert filled == ["2022-01", "2022-03"]
+    assert "2022-02: with_exports 17000" in out.getvalue()
+    assert text[1] == lines[0] and text[3] == lines[2] and text[5] == lines[4]   # untouched
+    import csv
+    row = next(csv.DictReader([text[0], text[2]]))
+    assert (row["HEV"], row["PETROL"], row["OTHERS"], row["TOTAL"]) == ("4000.0", "4800.0", "300.0", "16110.0")
+    assert row["BEV"] == "5000.0" and row["DIESEL"] == "10.0"          # Swing's, not the register's
+    assert row["notes"].strip('"') == fn.register_note("with_exports")
+
+
+def test_fill_register_hev_cap_takes_the_newest_months():
+    import contextlib
+    import io
+    import tempfile
+    periods = ["2022-01", "2022-02", "2022-03", "2022-04"]
+    lines = [f"{p},monthly,Whole,S,10.0,10.0,,70.0,0.0,,10.0,100.0,x" for p in periods]
+    counts = {p: {"stay": 100, "with_exports": 100} for p in periods}
+    split = {"BEV": 10, "PHEV": 10, "HEV": 30, "PETROL": 40, "DIESEL": 0, "OTHERS": 10}
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "NL_under_test.csv"
+        _write_csv(path, lines)
+        with _PlanStub(tmp, {}, counts, {(p, "with_exports"): split for p in periods}):
+            with contextlib.redirect_stdout(io.StringIO()):
+                assert fn.fill_register_hev(str(path), cohort="with_exports", limit=2) == ["2022-03", "2022-04"]
+                assert fn.fill_register_hev(str(path), cohort="with_exports", limit=2) == ["2022-01", "2022-02"]
+                assert fn.fill_register_hev(str(path), cohort="with_exports", limit=2) == []
+
+
+def test_carry_register_split_survives_a_swing_restatement():
+    note = fn.register_note("with_exports")
+    old = {"period": "2026-09", "variant": "Whole", "HEV": "8720.0", "PETROL": "1837.0",
+           "OTHERS": "9725.0", "notes": note}
+    new = {"period": "2026-09", "variant": "Whole", "TOTAL": 35600.0, "BEV": 9500.0,
+           "PHEV": 5800.0, "DIESEL": 16.0, "PETROL": 20200.0, "HEV": "", "OTHERS": 84.0,
+           "notes": "workspace_guid=x"}
+    kept = fn.carry_register_split(old, new)
+    assert kept["HEV"] == 8720.0 and kept["PETROL"] == 1837.0 and kept["TOTAL"] == 35600.0
+    assert kept["OTHERS"] == 35600 - 9500 - 5800 - 8720 - 1837 - 16 and kept["notes"] == note
+    # Swing restated past the split: Swing's row as published, counted again.
+    tiny = dict(new, TOTAL=12000.0)
+    import contextlib
+    import io
+    with contextlib.redirect_stdout(io.StringIO()):
+        assert fn.carry_register_split(old, tiny) is tiny
+    # A row without the register split, or another variant, is Swing's.
+    assert fn.carry_register_split(dict(old, notes="workspace_guid=x"), new) is new
+    assert fn.carry_register_split(old, dict(new, variant="Used"))["HEV"] == ""
+
+
+def test_main_keeps_the_register_split_when_swing_rewrites_the_window():
+    """End to end: Swing re-delivers a month that already has register HEV;
+    the row keeps HEV / pure petrol and OTHERS is the slack again."""
+    import csv
+    import tempfile
+    pres = {"Whole": _whole_presentation(), "Used": _used_presentation()}
+    real = (fn.fetch_table, dict(fn.CSV_PATHS), sys.argv, fn.make_swing_session, fn.fill_register_hev)
+    with tempfile.TemporaryDirectory() as d:
+        fn.CSV_PATHS.update({v: str(Path(d) / f"{v}.csv") for v in fn.CSV_PATHS})
+        # 2023-09 in the stub: TOTAL 29195, BEV 10075, PHEV 3574, Benzine 15301, Diesel 27.
+        _write_csv(fn.CSV_PATHS["Whole"], [
+            "2023-09,monthly,Whole," + fn.SOURCE + ",10075.0,3574.0,6000.0,9000.0,27.0,,519.0,29195.0,"
+            + '"' + fn.register_note("with_exports") + '"'])
+        fn.fetch_table = lambda variant, session: fn.swing_table_to_legacy(pres[variant])
+        fn.make_swing_session = lambda: None
+        fn.fill_register_hev = lambda *a, **k: []
+        try:
+            sys.argv = ["x", "--variant", "whole", "--force", "--no-top"]
+            fn.main()
+        finally:
+            fn.fetch_table, paths, sys.argv, fn.make_swing_session, fn.fill_register_hev = real
+            fn.CSV_PATHS.update(paths)
+        rows = {r["period"]: r for r in csv.DictReader(open(Path(d) / "Whole.csv", encoding="utf-8"))}
+    r = rows["2023-09"]
+    assert float(r["HEV"]) == 6000 and float(r["PETROL"]) == 9000 and float(r["TOTAL"]) == 29195
+    assert float(r["OTHERS"]) == 29195 - 10075 - 3574 - 6000 - 9000 - 27
+    assert "RDW register" in r["notes"]
+    assert rows["2023-10"]["HEV"] == ""          # a month without the split stays Swing's
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn_ in tests:
