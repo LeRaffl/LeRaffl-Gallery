@@ -682,9 +682,9 @@ def plate_bucket(fuels: list) -> str:
     PETROL so the brand tables keep matching the unsplit chart.
     """
     kinds = {k for _, k in fuels if k}
-    if any(k.startswith("OVC") for k in kinds):
+    if any(k.startswith("OVC-HEV") for k in kinds):
         return "PHEV"
-    if any(k.startswith("NOVC") for k in kinds):
+    if any(k.startswith("NOVC-HEV") for k in kinds):
         return "HEV"
     names = {f for f, _ in fuels if f}
     if names == {"Elektriciteit"}:

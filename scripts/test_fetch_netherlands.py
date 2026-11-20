@@ -272,6 +272,7 @@ def test_plate_bucket_splits_novc_hev_out_of_petrol():
     assert fn.plate_bucket([("Benzine", "")]) == "PETROL"
     assert fn.plate_bucket([("Diesel", "")]) == "DIESEL"
     assert fn.plate_bucket([("Benzine", ""), ("LPG", "")]) == "OTHERS"
+    assert fn.plate_bucket([("Elektriciteit", "NOVC-FCHV"), ("Waterstof", "NOVC-FCHV")]) == "OTHERS"
 
 
 def test_enrich_keeps_swing_total_and_refuses_a_negative_residual():
