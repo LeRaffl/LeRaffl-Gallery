@@ -15,5 +15,5 @@
 DNS opendata.rdw.nl fails: [Errno -5] No address associated with hostname
 DNS data.rdw.nl fails: [Errno -5] No address associated with hostname
 DNS opendata-rdw.nl fails: [Errno -2] Name or service not known
-DNS rdw.data.socrata.com ('52.206.68.26', 443)
+DNS rdw.data.socrata.com ('52.206.140.199', 443)
 NL_PROXY set: False | NL_FETCH_RELAY set: True
