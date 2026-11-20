@@ -17,14 +17,11 @@ import fetch_netherlands as fn  # noqa: E402
 out = io.StringIO()
 try:
     with contextlib.redirect_stdout(out):
-        plan = fn.backfill_plan("2018-01", "2026-10")
-        window = fn.window_cohort(plan)
-        run = fn.fill_run(plan) if window else None
-        print(f"\n== fill: cohort {window}, run {run}")
-        if run:
-            filled = fn.fill_register_hev(start=run[0], end=run[1], cohort=window, limit=None)
-            print(f"filled {len(filled)}: {filled[:3]} .. {filled[-3:]}")
+        print(f"== fill: cohort {fn.HEV_COHORT}, {fn.HEV_FROM}..2026-10")
+        filled = fn.fill_register_hev(start=fn.HEV_FROM, end="2026-10",
+                                      cohort=fn.HEV_COHORT, limit=None)
+        print(f"filled {len(filled)}: {filled[:3]} .. {filled[-3:]}")
 finally:
     Path("probe_out").mkdir(exist_ok=True)
-    Path("probe_out/netherlands_plan.txt").write_text(out.getvalue(), encoding="utf-8")
+    Path("probe_out/netherlands_fill.txt").write_text(out.getvalue(), encoding="utf-8")
     print(out.getvalue())
