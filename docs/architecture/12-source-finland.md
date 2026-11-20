@@ -238,9 +238,15 @@ not flat: about −15% in 2014, −13% to −20% in 2020, −6% to −11% in 202
 From 2025-01 it stays inside about −6%, the band the recent months
 already have (−2.5% to −5.6%, one month −6.0%). A fill before that would
 put a thinned register HEV on a full StatFin total and understate the
-hybrid share. The review call is: HEV from 2025-01, earlier left blank.
-Used exists for every month in the snapshot, and it is today's survivors,
-not the imports of that month.
+hybrid share. The review call is: register HEV from 2025-01. Before that,
+ACEA, not the thinned register. From 2022 the monthly ACEA table is the
+number (same total as StatFin). Before 2022 the fuel split is quarterly.
+That quarter is spread across its three months by each month's share of
+the quarter's StatFin petrol — HEV sits in that column, so an equal third
+would miss a small month. Only the HEV cell is estimated. The month stays
+`monthly`: `monthly_est` would hollow a BEV point that was counted. Used
+exists for every month in the snapshot, and it is today's survivors, not
+the imports of that month.
 
 ```mermaid
 flowchart TB
