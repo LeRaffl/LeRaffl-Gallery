@@ -1,0 +1,19 @@
+== https://api.us.socrata.com/api/catalog/v1 {'ids': 'm9d7-ebf2'} HTTP 200
+== https://api.us.socrata.com/api/catalog/v1 {'ids': '8ys7-d773'} HTTP 200
+== https://api.us.socrata.com/api/catalog/v1 {'domains': 'opendata.rdw.nl', 'limit': 3} HTTP 404
+== https://api.us.socrata.com/api/catalog/v1 {'q': 'gekentekende voertuigen', 'limit': 5} HTTP 200
+== https://api.eu.socrata.com/api/catalog/v1 {'ids': 'm9d7-ebf2'} HTTP 200
+    m9d7-ebf2 | Open Data RDW: Gekentekende_voertuigen | domain: opendata.rdw.nl | link: https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Gekentekende_voertuigen/m9d7-ebf2 | updated: 2026-11-20T07:09:13.000Z
+== https://api.eu.socrata.com/api/catalog/v1 {'ids': '8ys7-d773'} HTTP 200
+    8ys7-d773 | Open Data RDW: Gekentekende_voertuigen_brandstof | domain: opendata.rdw.nl | link: https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Gekentekende_voertuigen_brandstof/8ys7-d773 | updated: 2026-11-20T07:02:07.000Z
+== https://api.eu.socrata.com/api/catalog/v1 {'domains': 'opendata.rdw.nl', 'limit': 3} HTTP 200
+    a34c-vvps | Open Data RDW: Geconstateerde Gebreken | domain: opendata.rdw.nl | link: https://opendata.rdw.nl/Keuringen/Open-Data-RDW-Geconstateerde-Gebreken/a34c-vvps | updated: 2026-11-20T07:19:29.000Z
+    hx2c-gt7k | Open Data RDW: Gebreken | domain: opendata.rdw.nl | link: https://opendata.rdw.nl/Keuringen/Open-Data-RDW-Gebreken/hx2c-gt7k | updated: 2026-09-10T06:32:10.000Z
+    m9d7-ebf2 | Open Data RDW: Gekentekende_voertuigen | domain: opendata.rdw.nl | link: https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Gekentekende_voertuigen/m9d7-ebf2 | updated: 2026-11-20T07:09:13.000Z
+== https://api.eu.socrata.com/api/catalog/v1 {'q': 'gekentekende voertuigen', 'limit': 5} HTTP 200
+    jqs4-4kvw | Open Data RDW: Tellerstandoordeel Trend Toelichting | domain: opendata.rdw.nl | link: https://opendata.rdw.nl/Voertuigen/Open-Data-RDW-Tellerstandoordeel-Trend-Toelichting/jqs4-4kvw | updated: 2025-03-05T17:36:18.000Z
+DNS opendata.rdw.nl fails: [Errno -5] No address associated with hostname
+DNS data.rdw.nl fails: [Errno -5] No address associated with hostname
+DNS opendata-rdw.nl fails: [Errno -2] Name or service not known
+DNS rdw.data.socrata.com ('52.206.68.26', 443)
+NL_PROXY set: False | NL_FETCH_RELAY set: True
