@@ -1,0 +1,582 @@
+== trafi2.stat.fi TraFi database
+[folder] Ajokortit (Ajokortit)
+  [table] Voimassaolevat ajokortit koontiluokittain vuosina 2014-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ajokortit/010_ajok_tau_101.px) updated=2026-09-30T08:59:11
+     var Alue 'Alue': 295 values, first ['MA1 MANNER-SUOMI', 'Akaa', 'Alajärvi'] last ['Ulkomaat', 'Tuntematon']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 21 values, first ['Ikäluokat yhteensä', '15', '16'] last ['85 - 89', '90 -']
+     var Ajokorttiluokka 'Ajokorttiluokka': 15 values, first ['Kaikki ajokortit yhteensä', 'Vain moottoripyöräkortti (A1, A2 tai A)', 'Sisältää moottoripyörän ajo-oikeuden (A1, A2 tai A)'] last ['Traktorikortit (T)', 'Liikennetraktorikortit (LT)']
+     var Ajankohta 'Ajankohta': 26 values, first ['1.7.2026', '1.1.2026', '1.7.2025'] last ['1.7.2014', '1.1.2014']
+  [table] Toimitetut ajokortit koontiluokittain vuosina 2014-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ajokortit/020_ajok_tau_102.px) updated=2026-01-12T13:30:00
+     var Alue 'Alue': 295 values, first ['MA1 MANNER-SUOMI', 'Akaa', 'Alajärvi'] last ['Ulkomaat', 'Tuntematon']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 21 values, first ['Ikäluokat yhteensä', '15', '16'] last ['85 - 89', '90 -']
+     var Ajokortin tyyppi 'Ajokortin tyyppi': 00=Ajokorttityypit yhteensä | 01=Varsinainen ajokortti | 02=Lyhytaikaista luokaltaan vastaava varsinainen ajokortti | 03=Ajokortin kaksoiskappale
+     var Ajokorttiluokka 'Ajokorttiluokka': 15 values, first ['Kaikki ajokortit yhteensä', 'Vain moottoripyöräkortti (A1, A2 tai A)', 'Sisältää moottoripyörän ajo-oikeuden (A1, A2 tai A)'] last ['Traktorikortit (T)', 'Liikennetraktorikortit (LT)']
+     var Vuosi 'Vuosi': 12 values, first ['2014', '2015', '2016'] last ['2024', '2025']
+  [table] Toimitetut ajokortit koontiluokittain kuukausittain vuosina 2014-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ajokortit/030_ajok_tau_103.px) updated=2026-01-12T13:39:00
+     var Alue 'Alue': 295 values, first ['MA1 MANNER-SUOMI', 'Akaa', 'Alajärvi'] last ['Ulkomaat', 'Tuntematon']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 21 values, first ['Ikäluokat yhteensä', '15', '16'] last ['85 - 89', '90 -']
+     var Ajokortin tyyppi 'Ajokortin tyyppi': 00=Ajokorttityypit yhteensä | 01=Varsinainen ajokortti | 02=Lyhytaikaista luokaltaan vastaava varsinainen ajokortti | 03=Ajokortin kaksoiskappale
+     var Ajokorttiluokka 'Ajokorttiluokka': 15 values, first ['Kaikki ajokortit yhteensä', 'Vain moottoripyöräkortti (A1, A2 tai A)', 'Sisältää moottoripyörän ajo-oikeuden (A1, A2 tai A)'] last ['Traktorikortit (T)', 'Liikennetraktorikortit (LT)']
+     var Kuukausi 'Kuukausi': 144 values, first ['2014M01', '2014M02', '2014M03'] last ['2025M11', '2025M12']
+[folder] Ensirekisteröinnit (Ensirekisteroinnit)
+  [table] Henkilöautojen ensirekisteröinnit 2016-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/010_ensirek_tau_101.px) updated=2026-11-03T17:01:15
+     var Maakunta 'Maakunta': 21 values, first ['MANNER-SUOMI', 'Uusimaa', 'Varsinais-Suomi'] last ['Tuntematon', 'Ulkomaat']
+     var Merkki 'Merkki': 76 values, first ['Henkilöautot yhteensä', 'Alfa Romeo', 'Alpine'] last ['Muut merkit yhteensä', 'Matkailuautot yhteensä']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 04=Sähkö | 05=Vety | 13=Maakaasu (CNG) | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 44=Diesel/Sähkö (ladattava hybridi) | 48=Diesel/Biodiesel
+     var Vuosi 'Vuosi': 11 values, first ['2016', '2017', '2018'] last ['2025', '2026']
+     var Kuukausi 'Kuukausi': 13 values, first ['Kuukaudet yhteensä', 'Tammikuu', 'Helmikuu'] last ['Marraskuu', 'Joulukuu']
+  [table] Henkilöautojen ensirekisteröinnit alueittain 2001-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/020_ensirek_tau_102.px) updated=2026-11-03T17:01:47
+     var Alue 'Alue': 295 values, first ['MA1 MANNER-SUOMI', 'Akaa', 'Alajärvi'] last ['Tuntematon', 'Ulkomaat']
+     var Merkki 'Merkki': 52 values, first ['Henkilöautot yhteensä', 'Alfa Romeo', 'Audi'] last ['Muut merkit yhteensä', 'Matkailuautot yhteensä']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 03=Polttoöljy | 04=Sähkö | 05=Vety | 13=Maakaasu (CNG) | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 44=Diesel/Sähkö (ladattava hybridi) | 48=Diesel/Biodiesel | Y=Muu
+     var Vuosi 'Vuosi': 26 values, first ['2001', '2002', '2003'] last ['2025', '2026']
+  [table] Ajoneuvojen ensirekisteröinnit maakunnittain 2001-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/030_ensirek_tau_103.px) updated=2026-11-03T17:01:57
+     var Maakunta 'Maakunta': 21 values, first ['MANNER-SUOMI', 'Uusimaa', 'Varsinais-Suomi'] last ['Tuntematon', 'Ulkomaat']
+     var Ajoneuvoluokka 'Ajoneuvoluokka': 17 values, first ['Yhteensä', 'Kaikki autot', 'Henkilöautot'] last ['Puoliperävaunut', 'Muut perävaunut yhteensä']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 03=Polttoöljy | 04=Sähkö | 05=Vety | 06=Kaasu | 10=Biodiesel | 11=Nestekaasu (LPG) | 13=Maakaasu (CNG) | 31=Moottoripetroli | 34=Bensiini + moottoripetroli | 37=Etanoli | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 42=Bensiini/LPG | 43=Diesel/CNG | 44=Diesel/Sähkö (ladattava hybridi) | 56=H-ryhmän maakaasu | 65=LNG | 67=Diesel/LNG | Y=Muu
+     var Vuosi 'Vuosi': 26 values, first ['2001', '2002', '2003'] last ['2025', '2026']
+  [table] Ajoneuvojen ensirekisteröinnit maakunnittain kuukausittain 2001-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/040_ensirek_tau_104.px) updated=2026-11-03T17:02:08
+     var Maakunta 'Maakunta': 21 values, first ['MANNER-SUOMI', 'Uusimaa', 'Varsinais-Suomi'] last ['Tuntematon', 'Ulkomaat']
+     var Ajoneuvoluokka 'Ajoneuvoluokka': 17 values, first ['Yhteensä', 'Kaikki autot', 'Henkilöautot'] last ['Puoliperävaunut', 'Muut perävaunut yhteensä']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 03=Polttoöljy | 04=Sähkö | 05=Vety | 06=Kaasu | 10=Biodiesel | 11=Nestekaasu (LPG) | 13=Maakaasu (CNG) | 31=Moottoripetroli | 34=Bensiini + moottoripetroli | 37=Etanoli | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 42=Bensiini/LPG | 43=Diesel/CNG | 44=Diesel/Sähkö (ladattava hybridi) | 56=H-ryhmän maakaasu | 65=LNG | 67=Diesel/LNG | Y=Muu
+     var Kuukausi 'Kuukausi': 310 values, first ['2001M01', '2001M02', '2001M03'] last ['2026M09', '2026M10']
+  [table] Henkilöautojen mallisarjojen ensirekisteröinnit alueittain kuukausittain 2014-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/050_ensirek_tau_105.px) updated=2026-11-03T16:42:37
+     var Alue 'Alue': 295 values, first ['MA1 MANNER-SUOMI', 'Akaa', 'Alajärvi'] last ['Ulkomaat', 'Tuntematon']
+     var Mallisarja 'Mallisarja': 718 values, first ['Henkilöautot yhteensä', 'ALFA ROMEO yhteensä', 'ALFA ROMEO 4C'] last ['Muut merkit yhteensä', 'Matkailuautot yhteensä']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 04=Sähkö | 13=Maakaasu (CNG) | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 44=Diesel/Sähkö (ladattava hybridi) | Y=Muu
+     var Kuukausi 'Kuukausi': 154 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M09', '2026M10']
+  [table] Henkilöautojen mallisarjojen ensirekisteröinnit 2014-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/060_ensirek_tau_106.px) updated=2026-11-03T16:55:51
+     var Alue 'Alue': 295 values, first ['MA1 MANNER-SUOMI', 'Akaa', 'Alajärvi'] last ['Ulkomaat', 'Tuntematon']
+     var Mallisarja 'Mallisarja': 718 values, first ['Henkilöautot yhteensä', 'ALFA ROMEO yhteensä', 'ALFA ROMEO 4C'] last ['Muut merkit yhteensä', 'Matkailuautot yhteensä']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 04=Sähkö | 13=Maakaasu (CNG) | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 44=Diesel/Sähkö (ladattava hybridi) | Y=Muu
+     var Vuosi 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026']
+  [table] Ensirekisteröityjen henkilöautojen keskimääräiset CO2-päästöt (WLTP) 2019-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/070_ensirek_tau_107.px) updated=2026-11-03T16:55:37
+     var Alue 'Alue': 313 values, first ['MA1 MANNER-SUOMI', 'MK01 Uusimaa', 'Askola'] last ['Tuntematon', 'Ulkomaat']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 04=Sähkö | 05=Vety | 13=Maakaasu (CNG) | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 44=Diesel/Sähkö (ladattava hybridi) | 48=Diesel/Biodiesel
+     var Vuosi 'Vuosi': 8 values, first ['2019', '2020', '2021'] last ['2025', '2026']
+     var Tieto 'Tieto': N=Lukumäärä | Co2_wltp=CO2-päästöarvo g/km (WLTP)
+  [table] Ensirekisteröityjen henkilöautojen keskimääräiset CO2-päästöt (WLTP) kuukausittain 2019-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/080_ensirek_tau_108.px) updated=2026-11-03T16:55:29
+     var Alue 'Alue': 313 values, first ['MA1 MANNER-SUOMI', 'MK01 Uusimaa', 'Askola'] last ['Tuntematon', 'Ulkomaat']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 04=Sähkö | 05=Vety | 13=Maakaasu (CNG) | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 44=Diesel/Sähkö (ladattava hybridi) | 48=Diesel/Biodiesel
+     var Kuukausi 'Kuukausi': 94 values, first ['2019M01', '2019M02', '2019M03'] last ['2026M09', '2026M10']
+     var Tieto 'Tieto': N=Lukumäärä | Co2_wltp=CO2-päästöarvo g/km (WLTP)
+  [table] Ensirekisteröityjen henkilöautojen keskimääräiset CO2-päästöt (NEDC) 2014-2018 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/090_ensirek_tau_109.px) updated=2020-12-14T17:01:00
+     var Alue 'Alue': 315 values, first ['MA1 MANNER-SUOMI', 'MK01 Uusimaa', 'Askola'] last ['Tuntematon', 'Ulkomaat']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 04=Sähkö | 13=Maakaasu (CNG) | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 44=Diesel/Sähkö (ladattava hybridi)
+     var Vuosi 'Vuosi': 2014=2014 | 2015=2015 | 2016=2016 | 2017=2017 | 2018=2018
+     var Tieto 'Tieto': N=Lukumäärä | Nedc=CO2-päästöarvo g/km (NEDC)
+  [table] Ensirekisteröityjen henkilöautojen keskimääräiset CO2-päästöt (NEDC) kuukausittain 2014-2018 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit/100_ensirek_tau_110.px) updated=2020-12-14T17:02:00
+     var Alue 'Alue': 315 values, first ['MA1 MANNER-SUOMI', 'MK01 Uusimaa', 'Askola'] last ['Tuntematon', 'Ulkomaat']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 04=Sähkö | 13=Maakaasu (CNG) | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 44=Diesel/Sähkö (ladattava hybridi)
+     var Kuukausi 'Kuukausi': 60 values, first ['2014M01', '2014M02', '2014M03'] last ['2018M11', '2018M12']
+     var Tieto 'Tieto': N=Lukumäärä | Nedc=CO2-päästöarvo g/km (NEDC)
+[folder] Henkilöliikennetutkimus (Henkiloliikennetutkimus)
+  [table] 12vf -- Tulokset tutkimusvuoden, kuntaryhmän, sukupuolen, iän ja kulkutavan mukaan, 1999-2011 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12vf.px) updated=2021-11-02T13:25:00
+     var timeperiod_y 'Vuosi': 1999=1999 | 2005=2005 | 2011=2011
+     var hlt_2_20200101 'kuntaryhmä': SSS=kaikki kunnat yhdessä | 1=pääkaupunkiseutu | 2=suuret kaupungit | 3=keskisuuret kaupungit | 4=pienet kaup. ym. | 5=muut kunnat
+     var sukupuoli_1_20120101 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var hlt_6_20200101 'ikäryhmä': 7 values, first ['kaikki ikäryhmät', '6-17', '18-34'] last ['65-74', '75 ja yli']
+     var hlt_7_20200101 'Kulkutapa': 9 values, first ['kaikki kulkutavat', 'jalankulku', 'polkupyörä'] last ['juna', 'muu']
+     var contentscode 'Tiedot': mluku=matkaluku/pv | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa matkaa/pv
+  [table] 12vh -- Tulokset tutkimusvuoden, kuntaryhmän, toiminnan, autonomistuksen ja kulkutavan mukaan, 1999-2011 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12vh.px) updated=2021-11-02T13:25:00
+     var timeperiod_y 'Vuosi': 1999=1999 | 2005=2005 | 2011=2011
+     var hlt_2_20200101 'kuntaryhmä': SSS=kaikki kunnat yhdessä | 1=pääkaupunkiseutu | 2=suuret kaupungit | 3=keskisuuret kaupungit | 4=pienet kaup. ym. | 5=muut kunnat
+     var hlt_4_20200101 'toiminta': 9 values, first ['kaikki', '6v-17v', 'täysi-ikäinen opiskelija'] last ['eläkeläinen', 'muu']
+     var hlt_5_20200101 'autonomistus': SSS=kaikki | 1=ei yhtään | 2=1 auto | 3=2 autoa | 4=yli 2 autoa
+     var hlt_7_20200101 'Kulkutapa': 9 values, first ['kaikki kulkutavat', 'jalankulku', 'polkupyörä'] last ['juna', 'muu']
+     var contentscode 'Tiedot': mluku=matkaluku/pv | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa matkaa/pv
+  [table] 12vt -- Tulokset tutkimusvuoden, kuntaryhmän, sukupuolen, iän ja kulkutapavan mukaan, 1999-2011 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12vt.px) updated=2021-11-02T13:26:00
+     var timeperiod_y 'Vuosi': 1999=1999 | 2005=2005 | 2011=2011
+     var hlt_2_20200101 'kuntaryhmä': SSS=kaikki kunnat yhdessä | 1=pääkaupunkiseutu | 2=suuret kaupungit | 3=keskisuuret kaupungit | 4=pienet kaup. ym. | 5=muut kunnat
+     var sukupuoli_1_20120101 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var hlt_6_20200101 'ikäryhmä': 7 values, first ['kaikki ikäryhmät', '6-17', '18-34'] last ['65-74', '75 ja yli']
+     var hlt_8_20200101 'Tarkoitus': 8 values, first ['tarkoitukset yhteensä', 'työ', 'koulu tai opiskelu'] last ['mökki', 'muu vapaa-aika']
+     var contentscode 'Tiedot': mluku=matkaluku/pv | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa matkaa/pv
+  [table] 12vu -- Tulokset tutkimusvuoden, kuntaryhmän, toiminnan, autonomistuksen ja matkan tarkoituksen mukaan, 1999-2011 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12vu.px) updated=2021-11-02T13:26:00
+     var timeperiod_y 'Vuosi': 1999=1999 | 2005=2005 | 2011=2011
+     var hlt_2_20200101 'kuntaryhmä': SSS=kaikki kunnat yhdessä | 1=pääkaupunkiseutu | 2=suuret kaupungit | 3=keskisuuret kaupungit | 4=pienet kaup. ym. | 5=muut kunnat
+     var hlt_4_20200101 'toiminta': 9 values, first ['kaikki', '6v-17v', 'täysi-ikäinen opiskelija'] last ['eläkeläinen', 'muu']
+     var hlt_5_20200101 'autonomistus': SSS=kaikki | 1=ei yhtään | 2=1 auto | 3=2 autoa | 4=yli 2 autoa
+     var hlt_8_20200101 'Tarkoitus': 8 values, first ['tarkoitukset yhteensä', 'työ', 'koulu tai opiskelu'] last ['mökki', 'muu vapaa-aika']
+     var contentscode 'Tiedot': mluku=matkaluku/pv | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa matkaa/pv
+  [table] 12vv -- Tulokset tutkimusvuoden, viikonpäivän, sukupuolen, iän ja kulkutapavan mukaan, 1999-2011 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12vv.px) updated=2021-11-02T13:26:00
+     var timeperiod_y 'Vuosi': 1999=1999 | 2005=2005 | 2011=2011
+     var hlt_3_20200101 'Viikonpäivät': SSS=ma-su | 1=ma-pe | 2=la-su
+     var sukupuoli_1_20120101 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var hlt_6_20200101 'ikäryhmä': 7 values, first ['kaikki ikäryhmät', '6-17', '18-34'] last ['65-74', '75 ja yli']
+     var hlt_7_20200101 'Kulkutapa': 9 values, first ['kaikki kulkutavat', 'jalankulku', 'polkupyörä'] last ['juna', 'muu']
+     var contentscode 'Tiedot': mluku=matkaluku/pv | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa matkaa/pv
+  [table] 12x1 -- Tulokset tutkimusvuoden, viikonpäivän, sukupuolen, iän ja matkan tarkoituksen mukaan, 1999-2011 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12x1.px) updated=2021-11-02T13:27:00
+     var timeperiod_y 'Vuosi': 1999=1999 | 2005=2005 | 2011=2011
+     var hlt_3_20200101 'Viikonpäivät': SSS=ma-su | 1=ma-pe | 2=la-su
+     var sukupuoli_1_20120101 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var hlt_6_20200101 'ikäryhmä': 7 values, first ['kaikki ikäryhmät', '6-17', '18-34'] last ['65-74', '75 ja yli']
+     var hlt_8_20200101 'Tarkoitus': 8 values, first ['tarkoitukset yhteensä', 'työ', 'koulu tai opiskelu'] last ['mökki', 'muu vapaa-aika']
+     var contentscode 'Tiedot': mluku=matkaluku/pv | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa matkaa/pv
+  [table] 12x2 -- Tulokset tutkimusvuoden, kulkutavan, kuntaryhmän, sukupuolen ja ikäryhmän mukaan, 2016-2021 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12x2.px) updated=2024-06-06T16:11:00
+     var timeperiod_y 'Vuosi': 2016=2016 | 2021=2021
+     var hlt_10_20200101 'kulkutapa 2016': 8 values, first ['kaikki kulkutavat', 'jalankulku', 'pyöräily'] last ['ha-matkustaja', 'muu']
+     var hlt_2_20200101 'kuntaryhmä': SSS=kaikki kunnat yhdessä | 1=pääkaupunkiseutu | 2=suuret kaupungit | 3=keskisuuret kaupungit | 4=pienet kaup. ym. | 5=muut kunnat
+     var sukupuoli_1_20120101 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var hlt_6_20200101 'ikäryhmä': 7 values, first ['kaikki ikäryhmät', '6-17', '18-34'] last ['65-74', '75 ja yli']
+     var contentscode 'Tiedot': mluku=matkaluku matkaa/pv/henkilö | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa kpl
+  [table] 12x5 -- Tulokset tutkimusvuoden, kuntaryhmän, sukupuolen, iän ja matkan tarkoituksen mukaan, 2016-2021 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12x5.px) updated=2024-06-06T16:11:00
+     var timeperiod_y 'Vuosi': 2016=2016 | 2021=2021
+     var hlt_2_20200101 'kuntaryhmä': SSS=kaikki kunnat yhdessä | 1=pääkaupunkiseutu | 2=suuret kaupungit | 3=keskisuuret kaupungit | 4=pienet kaup. ym. | 5=muut kunnat
+     var sukupuoli_1_20120101 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var hlt_6_20200101 'ikäryhmä': 7 values, first ['kaikki ikäryhmät', '6-17', '18-34'] last ['65-74', '75 ja yli']
+     var hlt_11_20200101 'tarkoitus 2016': 8 values, first ['tarkoitukset yhteensä', 'työ', 'työasia'] last ['ostos', 'asiointi tai muu']
+     var contentscode 'Tiedot': mluku=matkaluku matkaa/pv/henkilö | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa kpl
+  [table] 12x6 -- Tulokset tutkimusvuoden, viikonpäivän, sukupuolen, iän ja kulkutavan mukaan, 2016-2021 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12x6.px) updated=2024-06-06T16:11:00
+     var timeperiod_y 'Vuosi': 2016=2016 | 2021=2021
+     var hlt_3_20200101 'Viikonpäivät': SSS=ma-su | 1=ma-pe | 2=la-su
+     var sukupuoli_1_20120101 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var hlt_6_20200101 'ikäryhmä': 7 values, first ['kaikki ikäryhmät', '6-17', '18-34'] last ['65-74', '75 ja yli']
+     var hlt_10_20200101 'kulkutapa 2016': 8 values, first ['kaikki kulkutavat', 'jalankulku', 'pyöräily'] last ['ha-matkustaja', 'muu']
+     var contentscode 'Tiedot': mluku=matkaluku matkaa/pv/henkilö | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa kpl
+  [table] 12x7 -- Tulokset tutkimusvuoden, viikonpäivän, sukupuolen, iän ja matkan tarkoituksen mukaan, 2016-2021 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Henkiloliikennetutkimus/12x7.px) updated=2024-06-06T16:11:00
+     var timeperiod_y 'Vuosi': 2016=2016 | 2021=2021
+     var hlt_3_20200101 'Viikonpäivät': SSS=ma-su | 1=ma-pe | 2=la-su
+     var sukupuoli_1_20120101 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var hlt_6_20200101 'ikäryhmä': 7 values, first ['kaikki ikäryhmät', '6-17', '18-34'] last ['65-74', '75 ja yli']
+     var hlt_11_20200101 'tarkoitus 2016': 8 values, first ['tarkoitukset yhteensä', 'työ', 'työasia'] last ['ostos', 'asiointi tai muu']
+     var contentscode 'Tiedot': mluku=matkaluku matkaa/pv/henkilö | mpituus=matkan keskipituus km/matka | mkeski=keskim. matka-aika min/matka | msuor=matkasuorite km/pv/henkilö | aikas=aikasuorite min/pv/henkilö | mmaara=matkojen määrä aineistossa kpl
+[folder] Ilmailulupakirjat (Ilmailulupakirjat)
+  [table] Uudet myönnetyt ilmailulupakirjat, 1962-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ilmailulupakirjat/11j2.px) updated=2026-10-27T07:53:36
+     var ajokorttiluokka_4_20181101 'Lupakirjaluokka': 18 values, first ['Kaikki ilmailulupakirjat yhteensä', 'Liikennelentäjä (lentokoneet)', 'Liikennelentäjä (helikopterit)'] last ['Lennonjohtaja', 'Lennontiedottaja']
+     var timeperiod_y 'Vuosi': 65 values, first ['1962', '1963', '1964'] last ['2025', '2026']
+     var contentscode 'Tiedot': luku=Lukumäärä
+  [table] Voimassaolevat ilmailulupakirjat, 2019Q1-2026Q3 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ilmailulupakirjat/11j8.px) updated=2026-10-27T07:54:05
+     var ajokorttiluokka_4_20181101 'Lupakirjaluokka': 18 values, first ['Kaikki ilmailulupakirjat yhteensä', 'Liikennelentäjä (lentokoneet)', 'Liikennelentäjä (helikopterit)'] last ['Lennonjohtaja', 'Lennontiedottaja']
+     var timeperiod_q 'Vuosineljännes': 31 values, first ['2019Q1', '2019Q2', '2019Q3'] last ['2026Q2', '2026Q3']
+     var contentscode 'Tiedot': luku=Lukumäärä
+[folder] Julkisen liikenteen suoritetilasto (Julkisen_liikenteen_suoritetilasto)
+  [table] 12vg -- Julkisen liikenteen suoritetilasto, 2015-2024 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Julkisen_liikenteen_suoritetilasto/12vg.px) updated=2025-12-18T12:57:00
+     var timeperiod_y 'Vuosi': 9 values, first ['2015', '2017', '2018'] last ['2023', '2024']
+     var julk_liikenne_1_20110101 'Suoritetyyppi': 43 values, first ['Julkinen liikenne yhteensä', 'Joukkoliikenne yhteensä', '... Kaukoliikenne yhteensä'] last ['Taksi yhteensä', 'Sähköpotkulauta yhteensä']
+     var contentscode 'Tiedot': 20 values, first ['Ajoneuvokilometrit', 'Henkilökilometrit', 'Paikkakilometrit'] last ['... ... [Valtio] terveystoimi', '... ... [Hyvinvointialueet] Sosiaali- ja terveystoimi']
+  [table] 12za -- Julkisen liikenteen liikevaihto, 2015-2024 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Julkisen_liikenteen_suoritetilasto/12za.px) updated=2025-12-18T12:57:00
+     var timeperiod_y 'Vuosi': 9 values, first ['2015', '2017', '2018'] last ['2023', '2024']
+     var julk_liikenne_8_20210608 'Liikevaihto': 15 values, first ['Yhteensä', 'Rautatieliikenne yhteensä', '... Kaukoliikenne'] last ['Taksiliikenne', 'Lentoliikenne']
+     var contentscode 'Tiedot': euroa=Euroa
+  [table] 12zb -- Julkisen liikenteen rahoituksen suppea aikasarja, 2015-2024 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Julkisen_liikenteen_suoritetilasto/12zb.px) updated=2025-12-18T12:57:00
+     var timeperiod_y 'Vuosi': 9 values, first ['2015', '2017', '2018'] last ['2023', '2024']
+     var julk_liikenne_1_20110101 'Suoritetyyppi': SSS=Julkinen liikenne yhteensä | 100=Joukkoliikenne yhteensä | 200=Tilausliikenne
+     var contentscode 'Tiedot': 10 values, first ['Julkinen rahoitus yhteensä', '... Valtion rahoitus yhteensä', '... Kuntien rahoitus yhteensä'] last ['... ... Valtion suora rahoitus yhteensä', '... ... [Hyvinvointialueet] Sosiaali- ja terveystoimi']
+  [table] 12zc -- Julkisen liikenteen ajoneuvokohtaisten suoritteiden suppea aikasarja, 2015-2024 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Julkisen_liikenteen_suoritetilasto/12zc.px) updated=2025-12-18T12:57:00
+     var timeperiod_y 'Vuosi': 9 values, first ['2015', '2017', '2018'] last ['2023', '2024']
+     var julk_liikenne_1_20110101 'Suoritetyyppi': 43 values, first ['Julkinen liikenne yhteensä', 'Joukkoliikenne yhteensä', '... Kaukoliikenne yhteensä'] last ['Taksi yhteensä', 'Sähköpotkulauta yhteensä']
+     var contentscode 'Tiedot': 7 values, first ['Ajoneuvokilometrit', 'Paikkakilometrit', 'Matkustajat'] last ['... Suora rahoitus yhteensä', '... Matkakustannusten korvaus yhteensä']
+[folder] Katsastuksen vikatilastot (Katsastuksen_vikatilastot)
+  [table] Henkilöautojen määräaikaiskatsastukset malleittain 2017-2022 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Katsastuksen_vikatilastot/010_kats_tau_101.px) updated=2024-04-17T14:02:00
+     var Katsastusvuosi 'Katsastusvuosi': 2017=2017 | 2018=2018 | 2019=2019 | 2020=2020 | 2021=2021 | 2022=2022
+     var Merkki ja mallisarja 'Merkki ja mallisarja': 508 values, first ['Merkit yhteensä - Mallit yhteensä', 'Alfa Romeo - Mallit yhteensä', 'Alfa Romeo 147'] last ['Volvo XC70', 'Volvo XC90']
+     var Käyttöönottovuosi 'Käyttöönottovuosi': 19 values, first ['Vuodet yhteensä', '2002', '2003'] last ['2018', '2019']
+     var Tiedot 'Tiedot': Lkm=Määräaikaiskatsastusten lukumäärä | Ka=Ajettujen kilometrien keskiarvo | Mediaani=Ajettujen kilometrien mediaani | Hylkaysprosentti=Hylkäys-% | Hyvaksytyt=Hyväksytyt | Hylatyt=Hylätyt
+  [table] Henkilöautojen määräaikaiskatsastukset malleittain ja vikakohteittain 2017-2022 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Katsastuksen_vikatilastot/020_kats_tau_102.px) updated=2024-04-17T14:03:00
+     var Katsastusvuosi 'Katsastusvuosi': 2017=2017 | 2018=2018 | 2019=2019 | 2020=2020 | 2021=2021 | 2022=2022
+     var Merkki ja mallisarja 'Merkki ja mallisarja': 508 values, first ['Merkit yhteensä - Mallit yhteensä', 'Alfa Romeo - Mallit yhteensä', 'Alfa Romeo - 147'] last ['Volvo - XC70', 'Volvo - XC90']
+     var Käyttöönottovuosi 'Käyttöönottovuosi': 19 values, first ['Vuodet yhteensä', '2002', '2003'] last ['2018', '2019']
+     var Vian pääkohde ja kohde 'Vian pääkohde ja kohde': 99 values, first ['Kaikki pääkohteet ja kohteet', 'Ajoneuvon tunnistus (kaikki kohteet)', 'Ajoneuvon tunnistus - Asiapaperit'] last ['Ympäristöhaitat - Sisäinen valvontajärjestelmä (OBD)', 'Ympäristöhaitat - Öljyvuodot']
+     var Tiedot 'Tiedot': Lkm=Määräaikaiskatsastusten lukumäärä | Ka=Ajettujen kilometrien keskiarvo | Mediaani=Ajettujen kilometrien mediaani | Korjauskehotukset=Korjauskehotukset (vikojen lkm) | Hylkaykset=Hylkäykset (vikojen lkm) | Ajokiellot=Ajokiellot (vikojen lkm)
+  [table] Ajoneuvojen määräaikaiskatsastukset käyttövoimittain ja ikäluokittain 2018-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Katsastuksen_vikatilastot/030_kats_tau_103.px) updated=2026-05-06T08:19:00
+     var Katsastusvuosi 'Katsastusvuosi': 8 values, first ['2018', '2019', '2020'] last ['2024', '2025']
+     var Ajoneuvoluokka 'Ajoneuvoluokka': 8 values, first ['Henkilöauto', 'Pakettiauto', 'Kuorma-auto'] last ['Perävaunu, korkeintaan 3500 kg', 'Perävaunu, yli 3500 kg']
+     var Käyttövoima 'Käyttövoima': Käyttövoimat yhteensä=Käyttövoimat yhteensä | Bensiini=Bensiini | Diesel=Diesel | Sähkö=Sähkö | Bensiinihybridi (ladattava)=Bensiini/Sähkö (ladattava hybridi) | Dieselhybridi (ladattava)=Diesel/Sähkö (ladattava hybridi) | Kaasu=Kaasu | Bensiini/Etanoli=Bensiini/Etanoli | Vety=Vety | Muu=Muu | Ei sovellettavissa=Ei sovellettavissa
+     var Ajoneuvon ikä 'Ajoneuvon ikä': 26 values, first ['Ikäluokat yhteensä', '0-1', '2'] last ['24', 'Väh. 25']
+     var Tiedot 'Tiedot': Ajon_kats_lkm=Määräaikaiskatsastusten lukumäärä | Ka=Ajettujen kilometrien keskiarvo | Mediaani=Ajettujen kilometrien mediaani | Hylkaysprosentti=Hylkäys-% | Hyvaksytyt=Hyväksytyt | Hylatyt=Hylätyt
+  [table] Henkilöautojen määräaikaiskatsastukset malleittain 2023-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Katsastuksen_vikatilastot/040_kats_tau_104.px) updated=2026-05-06T08:19:00
+     var Katsastusvuosi 'Katsastusvuosi': 2023=2023 | 2024=2024 | 2025=2025
+     var Merkki ja mallisarja 'Merkki ja mallisarja': 542 values, first ['Merkit yhteensä - Mallit yhteensä', 'Alfa Romeo - Mallit yhteensä', 'Alfa Romeo 147'] last ['Volvo XC70', 'Volvo XC90']
+     var Käyttöönottovuosi 'Käyttöönottovuosi': 20 values, first ['Vuodet yhteensä', '2003', '2004'] last ['2020', '2021']
+     var Tiedot 'Tiedot': Lkm=Määräaikaiskatsastusten lukumäärä | Ka=Ajettujen kilometrien keskiarvo | Mediaani=Ajettujen kilometrien mediaani | Hylkaysprosentti=Hylkäys-% | Hyvaksytyt=Hyväksytyt | Hylatyt=Hylätyt
+  [table] Henkilöautojen määräaikaiskatsastukset malleittain ja vikakohteittain 2023-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Katsastuksen_vikatilastot/050_kats_tau_105.px) updated=2026-05-06T08:18:00
+     var Katsastusvuosi 'Katsastusvuosi': 2025=2025 | 2024=2024 | 2023=2023
+     var Merkki ja mallisarja 'Merkki ja mallisarja': 542 values, first ['Merkit yhteensä - Mallit yhteensä', 'Alfa Romeo - Mallit yhteensä', 'Alfa Romeo - 147'] last ['Volvo - XC70', 'Volvo - XC90']
+     var Käyttöönottovuosi 'Käyttöönottovuosi': 20 values, first ['Vuodet yhteensä', '2003', '2004'] last ['2020', '2021']
+     var Vian pääkohde ja kohde 'Vian pääkohde ja kohde': 109 values, first ['Kaikki pääkohteet ja kohteet', 'Ajoneuvon tunnistus (kaikki kohteet)', 'Ajoneuvon tunnistus - Asiapaperit'] last ['Ympäristöhaitat - Sisäinen valvontajärjestelmä (OBD)', 'Ympäristöhaitat - Öljyvuodot']
+     var Tiedot 'Tiedot': Lkm=Määräaikaiskatsastusten lukumäärä | Ka=Ajettujen kilometrien keskiarvo | Mediaani=Ajettujen kilometrien mediaani | Korjauskehotukset=Korjauskehotukset (vikojen lkm) | Hylkaykset=Hylkäykset (vikojen lkm) | Ajokiellot=Ajokiellot (vikojen lkm)
+[folder] Kuljettajantutkinnot (Kuljettajantutkinnot)
+  [table] Suoritetut teoriakokeet maakunnittain 2016-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kuljettajantutkinnot/010_tutk_tau_101.px) updated=2026-11-13T08:31:19
+     var Maakunta 'Maakunta': 20 values, first ['KOKO MAA', 'Uusimaa', 'Varsinais-Suomi'] last ['Lappi', 'Tuntematon']
+     var Opetustapa 'Opetustapa': SSS=Opetustavat yhteensä | 1=Autokoulu | 2=Opetuslupa | 3=Muut
+     var Ajokorttiluokka 'Ajokorttiluokka': 21 values, first ['Ajokorttiluokat yhteensä', 'A', 'A1'] last ['OL', 'T']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 22 values, first ['Ikäluokat yhteensä', '- 14', '15'] last ['85 - 89', '90 -']
+     var Vuosi 'Vuosi': 11 values, first ['2026', '2025', '2024'] last ['2017', '2016']
+     var Tiedot 'Tiedot': Kokeet=Kaikki kokeet | Kokeet1=Ensimmäisen yrityskerran kokeet | Hyv=Kaikki hyväksytyt kokeet | Hyv1=Ensimmäisellä yrityskerralla hyväksytyt kokeet | Hyvpros1=Hyväksymisprosentti (1. yrityskerta)
+  [table] Suoritetut teoriakokeet Ajovarman toimipisteittäin 2016-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kuljettajantutkinnot/020_tutk_tau_102.px) updated=2026-11-13T08:31:34
+     var Ajovarman toimipiste 'Ajovarman toimipiste': 104 values, first ['Kaikki toimipisteet', 'Alajärvi', 'Alavus'] last ['Ylivieska', 'Äänekoski']
+     var Opetustapa 'Opetustapa': SSS=Opetustavat yhteensä | 1=Autokoulu | 2=Opetuslupa | 3=Muut
+     var Ajokorttiluokka 'Ajokorttiluokka': 21 values, first ['Ajokorttiluokat yhteensä', 'A', 'A1'] last ['OL', 'T']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 22 values, first ['Ikäluokat yhteensä', '- 14', '15'] last ['85 - 89', '90 -']
+     var Vuosi 'Vuosi': 11 values, first ['2026', '2025', '2024'] last ['2017', '2016']
+     var Tiedot 'Tiedot': Kokeet=Kaikki kokeet | Kokeet1=Ensimmäisen yrityskerran kokeet | Hyv=Kaikki hyväksytyt kokeet | Hyv1=Ensimmäisellä yrityskerralla hyväksytyt kokeet | Hyvpros1=Hyväksymisprosentti (1. yrityskerta)
+  [table] Suoritetut teoriakokeet autokouluittain 2016-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kuljettajantutkinnot/030_tutk_tau_103.px) updated=2026-11-13T08:32:16
+     var Autokoulu 'Autokoulu': 1379 values, first ['Kaikki autokoulut', '95Gubbarna öppet bolag', 'A & J Nousiainen Oy'] last ['Östra Nylands Yrkesinstitut Inveon', 'Tuntematon autokoulu']
+     var Ajokorttiluokka 'Ajokorttiluokka': 22 values, first ['Ajokorttiluokat yhteensä', 'A', 'A1'] last ['T', 'Tuntematon koeluokka']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 22 values, first ['Ikäluokat yhteensä', '- 14', '15'] last ['85 - 89', '90 -']
+     var Vuosi 'Vuosi': 11 values, first ['2026', '2025', '2024'] last ['2017', '2016']
+     var Tiedot 'Tiedot': Kokeet=Kaikki kokeet | Kokeet1=Ensimmäisen yrityskerran kokeet | Hyv=Kaikki hyväksytyt kokeet | Hyv1=Ensimmäisellä yrityskerralla hyväksytyt kokeet | Hyvpros1=Hyväksymisprosentti (1. yrityskerta)
+  [table] Suoritetut teoriakokeet autokouluittain Ajovarman toimipisteen mukaan 2022-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kuljettajantutkinnot/040_tutk_tau_104.px) updated=2026-11-13T08:23:47
+     var Autokoulu 'Autokoulu': 7335 values, first ['Kaikki autokoulut', 'Alajärvi', '..Alajärvi / A2R YHTIÖ OY'] last ['..Äänekoski / ÄÄNEKOSKEN AMMATILLISEN KOULUTUKSEN KUNTAYHTYMÄ Äänekoski', '..Äänekoski / Tuntematon']
+     var Ajokorttiluokka 'Ajokorttiluokka': 21 values, first ['Ajokorttiluokat yhteensä', 'A', 'A1'] last ['T', 'Tuntematon koeluokka']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 21 values, first ['Ikäluokat yhteensä', '- 14', '15'] last ['80 - 84', '90 -']
+     var Vuosi 'Vuosi': 2026=2026 | 2025=2025 | 2024=2024 | 2023=2023 | 2022=2022
+     var Tiedot 'Tiedot': Kokeet=Kaikki kokeet | Kokeet1=Ensimmäisen yrityskerran kokeet | Hyv=Kaikki hyväksytyt kokeet | Hyv1=Ensimmäisellä yrityskerralla hyväksytyt kokeet | Hyvpros1=Hyväksymisprosentti (1. yrityskerta)
+  [table] Suoritetut ajokokeet maakunnittain 2016-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kuljettajantutkinnot/050_tutk_tau_105.px) updated=2026-11-13T08:26:18
+     var Maakunta 'Maakunta': 20 values, first ['KOKO MAA', 'Uusimaa', 'Varsinais-Suomi'] last ['Lappi', 'Tuntematon']
+     var Opetustapa 'Opetustapa': SSS=Opetustavat yhteensä | 1=Autokoulu | 2=Opetuslupa | 3=Muut
+     var Ajokorttiluokka 'Ajokorttiluokka': 17 values, first ['Ajokorttiluokat yhteensä', 'A', 'A1'] last ['DE', 'LT']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 22 values, first ['Ikäluokat yhteensä', '- 14', '15'] last ['85 - 89', '90 -']
+     var Vuosi 'Vuosi': 11 values, first ['2026', '2025', '2024'] last ['2017', '2016']
+     var Tiedot 'Tiedot': Kokeet=Kaikki kokeet | Kokeet1=Ensimmäisen yrityskerran kokeet | Hyv=Kaikki hyväksytyt kokeet | Hyv1=Ensimmäisellä yrityskerralla hyväksytyt kokeet | Hyvpros1=Hyväksymisprosentti (1. yrityskerta)
+  [table] Suoritetut ajokokeet Ajovarman toimipisteittäin 2016-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kuljettajantutkinnot/060_tutk_tau_106.px) updated=2026-11-13T08:26:28
+     var Ajovarman toimipiste 'Ajovarman toimipiste': 105 values, first ['Kaikki toimipisteet', 'Alajärvi', 'Alavus'] last ['Ylivieska', 'Äänekoski']
+     var Opetustapa 'Opetustapa': SSS=Opetustavat yhteensä | 1=Autokoulu | 2=Opetuslupa | 3=Muut
+     var Ajokorttiluokka 'Ajokorttiluokka': 17 values, first ['Ajokorttiluokat yhteensä', 'A', 'A1'] last ['DE', 'LT']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 22 values, first ['Ikäluokat yhteensä', '- 14', '15'] last ['85 - 89', '90 -']
+     var Vuosi 'Vuosi': 11 values, first ['2026', '2025', '2024'] last ['2017', '2016']
+     var Tiedot 'Tiedot': Kokeet=Kaikki kokeet | Kokeet1=Ensimmäisen yrityskerran kokeet | Hyv=Kaikki hyväksytyt kokeet | Hyv1=Ensimmäisellä yrityskerralla hyväksytyt kokeet | Hyvpros1=Hyväksymisprosentti (1. yrityskerta)
+  [table] Suoritetut ajokokeet autokouluittain 2016-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kuljettajantutkinnot/070_tutk_tau_107.px) updated=2026-11-13T08:26:55
+     var Autokoulu 'Autokoulu': 1246 values, first ['Kaikki autokoulut', '95Gubbarna öppet bolag', 'A & J Nousiainen Oy'] last ['Östra Nylands Yrkesinstitut Inveon', 'Tuntematon autokoulu']
+     var Ajokorttiluokka 'Ajokorttiluokka': 17 values, first ['Ajokorttiluokat yhteensä', 'A', 'A1'] last ['DE', 'LT']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 22 values, first ['Ikäluokat yhteensä', '- 14', '15'] last ['85 - 89', '90 -']
+     var Vuosi 'Vuosi': 11 values, first ['2026', '2025', '2024'] last ['2017', '2016']
+     var Tiedot 'Tiedot': Kokeet=Kaikki kokeet | Kokeet1=Ensimmäisen yrityskerran kokeet | Hyv=Kaikki hyväksytyt kokeet | Hyv1=Ensimmäisellä yrityskerralla hyväksytyt kokeet | Hyvpros1=Hyväksymisprosentti (1. yrityskerta)
+  [table] Suoritetut ajokokeet autokouluittain Ajovarman toimipisteen mukaan 2020-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kuljettajantutkinnot/080_tutk_tau_108.px) updated=2026-11-13T08:28:19
+     var Autokoulu 'Autokoulu': 6791 values, first ['Kaikki autokoulut', 'Alajärvi', '..Alajärvi / A2R YHTIÖ OY'] last ['..Äänekoski / ÄÄNEKOSKEN AMMATILLISEN KOULUTUKSEN KUNTAYHTYMÄ Äänekoski', '..Äänekoski / Tuntematon']
+     var Ajokorttiluokka 'Ajokorttiluokka': 16 values, first ['Ajokorttiluokat yhteensä', 'A', 'A1'] last ['D1E', 'DE']
+     var Sukupuoli 'Sukupuoli': S=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var Ikäluokka 'Ikäluokka': 22 values, first ['Ikäluokat yhteensä', '- 14', '15'] last ['85 - 89', '90 -']
+     var Vuosi 'Vuosi': 7 values, first ['2026', '2025', '2024'] last ['2021', '2020']
+     var Tiedot 'Tiedot': Kokeet=Kaikki kokeet | Kokeet1=Ensimmäisen yrityskerran kokeet | Hyv=Kaikki hyväksytyt kokeet | Hyv1=Ensimmäisellä yrityskerralla hyväksytyt kokeet | Hyvpros1=Hyväksymisprosentti (1. yrityskerta)
+[folder] Käytettynä maahantuodut ajoneuvot (Kaytettyna_maahantuodut)
+  [table] Käytettynä yksittäismaahantuodut ajoneuvot kuukausittain, käyttövoimittain ja käyttölajeittain 2014-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kaytettyna_maahantuodut/010_yksmaah_tau_101.px) updated=2026-11-04T13:01:25
+     var Ajoneuvoluokka 'Ajoneuvoluokka': 16 values, first ['Yhteensä', 'Henkilöautot', 'Pakettiautot'] last ['Puoliperävaunut', 'Muut perävaunut yhteensä']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 03=Polttoöljy | 04=Sähkö | 05=Vety | 06=Kaasu | 10=Biodiesel | 11=Nestekaasu (LPG) | 13=Maakaasu (CNG) | 31=Moottoripetroli | 33=Bensiini/Puu | 34=Bensiini + moottoripetroli | 37=Etanoli | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 42=Bensiini/LPG | 43=Diesel/CNG | 44=Diesel/Sähkö (ladattava hybridi) | 65=LNG | 67=Diesel/LNG | Y=Muu
+     var Käyttö 'Käyttö': 7 values, first ['Yhteensä', 'Yksityinen käyttö', 'Luvanvarainen'] last ['Myyntivarasto', 'Luvanvarainen tavaraliikenne']
+     var Kuukausi 'Kuukausi': 154 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M09', '2026M10']
+  [table] Käytettynä yksittäismaahantuodut ajoneuvot kuukausittain, tuontimaittain, käyttövoimittain ja käyttöönottovuosittain 2014-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kaytettyna_maahantuodut/020_yksmaah_tau_102.px) updated=2026-11-04T13:09:04
+     var Ajoneuvoluokka 'Ajoneuvoluokka': 16 values, first ['Yhteensä', 'Henkilöautot', 'Pakettiautot'] last ['Puoliperävaunut', 'Muut perävaunut yhteensä']
+     var Käyttöönottovuosi 'Käyttöönottovuosi': 48 values, first ['Yhteensä', '1900-1950', '1951-1960'] last ['2025', '2026']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 03=Polttoöljy | 04=Sähkö | 05=Vety | 06=Kaasu | 10=Biodiesel | 11=Nestekaasu (LPG) | 13=Maakaasu (CNG) | 31=Moottoripetroli | 33=Bensiini/Puu | 34=Bensiini + moottoripetroli | 37=Etanoli | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 42=Bensiini/LPG | 43=Diesel/CNG | 44=Diesel/Sähkö (ladattava hybridi) | 49=Diesel/Biodiesel/Sähkö | 65=LNG | 67=Diesel/LNG | Y=Muu
+     var Tuontimaa 'Tuontimaa': 33 values, first ['Yhteensä', 'Itävalta', 'Belgia'] last ['ETA-maa', 'Muut maat yhteensä']
+     var Kuukausi 'Kuukausi': 154 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M09', '2026M10']
+  [table] Käytettynä yksittäismaahantuodut henkilöautot merkeittäin, käyttövoimittain ja käyttöönottovuosittain 2014-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kaytettyna_maahantuodut/030_yksmaah_tau_103.px) updated=2026-11-04T13:01:37
+     var Merkki 'Merkki': 227 values, first ['Henkilöautot yhteensä', 'Acura', 'Adler'] last ['Muut merkit yhteensä', 'Matkailuautot yhteensä']
+     var Käyttöönottovuosi 'Käyttöönottovuosi': 48 values, first ['Yhteensä', '1900-1950', '1951-1960'] last ['2025', '2026']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 03=Polttoöljy | 04=Sähkö | 05=Vety | 06=Kaasu | 11=Nestekaasu (LPG) | 13=Maakaasu (CNG) | 37=Etanoli | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 42=Bensiini/LPG | 44=Diesel/Sähkö (ladattava hybridi) | Y=Muu
+     var Vuosi 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026']
+  [table] Käytettynä yksittäismaahantuodut henkilöautot kuukausittain, merkeittäin, käyttövoimittain ja käyttöönottovuosittain 2014-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Kaytettyna_maahantuodut/040_yksmaah_tau_104.px) updated=2026-11-04T13:02:00
+     var Merkki 'Merkki': 227 values, first ['Henkilöautot yhteensä', 'Acura', 'Adler'] last ['Muut merkit yhteensä', 'Matkailuautot yhteensä']
+     var Käyttöönottovuosi 'Käyttöönottovuosi': 48 values, first ['Yhteensä', '1900-1950', '1951-1960'] last ['2025', '2026']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 03=Polttoöljy | 04=Sähkö | 05=Vety | 06=Kaasu | 11=Nestekaasu (LPG) | 13=Maakaasu (CNG) | 37=Etanoli | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 42=Bensiini/LPG | 44=Diesel/Sähkö (ladattava hybridi) | Y=Muu
+     var Kuukausi 'Kuukausi': 154 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M09', '2026M10']
+[folder] Liikennekäytössä olevat ajoneuvot (Liikennekaytossa_olevat_ajoneuvot)
+  [table] Liikennekäytössä 30.09.2026 olevat henkilöautot alueittain (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Liikennekaytossa_olevat_ajoneuvot/010_kanta_tau_101.px) updated=2026-10-08T11:00:35
+     var Alue 'Alue': 295 values, first ['MA1 MANNER-SUOMI', 'Akaa', 'Alajärvi'] last ['Ulkomaat', 'Tuntematon']
+     var Merkki 'Merkki': 103 values, first ['Henkilöautot yhteensä', 'Alfa Romeo', 'Aston Martin'] last ['Muut merkit yhteensä', 'Matkailuautot yhteensä']
+     var Käyttöönottovuosi 'Käyttöönottovuosi': 69 values, first ['Yhteensä', '2026', '2025'] last ['1960', '1959 ja ennen']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 04=Sähkö | 05=Vety | 06=Kaasu | 11=Nestekaasu (LPG) | 13=Maakaasu (CNG) | 33=Bensiini/Puu | 34=Bensiini + moottoripetroli | 37=Etanoli | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 41=Bensiini/Metanoli | 42=Bensiini/LPG | 43=Diesel/CNG | 44=Diesel/Sähkö (ladattava hybridi) | Y=Muu
+  [table] Liikennekäytössä olevat henkilöautot 31.12.2007-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Liikennekaytossa_olevat_ajoneuvot/030_kanta_tau_103.px) updated=2026-09-29T12:58:43
+     var Maakunta 'Maakunta': 21 values, first ['MANNER-SUOMI', 'Uusimaa', 'Varsinais-Suomi'] last ['Ulkomaat', 'Tuntematon']
+     var Merkki 'Merkki': 101 values, first ['Henkilöautot yhteensä', 'Alfa Romeo', 'Audi'] last ['Muut merkit yhteensä', 'Matkailuautot yhteensä']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 03=Polttoöljy | 04=Sähkö | 05=Vety | 06=Kaasu | 11=Nestekaasu (LPG) | 13=Maakaasu (CNG) | 31=Moottoripetroli | 33=Bensiini/Puu | 34=Bensiini + moottoripetroli | 37=Etanoli | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 42=Bensiini/LPG | 43=Diesel/CNG | 44=Diesel/Sähkö (ladattava hybridi) | 49=Diesel/Biodiesel/Sähkö | Y=Muu
+     var Vuosi 'Vuosi': 19 values, first ['2007', '2008', '2009'] last ['2024', '2025']
+  [table] Liikennekäytössä olevat ajoneuvot neljännesvuosittain 2008-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Liikennekaytossa_olevat_ajoneuvot/040_kanta_tau_104.px) updated=2026-10-08T11:09:55
+     var Maakunta 'Maakunta': 21 values, first ['MANNER-SUOMI', 'Uusimaa', 'Varsinais-Suomi'] last ['Ulkomaat', 'Tuntematon']
+     var Ajoneuvoluokka 'Ajoneuvoluokka': 18 values, first ['Yhteensä', 'Kaikki autot', 'Henkilöautot'] last ['Puoliperävaunut', 'Muut perävaunut yhteensä']
+     var Käyttövoima 'Käyttövoima': YH=Yhteensä | 01=Bensiini | 02=Diesel | 03=Polttoöljy | 04=Sähkö | 05=Vety | 06=Kaasu | 10=Biodiesel | 11=Nestekaasu (LPG) | 13=Maakaasu (CNG) | 31=Moottoripetroli | 33=Bensiini/Puu | 34=Bensiini + moottoripetroli | 37=Etanoli | 38=Bensiini/CNG | 39=Bensiini/Sähkö (ladattava hybridi) | 40=Bensiini/Etanoli | 42=Bensiini/LPG | 43=Diesel/CNG | 44=Diesel/Sähkö (ladattava hybridi) | 56=H-ryhmän maakaasu | 65=LNG | 67=Diesel/LNG | Y=Muu
+     var Vuosineljännes 'Vuosineljännes': 75 values, first ['2008Q1', '2008Q2', '2008Q3'] last ['2026Q2', '2026Q3']
+[folder] Taksiliikenteen kustannusindeksi (Taksiliikenteen_kustannusindeksi)
+  [table] Taksiliikenteen kustannusindeksi 2015=100 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Taksiliikenteen_kustannusindeksi/010_tslhi_tau_101.px) updated=2026-11-18T09:28:20
+     var Vuosi 'Vuosi': 32 values, first ['1995', '1996', '1997'] last ['2025', '2026']
+     var Kuukausi 'Kuukausi': 13 values, first ['Tammikuu', 'Helmikuu', 'Maaliskuu'] last ['Joulukuu', 'Vuosikeskiarvo']
+     var Kustannustekijat 'Kustannustekijat': 11 values, first ['Kokonaisindeksi', 'Palkat', 'Välilliset palkat'] last ['Ylläpito', 'Hallinto']
+     var Perusvuosi 'Perusvuosi': 1995=1995 | 2010=2010 | 2015=2015
+     var Tiedot 'Tiedot': Pisteluku=Pisteluku | V_muutos=Vuosimuutos, %
+  [table] 14wr -- Taksiliikenteen kustannusindeksi (2020=100), kuukausitiedot, 2020M01-2026M10 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Taksiliikenteen_kustannusindeksi/14wr.px) updated=2026-11-18T09:28:20
+     var timeperiod_m 'Kuukausi': 82 values, first ['2020M01', '2020M02', '2020M03'] last ['2026M09', '2026M10']
+     var taksi_kustannus_1_20200101 'Kustannustekijä': 11 values, first ['Kokonaisindeksi', 'Palkat', 'Välilliset palkat'] last ['Ylläpito', 'Hallinto']
+     var taksi_tyyppi1_1_20200101 'Osaindeksi': SSS=Taksiliikenteen kustannusindeksi yhteensä | 1=Taksiliikenteen kustannusindeksi | 2=Taksiliikenteen kustannusindeksi, esteetön taksiliikenne
+     var contentscode 'Tiedot': trafi_tslhi-pisteluku20=Taksiliikenteen kustannusindeksi (2020=100)  pisteluku | trafi_tslhi-v_muutos20=Taksiliikenteenkustannusindeksi  (2020=100) vuosimuutos, % | trafi_tslhi-kk_muutos20=Taksiliikenteen  kustannusindeksi  (2020=100), kuukausimuutos, % | trafi_tslhi-paino20=Indeksin paino | trafi_tslhi-paino20h=Indeksin paino hintakorjattuna
+  [table] 14ws -- Taksiliikenteen kustannusindeksi (2020=100), vuositiedot, 2020-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Taksiliikenteen_kustannusindeksi/14ws.px) updated=2026-04-17T06:50:00
+     var timeperiod_y 'Vuosi': 2020=2020 | 2021=2021 | 2022=2022 | 2023=2023 | 2024=2024 | 2025=2025
+     var taksi_kustannus_1_20200101 'Kustannustekijä': 11 values, first ['Kokonaisindeksi', 'Palkat', 'Välilliset palkat'] last ['Ylläpito', 'Hallinto']
+     var taksi_tyyppi1_1_20200101 'Osaindeksi': SSS=Taksiliikenteen kustannusindeksi yhteensä | 1=Taksiliikenteen kustannusindeksi | 2=Taksiliikenteen kustannusindeksi, esteetön taksiliikenne
+     var contentscode 'Tiedot': trafi_tslhi-pisteluku20=Taksiliikenteen kustannusindeksi (2020=100)  pisteluku | trafi_tslhi-v_muutos20=Taksiliikenteenkustannusindeksi  (2020=100) vuosimuutos, % | trafi_tslhi-paino20=Indeksin paino | trafi_tslhi-paino20h=Indeksin paino hintakorjattuna
+[folder] Vesiliikenne (Vesiliikenne)
+  [table] Vesikulkuneuvojen ensirekisteröinnit malleittain ja kuukausittain 2021-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/010_vesku_tau_101.px) updated=2026-11-12T12:44:51
+     var Alue 'Alue': 286 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 9 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Ilmatyynyalus', 'Muu']
+     var Merkki ja malli 'Merkki ja malli': 2419 values, first ['Yhteensä', '3D Tender yhteensä', '3D Tender Dream 655 Hypalon'] last ['Zodiac Pro 550', 'Zodiac Pro 7']
+     var Kuukausi 'Kuukausi': 70 values, first ['2021M01', '2021M02', '2021M03'] last ['2026M09', '2026M10']
+  [table] Vesikulkuneuvojen ensirekisteröinnit malleittain ja vuosittain 2018-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/020_vesku_tau_102.px) updated=2026-11-12T12:42:17
+     var Alue 'Alue': 289 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 9 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Ilmatyynyalus', 'Muu']
+     var Merkki ja malli 'Merkki ja malli': 3165 values, first ['Yhteensä', '3D Tender yhteensä', '3D Tender Dream 655 Hypalon'] last ['Zodiac Pro 7', 'Zodiac muut']
+     var Vuosi 'Vuosi': 9 values, first ['2018', '2019', '2020'] last ['2025', '2026']
+  [table] Vesikulkuneuvojen ensirekisteröinnit merkeittäin ja kuukausittain 2018-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/030_vesku_tau_103.px) updated=2026-11-12T12:42:46
+     var Alue 'Alue': 289 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 9 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Ilmatyynyalus', 'Muu']
+     var Merkki 'Merkki': 290 values, first ['Yhteensä', '3D Tender', 'AJOA'] last ['Yki', 'Zodiac']
+     var Kuukausi 'Kuukausi': 106 values, first ['2018M01', '2018M02', '2018M03'] last ['2026M09', '2026M10']
+  [table] Vesikulkuneuvojen ensirekisteröinnit merkeittäin ja vuosittain 2018-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/040_vesku_tau_104.px) updated=2026-11-12T12:41:55
+     var Alue 'Alue': 289 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 9 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Ilmatyynyalus', 'Muu']
+     var Merkki 'Merkki': 290 values, first ['Yhteensä', '3D Tender', 'AJOA'] last ['Yki', 'Zodiac']
+     var Vuosi 'Vuosi': 9 values, first ['2018', '2019', '2020'] last ['2025', '2026']
+  [table] Vesikulkuneuvojen ensirekisteröinnit pituusluokittain ja kuukausittain 2018-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/050_vesku_tau_105.px) updated=2026-11-12T12:42:25
+     var Alue 'Alue': 289 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 9 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Ilmatyynyalus', 'Muu']
+     var Pituusluokka 'Pituusluokka': 15 values, first ['Pituusluokka 1 yhteensä', 'alle 5,5m', '5,5m - 9,9m'] last ['14,01m - 16m', 'yli 16m']
+     var Kuukausi 'Kuukausi': 106 values, first ['2018M01', '2018M02', '2018M03'] last ['2026M09', '2026M10']
+  [table] Vesikulkuneuvojen ensirekisteröinnit pituusluokittain ja vuosittain 2018-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/060_vesku_tau_106.px) updated=2026-11-12T12:41:53
+     var Alue 'Alue': 289 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 9 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Ilmatyynyalus', 'Muu']
+     var Pituusluokka 'Pituusluokka': 15 values, first ['Pituusluokka 1 yhteensä', 'alle 5,5m', '5,5m - 9,9m'] last ['14,01m - 16m', 'yli 16m']
+     var Vuosi 'Vuosi': 9 values, first ['2018', '2019', '2020'] last ['2025', '2026']
+  [table] Vesikulkuneuvokanta alueittain ja pituusluokittain 2019-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/070_vesku_tau_107.px) updated=2026-07-09T16:54:41
+     var Alue 'Alue': 294 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 10 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Lossi', 'Muu']
+     var Pituusluokka 'Pituusluokka': 16 values, first ['Pituusluokka 1 yhteensä', 'alle 5,5m', '5,5m - 9,9m'] last ['yli 16m', 'Tuntematon']
+     var Valmistusvuosi 'Valmistusvuosi': 159 values, first ['Vuodet yhteensä', '2026', '2025'] last ['1800', 'Tuntematon']
+     var Aika 'Aika': 15 values, first ['1.7.2026', '1.1.2026', '1.7.2025'] last ['1.1.2020', '1.7.2019']
+  [table] Vesikulkuneuvokanta alueittain, merkeittäin ja rungon rakennusmateriaaleittain 2019-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/080_vesku_tau_108.px) updated=2026-07-09T16:53:45
+     var Alue 'Alue': 294 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 10 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Lossi', 'Muu']
+     var Rungon rakennusmateriaali 'Rungon rakennusmateriaali': 10 values, first ['Yhteensä', 'Lujitemuovi/lasikuitu', 'Kestomuovi'] last ['Muu', 'Tuntematon']
+     var Merkki 'Merkki': 771 values, first ['Yhteensä', '10mR', '3D Tender'] last ['Ege Yat', 'Allied']
+     var Aika 'Aika': 15 values, first ['1.7.2026', '1.1.2026', '1.7.2025'] last ['1.1.2020', '1.7.2019']
+  [table] Vesikulkuneuvokanta alueittain ja moottorin tyypin, käyttövoiman ja tehon mukaan 2019-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/090_vesku_tau_109.px) updated=2026-07-09T16:52:20
+     var Alue 'Alue': 294 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 10 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Lossi', 'Muu']
+     var Moottoriteho 'Moottoriteho': 7 values, first ['Yhteensä (kW)', '15kW tai alle', '15,1kW - 30kW'] last ['75,1kW - 149kW', 'yli 149kW']
+     var Moottorin käyttövoima 'Moottorin käyttövoima': S=Yhteensä | 1=Bensiini | 2=Diesel | 4=Sähkö | 5=LPG, LNG | 6=Muu | X=Tuntematon
+     var Moottorityyppi 'Moottorityyppi': SSS=Yhteensä | 1=Perämoottori | 2=Sisäperämoottori | 3=Sisämoottori | X=Tuntematon
+     var Aika 'Aika': 15 values, first ['1.7.2026', '1.1.2026', '1.7.2025'] last ['1.1.2020', '1.7.2019']
+  [table] Vesikulkuneuvojen ensirekisteröinnit merkeittäin, rungon rakennusmateriaaleittain ja kuukausittain 2021-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/100_vesku_tau_110.px) updated=2026-11-12T13:16:18
+     var Alue 'Alue': 286 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 9 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Ilmatyynyalus', 'Muu']
+     var Merkki 'Merkki': 241 values, first ['Yhteensä', '3D Tender', 'AJOA'] last ['Yki', 'Zodiac']
+     var Rungon rakennusmateriaali 'Rungon rakennusmateriaali': 10 values, first ['Yhteensä', 'Lujitemuovi/lasikuitu', 'Kestomuovi'] last ['Muu', 'Tuntematon']
+     var Kuukausi 'Kuukausi': 70 values, first ['2021M01', '2021M02', '2021M03'] last ['2026M09', '2026M10']
+  [table] Vesikulkuneuvojen ensirekisteröinnit moottorin tyypin, käyttövoiman ja tehon mukaan kuukausittain 2021-2026 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenne/110_vesku_tau_111.px) updated=2026-11-12T13:13:29
+     var Alue 'Alue': 286 values, first ['MA1 MANNER-SUOMI', 'Alajärvi', 'Alavieska'] last ['Äänekoski', 'Tuntematon']
+     var Vesikulkuneuvotyyppi 'Vesikulkuneuvotyyppi': 9 values, first ['Yhteensä', 'Moottorivene', 'Purjevene'] last ['Ilmatyynyalus', 'Muu']
+     var Moottoriteho 'Moottoriteho': 7 values, first ['Yhteensä (kW)', '15kW tai alle', '15,1kW - 30kW'] last ['75,1kW - 149kW', 'yli 149kW']
+     var Moottorin käyttövoima 'Moottorin käyttövoima': S=Yhteensä | 1=Bensiini | 2=Diesel | 4=Sähkö | 6=Muu | X=Tuntematon
+     var Moottorityyppi 'Moottorityyppi': SSS=Yhteensä | 1=Perämoottori | 2=Sisäperämoottori | 3=Sisämoottori | X=Tuntematon | 02 sisäperämoot=02 sisäperämoot
+     var Kuukausi 'Kuukausi': 70 values, first ['2026M10', '2026M09', '2026M08'] last ['2021M02', '2021M01']
+[folder] Vesiliikenneonnettomuudet (Vesiliikenneonnettomuudet)
+  [table] 13pa -- Vesiliikenneonnettomuudet ja vesiliikenteessä kuolleet merenkulun muodon sekä vesialueen mukaan, 2014-2026* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pa.px) updated=2026-10-01T00:20:10
+     var timeperiod_y 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026*']
+     var merenkulku_1_20180207 'Merenkulun muoto': 01=Kauppamerenkulku | 02=Huviveneily | 04=Muu ammattimainen vesiliikenne
+     var vesialue_1_20171012 'Vesialue': 14 values, first ['Kaikki vesialueet yhteensä', 'Suomen merialue', '..Pohjanlahti'] last ['..Muu sisävesialue - pohjoinen', 'Ulkomainen vesialue']
+     var contentscode 'Tiedot': n_onn=Vesiliikenneonnettomuudet | n_kuolonn=Kuolemaan johtaneet vesiliikenneonnettomuudet | n_kuolsum=Vesiliikenneonnettomuuksissa kuolleet
+  [table] 13pb -- Vesiliikenneonnettomuudet ja vesiliikenteessä kuolleet merenkulun muodon sekä vesialueen mukaan kuukausittain, 2014M01-2026M08* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pb.px) updated=2026-10-01T00:21:20
+     var timeperiod_m 'Kuukausi': 152 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M07*', '2026M08*']
+     var merenkulku_1_20180207 'Merenkulun muoto': SSS=Kaikki vesiliikenne yhteensä | 01=Kauppamerenkulku | 02=Huviveneily | 04=Muu ammattimainen vesiliikenne
+     var vesialue_1_20171012 'Vesialue': 14 values, first ['Kaikki vesialueet yhteensä', 'Suomen merialue', '..Pohjanlahti'] last ['..Muu sisävesialue - pohjoinen', 'Ulkomainen vesialue']
+     var contentscode 'Tiedot': n_onn=Vesiliikenneonnettomuudet | n_kuolonn=Kuolemaan johtaneet vesiliikenneonnettomuudet | n_kuolsum=Vesiliikenneonnettomuuksissa kuolleet
+  [table] 13pc -- Huviveneonnettomuudet ja huviveneonnettomuuksissa kuolleet onnettomuustyypin ja onnettomuuden syytekijöiden mukaan, 2014-2026* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pc.px) updated=2026-10-01T00:22:33
+     var timeperiod_y 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026*']
+     var onnettomuustyyp_4_20180207 'Onnettomuustyyppi': 13 values, first ['Onnettomuustyypit yhteensä', 'Kaatuminen, kallistuma', 'Yhteentörmäys'] last ['Henkilövahinko', 'Muu onnettomuus']
+     var onnettomuus_syy_1_20180207 'Ympäristötekijä': SSS=Yhteensä | 01=Ei tunnettuja ympäristötekijöitä | 02=Sääolosuhteet | 03=Jääolosuhteet
+     var onnettomuus_syy_2_20180207 'Tekninen vika': SSS=Yhteensä | 01=Ei tunnettuja teknisiä vikoja | 02=Aluksen rakenteiden pettäminen | 03=Tekninen vika ohjauslaitteissa tai kuljetuskoneistossa
+     var onnettomuus_syy_3_20180207 'Inhimillinen tekijä': 7 values, first ['Yhteensä', 'Ei tunnettuja inhimillisiä tekijöitä', 'Toimintavirhe'] last ['Alkoholi', 'Ilkivalta']
+     var contentscode 'Tiedot': n_onn2=Huviveneonnettomuudet | n_kuolonn2=Kuolemaan johtaneet huviveneonnettomuudet | n_kuolsum2=Huviveneonnettomuuksissa kuolleet
+  [table] 13pe -- Huviveneonnettomuudet ja huviveneonnettomuuksissa kuolleet onnettomuustyypin mukaan kuukausittain, 2014M01-2026M08* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pe.px) updated=2026-10-01T00:23:53
+     var timeperiod_m 'Kuukausi': 152 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M07*', '2026M08*']
+     var onnettomuustyyp_4_20180207 'Onnettomuustyyppi': 13 values, first ['Onnettomuustyypit yhteensä', 'Kaatuminen, kallistuma', 'Yhteentörmäys'] last ['Henkilövahinko', 'Muu onnettomuus']
+     var contentscode 'Tiedot': n_onn2=Huviveneonnettomuudet | n_kuolonn2=Kuolemaan johtaneet huviveneonnettomuudet | n_kuolsum2=Huviveneonnettomuuksissa kuolleet
+  [table] 13pf -- Huviveneonnettomuuksissa kuolleet sukupuolen ja ikäryhmän mukaan, 2014-2026* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pf.px) updated=2026-10-01T00:24:41
+     var timeperiod_y 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026*']
+     var sukupuoli_19_20120101 'Sukupuoli': SSS=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var ikaryhma_30_20220601 'Ikäryhmä': 9 values, first ['Kaikki ikäryhmät yhteensä', '5-14', '15-24'] last ['65-74', '75-']
+     var contentscode 'Tiedot': n_kuol=Huviveneonnettomuuksissa kuolleet
+  [table] 13pg -- Huviveneonnettomuuksissa kuolleet sukupuolen ja ikäryhmän mukaan kuukausittain, 2014M01-2026M08* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pg.px) updated=2026-10-01T00:25:43
+     var timeperiod_m 'Kuukausi': 152 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M07*', '2026M08*']
+     var sukupuoli_19_20120101 'Sukupuoli': SSS=Sukupuolet yhteensä | 1=Miehet | 2=Naiset
+     var ikaryhma_30_20220601 'Ikäryhmä': 9 values, first ['Kaikki ikäryhmät yhteensä', '5-14', '15-24'] last ['65-74', '75-']
+     var contentscode 'Tiedot': n_kuol=Huviveneonnettomuuksissa kuolleet
+  [table] 13ph -- Huviveneonnettomuuksissa osalliset alukset onnettomuustyypin mukaan, 2014-2026* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13ph.px) updated=2026-10-01T00:26:54
+     var timeperiod_y 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026*']
+     var alustyyppi_1_20180207 'Alustyyppi': 10 values, first ['Alustyypit yhteensä', 'Moottorivene', 'Purjevene'] last ['Vesiskootteri', 'Muu huvialus']
+     var onnettomuustyyp_4_20180207 'Onnettomuustyyppi': 13 values, first ['Onnettomuustyypit yhteensä', 'Kaatuminen, kallistuma', 'Yhteentörmäys'] last ['Henkilövahinko', 'Muu onnettomuus']
+     var contentscode 'Tiedot': n_alus2=Huviveneonnettomuuksissa osalliset alukset | n_aluskuol2=Kuolemaan johtaneissa huviveneonnettomuuksissa osalliset alukset
+  [table] 13pi -- Huviveneonnettomuuksissa osalliset alukset onnettomuustyypin mukaan kuukausittain, 2014M01-2026M08* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pi.px) updated=2026-10-01T00:27:44
+     var timeperiod_m 'Kuukausi': 152 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M07*', '2026M08*']
+     var alustyyppi_1_20180207 'Alustyyppi': 10 values, first ['Alustyypit yhteensä', 'Moottorivene', 'Purjevene'] last ['Vesiskootteri', 'Muu huvialus']
+     var onnettomuustyyp_4_20180207 'Onnettomuustyyppi': 13 values, first ['Onnettomuustyypit yhteensä', 'Kaatuminen, kallistuma', 'Yhteentörmäys'] last ['Henkilövahinko', 'Muu onnettomuus']
+     var contentscode 'Tiedot': n_alus2=Huviveneonnettomuuksissa osalliset alukset | n_aluskuol2=Kuolemaan johtaneissa huviveneonnettomuuksissa osalliset alukset
+  [table] 13pk -- Huviveneonnettomuudet ja huviveneonnettomuuksissa kuolleet viikonpäivän ja kellonajan mukaan, 2014-2026* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pk.px) updated=2026-10-01T00:28:48
+     var timeperiod_y 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026*']
+     var viikonpaiva_1_20220101 'Viikonpäivä': 8 values, first ['Viikonpäivät yhteensä', 'Maanantai', 'Tiistai'] last ['Lauantai', 'Sunnuntai']
+     var kellonaika_1_20220101 'Kellonaika': 9 values, first ['Kellonajat yhteensä', '00:00 - 02:59', '03:00 - 05:59'] last ['18:00 - 20:59', '21:00 - 23:59']
+     var contentscode 'Tiedot': n_onn2=Huviveneonnettomuudet | n_kuolonn2=Kuolemaan johtaneet huviveneonnettomuudet | n_kuolsum2=Huviveneonnettomuuksissa kuolleet
+  [table] 13pl -- Huviveneonnettomuudet ja huviveneonnettomuuksissa kuolleet maakunnittain, 2014-2026* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pl.px) updated=2026-10-01T00:30:10
+     var timeperiod_y 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026*']
+     var maakunta_1_20190109 'Maakunta': 21 values, first ['KOKO MAA', 'Uusimaa', 'Varsinais-Suomi'] last ['Ahvenanmaa', 'Ulkomaat']
+     var contentscode 'Tiedot': n_onn2=Huviveneonnettomuudet | n_kuolonn2=Kuolemaan johtaneet huviveneonnettomuudet | n_kuolsum2=Huviveneonnettomuuksissa kuolleet
+  [table] 13pn -- Kauppamerenkulun onnettomuudet onnettomuuden tyypin ja arvioidun syyn mukaan, 2014-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pn.px) updated=2026-04-23T13:30:00
+     var timeperiod_y 'Vuosi': 12 values, first ['2014', '2015', '2016'] last ['2024', '2025']
+     var onnettomuustyyp_7_20220101 'Onnettomuustyyppi': 10 values, first ['Onnettomuustyypit yhteensä', 'Kaatuminen, kallistuma', 'Yhteentörmäys'] last ['Ohjauskyvyn menetys', 'Muu tapahtuma']
+     var onnettomuus_syy_5_20220101 'Onnettomuuden arvioitu syy': 8 values, first ['Yhteensä', 'Inhimillinen virhe, vaarallinen teko', 'Ympäristö'] last ['Lasti', 'Navigointi-infrastruktuuri']
+     var contentscode 'Tiedot': n_onn1=Kauppamerenkulun onnettomuudet
+  [table] 13pq -- Kauppamerenkulun onnettomuuksissa osalliset alukset alus- ja onnettomuustyypeittäin, 2014-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pq.px) updated=2026-04-23T13:33:00
+     var timeperiod_y 'Vuosi': 12 values, first ['2014', '2015', '2016'] last ['2024', '2025']
+     var alustyyppi_1_20180207 'Alustyyppi': 19 values, first ['Alustyypit yhteensä', 'Rahtialus', 'Kuivalastialus'] last ['Merenmittausalus', 'Proomu']
+     var onnettomuustyyp_7_20220101 'Onnettomuustyyppi': 10 values, first ['Onnettomuustyypit yhteensä', 'Kaatuminen, kallistuma', 'Yhteentörmäys'] last ['Ohjauskyvyn menetys', 'Muu tapahtuma']
+     var contentscode 'Tiedot': n_alus1=Kauppamerenkulun onnettomuuksissa osalliset alukset
+  [table] 13pr -- Kauppamerenkulun vaaratilanteet todennäköisen seurauksen ja arvioidun syyn mukaan, 2018-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pr.px) updated=2026-04-23T13:36:00
+     var timeperiod_y 'Vuosi': 8 values, first ['2018', '2019', '2020'] last ['2024', '2025']
+     var onnettomuustyyp_7_20220101 'Todennäköinen seuraus': 10 values, first ['Onnettomuustyypit yhteensä', 'Kaatuminen, kallistuma', 'Yhteentörmäys'] last ['Ohjauskyvyn menetys', 'Muu tapahtuma']
+     var onnettomuus_syy_5_20220101 'Vaaratilanteen arvioitu syy': 8 values, first ['Yhteensä', 'Inhimillinen virhe, vaarallinen teko', 'Ympäristö'] last ['Lasti', 'Navigointi-infrastruktuuri']
+     var contentscode 'Tiedot': n_vt=Kauppamerenkulun vaaratilanteet
+  [table] 13ps -- Kauppamerenkulun vaaratilanteissa osalliset alukset alustyypeittäin vaaratilanteen todennäköisen seurauksen mukaan, 2018-2025 (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13ps.px) updated=2026-04-23T13:37:00
+     var timeperiod_y 'Vuosi': 8 values, first ['2018', '2019', '2020'] last ['2024', '2025']
+     var alustyyppi_1_20180207 'Alustyyppi': 17 values, first ['Alustyypit yhteensä', 'Kuivalastialus', 'Irtolastialus'] last ['Väyläalus', 'Proomu']
+     var onnettomuustyyp_7_20220101 'Todennäköinen seuraus': 10 values, first ['Onnettomuustyypit yhteensä', 'Kaatuminen, kallistuma', 'Yhteentörmäys'] last ['Ohjauskyvyn menetys', 'Muu tapahtuma']
+     var contentscode 'Tiedot': n_vtalus=Kauppamerenkulun vaaratilanteissa osalliset alukset
+  [table] 13pt -- Muille kulkuneuvoille tapahtuneet kuolemaan johtaneet vesiliikenneonnettomuudet vesialueittain, 2014-2026* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pt.px) updated=2026-10-01T00:31:12
+     var timeperiod_y 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026*']
+     var vesialue_1_20171012 'Vesialue': 13 values, first ['Kaikki vesialueet yhteensä', 'Suomen merialue', '..Pohjanlahti'] last ['..Muu sisävesialue - länsi', '..Muu sisävesialue - pohjoinen']
+     var contentscode 'Tiedot': n_kuolonn=Kuolemaan johtaneet vesiliikenneonnettomuudet | n_kuolsum=Vesiliikenneonnettomuuksissa kuolleet
+  [table] 13pu -- Muille kulkuneuvoille tapahtuneet kuolemaan johtaneet vesiliikenneonnettomuudet vesialueen mukaan kuukausittain, 2014M01-2026M08* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pu.px) updated=2026-10-01T00:32:04
+     var timeperiod_m 'Kuukausi': 152 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M07*', '2026M08*']
+     var vesialue_1_20171012 'Vesialue': 13 values, first ['Kaikki vesialueet yhteensä', 'Suomen merialue', '..Pohjanlahti'] last ['..Muu sisävesialue - länsi', '..Muu sisävesialue - pohjoinen']
+     var contentscode 'Tiedot': n_kuolonn=Kuolemaan johtaneet vesiliikenneonnettomuudet | n_kuolsum=Vesiliikenneonnettomuuksissa kuolleet
+  [table] 13pv -- Muille kulkuneuvoille tapahtuneet kuolemaan johtaneet vesiliikenneonnettomuudet kulkuneuvoittain, 2014-2026* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pv.px) updated=2026-10-01T00:32:57
+     var timeperiod_y 'Vuosi': 13 values, first ['2014', '2015', '2016'] last ['2025', '2026*']
+     var alustyyppi_7_20220101 'Osallinen kulkuneuvo': 9 values, first ['Kulkuneuvot yhteensä', 'Moottorikelkka', 'Mönkijä'] last ['Polkupyörä', 'Muu kulkuneuvo']
+     var contentscode 'Tiedot': n_aluskuol3=Kuolemaan johtaneissa vesiliikenneonnettomuuksissa osalliset kulkuneuvot
+  [table] 13pw -- Muille kulkuneuvoille tapahtuneet kuolemaan johtaneet vesiliikenneonnettomuudet kulkuneuvon mukaan kuukausittain, 2014M01-2026M08* (https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Vesiliikenneonnettomuudet/13pw.px) updated=2026-10-01T00:33:40
+     var timeperiod_m 'Kuukausi': 152 values, first ['2014M01', '2014M02', '2014M03'] last ['2026M07*', '2026M08*']
+     var alustyyppi_7_20220101 'Osallinen kulkuneuvo': 9 values, first ['Kulkuneuvot yhteensä', 'Moottorikelkka', 'Mönkijä'] last ['Polkupyörä', 'Muu kulkuneuvo']
+     var contentscode 'Tiedot': n_aluskuol3=Kuolemaan johtaneissa vesiliikenneonnettomuuksissa osalliset kulkuneuvot
+== page https://tieto.traficom.fi/fi/tilastot/ensirekisteroityjen-ajoneuvojen-kayttovoimatilastot
+HTTP 200 70746
+  link: Ladattavien hybridihenkilöautojen ensirekisteröinnit mallisarjoittain Ulkoinen verkkopalvelu. -> https://trafi2.stat.fi/PXWeb/sq/20ff842b-6945-47f3-b57d-a52009d19771
+  link: Ensirekisteröidyt henkilöautot käyttövoimittain (Bensiini, Diesel, Muut) 2000-2013 Ulkoinen verkkopalvelu. -> https://www.traficom.fi/sites/default/files/media/file/Ensirekister%C3%B6idyt-henkil%C3%B6autot-k%C3%A4ytt%C3%B6voimittain-2000-2013.xlsx
+  link: Avoin data -> /fi/avoin-data
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom."/>
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom."/>
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom."/>
+  text: päivitetty 10. marraskuuta 2026 klo 14.08
+  text: päivitetty
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom.
+  text: päivitetä. Vastaavat tiedot löytyvät
+  text: updated\",\"2026-11-10T14:08:53\",\"listing_sort_date\",\"ingress\",\"Tilastossa tarkastellaan uusien ajoneuvojen ensirekisteröintejä kuukausittain käyttövoiman mukaan
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom.\",\"short_description\",\"body\",\"summary\",\"is_wide\",\"notification
+  text: päivitetä. Vastaavat tiedot löytyvät\u0026nbsp;\u003ca href=\\\"https://trafi2.stat.fi/PXWeb/pxweb/fi/TraFi/TraFi__Ensirekisteroinnit/040_ensirek_tau_104.px/?rxid=f90f9c
+== page https://tieto.traficom.fi/fi/tilastot/ensirekisteroityjen-ajoneuvojen-tilastot
+HTTP 200 80991
+  link: Ensirekisteröinnit ajoneuvoluokan ja käytön mukaan 2026 -> /files/media/file/Ensirekister%C3%B6innit-ajoneuvoluokan-ja-k%C3%A4yt%C3%B6n-mukaan.xlsx
+  link: Uutena yksittäismaahantuodut autot 2026 -> /files/media/file/Yksitt%C3%A4inmaahantuotujen-uusien-autojen-m%C3%A4%C3%A4r%C3%A4t-kuukausittain.xlsx
+  link: Ajoneuvojen ensirekisteröinnit merkeittäin ja malleittain 2026 -> /files/media/file/MM.xlsx
+  link: Ensirekisteröityjen henkilöautojen värit 2000-2025 -> /sites/default/files/media/file/Ensirekister%C3%B6ityjen-henkil%C3%B6autojen-v%C3%A4rit-aikasarja.xlsx
+  link: Ensirekisteröinnit ajoneuvoluokittain vuosina 1966-2025 -> /sites/default/files/media/file/Ensirekister%C3%B6innit-ajoneuvoluokittain-aikasarja.xlsx
+  link: Ensirekisteröinnit ajoneuvoluokan ja käytön mukaan 2000-2025 -> /sites/default/files/media/file/Ensirekister%C3%B6innit-ajoneuvoluokan-ja-k%C3%A4yt%C3%B6n-mukaan-aikasarja.xlsx
+  link: Uutena yksittäismaahantuodut autot kuukausittain 2000-2025 -> /sites/default/files/media/file/Yksitt%C3%A4inmaahantuodut-ensirekister%C3%B6innit-aikasarja.xlsx
+  link: Mopoautojen ja muiden L6e -ajoneuvojen ensirekisteröinnit 2000-2025 -> /sites/default/files/media/file/Mopoautot-L6e-aikasarja.xlsx
+  link: Mopoautojen ensirekisteröinnit merkeittäin 2013-2025 -> /sites/default/files/media/file/Mopoautot-ensirekister%C3%B6innit-merkeitt%C3%A4in-aikasarja.xlsx
+  link: Mönkijöiden, traktorimönkijöiden ja koppimönkijöiden ensirekisteröinnit 2016-2025 -> /sites/default/files/media/file/M%C3%B6nkij%C3%B6iden-traktorim%C3%B6nkij%C3%B6iden-ja-koppim%C3%B6nkij%C3%B6iden-ensirekister%C3%B6innit-2016-2025.xlsx
+  link: Avoin data -> /fi/avoin-data
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom."/>
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom."/>
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom."/>
+  text: päivitetty 10. marraskuuta 2026 klo 13.49
+  text: päivitetty
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom.
+  text: updated\",\"2026-11-10T13:49:26\",\"listing_sort_date\",\"ingress\",\"Ensirekisteröityjen ajoneuvojen tilastoissa tarkastellaan uusien ajoneuvojen ensirekisteröintejä
+  text: päivitetään kerran kuukaudessa. Tiedon tuottamisesta vastaa Liikenne- ja viestintävirasto Traficom.\",\"short_description\",\"body\",\"summary\",\"is_wide\",\"notification
+== page https://tieto.traficom.fi/en/statistics/statistics-power-sources-road-vehicles-registered-first-time
+HTTP 200 69877
+  link: First registrations of plug-in hybrids by make Ulkoinen verkkopalvelu. -> https://trafi2.stat.fi/PXWeb/sq/22708637-9504-4c1c-a8e1-6e3a6fcd463d
+  link: First-time registered passenger cars by driving power (petrol, diesel, other) in 2000–2013 (in Finnish)* Ulkoinen verkko -> https://www.traficom.fi/sites/default/files/media/file/Ensirekister%C3%B6idyt-henkil%C3%B6autot-k%C3%A4ytt%C3%B6voimittain-2000-2013.xlsx
+  text: updated once a month. The information is produced by the Finnish Transport and Communications Agency Traficom."/>
+  text: updated once a month. The information is produced by the Finnish Transport and Communications Agency Traficom."/>
+  text: updated once a month. The information is produced by the Finnish Transport and Communications Agency Traficom."/>
+  text: updated October 6, 2026 at 16:30
+  text: updated
+  text: updated once a month. The information is produced by the Finnish Transport and Communications Agency Traficom.
+  text: UPDATED IN THE STATISTICS DATABASE
+  text: updated\",\"2026-10-06T16:30:49\",\"listing_sort_date\",\"ingress\",\"These statistics detail the first-time registrations of new road vehicles each month by power sou
+  text: updated once a month. The information is produced by the Finnish Transport and Communications Agency Traficom.\",\"short_description\",\"body\",\"summary\",\"is_wide\"
+  text: UPDATED IN THE STATISTICS DATABASE\u003c/strong\u003e\u003c/p\u003e\u003cp\u003e\u003ca href=\\\"https://trafi2.stat.fi/PXWeb/pxweb/en/TraFi/TraFi__Ensirekisteroinnit/
+== page https://tieto.traficom.fi/fi/datatraficom/avoin-data
+HTTP 404 28975
+  link: Avoin data -> /fi/avoin-data
+== page https://tieto.traficom.fi/en/datatraficom/open-data
+HTTP 200 148841
+  link: Suomeksi -> /fi/avoin-data
+  link: Suomeksi -> /fi/avoin-data
+  link: Frequency allocation table Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/Taajuusjakotaulukko
+  link: Maritime mobile service identities Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/Meriradionumerot
+  link: Amateur radio call signs Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/RadioamatoorienKutsumerkit
+  link: Radio stations in Finland Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/Radioasematiedot
+  link: TV stations in Finland Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/TVAsematiedot
+  link: Radio microphones Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#!/RadiomikrofonitVapaatTaajuudet/RadiomikrofonitVapaatTaajuudet_GetRadiomikrofonitVapaatTaajuudet
+  link: Autoreporter Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/Autoreporter
+  link: Autoreporter Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/AutoreporterUTC
+  link: Information maps Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#!/Infokartat
+  link: Broadband projects Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/Laajakaistahankkeet
+  link: Universal service areas Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/Yleispalvelualueet
+  link: International carrier access codes Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/KansainvalisenTeleliikenteenOperaattoritunnukset
+  link: Long-distance carrier access codes Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/KaukoliikenteenOperaattoritunnukset
+  link: Subscriber number ranges for fixed telephone network Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/KiinteanPuhelinverkonTilaajanumerot
+  link: Mobile area codes Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/MatkaviestinverkkojenSuuntanumerot
+  link: Nationwide business numbers Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/ValtakunnallisetTilaajanumerot
+  link: General carrier access codes Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/YleisetOperaattoritunnukset
+  link: Service numbers specific to telecommunications areas Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/TelealuekohtaisetPalvelunumerot
+  link: Operator codes Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/Teleyritystunnisteet
+  link: Nationwide service numbers Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/ValtakunnallisetPalvelunumerot
+  link: Mobile Network Codes (MNC) Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/MNC_tunnukset
+  link: TETRA Mobile Network Codes ((T)MNC) Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/_T_MNC_tunnukset
+  link: Bittimittari.fi service&#x27;s open data Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#/Bittimittari
+  link: Download Open data for vehicles -zip Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/Content/Ajoneuvorekisteri.zip
+  link: Material Description and the list of variables (xlsx, 88 kt) -> /files/media/file/Ajoneuvotiedot_avoin_data_luokitukset_24.03.2026.xlsx
+  link: Usein kysytyt kysymykset Avoin Data Q&amp;A (in finnish) (pdf, 1 kt) -> /files/media/file/Avoin%20Data%20Usein%20Kysytyimm%C3%A4t%20Kysymykset.pdf
+  link: Aineistokuvaus ja muuttujaluettelo (xlsx, 49 kt) -> /files/media/file/alusdata%20muuttujaluetto1.1.xlsx
+  link: Aineistokuvaus ja muuttujaluettelo (xlsx, 25 kt) -> /files/media/file/MuuttujaluetteloIlmaalusrekisteri.xlsx
+  link: Aineistokuvaus ja muuttujaluettelo (xlsx, 19 kt) -> /files/media/file/Rahkat_muuttujakuvaukset_avoin_data_05_2019.xlsx
+  link: Aineistokuvaus ja muuttujaluettelo (xlsx, 11 kt) -> /files/media/file/GripMuuttujaluettelo.xlsx
+  link: Lataa Grip-hankkeen mittaustulokset (xlsx, 982 kt) -> /files/media/file/GripData2016.xlsx
+  link: 4/2017 Ulkoinen verkkopalvelu. -> https://www.traficom.fi/sites/default/files/24091-Trafi_04_2017_Veneilyn_maara_seka_sen_taloudelliset_ja_ymparistovaikutukset_Suomessa.pdf
+  link: Aineistokuvaus ja muuttujaluettelo (xlsx, 31 kt) -> /files/media/file/VeneilytutkimusMuuttujaluettelo.xlsx
+  link: Lataa veneilytutkimuksen puhelinhaastattelutulokset (xlsx, 4 Mt) -> /files/media/file/Veneilytutkimuksen%20puhelinhaastattelutulokset%20DATA.xlsx
+  link: Public data on transport licences Ulkoinen verkkopalvelu. -> https://opendata.traficom.fi/swagger/ui/index#!/JulkiLilja/JulkiLilja_GetJulkiLilja
+  link: Type, variant and version data for the type approvals of the most common M1 and N1 category vehicles (in Finnish) Ulkoin -> https://opendata.traficom.fi/Content/wvta.zip
+  link: Data description (in Finnish) -> /files/media/file/Aineistokuvaus.pdf
+  text: updated as relevant regulations are amended once or twice a year. PDF version of the Frequency Allocation Table is available as an annex to the
+  text: updated daily. In addition to the interface, the data is available in a table (search function) and you can download data as a text file by clicking the button below t
+  text: updated daily. In addition to the interface, the data is available in a table (search function) and you can download data as a text file by clicking the button below t
+  text: updated daily. In addition to the interface, the
+  text: updated daily. In addition to the interface, the data is available in a table (search function) and you can download data as a text file by clicking the button below t
+  text: updated once per day. Regional information, such as a municipality number (kuntanumero), is updated with a few days&#x27; delay. Monthly data is available for the prev
+  text: updated retroactively, for example, due to municipal mergers.
+  text: Aineiston päivämäärä 23.11.2015–9.2.2016
+  text: Aineiston päivämäärä 7.9.–5.10.2016
+  text: updated
+  text: updated\",\"2026-10-27T17:01:32\",\"listing_sort_date\",\"ingress\",\"Open data is information in digital format that can be freely used by anyone for any purpose, as
+  text: Aineiston päivämäärä 7.9.–5.10.2016\u003cbr\u003e- Julkaisuajankohta 6.7.2018\u003cbr\u003e- Tiedost
+  text: Aineiston päivämäärä 23.11.2015–9.2.2016\u003cbr\u003e- Julkaisuajankohta 13.1.2017\u003cbr\u003e- T
+  text: updated once per day. Regional information, such as a municipality number (kuntanumero), is updated with a few days' delay. Monthly data is available for the previous
+  text: updated retroactively, for example, due to municipal mergers.\u003c/p\u003e\u003cp\u003e\u003ca href=\\\"https://opendata.traficom.fi/swagger/ui/index#/Bittimittari\\\
+  text: updated as relevant regulations are amended once or twice a year.\u0026nbsp;\u0026nbsp;PDF version of the Frequency Allocation Table is available as an annex to the \u
+  text: updated daily. In addition to the interface, the data is available in a table (search function) and you can download data as a text file by clicking the button below t
+  text: updated daily. In addition to the interface, the data is available in a table (search function) and you can download data as a text file by clicking the button below t
+  text: updated daily. In addition to the interface, the \u003ca href=\\\"https://www.traficom.fi/en/communications/tv-and-radio/radio-stations-finland\\\"\u003edata is availa
+  text: updated daily. In addition to the interface, the data is available in a table (search function) and you can download data as a text file by clicking the button below t
+== avoindata.fi dataset metadata
+ERR Expecting value: line 1 column 1 (char 0)
