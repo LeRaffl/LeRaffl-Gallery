@@ -1,0 +1,13 @@
+service doc: {"@odata.context":"https://opendata.traficom.fi/OpenData/api/v1/$metadata","value":[{"name":"Radioasematiedot","kind":"EntitySet","url":"Radioasematiedot"},{"name":"TVAsematiedot","kind":"EntitySet","url":"TVAsematiedot"},{"name":"Taajuusjakotaulukko","kind":"EntitySet","url":"Taajuusjakotaulukko"},{"name":"Meriradionumerot","kind":"EntitySet","url":"Meriradionumerot"},{"name":"RadioamatoorienKutsumerkit","kind":"EntitySet","url":"RadioamatoorienKutsumerkit"}]}
+$metadata HTTP 200 13952
+  entity set: ('Radioasematiedot', 'AvoinData.Models.v1.Radioasematiedot')
+  entity set: ('TVAsematiedot', 'AvoinData.Models.v1.TVAsematiedot')
+  entity set: ('Taajuusjakotaulukko', 'AvoinData.Models.v1.Taajuusjakotaulukko')
+  entity set: ('Meriradionumerot', 'AvoinData.Models.v1.Meriradionumerot')
+  entity set: ('RadioamatoorienKutsumerkit', 'AvoinData.Models.v1.RadioamatoorienKutsumerkit')
+  entity type: Radioasematiedot
+  entity type: TVAsematiedot
+  entity type: Taajuusjakotaulukko
+  entity type: Meriradionumerot
+  entity type: RadioamatoorienKutsumerkit
+vehicle section: Ajoneuvojen avoin data -aineisto sisältää kaikkien liikennekäytössä olevien ajoneuvojen rekisteröinti-, hyväksyntä- ja teknisiä tietoja Traficomin ylläpitämästä liikenneasioiden rekisteristä. - Aineistossa on rivejä 5 260 994 kpl - Aineiston päivämäärä 30.09.2026 - Julkaisuajankohta 27.10.2026 - Tiedostomuoto: ZIP-pakattu CSV (teksti, koodaus ISO8859-1) - Tiedoston koko: 934 Mt (pakattuna 201 Mt) - Aineisto on lisensoitu Creative Commons Nimeä 4.0 Kansainvälinen -lisenssillä &gt;&gt; http://creativecommons.org/licenses/by/4.0/deed.fi Ulkoinen verkkopalvelu. Lataa Ajoneuvojen avoin data -aineisto Ulkoinen verkkopalvelu. Aineistokuvaus ja muuttujaluettelo 24.3.2026 (xlsx, 88 kt) Usein kysytyt kysymykset Avoin Data (UKK) (pdf, 1 kt) !accordion.classList.contains('closed')); accordions.forEach(accordion => { if (allOpen) { accordion.classList.add('closed'); const button = accordion.querySelector('button'); if (button) button.setAtt
