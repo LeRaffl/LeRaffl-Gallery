@@ -662,13 +662,16 @@ bekommen nur mehr geschenkt?"** — Ja, genau das. Share-Prozentpunkte
 | 2026-06 | 48,7 % | 48,2 % | +0,6pp | 11,9 % | 12,0 % | −0,2pp | −3,8 % |
 | 2026-09 | 62,9 % | 62,1 % | +0,8pp | 10,8 % | 11,0 % | −0,2pp | −2,5 % |
 
-Die Share-Differenz ist klein und stabil (≤1pp) — **kein Scope-Bruch**.
-Die TOTAL-Differenz (−2,5…−4,4 %) ist der dokumentierte Snapshot-Drift,
-kein zweiter Fehler. Nach dem Switch-over **einfach weiterschreiben**:
-gleicher Scope, nur HEV (+ gezähltes Petrol) kommt dazu. Einzige Pflicht:
-das Gate aus §5 bei jedem Monat prüfen, bevor geschrieben wird — nicht,
-weil der Scope kippt, sondern als Generalvorsicht gegen eine einmalige
-StatFin-Anomalie.
+Die Share-Differenz ist klein und stabil (≤1pp) — **kein Scope-Bruch in
+den Anteilen**. Die TOTAL-Differenz (−2,5…−5,6 % über 10 geprüfte Monate,
+§15) ist ein bekanntes, stabiles Delta — ihre genaue Ursache ist aber
+**nicht abschließend geklärt** (§15 zeigt: reine Alters-Drift allein passt
+nicht, mehrere andere Hypothesen wurden geprüft und verworfen). Nach dem
+Switch-over **einfach weiterschreiben**: gleicher Scope, nur HEV
+(+ gezähltes Petrol) kommt dazu — das Delta selbst ändert sich dadurch
+nicht, es ist unabhängig von HEV. Pflicht: das Gate aus §5 bei jedem Monat
+prüfen, UND das Delta in der Doku als "Ausmaß bekannt, Ursache offen"
+führen statt es als gelöst darzustellen.
 
 **"Used sogar historisch geschenkt?"** — Teilweise. Die Used-Kohorte
 (`ko<Monat`) lässt sich für jeden Monat im Snapshot ziehen, **aber der
@@ -695,4 +698,33 @@ zutreffend; für sehr alte Jahre nicht ohne Weiteres.
 aus dem Register; Private + Industry bleiben StatFin-primary (mit
 HEV-Lücke wie bisher, da Traficom-primary dort keinen Mehrwert bringt).
 
+## 15. Ursachensuche für die 2,5–5,6%-Lücke (2026-11-20, Raphaels Nachfrage)
+
+Raphael hat zu Recht gefragt: 3–4 % ist relativ viel, wissen wir woher
+das kommt? Ehrliches Ergebnis: **nicht vollständig.** Mehrere Hypothesen
+geprüft und die meisten verworfen:
+
+| Hypothese | Test | Ergebnis |
+|---|---|---|
+| Reine Register-Alters-Drift (älter = mehr abgemeldet) | Lücke über 10 Monate (Alter 0–27 Monate) berechnet | **Passt nicht sauber.** 27 Monate alt: −5,6 %; 9 Monate alt: −3,55 %; 0 Monate alt (zum Snapshot-Zeitpunkt selbst): −2,5 %. Kein klarer monotoner Anstieg mit dem Alter — selbst der frischest mögliche Vergleich hat noch −2,5 % Rest. |
+| Fehlende `kayttoonottopvm`-Werte fallen fälschlich aus "neu" raus | Jede Zeile auf leeres `ko`-Feld geprüft | Verworfen — kein Fall gefunden, jede M1/M1G-Zeile hat `ko` gefüllt. |
+| Falsche/ausgeschlossene Nutzungscodes | Nutzungscode-Verteilung in der "neu"-Kohorte je Monat | Verworfen — nur plausible Codes (privat/Taxi/Schule/Vermietung/Verkaufslager), nichts Verdächtiges. |
+| Klassenabgrenzung falsch (nur M1, oder zusätzliche Klasse fehlt) | M1-only vs. M1+M1G gegen StatFin getestet | M1-only ist **schlechter** (−5,4…−9,5 %); M1+M1G bleibt der beste Fit, schließt die Lücke aber nicht. |
+| Ein Teil der Gebrauchtimporte (`ko<Monat`) gehört doch zur Neu-Kohorte, z. B. "Reimport im selben Kalenderjahr" | Only-same-year-reimport-Teilmenge gezählt | Viel zu klein (80–161 Fahrzeuge), erklärt nur einen Bruchteil der Lücke (176–379 pro Monat). |
+
+**Fazit:** die Lücke ist real und bewegt sich stabil im Band −2,5 % bis
+−5,6 %, aber mit den Feldern im offenen Datensatz lässt sich der genaue
+Mechanismus nicht beweisen. Plausibelste, nicht bestätigte Vermutung: eine
+Mischung aus Live-Register-Drift (Richtung stimmt, Ausmaß nicht exakt
+erklärt) und einem möglichen strukturellen Unterschied zwischen dem
+offenen Traficom-Extract und dem internen Register, das Tilastokeskus für
+die offizielle StatFin-Zahl nutzt (z. B. eine andere Nacharbeitungs-/
+Vervollständigungslogik, die im offenen Datensatz nicht sichtbar ist).
+
+**Konsequenz:** das Delta bleibt dokumentierter Fakt, keine gelöste
+Ursache. Für Phase 2 ändert das nichts an der Scope-Entscheidung (§13/§14)
+— der Fehler ist klein genug und stabil genug fürs Revisions-Log/Toleranz-
+band (§4/§5), muss aber als "Ursache unklar, Ausmaß bekannt" dokumentiert
+werden statt mit einer falschen Sicherheit als "nur Snapshot-Drift"
+abgehakt zu werden.
 
