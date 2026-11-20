@@ -788,6 +788,22 @@ def choose_cohort(swing_total: float, stay: int, with_exports: int,
     return None
 
 
+def window_cohort(decisions: list[dict]) -> str | None:
+    """One cohort for a whole fill, not one per month.
+
+    A per-month pick flips the scope inside one series (stay through 2024,
+    the since-exported plates back from 2025), and a hybrid share is not
+    comparable across that flip. The window takes the cohort that covers
+    more of it. A tie keeps stay, the scope the live fetch already uses.
+    Neither covering anything means the window is not a register fill.
+    """
+    stay = sum(d["choice"] == "stay" for d in decisions)
+    exports = sum(d["choice"] == "with_exports" for d in decisions)
+    if not stay and not exports:
+        return None
+    return "with_exports" if exports > stay else "stay"
+
+
 def cohort_exported(choice: str | None) -> bool | None:
     """The ``exported`` flag ``fetch_new_cars`` expects for a plan choice.
 
@@ -868,11 +884,14 @@ def backfill_plan(start: str, end: str) -> list[dict]:
               f"+export {(both / swing - 1) * 100:+.1f}%  -> {choice or 'blank'}")
         decisions.append({"period": period, "swing": swing, "stay": stay,
                           "with_exports": both, "choice": choice})
+    window = window_cohort(decisions)
     n_stay = sum(d["choice"] == "stay" for d in decisions)
     n_exp = sum(d["choice"] == "with_exports" for d in decisions)
     n_blank = sum(d["choice"] is None for d in decisions)
     print(f"plan {start}..{end}: {n_stay} stay, {n_exp} with_exports, "
-          f"{n_blank} blank, wrote nothing")
+          f"{n_blank} blank")
+    print(f"window cohort: {window or 'none — not a register fill, ACEA covers it'}")
+    print("wrote nothing")
     return decisions
 
 

@@ -310,6 +310,16 @@ def test_choose_cohort_sticks_to_swing_and_refuses_the_rest():
     assert fn.choose_cohort(0, 100, 100) is None
 
 
+def test_window_cohort_is_one_choice_for_the_whole_fill():
+    """A per-month pick flips the scope inside one series. The window takes
+    the cohort that covers more of it, and a tie keeps stay."""
+    mixed = [{"choice": "with_exports"}] * 3 + [{"choice": "stay"}]
+    assert fn.window_cohort(mixed) == "with_exports"
+    assert fn.window_cohort([{"choice": "stay"}, {"choice": "with_exports"}]) == "stay"
+    assert fn.window_cohort([{"choice": None}, {"choice": None}]) is None
+    assert fn.window_cohort([]) is None
+
+
 def test_cohort_flag_matches_the_plan():
     assert fn.cohort_exported("stay") is False
     assert fn.cohort_exported("with_exports") is None
