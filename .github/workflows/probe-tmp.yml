@@ -25,15 +25,24 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install "requests[socks]"
-      - name: DNS check (opendata.rdw.nl)
+      - name: Reach RDW's Socrata tenant without its DNS record
         run: |
-          for r in "" @8.8.8.8 @1.1.1.1; do echo "== dig $r"; dig +short $r opendata.rdw.nl || true; done
-          dig +short NS rdw.nl @8.8.8.8 || true
-          echo "== authoritative"; dig opendata.rdw.nl @ns7.rdw.nl +norecurse | sed -n '/ANSWER/,/^$/p;/status/p' || true
-          echo "== www"; dig +short www.rdw.nl @8.8.8.8 || true
-          echo "== CNAME"; dig +short CNAME opendata.rdw.nl @8.8.8.8 || true
-          curl -sS -o /dev/null -w '%{http_code}\n' --max-time 30 'https://opendata.rdw.nl/resource/m9d7-ebf2.json?$limit=1' || true
-      - run: python scripts/probe_tmp.py
+          Q='resource/m9d7-ebf2.json?$select=count(*)&$where=datum_eerste_toelating_dt%3E%3D%272026-10-01%27'
+          for h in api.eu.socrata.com eu.socrata.com rdw.data.socrata.com opendata.rdw.nl.eu.socrata.com; do
+            echo "== $h: $(dig +short "$h" | tr '\n' ' ')"
+          done
+          for h in rdw.data.socrata.com; do
+            echo "== GET https://$h/$Q"; curl -sS --max-time 60 "https://$h/$Q" | head -c 300; echo
+          done
+          for edge in api.eu.socrata.com eu.socrata.com; do
+            ip=$(dig +short "$edge" | grep -E '^[0-9.]+$' | head -1)
+            [ -n "$ip" ] || continue
+            echo "== opendata.rdw.nl pinned to $edge ($ip)"
+            curl -sS --max-time 60 --resolve "opendata.rdw.nl:443:$ip" "https://opendata.rdw.nl/$Q" | head -c 300; echo
+            echo "== Host header on $edge"
+            curl -sS --max-time 60 -H "Host: opendata.rdw.nl" "https://$edge/$Q" -k | head -c 300; echo
+          done
+      - run: python scripts/probe_tmp.py || true
         env:
           NL_PROXY: ${{ secrets.NL_PROXY || secrets.AUSTRIA_PROXY }}
           NL_FETCH_RELAY: ${{ secrets.NL_FETCH_RELAY || secrets.AUSTRIA_FETCH_RELAY }}
