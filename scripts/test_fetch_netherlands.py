@@ -289,7 +289,10 @@ def test_enrich_keeps_swing_total_and_refuses_a_negative_residual():
     assert row["HEV"] == 7263 and row["PETROL"] == 1917 and row["DIESEL"] == 16
     assert row["TOTAL"] == 24739 and row["BEV"] == 9457 and row["PHEV"] == 5774
     assert row["OTHERS"] == 24739 - 9457 - 5774 - 7263 - 1917 - 16
-    assert row["OTHERS"] > 0
+    assert row is not None and row["OTHERS"] > 0
+    assert "RDW register" in row["notes"] and "still in the country" in row["notes"]
+    exported = fn.enrich_swing(swing, register, cohort="with_exports")
+    assert exported is not None and "since-exported" in exported["notes"]
     # Register diesel instead of Swing diesel does not add up.
     assert fn.enrich_swing(swing, register, diesel="register") is None
 

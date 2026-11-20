@@ -742,7 +742,8 @@ def count_plates(fuels_by_plate: dict) -> dict[str, int]:
     return counts
 
 
-def enrich_swing(swing: dict, register: dict, diesel: str = "swing") -> dict | None:
+def enrich_swing(swing: dict, register: dict, diesel: str = "swing",
+                 cohort: str = "stay") -> dict | None:
     """Keep Swing TOTAL / BEV / PHEV. HEV and pure petrol come from the
     register. Diesel stays Swing's unless `diesel="register"` — register
     diesel is mostly campers and then OTHERS goes negative, which refuses
@@ -758,7 +759,23 @@ def enrich_swing(swing: dict, register: dict, diesel: str = "swing") -> dict | N
     if others < 0:
         return None
     return {"TOTAL": total, "BEV": bev, "PHEV": phev, "HEV": hev,
-            "PETROL": petrol, "DIESEL": die, "OTHERS": others}
+            "PETROL": petrol, "DIESEL": die, "OTHERS": others,
+            "notes": register_note(cohort)}
+
+
+# Same shape as acea_split.NOTE. The cohort is the decision: cars still
+# in the country, or the since-exported plates put back.
+REGISTER_NOTES = {
+    "stay": ("TOTAL/BEV/PHEV/DIESEL Swing; HEV/PETROL RDW register "
+             "(counted, cars still in the country); OTHERS = TOTAL minus the rest"),
+    "with_exports": ("TOTAL/BEV/PHEV/DIESEL Swing; HEV/PETROL RDW register "
+                     "(counted, since-exported plates included); "
+                     "OTHERS = TOTAL minus the rest"),
+}
+
+
+def register_note(cohort: str) -> str:
+    return REGISTER_NOTES.get(cohort, REGISTER_NOTES["stay"])
 
 
 HEV_MATCH_BAND = 0.02
@@ -878,7 +895,7 @@ def shadow_hev(period: str) -> dict | None:
     fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
     by_plate = {c["kenteken"]: fuels.get(c["kenteken"], []) for c in cars}
     register = count_plates(by_plate)
-    enriched = enrich_swing(swing, register)
+    enriched = enrich_swing(swing, register, cohort=choice)
     print(f"shadow {period}: {choice}, register {sum(register.values())} plates, "
           f"Swing TOTAL {swing['TOTAL']:.0f}")
     print("  register:", " ".join(f"{k}={register[k]}" for k in register))
