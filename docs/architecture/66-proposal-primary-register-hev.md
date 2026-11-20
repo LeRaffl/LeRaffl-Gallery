@@ -385,33 +385,58 @@ infrastructure in §4 before any fetcher writes to `data/`.
 
 ## 10. Spike round 2 (2026-11-20): Delta zerlegt
 
-### Netherlands — der Rest ist Snapshot-Drift, kein Scope-Fehler
+### Netherlands — KORREKTUR: Camper sind im Total, der Scope steht schon
 
-April-2026-Kohorte (beide Daten im Monat, Personenauto, 25.508) gegen
-Swing (24.739), schrittweise Filter:
+> **Korrektur (round 2 war falsch).** Die erste Fassung dieses Abschnitts
+> behauptete, Swing schließe Wohnmobile aus und `export_indicator` dürfe
+> nicht filtern. Das war ein Fehler aus einer **veralteten lokalen
+> Doc-Kopie**: `10-source-netherlands.md` §11 auf `origin/master` und
+> `scripts/market_top.py` haben den RDW-Scope längst gebaut und über
+> 12 Monate (2025-07 → 2026-06) gegen die CSV validiert. Die unten stehende
+> Schritt-Tabelle ist der Irrweg der Untersuchung, nicht das Ergebnis.
 
-| Filter | TOTAL | Δ zu Swing | BEV Δ | PHEV Δ | Diesel |
-|---|---|---|---|---|---|
-| roh | 25.508 | +3,11 % | +1,89 % | +2,32 % | 458 |
-| ohne Camper (`inrichting=kampeerwagen`, 415) | 25.093 | +1,43 % | +1,81 % | +2,25 % | 55 |
-| + ohne Sonderkarosserien (Ambulanz/Leichenwagen/Rolstoel/unreg., 87) | 25.006 | +1,08 % | +1,40 % | +2,25 % | 30 |
-| + ohne `export_indicator=Ja` (525) | 24.482 | **−1,04 %** | −0,95 % | +0,74 % | 30 |
+**Der etablierte, getestete Scope** (`market_top.py`, doc 10 §11):
+`voertuigsoort = Personenauto` + **beide** Daten im Monat
+(`datum_eerste_tenaamstelling_in_nederland_dt` und `datum_eerste_toelating_dt`)
++ **`export_indicator = Nee`**, **Wohnmobile INKLUSIVE**. Damit April 2026:
 
-- **Camper sind der Diesel-Mythos:** Swing's "Diesel 16" vs Register 458 —
-  415 davon sind Wohnmobile (RIMOR, EURA MOBIL, NIESMANN+BISCHOFF, LMC …
-  auf Ducato-Chassis), die Swing nicht zählt. **Camper-Exclusion ist
-  Pflicht im Fetcher.** Sonderkarosserien (87) erklärt Swing offenbar auch
-  nicht mitzuzählen.
-- **`export_indicator` ist der heutige Registerstand, nicht "im April
-  exportiert".** Alle 525 Exporte rauszunehmen schießt unter das Ziel
-  (−1,04 %): ein Teil war im April regulär neu zugelassen und wurde erst
-  später exportiert. **Nicht als Monatsfilter verwenden.** Der verbleibende
-  Rest (+1,08 % nach Camper/Sonder, vor Export-Filter) ist überwiegend
-  **Nachzügler-Drift**: Fahrzeuge mit April-Zulassung, die erst nach dem
-  Swing-Stichtag im Register auftauchen. Benzine+HEV stimmt dabei auf
-  ±14 Stück exakt — der Scope sitzt, nur die Menge driftet.
-- Konsequenz: kein additional Scope-Filter nötig; Drift nach oben über das
-  Revisions-Log (§4) führen, Toleranz aus echten Shadow-Monaten setzen (§8.3).
+| | Register (korrekter Scope) | Swing | Δ |
+|---|---|---|---|
+| TOTAL | 24.985 | 24.739 | +0,99 % |
+| BEV | 9.415 | 9.457 | −0,44 % |
+| PHEV | 5.822 | 5.774 | +0,83 % |
+| OTHERS | 111 | 111 | 0 |
+
+Das Fenster über 12 Monate: **+0,3 %** (BEV +0,1 %, PHEV +2,2 %), jeden Monat
+−0,8 % … +1,9 % — die live-Register-vs-Snapshot-Drift, dokumentiert.
+`market_top.check_scope` loggt jeden Monat und stoppt bei >10 % Drift.
+
+- **Wohnmobile SIND im Whole-Total** (doc 10 §11 wörtlich: "are in the total
+  like in Swing"). ~400/Monat, fast alle Diesel, erreichen nie die BEV/PHEV-
+  Liste. Der einzige Ort, wo sie sichtbar auseinanderlaufen, ist die
+  **Diesel-SPALTE**: Swing's Diesel ≈ 16 zählt die Wohnmobile nicht, das
+  Register-Diesel ≈ 457 ist überwiegend Wohnmobile. Die Brand-Table rankt
+  Diesel deshalb schon nicht mehr.
+- **`export_indicator = Nee` IST der richtige Filter** (entgegen round 2).
+  Er entfernt aktuell exportierte Platten und trifft damit Swings
+  Snapshot-Scope empirisch besser als ohne. Mein Einmonats-Test hatte
+  *zusätzlich* fälschlich Camper ausgeschlossen und dadurch unter das Ziel
+  geschossen — der Fehler war die Camper-Exclusion, nicht der Export-Filter.
+
+**Enrichment-Folge (nachgerechnet):** Swing-Basis (TOTAL/BEV/PHEV) +
+Register-HEV/PETROL geht sauber auf. **Diesel nicht:** Register-Diesel mit
+Campern (457) in die Swing-Zeile → OTHERS-Residual **−129 (negativ, kaputt)**;
+ohne Camper (55) → Residual 273 (über Register-OTHERS 111). Swing's
+Diesel-Bucket ist enger als "Register-Diesel minus Camper". HEV (`NOVC-HEV`,
+April 7.263) ist davon unberührt und sauber zählbar.
+
+**Konsequenz für Phase 1:** den bestehenden `market_top.py`-RDW-Pfad
+**wiederverwenden** (Join, `FUEL_BATCH`, Month-Store, `check_scope` existieren
+schon), nicht einen Parallel-Fetcher erfinden. HEV (+ PETROL) aus dem
+Register anreichern; TOTAL/BEV/PHEV bleiben Swing; DIESEL entweder Swing
+lassen oder die Camper-Exclusion **nur auf die Diesel-Spalte** anwenden, um
+Swings enge Definition zu treffen — dokumentiert. Die ~1 % Total-Drift
+bleibt Swing-eigen.
 
 ### Finland — M1G fehlte, und das Delta wohnt im ko-4–12-Monate-Bucket
 
@@ -455,15 +480,16 @@ Source-Docs (§6-Doku-Pflicht).
 flowchart TB
     subgraph Q["Quellen"]
         RDW["RDW-Register · Socrata<br/>m9d7-ebf2 Stamm+Datum<br/>8ys7-d773 Kraftstoff+Hybridklasse"]
-        SWING["Swing/ABF-BI auf RDW<br/>Pivot Personenauto Nieuw<br/>Monat eingefroren · ohne Camper"]
+        SWING["Swing/ABF-BI auf RDW<br/>Pivot Personenauto Nieuw<br/>Diesel-Spalte ohne Camper"]
         ACEA["ACEA · Importeurs-Verband<br/>eigene Taxonomie · HEV gezählt"]
     end
     subgraph LIVE["Heute live"]
         SWING -->|"BEV · PHEV · Benzine inkl. HEV<br/>Diesel · Overig — HEV-Spalte leer"| CSV["data/Netherlands.csv · Whole"]
+        RDW -.->|"market_top.py: schon gebaut<br/>Scope = beide Daten im Monat + export=Nee<br/>Camper INKLUSIVE, +0,3% Fenster"| TOP["market/netherlands_top.json<br/>Brand/Model-Ranking"]
     end
     subgraph PLAN["Geplant · Phase 1 · noch nicht gebaut"]
-        RDW -->|"1 Kenteken je Monat · beide Daten im Monat<br/>2 Kraftstoff-Join in 400er-Chunks"| KO["M1-Kohorte<br/>ohne Camper + Sonderkarosserien"]
-        KO -->|"NOVC-HEV→HEV · OVC-HEV→PHEV<br/>Benzine/Diesel gezählt"| SP["Register-Split"]
+        RDW -->|"bestehenden market_top-Join<br/>wiederverwenden, nicht neu bauen"| KO["M1-Kohorte, Camper inklusive<br/>(gleicher Scope wie market_top)"]
+        KO -->|"NOVC-HEV→HEV · OVC-HEV→PHEV<br/>PETROL gezählt · Diesel-Spalte: Swing-Definition"| SP["Register-Split"]
         SP --> SH["Shadow-Run + Revisions-Log<br/>Drift zu Swing je Monat"]
         SH -->|"Gate + Maintainer-OK"| CSV
         ACEA -.->|"Fallback je Monat ohne Register-Wert"| CSV
@@ -494,20 +520,26 @@ flowchart TB
 
 ### Netherlands (Phase 1)
 
-1. **Fetcher `fetch_netherlands_register.py`** (RDW direkt, der Spike hat
-   den Weg gebaut): Kohorte = beide Daten im Monat, Personenauto, **ohne
-   Camper + Sonderkarosserien**; HEV/PHEV/BEV + gezählte Benzine/Diesel aus
-   dem Register; `export_indicator` **nicht** filtern.
-2. **Revisions-Log (§4)** gegen den Snapshot-Drift (Nachzügler nach oben);
-   ein Re-Fetch darf einen committed Monat nie still senken.
+1. **Kein neuer Fetcher.** Den bestehenden `scripts/market_top.py`-RDW-Pfad
+   (Join, `FUEL_BATCH=800`, Month-Store `market/netherlands_months.json`,
+   `check_scope`) um HEV + gezähltes PETROL erweitern — Scope bleibt
+   `voertuigsoort=Personenauto` + beide Daten im Monat + `export_indicator=
+   Nee`, **Camper inklusive** (wie bisher). Nur die Diesel-Spalte braucht
+   eine explizite Entscheidung: Swing-Diesel (≈16) übernehmen oder
+   Register-Diesel minus Camper (≈55, noch 39 über Swing) — nicht einfach
+   Register-Diesel roh (457, sonst negatives OTHERS-Residual).
+2. **Revisions-Log (§4)** gegen den Snapshot-Drift (Nachzügler nach oben,
+   das bestätigte +0,3%-Fenster); ein Re-Fetch darf einen committed Monat
+   nie still senken.
 3. **Shadow-Run neben Swing** (schreibt noch nichts nach `data/`), Deltas
    je Monat loggen → daraus die echte Toleranz und das Switch-over-Fenster
    (§5, §8.3 — deferred bis echte Deltas sichtbar).
 4. **Nach Maintainer-OK + Switch-over:** Register-primary für HEV +
    gezählten Split; TOTAL/BEV/PHEV bleiben bis dahin Swing. Ändert sich
    eine veröffentlichte Zahl → `Release:`-Zeile + Render-Gate.
-5. Doku (§6): `10-source-netherlands.md` bekommt `hev_split`, Camper-/
-   Drift-Caveats, das Herkunfts-Diagramm — **vor** dem Fetcher-Merge.
+5. Doku (§6): `10-source-netherlands.md` bekommt `hev_split`, die
+   Diesel-Spalten-Entscheidung, das Herkunfts-Diagramm — **vor** dem
+   Merge. Scope-Text selbst bleibt wie er ist (schon korrekt).
 
 ### Finland (Phase 2)
 
