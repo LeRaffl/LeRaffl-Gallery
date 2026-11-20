@@ -295,7 +295,8 @@ Netherlands, as it does for Czechia: `build_series.py` stage 7 keeps one band
 set per series and HEV covers less than its threshold of the history.
 
 `python scripts/fetch_netherlands.py --fill-hev START:END` writes a range with
-no per-run cap (the one-off backfill). `--shadow-hev YYYY-MM` prints one
+no per-run cap (the one-off backfill); in CI it is the `fill_hev` input of a
+manual `fetch-netherlands.yml` run, which then commits and renders as usual. `--shadow-hev YYYY-MM` prints one
 month's row with the register split and writes nothing. Register diesel is
 mostly motorhomes, so it is never copied onto the row: diesel stays Swing's.
 

@@ -75,6 +75,11 @@ on:
         required: false
         default: ''
         type: string
+      fill_hev:
+        description: 'Backfill the register HEV for Whole over YYYY-MM:YYYY-MM (no per-run cap; about a minute a month). Skips the Swing fetch.'
+        required: false
+        default: ''
+        type: string
   schedule:
     # Daily 1st–15th at 06:30 UTC. RDW's publication date varies (sometime in
     # the first half of the following month), so we poll daily until the
@@ -114,6 +119,7 @@ jobs:
         run: python scripts/test_fetch_netherlands.py
 
       - name: Fetch & update Netherlands.csv
+        if: ${{ !inputs.fill_hev }}
         run: |
           python scripts/fetch_netherlands.py \
             ${PROBE:+--probe-swing} \
@@ -133,6 +139,14 @@ jobs:
           NL_PROXY: ${{ secrets.NL_PROXY || secrets.AUSTRIA_PROXY }}
           NL_FETCH_RELAY: ${{ secrets.NL_FETCH_RELAY || secrets.AUSTRIA_FETCH_RELAY }}
           NL_RELAY_TOKEN: ${{ secrets.NL_RELAY_TOKEN || secrets.AUSTRIA_RELAY_TOKEN }}
+
+      # One-off: write the register's HEV over a range (docs 10, "HEV from the
+      # register"). The daily run does the same for at most three months.
+      - name: Backfill register HEV
+        if: ${{ inputs.fill_hev }}
+        run: python scripts/fetch_netherlands.py --fill-hev "$FILL_HEV" --no-top
+        env:
+          FILL_HEV: ${{ inputs.fill_hev }}
 
       - name: Detect which CSVs changed
         id: changed
