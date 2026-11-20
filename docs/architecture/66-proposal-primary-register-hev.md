@@ -267,3 +267,100 @@ output (same rule as the flyer stack: no merge without review).
 
 Primary-source work happens in a separate session; the flyer stack is the
 current focus. This branch stays plan-only until that session picks it up.
+
+## 9. Phase 0 spike findings (2026-11-20, throwaway scripts in
+`~/.hermes/cache/scratch/hev66/`, no production code written)
+
+### Netherlands
+
+- **No cross-dataset SoQL subquery.** `kenteken in (select ... from m9d7-ebf2 ...)`
+  400s ("Expected an expression, but got `SELECT`"). The two-query join
+  from §2 is mandatory: pull `kenteken` from the parent with a date filter,
+  then fetch `8ys7-d773` fuel rows in chunks (`kenteken in ('a','b',...)`).
+  GET works at 400 kentekens/chunk; a 2000-chunk POST got `403
+  authentication_required` from an anonymous session — stick to GET/400.
+  ~25k kentekens joins in well under a minute.
+- **The cohort filter is `datum_eerste_tenaamstelling_in_nederland_dt` AND
+  `datum_eerste_toelating_dt` both in the target month**, not either alone
+  (tested 5 variants against Swing's April figure; this combination came
+  closest). Even then the register ran **+1.4% TOTAL** above Swing's April
+  row after removing campers (see below) — a `TOTAL_TOLERANCE=1%` gate
+  (Greece's own threshold) would be a near-miss most months, not a clean
+  pass. BEV +1.8%, PHEV +2.3% individually exceed the Greece plugin
+  tolerance (2% of national value, min 5 cars) on this one month. Needs
+  either a slightly looser NL-specific tolerance or acceptance that most
+  months get logged as a gate-refusal and fall back to ACEA until the
+  filter is tuned further (try: excluding `export_indicator=Ja`, or a
+  narrower toelating window).
+- **Root cause of the big Diesel gap (458 vs Swing's 16, a 28x miss):**
+  campers (`inrichting=kampeerwagen`, 415 of 458) are Personenauto-classed
+  M1 vehicles in RDW but Swing's "Instroom Personenauto Nieuw" pivot
+  evidently excludes them. Filtering `inrichting != 'kampeerwagen'` drops
+  Diesel to 55 (Swing: 16) — still 39 over, smaller gap, not closed.
+  **A camper exclusion needs to be in the production fetcher**, not a
+  one-off note.
+- **Hybrid class values confirmed exactly as documented:** `OVC-HEV` →
+  PHEV, `NOVC-HEV` → HEV, cleanly separable, no third bucket seen in the
+  April sample (36,340 vehicles joined with 0 vehicles missing a fuel row).
+- **Open question not yet resolved:** whether the +1.4% residual (after
+  camper exclusion) is itself export-related, LPG double-counting, or a
+  Swing-side undercount — needs one more month's reconciliation attempt
+  with export_indicator and LPG-overlap filters before Phase 1 can set a
+  real tolerance.
+
+### Finland
+
+- **Traficom snapshot confirmed current**: `Ajoneuvorekisteri.zip`,
+  206 MB compressed / 956 MB raw, `Last-Modified: 2026-10-14`, material
+  date inside the file is 2026-09-30 (`ensirekisterointipvm` date format
+  is **`DD.MM.YYYY`, not ISO as the classification sheet's own docs claim**
+  — verify this before writing a parser, it silently groups rows into the
+  wrong month otherwise). 5,260,993 rows, loads and streams in ~15s on a
+  Mac.
+- **`kayttoonottopvm` (introduction-to-use date) is the key discovery.**
+  A large share of M1 rows with `ensirekisterointipvm` in a given month
+  have a `kayttoonottopvm` from a prior year — these are **used imports**
+  re-registering in Finland (sample: a 2020 Tesla Model 3, a 2022 Audi
+  Q4 e-tron, both first-introduced years before their Finnish
+  registration month). Filtering to `kayttoonottopvm` in the same
+  calendar month as `ensirekisterointipvm` is the "genuinely new"
+  cohort — same concept as the NL join needing both dates in-month.
+- **StatFin 121d (the current TOTAL/BEV/PHEV source) likely already
+  excludes these used imports** — the raw `ensirekisterointipvm`-only
+  cohort for 2026-06 M1 was 10,017 vs. StatFin's CSV row of 7,566 TOTAL
+  (+32%); the `kayttoonottopvm`-in-month filter narrows this to 7,091
+  (+6.2%, much closer but not exact — a residual gap remains, possibly a
+  private/industry possessor split or a day-boundary issue worth another
+  pass before Phase 2 commits to the filter).
+- **PHEV is undercounted by driving-power code 39/44 alone** (the doc's
+  §2 API query) in newer data: the `sahkohybridi`/`sahkohybridin luokka`
+  fields (Y/N + 01 plug-in / 02 full-mild) are the authoritative split,
+  confirmed against the classification workbook
+  (`Ajoneuvotiedot_avoin_data_luokitukset_24.03.2026.xlsx`, sheets
+  `KAYTTOVOIMA`, `sähköhybridi`, `sähköhybridin luokka`) — `02`
+  (engine-only charging) = HEV, `01` (off-vehicle charging) = PHEV, `03`/
+  `04` fuel-cell not yet in use, exactly as §2 says.
+- **Usage-code split available for free**: `ajoneuvonkaytto` carries the
+  same private/rental/taxi/school codes as the doc's §89 "Private" variant
+  needs, so a Traficom-primary Private variant is feasible without a
+  second data source.
+
+### Go/no-go per country (Phase 0 verdict)
+
+- **Netherlands: go, with one more reconciliation round.** The join
+  works, the hybrid-class field is exactly as documented, and the
+  remaining gap (camper exclusion + ~1.4% residual) is tunable, not a
+  blocker. Needs a camper-exclusion rule and one more month's filter
+  tuning before Phase 1 can set real gate tolerances.
+- **Finland: go, with the `kayttoonottopvm`-in-month filter as the
+  working scope hypothesis**, but the residual +6.2% gap to StatFin on
+  2026-06 is not yet explained — one more reconciliation pass (try
+  possessor/usage-code filtering, or compare a month StatFin has already
+  revised) is needed before Phase 1 commits to this filter as final.
+- Both still clear the core premise of this proposal: the register DOES
+  carry a clean, separable HEV field distinct from PHEV, with no
+  unclassified residual bucket in the samples checked.
+
+Primary-source implementation (Phase 1 Netherlands, Phase 2 Finland) can
+start from here; both still need the backward-overwrite / revision-log
+infrastructure in §4 before any fetcher writes to `data/`.
