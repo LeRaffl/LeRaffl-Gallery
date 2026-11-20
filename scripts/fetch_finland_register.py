@@ -24,6 +24,21 @@ CSV_PATH = ROOT / "data" / "Finland.csv"
 PASSENGER = {"M1", "M1G"}
 FUELS = ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")
 
+# The review call in 12-source-finland.md: the register is thinned by
+# snapshot drift (about -15% in 2014, -6% to -11% in 2022) and only stays
+# inside about -6% from 2025-01. Register HEV on a full StatFin total
+# before that understates the hybrid share, so those months use ACEA.
+HEV_FILL_FROM = "2025-01"
+
+
+def in_fill_window(period: str, start: str = HEV_FILL_FROM) -> bool:
+    """May the register supply HEV for this month at all?
+
+    Before ``start`` the answer is no: the snapshot has lost too many of
+    that month's cars for its HEV count to sit on a full StatFin total.
+    """
+    return period >= start
+
 
 def registration_period(value: str) -> str | None:
     """DD.MM.YYYY → YYYY-MM. ISO is refused, not misread."""
@@ -153,13 +168,15 @@ def shadow_window(snapshot: Path, csv_path: Path = CSV_PATH) -> list[dict]:
         register = {k: whole.get(k, 0) for k in FUELS}
         enriched = enrich_statfin(sf, register)
         delta = reg_total / sf["TOTAL"] - 1
+        fillable = enriched is not None and in_fill_window(period)
+        verdict = "sums" if fillable else ("before window" if enriched else "refused")
         print(f"{period}  StatFin {sf['TOTAL']:.0f}  register {reg_total} ({delta * 100:+.1f}%)  "
               f"HEV {whole.get('HEV', 0)}  petrol {whole.get('PETROL', 0)}  "
-              f"used {sum(used.values())}  {'sums' if enriched else 'refused'}")
+              f"used {sum(used.values())}  {verdict}")
         lines.append({"period": period, "statfin": sf["TOTAL"], "register": reg_total,
                       "delta": delta, "hev": whole.get("HEV", 0),
                       "petrol": whole.get("PETROL", 0), "used": sum(used.values()),
-                      "ok": enriched is not None})
+                      "ok": fillable})
     print("wrote nothing")
     return lines
 
@@ -186,6 +203,9 @@ def shadow_hev(period: str, snapshot: Path, csv_path: Path = CSV_PATH) -> dict |
     statfin = statfin_month(period, csv_path)
     register = {k: whole.get(k, 0) for k in FUELS}
     enriched = enrich_statfin(statfin, register)
+    if enriched is not None and not in_fill_window(period):
+        print(f"{period}  before {HEV_FILL_FROM}: register HEV not used, ACEA fills this month")
+        enriched = None
     print(f"{period}  register whole {sum(whole.values())}  "
           + " ".join(f"{k}={whole.get(k, 0)}" for k in FUELS))
     print(f"{period}  register used  {sum(used.values())}  "

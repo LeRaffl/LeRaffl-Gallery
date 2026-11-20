@@ -43,6 +43,16 @@ def test_enrich_keeps_statfin_total_and_refuses_a_negative_residual():
     assert fn.enrich_statfin(None, {"HEV": 1, "PETROL": 1}) is None
 
 
+def test_fill_window_keeps_the_thinned_years_on_acea():
+    """Register HEV before 2025-01 sits on a thinned cohort (about -15% in
+    2014) and would understate the hybrid share against a full StatFin
+    total. Those months stay with ACEA."""
+    assert fn.in_fill_window("2025-01")
+    assert fn.in_fill_window("2026-09")
+    assert not fn.in_fill_window("2024-12")
+    assert not fn.in_fill_window("2014-06")
+
+
 def test_count_rows_splits_whole_and_used_for_one_month():
     rows = [
         {"ajoneuvoluokka": "M1", "ensirekisterointipvm": "15.09.2026",
