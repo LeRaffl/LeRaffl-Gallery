@@ -231,6 +231,17 @@ register whole 6,809 versus 6,985 (−2.5%). HEV 1,197, pure petrol 481.
 The enriched row keeps 6,985 / BEV 4,338 / PHEV 765 / diesel 145, and
 the slack in OTHERS is 59. Used, same month, 3,315. Nothing written.
 
+One pass over every StatFin month, same snapshot, still nothing written.
+Every month from 2014-01 through 2026-09 sums. 2026-10 is blank because
+the snapshot is 30 September. Summing is not a clean month. The gap is
+not flat: about −15% in 2014, −13% to −20% in 2020, −6% to −11% in 2022.
+From 2025-01 it stays inside about −6%, the band the recent months
+already have (−2.5% to −5.6%, one month −6.0%). A fill before that would
+put a thinned register HEV on a full StatFin total and understate the
+hybrid share. The review call is: HEV from 2025-01, earlier left blank.
+Used exists for every month in the snapshot, and it is today's survivors,
+not the imports of that month.
+
 ```mermaid
 flowchart TB
     subgraph Q["Quellen"]

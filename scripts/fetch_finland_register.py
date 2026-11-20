@@ -99,6 +99,19 @@ def classify(row: dict) -> tuple[str, str, str] | None:
     return registered, kind, fuel
 
 
+def tally(rows) -> dict[str, dict[str, Counter]]:
+    """Every month in one pass. A month with no used cars has no used counter."""
+    out: dict[str, dict[str, Counter]] = {}
+    for row in rows:
+        got = classify(row)
+        if not got:
+            continue
+        period, kind, fuel = got
+        out.setdefault(period, {})
+        out[period].setdefault(kind, Counter())[fuel] += 1
+    return out
+
+
 def count_rows(rows, period: str) -> dict[str, Counter]:
     counted = {"whole": Counter(), "used": Counter()}
     for row in rows:
@@ -109,13 +122,47 @@ def count_rows(rows, period: str) -> dict[str, Counter]:
     return counted
 
 
-def statfin_month(period: str, csv_path: Path = CSV_PATH) -> dict | None:
+def statfin_months(csv_path: Path = CSV_PATH) -> dict[str, dict]:
+    out = {}
     with open(csv_path, encoding="utf-8", newline="") as f:
         for row in csv.DictReader(f):
             if (row["variant"] == "Whole" and row["time_interval"] == "monthly"
-                    and row["period"] == period and row["TOTAL"]):
-                return {k: float(row[k] or 0) for k in ("TOTAL", "BEV", "PHEV", "PETROL", "DIESEL", "OTHERS")}
-    return None
+                    and row.get("TOTAL")):
+                out[row["period"]] = {k: float(row[k] or 0)
+                                      for k in ("TOTAL", "BEV", "PHEV", "PETROL", "DIESEL", "OTHERS")}
+    return out
+
+
+def shadow_window(snapshot: Path, csv_path: Path = CSV_PATH) -> list[dict]:
+    """One pass over the snapshot, every StatFin month. Writes nothing."""
+    tallied = tally(iter_snapshot(snapshot))
+    published = statfin_months(csv_path)
+    lines = []
+    for period in sorted(published):
+        whole = tallied.get(period, {}).get("whole", Counter())
+        used = tallied.get(period, {}).get("used", Counter())
+        sf = published[period]
+        reg_total = sum(whole.values())
+        if not reg_total or not sf["TOTAL"]:
+            print(f"{period}  blank")
+            lines.append({"period": period, "choice": "blank"})
+            continue
+        register = {k: whole.get(k, 0) for k in FUELS}
+        enriched = enrich_statfin(sf, register)
+        delta = reg_total / sf["TOTAL"] - 1
+        print(f"{period}  StatFin {sf['TOTAL']:.0f}  register {reg_total} ({delta * 100:+.1f}%)  "
+              f"HEV {whole.get('HEV', 0)}  petrol {whole.get('PETROL', 0)}  "
+              f"used {sum(used.values())}  {'sums' if enriched else 'refused'}")
+        lines.append({"period": period, "statfin": sf["TOTAL"], "register": reg_total,
+                      "delta": delta, "hev": whole.get("HEV", 0),
+                      "petrol": whole.get("PETROL", 0), "used": sum(used.values()),
+                      "ok": enriched is not None})
+    print("wrote nothing")
+    return lines
+
+
+def statfin_month(period: str, csv_path: Path = CSV_PATH) -> dict | None:
+    return statfin_months(csv_path).get(period)
 
 
 def iter_snapshot(path: Path):
@@ -152,14 +199,18 @@ def shadow_hev(period: str, snapshot: Path, csv_path: Path = CSV_PATH) -> dict |
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--shadow-hev", metavar="YYYY-MM")
+    parser.add_argument("--shadow-window", action="store_true",
+                        help="Every StatFin month in one pass. Writes nothing.")
     parser.add_argument("--snapshot", type=Path, required=False)
     args = parser.parse_args()
-    if not args.shadow_hev:
-        parser.error("--shadow-hev YYYY-MM is required")
     if not args.snapshot:
         parser.error("--snapshot PATH is required")
+    if args.shadow_window:
+        shadow_window(args.snapshot)
+        return
+    if not args.shadow_hev:
+        parser.error("--shadow-hev YYYY-MM or --shadow-window is required")
     shadow_hev(args.shadow_hev, args.snapshot)
-    return
 
 
 if __name__ == "__main__":

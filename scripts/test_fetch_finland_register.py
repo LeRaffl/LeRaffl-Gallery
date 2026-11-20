@@ -59,6 +59,21 @@ def test_count_rows_splits_whole_and_used_for_one_month():
     assert sum(counted["whole"].values()) == 1
 
 
+def test_tally_keeps_every_month_in_one_pass():
+    rows = [
+        {"ajoneuvoluokka": "M1", "ensirekisterointipvm": "15.06.2026",
+         "kayttoonottopvm": "20260615", "kayttovoima": "01",
+         "sahkohybridi": "true", "sahkohybridinluokka": "02"},
+        {"ajoneuvoluokka": "M1G", "ensirekisterointipvm": "02.09.2026",
+         "kayttoonottopvm": "20220101", "kayttovoima": "04",
+         "sahkohybridi": "false", "sahkohybridinluokka": ""},
+    ]
+    tallied = fn.tally(rows)
+    assert tallied["2026-06"]["whole"]["HEV"] == 1
+    assert tallied["2026-09"]["used"]["BEV"] == 1
+    assert "2026-06" not in tallied or "used" not in tallied["2026-06"] or not tallied["2026-06"]["used"]
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     failed = 0
