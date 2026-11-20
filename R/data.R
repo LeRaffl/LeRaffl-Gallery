@@ -154,22 +154,30 @@ compute_ttm_long <- function(df, bev_label = "BEV", calendar = FALSE) {
   total_ttm[as.logical(rolling(as.numeric(gap_row)) > 0)] <- NA
   ttm <- list()
   any_present <- rep(TRUE, nrow(m))
-  # Late-starting hybrid split: a source that books HEV / MHEV inside ICE
-  # before it reports them (Vietnam pre-2024) leaves those columns NA while ICE
-  # is filled. Count those months as 0 here and fold the partial-window mass
-  # into ICE below (as EREV into PHEV), instead of cutting the whole TTM
-  # until the hybrid columns have twelve months of their own.
+  # Late-starting hybrid split: a source that books HEV / MHEV inside the
+  # combustion side before it reports them leaves those columns NA while the
+  # host is filled. Count those months as 0 here and fold the partial-window
+  # mass into the host below (as EREV into PHEV), instead of cutting the whole
+  # TTM until the hybrid columns have twelve months of their own.
+  #   * ICE host (Vietnam pre-2024, calendar mode): HEV and MHEV.
+  #   * PETROL host (Czechia, Netherlands, Finland: full hybrids sat in petrol
+  #     until the split starts): HEV only. MHEV is booked inconsistently
+  #     across sources (AGENTS.md), so it never folds into PETROL here.
   late_start <- list()
+  hosts <- list()
   if (calendar && "ICE" %in% present) {
-    ice_ok <- !is.na(as.numeric(m[["ICE"]]))
-    for (col in intersect(c("HEV", "MHEV"), present)) {
-      v <- as.numeric(m[[col]])
-      f <- which(!is.na(v))
-      if (length(f) == 0 || f[1] == 1) next
-      lead <- seq_len(nrow(m)) < f[1] & ice_ok
-      if (!any(lead)) next
-      late_start[[col]] <- list(first = f[1], lead = lead)
-    }
+    for (col in c("HEV", "MHEV")) hosts[[col]] <- "ICE"
+  } else if ("PETROL" %in% present) {
+    hosts[["HEV"]] <- "PETROL"
+  }
+  for (col in intersect(names(hosts), present)) {
+    host_ok <- !is.na(as.numeric(m[[hosts[[col]]]]))
+    v <- as.numeric(m[[col]])
+    f <- which(!is.na(v))
+    if (length(f) == 0 || f[1] == 1) next
+    lead <- seq_len(nrow(m)) < f[1] & host_ok
+    if (!any(lead)) next
+    late_start[[col]] <- list(first = f[1], lead = lead, host = hosts[[col]])
   }
   for (col in present) {
     v <- as.numeric(m[[col]])
@@ -202,14 +210,16 @@ compute_ttm_long <- function(df, bev_label = "BEV", calendar = FALSE) {
   }
 
   # Late-start HEV / MHEV (see above): until the window post-dates the first
-  # reported month, their partial mass stays in ICE and the band is held at 0.
+  # reported month, their partial mass stays in the host (ICE or PETROL) and
+  # the band is held at 0.
   for (col in names(late_start)) {
-    if (!(col %in% names(ttm) && "ICE" %in% names(ttm))) next
+    host <- late_start[[col]]$host
+    if (!(col %in% names(ttm) && host %in% names(ttm))) next
     full <- (seq_len(nrow(m)) - window + 1) >= late_start[[col]]$first
     ct <- ttm[[col]] * total_ttm; ct[is.na(ct)] <- 0
-    ice_ct <- ttm[["ICE"]] * total_ttm
-    ice_ct[!full] <- ice_ct[!full] + ct[!full]
-    ttm[["ICE"]] <- ice_ct / total_ttm
+    host_ct <- ttm[[host]] * total_ttm
+    host_ct[!full] <- host_ct[!full] + ct[!full]
+    ttm[[host]] <- host_ct / total_ttm
     ttm[[col]][!full] <- 0
   }
 
