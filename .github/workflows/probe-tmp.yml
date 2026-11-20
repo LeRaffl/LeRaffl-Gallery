@@ -29,6 +29,9 @@ jobs:
         run: |
           for r in "" @8.8.8.8 @1.1.1.1; do echo "== dig $r"; dig +short $r opendata.rdw.nl || true; done
           dig +short NS rdw.nl @8.8.8.8 || true
+          echo "== authoritative"; dig opendata.rdw.nl @ns7.rdw.nl +norecurse | sed -n '/ANSWER/,/^$/p;/status/p' || true
+          echo "== www"; dig +short www.rdw.nl @8.8.8.8 || true
+          echo "== CNAME"; dig +short CNAME opendata.rdw.nl @8.8.8.8 || true
           curl -sS -o /dev/null -w '%{http_code}\n' --max-time 30 'https://opendata.rdw.nl/resource/m9d7-ebf2.json?$limit=1' || true
       - run: python scripts/probe_tmp.py
       - name: Commit probe output
