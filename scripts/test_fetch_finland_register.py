@@ -306,6 +306,34 @@ def test_fetch_finland_upsert_keeps_the_split():
     assert float(est["HEV"]) + float(est["PETROL"]) == 1530 and float(est["OTHERS"]) == 0
     assert "WARNING" not in out.getvalue()
 
+def test_apply_register_never_lowers_a_month_already_counted():
+    """Proposal 66 §4: a later snapshot that has lost cars keeps the counts
+    already written; one that has more (late registrations) raises them."""
+    def car(day, hyb="true", cls="02"):
+        d, m, y = day.split(".")
+        return {"ajoneuvoluokka": "M1", "ensirekisterointipvm": day,
+                "kayttoonottopvm": y + m + d, "kayttovoima": "01",
+                "sahkohybridi": hyb, "sahkohybridinluokka": cls}
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        line = ("2026-09,monthly,Whole,StatFin,1.0,0.0,2.0,1.0,0.0,,1.0,5.0,"
+                + '"' + fn.register_note("2026-09-30") + '"')
+        path = _csv(tmp, [line])
+        thinner = tmp / "thin.zip"
+        _snapshot(thinner, [car("03.09.2026"), car("30.12.2026", "false", "")])
+        richer = tmp / "rich.zip"
+        _snapshot(richer, [car("03.09.2026"), car("04.09.2026"), car("05.09.2026"),
+                           car("06.09.2026", "false", ""), car("30.12.2026", "false", "")])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            assert fn.apply_register(thinner, path) == []
+            assert path.read_text(encoding="utf-8").splitlines()[1] == line
+            assert "revision-down" in out.getvalue()
+            assert fn.apply_register(richer, path) == ["2026-09"]
+        row = next(csv.DictReader(path.read_text(encoding="utf-8").splitlines()))
+        assert row["HEV"] == "3.0" and row["notes"].endswith("snapshot 2026-12-30")
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     failed = 0

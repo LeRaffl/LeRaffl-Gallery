@@ -296,9 +296,20 @@ def apply_register(snapshot: Path, csv_path: Path = CSV_PATH) -> list[str]:
             continue
         upd = {"HEV": enriched["HEV"], "PETROL": enriched["PETROL"],
                "OTHERS": enriched["OTHERS"], "notes": register_note(as_of)}
-        if (split_kind(row) == "register" and row["notes"] == upd["notes"]
-                and all(abs(_f(row, k) - float(upd[k])) < 0.5 for k in ("HEV", "PETROL", "OTHERS"))):
-            continue
+        if split_kind(row) == "register":
+            if row["notes"] == upd["notes"] and all(
+                    abs(_f(row, k) - float(upd[k])) < 0.5 for k in ("HEV", "PETROL", "OTHERS")):
+                continue
+            # Proposal 66 §4: a later snapshot may raise a month's counts
+            # (late registrations), never silently lower them — cars leave
+            # the register over time, which is drift, not a correction.
+            old_n = _f(row, "HEV") + _f(row, "PETROL")
+            new_n = float(upd["HEV"]) + float(upd["PETROL"])
+            if new_n < old_n:
+                print(f"::warning title=Finland HEV revision-down::{period}: snapshot {as_of} "
+                      f"counts HEV+petrol {new_n:.0f} < {old_n:.0f} already written "
+                      f"(HEV {_f(row, 'HEV'):.0f} -> {float(upd['HEV']):.0f}); kept")
+                continue
         filled[period] = upd
         print(f"{period}  register HEV {upd['HEV']:.0f} petrol {upd['PETROL']:.0f} "
               f"slack {upd['OTHERS']:.0f} (was {split_kind(row) or 'blank'})")

@@ -246,7 +246,18 @@ All of it lives in `scripts/fetch_finland_register.py`:
   the CSV. The snapshot's date is its newest passenger-car registration; it
   covers its own month only when that date is in the month's last days
   (`covered_through`). Every month from 2025-01 it covers gets counts,
-  replacing an estimate.
+  replacing an estimate. A month that already has register counts is only
+  ever **raised** by a later snapshot (late registrations); a snapshot that
+  has lost cars since keeps what is written and logs a `revision-down`
+  warning (proposal 66 §4 — the register thins over time, that is drift,
+  not a correction).
+- **No daily source.** Traficom's FAQ says the vehicle open data "is based
+  on a cross-section taken at a given moment"; the open-data page dates the
+  current file 30.09.2026, published 27.10.2026; Traficom's OData service
+  (`opendata.traficom.fi/api/v1`) carries only radio/telecom sets. Daily
+  first-registration records are a paid Traficom product, so a Spain-style
+  daily pipeline (doc 28) is not possible from open data — checked
+  2026-11-20.
 - **ACEA** (`apply_acea`): `fetch_acea.py` parses the Finland row of each
   release (`HEV_MERGE_COUNTRIES`, never a row ACEA writes) and, when ACEA's
   TOTAL is within 1 % and BEV/PHEV within 2 % of StatFin's, puts ACEA's share on
