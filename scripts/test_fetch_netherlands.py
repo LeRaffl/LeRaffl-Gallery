@@ -320,6 +320,21 @@ def test_window_cohort_is_one_choice_for_the_whole_fill():
     assert fn.window_cohort([]) is None
 
 
+def test_closer_to_acea_absolute_when_totals_agree_relative_when_not():
+    """ACEA is the only counted HEV. Absolute when the totals are the same
+    month, relative when they are not — September 2026 is the first case."""
+    acea = {"TOTAL": 36259, "HEV": 8601}
+    stay = {"TOTAL": 35333, "HEV": 8254}
+    exports = {"TOTAL": 36086, "HEV": 8720}
+    # Only the export cohort is the same month as ACEA, so both are judged
+    # by share, and stay is closer (0.36pp against 0.44pp).
+    assert fn.closer_to_acea(stay, exports, acea) == "stay"
+    # Both totals within 1%: the count decides, and the export cohort's
+    # 119 is closer than stay's 347.
+    near = {"TOTAL": 36100, "HEV": 8254}
+    assert fn.closer_to_acea(near, exports, acea) == "with_exports"
+
+
 def test_cohort_flag_matches_the_plan():
     assert fn.cohort_exported("stay") is False
     assert fn.cohort_exported("with_exports") is None

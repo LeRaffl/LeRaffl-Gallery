@@ -804,6 +804,36 @@ def window_cohort(decisions: list[dict]) -> str | None:
     return "with_exports" if exports > stay else "stay"
 
 
+# Same-month band from acea_split: ACEA and the register are the same
+# cars when their totals agree. Past this, the totals are different
+# things and only the share is comparable.
+ACEA_TOTAL_BAND = 0.01
+
+
+def closer_to_acea(stay: dict, with_exports: dict, acea: dict,
+                   band: float = ACEA_TOTAL_BAND) -> str:
+    """Which cohort ACEA would rather have. ACEA is the only counted HEV.
+
+    Absolute when the totals are the same month (within ``band``, the
+    Greece tolerance): both cohorts are the same cars as ACEA, so the
+    closer HEV count wins. Relative when they are not: the totals are
+    different things and only the share is comparable. Both cohorts are
+    judged on the same scale — mixing the two would let a small count gap
+    beat a closer share.
+    """
+    def same_month(cohort: dict) -> bool:
+        return bool(cohort["TOTAL"]) and abs(cohort["TOTAL"] / acea["TOTAL"] - 1) <= band
+
+    if same_month(stay) and same_month(with_exports):
+        stay_gap = abs(stay["HEV"] - acea["HEV"])
+        exp_gap = abs(with_exports["HEV"] - acea["HEV"])
+    else:
+        acea_share = acea["HEV"] / acea["TOTAL"]
+        stay_gap = abs(stay["HEV"] / stay["TOTAL"] - acea_share)
+        exp_gap = abs(with_exports["HEV"] / with_exports["TOTAL"] - acea_share)
+    return "stay" if stay_gap <= exp_gap else "with_exports"
+
+
 def cohort_exported(choice: str | None) -> bool | None:
     """The ``exported`` flag ``fetch_new_cars`` expects for a plan choice.
 
