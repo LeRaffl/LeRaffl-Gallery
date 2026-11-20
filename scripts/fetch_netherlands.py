@@ -779,18 +779,28 @@ def choose_cohort(swing_total: float, stay: int, with_exports: int,
     return None
 
 
+def cohort_exported(choice: str | None) -> bool | None:
+    """The ``exported`` flag ``fetch_new_cars`` expects for a plan choice.
+
+    ``None`` means the plan left the month blank, or the since-exported
+    plates belong back in the cohort. ``False`` is export_indicator=Nee.
+    """
+    if choice == "stay":
+        return False
+    if choice == "with_exports":
+        return None
+    return None
+
+
 def shadow_hev(period: str) -> dict | None:
     """Print the register split against the Swing row. Writes nothing.
 
-    Scope is the one market_top already validates: Personenauto, both dates
-    in the month, export_indicator=Nee, campers included.
+    Scope is the cohort `choose_cohort` picks for this month: stay
+    (export_indicator=Nee) when that is as close as the since-exported
+    plates, otherwise those plates put back, and only inside 2% of Swing.
+    A month outside the band is printed and skipped.
     """
     import csv
-    session = rdw_session()
-    cars = fetch_new_cars(session, period, "Whole")
-    fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
-    by_plate = {c["kenteken"]: fuels.get(c["kenteken"], []) for c in cars}
-    register = count_plates(by_plate)
     swing_row = None
     with open(CSV_PATHS["Whole"], encoding="utf-8", newline="") as f:
         for row in csv.DictReader(f):
@@ -800,8 +810,21 @@ def shadow_hev(period: str) -> dict | None:
     if swing_row is None:
         raise SystemExit(f"no Swing row for {period} in {CSV_PATHS['Whole']}")
     swing = {k: float(swing_row[k] or 0) for k in ("TOTAL", "BEV", "PHEV", "DIESEL", "OTHERS")}
+    session = rdw_session()
+    stay = count_new_cars(session, period, exported=False)
+    both = count_new_cars(session, period, exported=None)
+    choice = choose_cohort(swing["TOTAL"], stay, both)
+    if choice is None:
+        print(f"shadow {period}: blank (stay {stay}, with exports {both}, "
+              f"Swing {swing['TOTAL']:.0f})")
+        print("  wrote nothing")
+        return None
+    cars = fetch_new_cars(session, period, "Whole", exported=cohort_exported(choice))
+    fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
+    by_plate = {c["kenteken"]: fuels.get(c["kenteken"], []) for c in cars}
+    register = count_plates(by_plate)
     enriched = enrich_swing(swing, register)
-    print(f"shadow {period}: register {sum(register.values())} plates, "
+    print(f"shadow {period}: {choice}, register {sum(register.values())} plates, "
           f"Swing TOTAL {swing['TOTAL']:.0f}")
     print("  register:", " ".join(f"{k}={register[k]}" for k in register))
     if enriched is None:

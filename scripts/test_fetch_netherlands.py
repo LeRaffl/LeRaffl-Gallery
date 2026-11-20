@@ -306,6 +306,12 @@ def test_choose_cohort_sticks_to_swing_and_refuses_the_rest():
     assert fn.choose_cohort(0, 100, 100) is None
 
 
+def test_cohort_flag_matches_the_plan():
+    assert fn.cohort_exported("stay") is False
+    assert fn.cohort_exported("with_exports") is None
+    assert fn.cohort_exported(None) is None
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn_ in tests:

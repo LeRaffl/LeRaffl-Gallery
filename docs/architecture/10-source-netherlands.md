@@ -292,6 +292,12 @@ plates put back (still 4–8% under Swing — the cars are gone, not just
 flagged exported). 2021 has four months inside the band and eight outside;
 filling the four would open holes, so the fill starts at 2022-01.
 
+`--shadow-hev` now follows that choice instead of always dropping
+exports. 2022-06, live: `with_exports`, 29,145 plates against Swing
+29,250. HEV 6,563, pure petrol 11,983. The enriched OTHERS is 948, and
+that is slack, not a counted class — the same warning as the recent
+months, larger because the split is older. Nothing written.
+
 ### Number formatting
 
 Dutch locale: `.` is the thousands separator (so `"10.075"` is ten-thousand-
