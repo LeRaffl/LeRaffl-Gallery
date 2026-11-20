@@ -271,6 +271,17 @@ diesel is mostly campers, so it is not copied onto the row — that residual
 lands in OTHERS, and a negative residual refuses the month. Not wired into
 the daily fetch until a shadow window is accepted.
 
+ACEA's Netherlands HEV is not a second register. The September 2026 release
+repeats the RDC figure BOVAG and RAI publish (36,259 cars). RDC freezes the
+registration; the open register is today. Of the September new cars, 753
+have `export_indicator=Ja` since — 466 of them HEV, 62% of the exports
+against a 23% HEV share in the cars still here. Adding them back takes HEV
+from 8,255 to 8,721 against RDC's 8,601 (120 over) and the total from
+35,333 to 36,086 against 36,259 (173 short). The leftover is not a missed
+hybrid class: pure petrol already matches RDC (1,837 vs 1,832). The shadow
+keeps `export_indicator=Nee` because that is the scope that matches Swing,
+so a gap to ACEA/RDC is expected and is not a reason to switch scope.
+
 ### Number formatting
 
 Dutch locale: `.` is the thousands separator (so `"10.075"` is ten-thousand-
