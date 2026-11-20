@@ -18,20 +18,20 @@ variant_notes:
   Used: Imported used passenger cars at first Dutch registration (Personenauto Occasion import).
   HDV: New heavy commercial vehicles (Zware bedrijfsvoertuigen) — broader than EU N2/N3.
 hev_split: true
-hev_note: "Whole from 2022-01: full hybrids (RDW's NOVC-HEV class) are counted from the RDW open-data register, one cohort for the whole series, and taken out of petrol; TOTAL, BEV, PHEV and diesel stay Swing's, and OTHERS is the slack that makes the row sum. Before 2022-01 they are inside petrol (the register no longer holds those months completely). Used and HDV have no HEV column — full hybrids are inside petrol/diesel."
+hev_note: "Whole from 2023-07: full hybrids (RDW's NOVC-HEV class) are counted from the RDW open-data register, one cohort for the whole series, and taken out of petrol; TOTAL, BEV, PHEV and diesel stay Swing's, and OTHERS is the slack that makes the row sum. Before 2023-07 they are inside petrol (that cohort runs more than 2 % off Swing there). Used and HDV have no HEV column — full hybrids are inside petrol/diesel."
 fcev: folded into OTHERS (~1 unit/month Whole, ~30/month Used)
 backfill: pre-2018 Whole rows already in data/Netherlands.csv
 scope_note: HDV ≈ Zware bedrijfsvoertuigen, not a strict EU N-class.
 column_map:
   BEV: BEV
   PHEV: PHEV
-  Benzine: PETROL (pure petrol from 2022-01, register)
-  NOVC-HEV (register): HEV (from 2022-01)
+  Benzine: PETROL (pure petrol from 2023-07, register)
+  NOVC-HEV (register): HEV (from 2023-07)
   Diesel: DIESEL
-  Overig + FCEV: OTHERS (the slack from 2022-01)
+  Overig + FCEV: OTHERS (the slack from 2023-07)
 caveats:
-- Swing doesn't split full hybrids. For Whole from 2022-01 HEV and pure petrol are counted from the RDW register record by record; OTHERS then also holds the few hundred cars the register and Swing count differently (mostly motorhomes), so it is slack, not a fuel.
-- Before 2022-01 full hybrids are inside petrol; the TTM chart shows petrol incl. hybrids until twelve months of the split exist.
+- Swing doesn't split full hybrids. For Whole from 2023-07 HEV and pure petrol are counted from the RDW register record by record; OTHERS then also holds the few hundred cars the register and Swing count differently (mostly motorhomes), so it is slack, not a fuel.
+- Before 2023-07 full hybrids are inside petrol; the TTM chart shows petrol incl. hybrids until twelve months of the split exist.
 - Publication date varies within the first half of the month.
 - The portal blocks GitHub Actions and Cloudflare IPs; data is fetched via a Deno Deploy relay.
 fetcher: scripts/fetch_netherlands.py
@@ -245,14 +245,14 @@ Source columns (Swing pivot, Dutch labels) → canonical CSV columns:
 | `Benzine` | `PETROL` | Includes petrol-HEV (RDW doesn't split full hybrids out) |
 | `Diesel` | `DIESEL` | Includes diesel-HEV |
 | `Overig` + `FCEV` | `OTHERS` | FCEV folded — single-digit units/month for Whole, ~30/month for Used. Negligible effect on the ICE/BEV trajectory and the headline TTM stack. |
-| (register) | `HEV` | Whole from 2022-01: RDW register `NOVC-HEV`, see "HEV from the register" below; blank before and for Used/HDV |
+| (register) | `HEV` | Whole from 2023-07: RDW register `NOVC-HEV`, see "HEV from the register" below; blank before and for Used/HDV |
 
 ### HEV from the register
 
 The Swing pivots do not separately show full-hybrid registrations. They land in
 the `Benzine` or `Diesel` bucket. The record-level open-data fuel table
 (`8ys7-d773`, §11b) *does* flag them — `klasse_hybride_elektrisch_voertuig =
-NOVC-HEV` — so for **Whole from 2022-01** the fetcher counts them itself:
+NOVC-HEV` — so for **Whole from 2023-07** the fetcher counts them itself:
 
 - **TOTAL, BEV, PHEV, DIESEL** stay Swing's.
 - **HEV** = register plates of the month with a `NOVC-HEV` row and electricity;
@@ -272,7 +272,7 @@ How it stays current (`fetch-netherlands.yml`, every run):
    split keeps HEV and pure petrol; TOTAL/BEV/PHEV/DIESEL take Swing's new
    values and OTHERS is recomputed (`carry_register_split`). If that slack
    would be negative the split is dropped and the month is counted again.
-2. `fill_register_hev` counts every Whole month from 2022-01 that has no split
+2. `fill_register_hev` counts every Whole month from 2023-07 that has no split
    yet — normally just the new month, at most `HEV_MAX_MONTHS` per run, newest
    first — and writes only those lines (invariant 2). It also runs when the CSV
    is already current, so a month RDW could not serve is retried the next day.
@@ -282,8 +282,8 @@ How it stays current (`fetch-netherlands.yml`, every run):
    Whole ranks HEV and pure petrol (`market_class`); Used keeps full hybrids in
    petrol, like its CSV.
 
-Before 2022-01 HEV is blank and full hybrids stay inside petrol: the register no
-longer holds those months completely (see the plan below). The TTM chart keeps
+Before 2023-07 HEV is blank and full hybrids stay inside petrol: there the
+one cohort runs more than 2 % off Swing (see the plan below). The TTM chart keeps
 that history — `compute_ttm_long` folds a late-starting HEV column into petrol
 until twelve months of the split exist ([02](02-components.md) key invariants),
 then the HEV band appears. The post text's "(of which X%p were HEV)" appears
@@ -319,33 +319,40 @@ recent months the cohort that matches Swing is `export_indicator=Nee`, so a
 gap to ACEA/RDC is expected there and is not by itself a reason to switch
 scope.
 
-A historical fill uses the same register, not ACEA. `--backfill-hev 2020-01:2026-10`
-counts both cohorts and writes nothing. The closer one wins, and only inside
-2% of Swing's total (`choose_cohort`). A counted plan on 2026-11-20: 2022-01
-through 2026-10 is a continuous window (58 months, no hole). Through 2024 the
-closer cohort is usually the one that puts the since-exported plates back;
-from 2025-01 it is `export_indicator=Nee`. 2020 is blank even with those
-plates put back (still 4–8% under Swing — the cars are gone, not just
-flagged exported). 2021 has four months inside the band and eight outside;
-filling the four would open holes, so the fill starts at 2022-01.
+A historical fill uses the same register, not ACEA. `--backfill-hev START:END`
+counts both cohorts per month and writes nothing. Per month, the closer one
+inside 2 % of Swing's total is the gate (`choose_cohort`). The fill itself
+takes **one** cohort: a per-month pick flips the scope inside one series, and
+a hybrid share is not comparable across that flip. And it must reach the
+newest month, because the daily run continues it — a window that stops short
+leaves a hole at the live edge. So the window cohort is the one with the
+longest hole-free run ending at the newest month (`window_cohort`,
+`live_run`; a tie keeps stay), and the fill is that run (`fill_run`).
 
-That per-month pick is the gate, not the scope. Taken month by month it
-flips inside one series (since-exported plates back through 2024, `Nee`
-from 2025), and a hybrid share is not comparable across that flip. So the
-fill takes **one** cohort, the one that covers more of the window
-(`window_cohort`; a tie keeps stay), and fills only the months where *that*
-cohort is inside the band (`cohort_fits`). A month where only the other
-cohort fits stays blank. The plan prints the window cohort, each month it
-leaves blank, and the longest stretch without a hole (`fill_run`). The
-58-month count above was per month; the one-cohort window is re-counted
-with the full fuel join, before any write path.
+The counted plan, 2026-11-20, 2018-01..2026-10 (through the Socrata edge):
+
+| | stay (`export_indicator=Nee`) | since-exported plates put back |
+|---|---|---|
+| 2018–2020 | −13 % … −28 % | −4 % … −23 % — the cars are gone, not just flagged |
+| 2021-01 … 2021-11 | −9.6 % … −11.1 % | −1.8 % … −3.4 %, three months inside 2 % |
+| 2021-12 … 2023-06 | −1.6 % … −10.3 % | inside 2 % |
+| 2023-07 … 2025-02 | inside 2 % | inside 2 % (closer in most months) |
+| 2025-03 … 2026-10 | inside 2 % (−1.5 % … +1.8 %) | +1.3 % … +3.6 %, outside 2 % in 12 of 20 months |
+
+New Dutch cars are exported soon after registration often enough (about 2 %;
+in September 2026, 62 % of them hybrids) that the since-exported plates overshoot Swing
+for every recent month: Swing's figure for a month is counted soon after it,
+the register keeps flagging exports later. A majority vote of the per-month
+picks named the since-exported plates (36 months against 26) — and their
+hole-free run, 2021-12..2025-02, reaches none of the last 20 months. Stay's
+run is 2023-07..2026-10 (40 months), the live edge included, so stay is the
+window cohort, `HEV_COHORT = "stay"`, `HEV_FROM = "2023-07"` — also the scope
+the brand tables already validate (§11b) and proposal 66 §10 settled on.
 
 `--shadow-hev YYYY-MM` uses the month's own pick by default.
 `--cohort stay|with_exports` previews the month under the window cohort
 the plan named — what the fill would write — and is still blank outside
-the band. 2022-06, live, own pick: `with_exports`, 29,145 plates against
-Swing 29,250. HEV 6,563, pure petrol 11,983. The enriched OTHERS is 948,
-slack as above, larger because the split is older. Nothing written.
+the band.
 
 `--acea TOTAL:HEV` adds a cross-check: both cohorts are split and
 `closer_to_acea` says which one ACEA's counted HEV agrees with — the HEV

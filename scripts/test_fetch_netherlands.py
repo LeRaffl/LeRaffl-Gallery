@@ -314,15 +314,23 @@ def test_choose_cohort_sticks_to_swing_and_refuses_the_rest():
     assert fn.choose_cohort(0, 100, 100) is None
 
 
-def test_window_cohort_is_one_choice_for_the_whole_fill():
-    """A per-month pick flips the scope inside one series. The window takes
-    the cohort that covers more of it, and a tie keeps stay."""
-    mixed = [{"choice": "with_exports"}] * 3 + [{"choice": "stay"}]
-    assert fn.window_cohort(mixed) == "with_exports"
-    assert fn.window_cohort([{"choice": "stay"}, {"choice": "with_exports"}]) == "stay"
-    assert fn.window_cohort([{"choice": None}, {"choice": None}]) is None
+def test_window_cohort_is_the_one_that_reaches_the_newest_month():
+    """One cohort for the fill, and the fill must reach the live edge.
+    Shaped like the 2026-11-20 plan: the since-exported plates fit the old
+    months, only stay fits the recent ones."""
+    def d(period, stay, exp, swing=1000):
+        return {"period": period, "swing": swing, "stay": stay, "with_exports": exp,
+                "choice": fn.choose_cohort(swing, stay, exp)}
+    plan = [d("2022-01", 950, 1000), d("2022-02", 960, 1005), d("2022-03", 955, 998),
+            d("2022-04", 960, 1010), d("2025-03", 998, 1025), d("2025-04", 1002, 1030)]
+    # Majority of per-month picks would be with_exports; it does not reach 2025.
+    assert sum(x["choice"] == "with_exports" for x in plan) > sum(x["choice"] == "stay" for x in plan)
+    assert fn.live_run(plan, "stay") == 2 and fn.live_run(plan, "with_exports") == 0
+    assert fn.window_cohort(plan) == "stay"
+    tie = [d("2025-01", 1000, 1000)]
+    assert fn.window_cohort(tie) == "stay"
+    assert fn.window_cohort([d("2025-01", 900, 900)]) is None
     assert fn.window_cohort([]) is None
-
 
 def test_closer_to_acea_absolute_when_totals_agree_relative_when_not():
     """ACEA is the only counted HEV. Absolute when the totals are the same
@@ -351,13 +359,14 @@ def test_cohort_flag_matches_the_plan():
         raise AssertionError("a blank month was given a cohort")
 
 
-def test_fill_run_is_the_longest_stretch_without_a_hole():
-    marks = [("2021-01", True), ("2021-02", False), ("2021-03", True),
-             ("2021-04", True), ("2021-05", True), ("2021-06", False)]
+def test_fill_run_is_the_stretch_that_reaches_the_newest_month():
+    marks = [("2021-01", True), ("2021-02", True), ("2021-03", True),
+             ("2021-04", False), ("2021-05", True), ("2021-06", True)]
     decisions = [{"period": p, "fill": f} for p, f in marks]
-    assert fn.fill_run(decisions) == ("2021-03", "2021-05")
-    assert fn.fill_run([{"period": "2021-01", "fill": False}]) is None
-
+    # The longer run 2021-01..03 does not reach the live edge.
+    assert fn.fill_run(decisions) == ("2021-05", "2021-06")
+    assert fn.fill_run(decisions + [{"period": "2021-07", "fill": False}]) is None
+    assert fn.fill_run([]) is None
 
 class _PlanStub:
     """count_new_cars / register_split / CSV path, no network."""
@@ -384,8 +393,9 @@ class _PlanStub:
 
 
 def test_backfill_plan_fills_only_where_the_window_cohort_fits():
-    """One cohort for the whole fill: a month where only the other cohort
-    is inside the band stays blank instead of switching scope."""
+    """One cohort for the whole fill, the one that reaches the newest month:
+    a month where only the other cohort is inside the band stays blank
+    instead of switching scope."""
     import contextlib
     import io
     import tempfile
@@ -403,11 +413,13 @@ def test_backfill_plan_fills_only_where_the_window_cohort_fits():
             plan = fn.backfill_plan("2022-01", "2025-01")
         assert stub.csv.read_bytes() == before
     assert [d["choice"] for d in plan] == ["with_exports"] * 3 + ["stay"]
-    assert [d["fill"] for d in plan] == [True, True, True, False]
+    # stay is the cohort that reaches the newest month, so it is the window;
+    # the old months only the exported plates fit stay blank.
+    assert [d["fill"] for d in plan] == [False, False, False, True]
     text = out.getvalue()
-    assert "window cohort: with_exports" in text and "ACEA" not in text
-    assert "2025-01: only stay fits" in text
-    assert "2022-01..2022-03" in text
+    assert "window cohort: stay" in text and "ACEA" not in text
+    assert "2022-01: only with_exports fits" in text
+    assert "2025-01..2025-01" in text
 
 
 def test_shadow_takes_the_window_cohort_and_acea_only_cross_checks():
@@ -469,7 +481,7 @@ def test_fill_register_hev_is_line_level_and_refuses_outside_the_band():
         _write_csv(path, lines)
         with _PlanStub(tmp, {}, counts, splits):
             with contextlib.redirect_stdout(io.StringIO()) as out:
-                filled = fn.fill_register_hev(str(path), cohort="with_exports", limit=None)
+                filled = fn.fill_register_hev(str(path), start="2022-01", cohort="with_exports", limit=None)
         text = path.read_text(encoding="utf-8").splitlines()
     assert filled == ["2022-01", "2022-03"]
     assert "2022-02: with_exports 17000" in out.getvalue()
@@ -494,9 +506,9 @@ def test_fill_register_hev_cap_takes_the_newest_months():
         _write_csv(path, lines)
         with _PlanStub(tmp, {}, counts, {(p, "with_exports"): split for p in periods}):
             with contextlib.redirect_stdout(io.StringIO()):
-                assert fn.fill_register_hev(str(path), cohort="with_exports", limit=2) == ["2022-03", "2022-04"]
-                assert fn.fill_register_hev(str(path), cohort="with_exports", limit=2) == ["2022-01", "2022-02"]
-                assert fn.fill_register_hev(str(path), cohort="with_exports", limit=2) == []
+                assert fn.fill_register_hev(str(path), start="2022-01", cohort="with_exports", limit=2) == ["2022-03", "2022-04"]
+                assert fn.fill_register_hev(str(path), start="2022-01", cohort="with_exports", limit=2) == ["2022-01", "2022-02"]
+                assert fn.fill_register_hev(str(path), start="2022-01", cohort="with_exports", limit=2) == []
 
 
 def test_carry_register_split_survives_a_swing_restatement():

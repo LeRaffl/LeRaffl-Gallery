@@ -20,7 +20,7 @@ name: Fetch Netherlands data (RDW via Swing)
 # with the CSVs), probe_open, probe (+ probe_grep / probe_get) — see
 # docs/architecture/10-source-netherlands.md §11.
 #
-# HEV (Whole, from 2022-01): Swing has no full-hybrid split. After the upsert
+# HEV (Whole, from 2023-07): Swing has no full-hybrid split. After the upsert
 # the same script counts the register's NOVC-HEV and pure petrol from RDW open
 # data for every Whole month that has no split yet (normally just the new one,
 # at most three per run) and writes them onto data/Netherlands.csv; a Swing

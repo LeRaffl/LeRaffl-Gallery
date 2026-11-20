@@ -42,7 +42,7 @@ Brief recap (so the script reads on its own):
 * Dutch label -> canonical column:
       BEV -> BEV;  PHEV -> PHEV;  Benzine -> PETROL;  Diesel -> DIESEL;
       FCEV + Overig -> OTHERS. Swing has no full-hybrid split; for Whole
-      from HEV_FROM (2022-01) the register's counted HEV and pure petrol
+      from HEV_FROM (2023-07) the register's counted HEV and pure petrol
       replace it after the upsert, OTHERS being the slack (fill_register_hev,
       carry_register_split; docs 10, "HEV from the register").
 * Dutch locale: "." is thousands separator (6.863 == 6863). Empty cell == 0.
@@ -847,20 +847,36 @@ def choose_cohort(swing_total: float, stay: int, with_exports: int,
     return None
 
 
+def live_run(decisions: list[dict], cohort: str) -> int:
+    """How many plan months, counted back from the newest, `cohort` fits
+    without a hole (inside HEV_MATCH_BAND of Swing's total)."""
+    n = 0
+    for d in reversed(decisions):
+        if not cohort_fits(d["swing"], d[cohort]):
+            break
+        n += 1
+    return n
+
+
 def window_cohort(decisions: list[dict]) -> str | None:
     """One cohort for a whole fill, not one per month.
 
-    A per-month pick flips the scope inside one series (stay through 2024,
-    the since-exported plates back from 2025), and a hybrid share is not
-    comparable across that flip. The window takes the cohort that covers
-    more of it. A tie keeps stay, the scope the live fetch already uses.
-    Neither covering anything means the window is not a register fill.
+    A per-month pick flips the scope inside one series, and a hybrid share
+    is not comparable across that flip. The fill must also reach the newest
+    month — the daily run continues it, so a window that stops short leaves
+    a hole at the live edge. The window cohort is therefore the one with
+    the longest hole-free run ending at the newest plan month. A tie keeps
+    stay, the scope the live fetch and the brand tables use. No run at all
+    means the window is not a register fill.
+
+    Counted on 2026-11-20: stay fits 2023-07..2026-10 (40 months); the
+    since-exported plates fit 2021-12..2025-02 but run +2.1..+3.6 % over
+    Swing from 2025-03, so they reach the live edge for none of it.
     """
-    stay = sum(d["choice"] == "stay" for d in decisions)
-    exports = sum(d["choice"] == "with_exports" for d in decisions)
-    if not stay and not exports:
+    runs = {c: live_run(decisions, c) for c in COHORTS}
+    if not any(runs.values()):
         return None
-    return "with_exports" if exports > stay else "stay"
+    return "with_exports" if runs["with_exports"] > runs["stay"] else "stay"
 
 
 # Same-month band from acea_split: ACEA and the register are the same
@@ -1018,29 +1034,23 @@ def backfill_plan(start: str, end: str) -> list[dict]:
             print(f"  {d['period']}: only {d['choice']} fits, left blank under {window}")
     run = fill_run(decisions)
     if run:
-        print(f"  longest run without a hole: {run[0]}..{run[1]}")
+        print(f"  run without a hole up to the newest month: {run[0]}..{run[1]}")
     print("wrote nothing")
     return decisions
 
 
 def fill_run(decisions: list[dict]) -> tuple[str, str] | None:
-    """The longest stretch of consecutive plan months marked ``fill``.
-
-    A fill with holes in it is worse than a shorter one without: the plan
-    names the stretch a write path could take as one piece.
-    """
-    best: tuple[int, int] | None = None
-    start = None
-    for i, d in enumerate(decisions + [{"fill": False}]):
-        if d["fill"] and start is None:
-            start = i
-        elif not d["fill"] and start is not None:
-            if best is None or i - start > best[1] - best[0] + 1:
-                best = (start, i - 1)
-            start = None
-    if best is None:
+    """The stretch of consecutive plan months marked ``fill`` that ends at
+    the newest month — the one piece a write path can take without leaving
+    a hole for the daily run to fall into. None if the newest month is not
+    a fill month."""
+    end = len(decisions) - 1
+    if end < 0 or not decisions[end]["fill"]:
         return None
-    return decisions[best[0]]["period"], decisions[best[1]]["period"]
+    start = end
+    while start > 0 and decisions[start - 1]["fill"]:
+        start -= 1
+    return decisions[start]["period"], decisions[end]["period"]
 
 
 # ── HEV from the register: the write path ──────────────────────────────────
@@ -1051,8 +1061,8 @@ def fill_run(decisions: list[dict]) -> tuple[str, str] | None:
 # `--backfill-hev`), and a month only where that cohort is inside
 # HEV_MATCH_BAND of Swing's total. The CSV is the store: a month is counted
 # once; a Swing restatement keeps the split (carry_register_split).
-HEV_FROM = "2022-01"
-HEV_COHORT = "with_exports"
+HEV_FROM = "2023-07"        # the plan's live run (docs 10, "HEV from the register")
+HEV_COHORT = "stay"
 HEV_MAX_MONTHS = 3          # fuel joins per daily run (about a minute each)
 
 
