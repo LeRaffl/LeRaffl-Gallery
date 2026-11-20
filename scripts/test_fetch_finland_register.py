@@ -1,5 +1,6 @@
 """Register shadow for Finland. No network, no CSV write."""
 import contextlib
+import csv
 import io
 import sys
 import tempfile
@@ -135,6 +136,137 @@ def test_shadow_reads_the_zip_and_keeps_the_thinned_years_out():
         by_period = {w["period"]: w for w in window}
         assert by_period["2026-09"]["ok"] and not by_period["2024-06"]["ok"]
         assert csv_path.read_bytes() == before
+
+
+HEAD = "period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes\n"
+
+
+def _csv(tmp: Path, lines: list[str]) -> Path:
+    path = tmp / "Finland.csv"
+    path.write_text(HEAD + "".join(l + "\n" for l in lines), encoding="utf-8")
+    return path
+
+
+def test_acea_split_keeps_national_diesel_when_told():
+    import acea_split
+    statfin = {"TOTAL": 6985, "BEV": 4338, "PHEV": 765, "DIESEL": 145}
+    acea = {"TOTAL": 6985, "BEV": 4338, "PHEV": 765, "HEV": 1240, "PETROL": 450, "DIESEL": 150}
+    row, _ = acea_split.merge(statfin, acea, split=("HEV", "PETROL"))
+    assert row["DIESEL"] == 145 and row["HEV"] == 1240 and row["PETROL"] == 450
+    assert row["OTHERS"] == 6985 - 4338 - 765 - 1240 - 450 - 145
+    # Greece's default split is unchanged: ACEA's diesel.
+    row, _ = acea_split.merge(statfin, acea)
+    assert row["DIESEL"] == 150
+
+
+def test_acea_merge_rules():
+    """From 2022-01, never over a register split, only on StatFin's month."""
+    row = {"period": "2023-05", "TOTAL": "7000.0", "BEV": "2000.0", "PHEV": "800.0",
+           "HEV": "", "PETROL": "3200.0", "DIESEL": "900.0", "OTHERS": "100.0", "notes": ""}
+    acea = {"TOTAL": 7010, "BEV": 2001, "PHEV": 801, "HEV": 1500, "PETROL": 1650, "DIESEL": 905}
+    upd = fn.acea_merge(row, acea)
+    assert upd["HEV"] == 1500 and upd["PETROL"] == 1650 and upd["notes"] == fn.ACEA_NOTE
+    assert upd["OTHERS"] == 7000 - 2000 - 800 - 1500 - 1650 - 900
+    assert fn.acea_merge(dict(row, period="2021-12"), acea) is None
+    reg = dict(row, HEV="1400.0", notes=fn.register_note("2026-09-30"))
+    assert fn.acea_merge(reg, acea) is None
+    assert fn.acea_merge(row, dict(acea, TOTAL=7500)) is None          # not the same month
+    assert fn.acea_merge(row, dict(acea, HEV=3000)) is None            # negative slack
+
+
+def test_carry_split_keeps_hev_through_a_statfin_restatement():
+    old = {"period": "2026-09", "HEV": "1197.0", "PETROL": "481.0", "OTHERS": "59.0",
+           "notes": fn.register_note("2026-09-30")}
+    new = {"period": "2026-09", "TOTAL": 7000.0, "BEV": 4340.0, "PHEV": 765.0, "HEV": "",
+           "PETROL": 1700.0, "DIESEL": 145.0, "OTHERS": 52.0, "notes": ""}
+    kept = fn.carry_split(old, new)
+    assert kept["HEV"] == "1197.0" and kept["PETROL"] == "481.0" and kept["TOTAL"] == 7000.0
+    assert kept["OTHERS"] == 7000 - 4340 - 765 - 1197 - 481 - 145
+    assert kept["notes"] == old["notes"]
+    with contextlib.redirect_stdout(io.StringIO()):
+        assert fn.carry_split(old, dict(new, TOTAL=5000.0)) is not None
+        assert fn.carry_split(old, dict(new, TOTAL=5000.0))["HEV"] == ""   # dropped
+    assert fn.carry_split(dict(old, notes="manual"), new) is new          # not ours
+
+
+def test_apply_register_covers_full_months_and_replaces_acea():
+    """A snapshot dated the 30th covers its own month; it replaces an ACEA
+    gap-fill, leaves 2024 (ACEA's years) alone and writes line-level."""
+    def car(day, fuel="01", hyb="false", cls=""):
+        d, m, y = day.split(".")
+        return {"ajoneuvoluokka": "M1", "ensirekisterointipvm": day,
+                "kayttoonottopvm": y + m + d, "kayttovoima": fuel,
+                "sahkohybridi": hyb, "sahkohybridinluokka": cls}
+    rows = [car("03.09.2026", hyb="true", cls="02"), car("04.09.2026"), car("30.09.2026", "04"),
+            car("03.08.2026", hyb="true", cls="02"), car("04.06.2024", hyb="true", cls="02")]
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        zpath = tmp / "Ajoneuvorekisteri.zip"
+        _snapshot(zpath, rows)
+        lines = [
+            "2024-06,monthly,Whole,StatFin,1.0,0.0,1.0,2.0,0.0,,0.0,4.0," + '"' + fn.ACEA_NOTE + '"',
+            "2026-08,monthly,Whole,StatFin,1.0,0.0,1.0,2.0,0.0,,0.0,4.0," + '"' + fn.ACEA_NOTE + '"',
+            "2026-09,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,,0.0,4.0,",
+            "2026-10,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,,0.0,4.0,",
+        ]
+        path = _csv(tmp, lines)
+        with contextlib.redirect_stdout(io.StringIO()):
+            written = fn.apply_register(zpath, path)
+            again = fn.apply_register(zpath, path)
+        text = path.read_text(encoding="utf-8").splitlines()
+        rows_out = {r["period"]: r for r in csv.DictReader(text)}
+        assert written == ["2026-08", "2026-09"] and again == []
+        assert text[1] == lines[0] and text[4] == lines[3]                 # 2024 + October untouched
+        sep = rows_out["2026-09"]
+        assert (sep["HEV"], sep["PETROL"], sep["OTHERS"]) == ("1.0", "1.0", "1.0")
+        assert sep["notes"] == fn.register_note("2026-09-30")
+        assert rows_out["2026-08"]["notes"].startswith(fn.REGISTER_NOTE)  # ACEA replaced
+        assert fn.newest_snapshot_date(path) == "2026-09-30"
+        # The snapshot published on 14 October is that one; January's is new.
+        assert not fn.snapshot_is_new("Wed, 14 Oct 2026 09:42:59 GMT", path)
+        assert fn.snapshot_is_new("Wed, 13 Jan 2027 09:00:00 GMT", path)
+
+
+def test_covered_through():
+    assert fn.covered_through("2026-09-30") == "2026-09"
+    assert fn.covered_through("2026-09-12") == "2026-08"
+    assert fn.covered_through("2027-01-03") == "2026-12"
+
+
+def test_apply_acea_writes_one_line_and_skips_register_months():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        lines = ["2023-05,monthly,Whole,StatFin,2000.0,800.0,,3200.0,900.0,,100.0,7000.0,",
+                 "2026-09,monthly,Whole,StatFin,1.0,0.0,1.0,2.0,0.0,,0.0,4.0,"
+                 + '"' + fn.register_note("2026-09-30") + '"']
+        path = _csv(tmp, lines)
+        acea = {"TOTAL": 7000, "BEV": 2000, "PHEV": 800, "HEV": 1500, "PETROL": 1650, "DIESEL": 900}
+        with contextlib.redirect_stdout(io.StringIO()):
+            assert fn.apply_acea("2023-05", acea, path)
+            assert not fn.apply_acea("2023-05", acea, path)                 # no-op the 2nd time
+            assert not fn.apply_acea("2026-09", dict(acea, TOTAL=4, BEV=1, PHEV=0), path)
+            assert not fn.apply_acea("2026-11", acea, path)                 # no StatFin row yet
+        text = path.read_text(encoding="utf-8").splitlines()
+        assert text[2] == lines[1]
+        assert next(csv.DictReader([text[0], text[1]]))["HEV"] == "1500.0"
+
+
+def test_fetch_finland_upsert_keeps_the_split():
+    import fetch_finland as ff
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        path = _csv(tmp, ["2023-05,monthly,Whole,pxdata.stat.fi (StatFin 121d),2000.0,800.0,1500.0,"
+                          "1650.0,900.0,,150.0,7000.0," + '"' + fn.ACEA_NOTE + '"'])
+        new = {("2023-05", "Whole"): {
+            "period": "2023-05", "time_interval": "monthly", "variant": "Whole",
+            "source": ff.SOURCE, "BEV": 2000.0, "PHEV": 800.0, "HEV": "", "PETROL": 3160.0,
+            "DIESEL": 900.0, "FLEXFUEL": "", "OTHERS": 150.0, "TOTAL": 7010.0, "notes": ""}}
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            ff.upsert_csv(str(path), new)
+        row = next(csv.DictReader(path.read_text(encoding="utf-8").splitlines()))
+    assert float(row["HEV"]) == 1500 and float(row["PETROL"]) == 1650 and float(row["TOTAL"]) == 7010
+    assert float(row["OTHERS"]) == 7010 - 2000 - 800 - 1500 - 1650 - 900
+    assert row["notes"] == fn.ACEA_NOTE and "WARNING" not in out.getvalue()
 
 
 if __name__ == "__main__":

@@ -1,9 +1,20 @@
-"""Shadow the Traficom open register against StatFin. Writes nothing.
+"""Finland's HEV: counted full hybrids on top of the StatFin row.
 
-StatFin 121d stays the published TOTAL / BEV / PHEV / DIESEL. The open
-snapshot (Ajoneuvorekisteri.zip) can split the full hybrid that 121d folds
-into petrol, and can separate a used import from a new car. Neither number
-is written until a shadow window is accepted.
+StatFin 121d stays the published TOTAL / BEV / PHEV / DIESEL and has no
+full-hybrid code (they sit in petrol). Neither do Traficom's monthly tables.
+HEV and pure petrol therefore come from two counted sources, and OTHERS is
+the slack that makes the row sum:
+
+  2022-01 .. 2024-12  ACEA's monthly release (same total as StatFin)
+  2025-01 ..          Traficom's open register snapshot (Ajoneuvorekisteri.zip,
+                      quarterly); a month newer than the latest snapshot gets
+                      ACEA's figure until the next snapshot covers it
+  before 2022         blank (the TTM folds the hybrids into petrol there)
+
+The row's `notes` names the source of the split. fetch_finland.py keeps the
+split when StatFin restates a month (carry_split); fetch_acea.py merges
+ACEA's month (acea_merge); --write-register applies a snapshot. The
+--shadow-* modes still print and write nothing.
 
 Dates are not ISO. ``ensirekisterointipvm`` is DD.MM.YYYY.
 ``kayttoonottopvm`` is YYYYMMDD. Whole is M1+M1G with both dates in the
@@ -29,6 +40,233 @@ FUELS = ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")
 REGISTER_NOTE = ("TOTAL/BEV/PHEV/DIESEL StatFin 121d; HEV/PETROL Traficom "
                  "register (counted, M1+M1G, first use in the registration "
                  "month); OTHERS = TOTAL minus the rest")
+
+ACEA_NOTE = ("TOTAL/BEV/PHEV/DIESEL StatFin 121d; HEV/PETROL ACEA (counted); "
+             "OTHERS = TOTAL minus the rest")
+ACEA_FROM = "2022-01"          # ACEA's monthly table; before it only quarters
+ACEA_SPLIT = ("HEV", "PETROL")  # StatFin keeps its counted diesel
+SNAPSHOT_URL = "https://opendata.traficom.fi/Content/Ajoneuvorekisteri.zip"
+# A snapshot is published 2-3 weeks after its data date, then quarterly.
+# Anything modified more than this after the newest data date already in
+# the CSV is a new snapshot worth the 200 MB download.
+SNAPSHOT_NEWER_DAYS = 31
+
+
+def register_note(as_of: str) -> str:
+    return f"{REGISTER_NOTE}; snapshot {as_of}"
+
+
+def split_kind(row: dict) -> str | None:
+    """Which counted source put HEV on this row: "register", "acea" or None."""
+    notes = row.get("notes") or ""
+    if not (row.get("HEV") or "").strip():
+        return None
+    if notes.startswith(REGISTER_NOTE):
+        return "register"
+    if notes.startswith(ACEA_NOTE):
+        return "acea"
+    return None
+
+
+def _f(row: dict, k: str) -> float:
+    return float(row.get(k) or 0)
+
+
+def carry_split(old: dict, new: dict) -> dict:
+    """A StatFin restatement of a month that already has the split.
+
+    StatFin rewrites its months with HEV blank and hybrids inside petrol.
+    The counted HEV and pure petrol stay, TOTAL / BEV / PHEV / DIESEL take
+    StatFin's new values and OTHERS is the slack again. If the slack would
+    go negative the split is dropped (StatFin's row as published) and the
+    next ACEA run or snapshot fills it again.
+    """
+    kind = split_kind(old)
+    if kind is None:
+        return new
+    others = (_f(new, "TOTAL") - _f(new, "BEV") - _f(new, "PHEV")
+              - _f(old, "HEV") - _f(old, "PETROL") - _f(new, "DIESEL"))
+    if others < 0:
+        print(f"  {new.get('period')}: StatFin restated past the {kind} split "
+              "(negative OTHERS); split dropped")
+        return new
+    return {**new, "HEV": old["HEV"], "PETROL": old["PETROL"],
+            "OTHERS": others, "notes": old["notes"]}
+
+
+def acea_merge(row: dict, acea: dict) -> dict | None:
+    """ACEA's counted HEV / petrol on a StatFin row, or None.
+
+    Only from ACEA_FROM, never over a register split, and only when ACEA's
+    TOTAL / BEV / PHEV are StatFin's month (acea_split tolerances) and the
+    slack is not negative.
+    """
+    import acea_split
+    if row.get("period", "") < ACEA_FROM or split_kind(row) == "register":
+        return None
+    merged = acea_split.merge(row, acea, split=ACEA_SPLIT)
+    if merged is None:
+        return None
+    vals, _ = merged
+    return {"HEV": vals["HEV"], "PETROL": vals["PETROL"], "OTHERS": vals["OTHERS"],
+            "notes": ACEA_NOTE}
+
+
+def _fmt(v) -> str:
+    return f"{float(v):.1f}"
+
+
+def write_split(csv_path: Path, filled: dict[str, dict]) -> None:
+    """Rewrite only the Whole lines of the filled periods (invariant 2)."""
+    lines = Path(csv_path).read_text(encoding="utf-8").splitlines(keepends=True)
+    header = next(csv.reader([lines[0]]))
+    out = [lines[0]]
+    for line in lines[1:]:
+        rec = dict(zip(header, next(csv.reader([line]))))
+        upd = filled.get(rec.get("period")) if rec.get("variant") == "Whole" else None
+        if upd is None:
+            out.append(line)
+            continue
+        for k in ("HEV", "PETROL", "OTHERS"):
+            rec[k] = _fmt(upd[k])
+        rec["notes"] = upd["notes"]
+        buf = io.StringIO()
+        csv.writer(buf, lineterminator="\n").writerow([rec.get(h, "") for h in header])
+        out.append(buf.getvalue())
+    Path(csv_path).write_text("".join(out), encoding="utf-8")
+
+
+def whole_rows(csv_path: Path = CSV_PATH) -> dict[str, dict]:
+    with open(csv_path, encoding="utf-8", newline="") as f:
+        return {r["period"]: r for r in csv.DictReader(f)
+                if r["variant"] == "Whole" and r["time_interval"] == "monthly"
+                and r.get("TOTAL")}
+
+
+def apply_acea(period: str, acea: dict, csv_path: Path = CSV_PATH) -> bool:
+    """fetch_acea.py's hook: merge one ACEA month. True if the CSV changed."""
+    row = whole_rows(csv_path).get(period)
+    if row is None:
+        print(f"    Finland {period}: no StatFin row yet; ACEA split waits for it")
+        return False
+    upd = acea_merge(row, acea)
+    if upd is None:
+        why = ("register split kept" if split_kind(row) == "register"
+               else "before ACEA's monthly table" if period < ACEA_FROM
+               else "ACEA's TOTAL/BEV/PHEV not StatFin's month, or negative slack")
+        print(f"    Finland {period}: ACEA HEV not merged ({why})")
+        return False
+    if (split_kind(row) == "acea" and all(abs(_f(row, k) - float(upd[k])) < 0.5
+                                          for k in ("HEV", "PETROL", "OTHERS"))):
+        return False
+    write_split(csv_path, {period: upd})
+    print(f"    Finland {period}: HEV {upd['HEV']:.0f} / petrol {upd['PETROL']:.0f} "
+          f"from ACEA on the StatFin row (slack {upd['OTHERS']:.0f})")
+    return True
+
+
+def latest_registration(rows) -> str | None:
+    """Newest first-registration date of a passenger car in the snapshot
+    (ISO). The snapshot's data date, as far as the file itself says."""
+    best = None
+    for row in rows:
+        if (row.get("ajoneuvoluokka") or "") not in PASSENGER:
+            continue
+        v = row.get("ensirekisterointipvm") or ""
+        if len(v) == 10 and v[2] == "." and v[5] == ".":
+            iso = f"{v[6:10]}-{v[3:5]}-{v[0:2]}"
+            if best is None or iso > best:
+                best = iso
+    return best
+
+
+def covered_through(as_of: str) -> str:
+    """The last month a snapshot holds in full: its own month when the data
+    date is in the month's last days, otherwise the month before."""
+    y, m, d = int(as_of[:4]), int(as_of[5:7]), int(as_of[8:10])
+    if d >= 28:
+        return f"{y}-{m:02d}"
+    return f"{y - 1}-12" if m == 1 else f"{y}-{m - 1:02d}"
+
+
+def apply_register(snapshot: Path, csv_path: Path = CSV_PATH) -> list[str]:
+    """Write the register's HEV / pure petrol onto every month from
+    HEV_FILL_FROM the snapshot covers in full. Replaces an ACEA gap-fill;
+    a month whose slack would be negative keeps what it has. Returns the
+    periods written."""
+    rows = list(iter_snapshot(snapshot))
+    as_of = latest_registration(rows)
+    if as_of is None:
+        raise RuntimeError(f"{snapshot}: no passenger-car registration dates")
+    through = covered_through(as_of)
+    tallied = tally(rows)
+    current = whole_rows(csv_path)
+    filled = {}
+    for period, row in sorted(current.items()):
+        if not in_fill_window(period) or period > through:
+            continue
+        whole = tallied.get(period, {}).get("whole", Counter())
+        sf = {k: _f(row, k) for k in ("TOTAL", "BEV", "PHEV", "DIESEL")}
+        enriched = enrich_statfin(sf, {k: whole.get(k, 0) for k in FUELS})
+        if enriched is None:
+            print(f"{period}  register refused (negative slack); kept {split_kind(row) or 'StatFin'}")
+            continue
+        upd = {"HEV": enriched["HEV"], "PETROL": enriched["PETROL"],
+               "OTHERS": enriched["OTHERS"], "notes": register_note(as_of)}
+        if (split_kind(row) == "register" and row["notes"] == upd["notes"]
+                and all(abs(_f(row, k) - float(upd[k])) < 0.5 for k in ("HEV", "PETROL", "OTHERS"))):
+            continue
+        filled[period] = upd
+        print(f"{period}  register HEV {upd['HEV']:.0f} petrol {upd['PETROL']:.0f} "
+              f"slack {upd['OTHERS']:.0f} (was {split_kind(row) or 'blank'})")
+    if filled:
+        write_split(csv_path, filled)
+    print(f"snapshot {as_of} (complete through {through}): {len(filled)} month(s) written")
+    return sorted(filled)
+
+
+def newest_snapshot_date(csv_path: Path = CSV_PATH) -> str | None:
+    dates = [r["notes"].rsplit("snapshot ", 1)[-1][:10]
+             for r in whole_rows(csv_path).values() if split_kind(r) == "register"]
+    return max(dates) if dates else None
+
+
+def snapshot_is_new(last_modified: str | None, csv_path: Path = CSV_PATH,
+                    newer_days: int = SNAPSHOT_NEWER_DAYS) -> bool:
+    """Is the published snapshot newer than the one already in the CSV?
+
+    `last_modified` is the HTTP Last-Modified header. The CSV records the
+    snapshot's data date; a file published more than `newer_days` after
+    that date is the next quarter's.
+    """
+    from datetime import date, timedelta
+    from email.utils import parsedate_to_datetime
+    have = newest_snapshot_date(csv_path)
+    if have is None or not last_modified:
+        return True
+    published = parsedate_to_datetime(last_modified).date()
+    return published > date.fromisoformat(have) + timedelta(days=newer_days)
+
+
+def fetch_snapshot(dest: Path, url: str = SNAPSHOT_URL, force: bool = False,
+                   csv_path: Path = CSV_PATH) -> Path | None:
+    """Download the snapshot when it is new (or `force`). None = nothing new."""
+    import requests
+    head = requests.head(url, timeout=60, allow_redirects=True)
+    head.raise_for_status()
+    lm = head.headers.get("Last-Modified")
+    if not force and not snapshot_is_new(lm, csv_path):
+        print(f"Traficom snapshot ({lm}) already applied "
+              f"(newest in CSV: {newest_snapshot_date(csv_path)}); skipping")
+        return None
+    print(f"Downloading Traficom snapshot ({lm}) ...")
+    with requests.get(url, timeout=600, stream=True) as r:
+        r.raise_for_status()
+        with open(dest, "wb") as f:
+            for chunk in r.iter_content(1 << 20):
+                f.write(chunk)
+    return dest
+
 
 # The review call in 12-source-finland.md: the register is thinned by
 # snapshot drift (about -15% in 2014, -6% to -11% in 2022) and only stays
@@ -230,6 +468,37 @@ def shadow_hev(period: str, snapshot: Path, csv_path: Path = CSV_PATH) -> dict |
     return enriched
 
 
+def acea_backfill(start: str, end: str, csv_path: Path = CSV_PATH) -> list[str]:
+    """Merge ACEA's Finland HEV / petrol month by month from the public
+    release PDFs (fetch_acea's URL and parser). Months the register already
+    covers are left alone. Returns the periods changed."""
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import fetch_acea as fa
+    changed = []
+    y, m = int(start[:4]), int(start[5:7])
+    while f"{y}-{m:02d}" <= end:
+        period = f"{y}-{m:02d}"
+        url = fa.ACEA_URL_TEMPLATE.format(month_name=fa.ENGLISH_MONTHS[m - 1], year=y)
+        try:
+            pdf = Path("/tmp/_acea_fi.pdf")
+            pdf.write_bytes(fa.load_pdf_bytes(url))
+            parsed, label = fa.parse_monthly_table(str(pdf), ["Finland"])
+        except Exception as e:      # a missing release (July) or an odd layout
+            print(f"{period}: no ACEA table ({type(e).__name__}: {e})")
+        else:
+            fi = parsed.get("Finland")
+            if fi is None:
+                print(f"{period}: Finland not in the release")
+            else:
+                acea = {k: float(v[0]) for k, v in fi.items()}
+                if apply_acea(period, acea, csv_path):
+                    changed.append(period)
+        y, m = (y + 1, 1) if m == 12 else (y, m + 1)
+    print(f"ACEA backfill {start}..{end}: {len(changed)} month(s) changed")
+    return changed
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -238,10 +507,34 @@ def main() -> None:
                       help="One month against StatFin. Writes nothing.")
     mode.add_argument("--shadow-window", action="store_true",
                       help="Every StatFin month in one pass. Writes nothing.")
-    parser.add_argument("--snapshot", type=Path, required=True,
-                        help="Traficom open-data Ajoneuvorekisteri.zip.")
+    mode.add_argument("--write-register", action="store_true",
+                      help="Apply the snapshot's HEV / pure petrol to data/Finland.csv "
+                           "(every month from 2025-01 it covers in full).")
+    mode.add_argument("--acea-backfill", metavar="YYYY-MM:YYYY-MM",
+                      help="Merge ACEA's monthly HEV / petrol for each month in the "
+                           "range from the public release PDFs (from 2022-01).")
+    parser.add_argument("--snapshot", type=Path,
+                        help="Traficom open-data Ajoneuvorekisteri.zip (a local copy).")
+    parser.add_argument("--download", action="store_true",
+                        help="With --write-register: fetch the snapshot when it is "
+                             "newer than the one already applied.")
+    parser.add_argument("--force", action="store_true",
+                        help="With --download: fetch even if it looks applied.")
     args = parser.parse_args()
-    if args.shadow_window:
+    if args.acea_backfill:
+        start, end = args.acea_backfill.split(":")
+        acea_backfill(start, end)
+        return
+    if args.write_register and args.download:
+        args.snapshot = fetch_snapshot(args.snapshot or Path("/tmp/Ajoneuvorekisteri.zip"),
+                                       force=args.force)
+        if args.snapshot is None:
+            return
+    if not args.snapshot:
+        parser.error("--snapshot PATH (or --write-register --download) is required")
+    if args.write_register:
+        apply_register(args.snapshot)
+    elif args.shadow_window:
         shadow_window(args.snapshot)
     else:
         shadow_hev(args.shadow_hev, args.snapshot)
