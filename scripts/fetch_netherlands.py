@@ -779,6 +779,12 @@ def register_note(cohort: str) -> str:
 
 
 HEV_MATCH_BAND = 0.02
+COHORTS = ("stay", "with_exports")
+
+
+def cohort_fits(swing_total: float, n: int, band: float = HEV_MATCH_BAND) -> bool:
+    """Is a register count inside ``band`` of Swing's total?"""
+    return bool(swing_total) and abs(n / swing_total - 1) <= band
 
 
 def choose_cohort(swing_total: float, stay: int, with_exports: int,
@@ -851,28 +857,40 @@ def closer_to_acea(stay: dict, with_exports: dict, acea: dict,
     return "stay" if stay_gap <= exp_gap else "with_exports"
 
 
-def cohort_exported(choice: str | None) -> bool | None:
-    """The ``exported`` flag ``fetch_new_cars`` expects for a plan choice.
+def cohort_exported(choice: str) -> bool | None:
+    """The ``exported`` flag ``fetch_new_cars`` expects for a cohort.
 
-    ``None`` means the plan left the month blank, or the since-exported
-    plates belong back in the cohort. ``False`` is export_indicator=Nee.
+    ``False`` is export_indicator=Nee; ``None`` keeps both, i.e. the
+    since-exported plates put back. A blank month has no cohort to fetch.
     """
     if choice == "stay":
         return False
     if choice == "with_exports":
         return None
-    return None
+    raise ValueError(f"no register cohort for {choice!r}")
 
 
-def shadow_hev(period: str) -> dict | None:
+def register_split(session: requests.Session, period: str, choice: str) -> dict[str, int]:
+    """One month's counted fuel split for one cohort (the fuel join)."""
+    cars = fetch_new_cars(session, period, "Whole", exported=cohort_exported(choice))
+    fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
+    return count_plates({c["kenteken"]: fuels.get(c["kenteken"], []) for c in cars})
+
+
+def shadow_hev(period: str, cohort: str | None = None,
+               acea: dict | None = None) -> dict | None:
     """Print the register split against the Swing row. Writes nothing.
 
-    Scope is the cohort `choose_cohort` picks for this month: stay
-    (export_indicator=Nee) when that is as close as the since-exported
-    plates, otherwise those plates put back, and only inside 2% of Swing.
-    A month outside the band is printed and skipped.
+    ``cohort`` is the scope to preview, normally the window cohort
+    ``--backfill-hev`` named, so a historical month is shadowed the way the
+    one-cohort fill would write it. Without it the month's own
+    ``choose_cohort`` pick is used. Either way the cohort must be inside
+    HEV_MATCH_BAND of Swing, or the month is printed and left blank.
+
+    ``acea`` ({TOTAL, HEV}, the month's ACEA/RDC release) adds a
+    cross-check only: both cohorts are split and ``closer_to_acea`` says
+    which one ACEA's counted HEV agrees with. It never changes the row.
     """
-    import csv
     swing_row = None
     with open(CSV_PATHS["Whole"], encoding="utf-8", newline="") as f:
         for row in csv.DictReader(f):
@@ -885,16 +903,17 @@ def shadow_hev(period: str) -> dict | None:
     session = rdw_session()
     stay = count_new_cars(session, period, exported=False)
     both = count_new_cars(session, period, exported=None)
-    choice = choose_cohort(swing["TOTAL"], stay, both)
+    counts = {"stay": stay, "with_exports": both}
+    if cohort is None:
+        choice = choose_cohort(swing["TOTAL"], stay, both)
+    else:
+        choice = cohort if cohort_fits(swing["TOTAL"], counts[cohort]) else None
     if choice is None:
-        print(f"shadow {period}: blank (stay {stay}, with exports {both}, "
-              f"Swing {swing['TOTAL']:.0f})")
+        print(f"shadow {period}: blank{f' under {cohort}' if cohort else ''} "
+              f"(stay {stay}, with exports {both}, Swing {swing['TOTAL']:.0f})")
         print("  wrote nothing")
         return None
-    cars = fetch_new_cars(session, period, "Whole", exported=cohort_exported(choice))
-    fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
-    by_plate = {c["kenteken"]: fuels.get(c["kenteken"], []) for c in cars}
-    register = count_plates(by_plate)
+    register = register_split(session, period, choice)
     enriched = enrich_swing(swing, register, cohort=choice)
     print(f"shadow {period}: {choice}, register {sum(register.values())} plates, "
           f"Swing TOTAL {swing['TOTAL']:.0f}")
@@ -904,15 +923,24 @@ def shadow_hev(period: str) -> dict | None:
     else:
         print("  enriched:", " ".join(f"{k}={enriched[k]:.0f}" for k in
               ("TOTAL", "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")))
-        print("  wrote nothing")
+    if acea:
+        other = "with_exports" if choice == "stay" else "stay"
+        splits = {choice: register, other: register_split(session, period, other)}
+        judged = {k: {"TOTAL": sum(v.values()), "HEV": v["HEV"]} for k, v in splits.items()}
+        print(f"  ACEA cross-check: TOTAL {acea['TOTAL']:.0f} HEV {acea['HEV']:.0f}; "
+              + "; ".join(f"{k} {judged[k]['TOTAL']} HEV {judged[k]['HEV']}" for k in COHORTS)
+              + f" -> closer: {closer_to_acea(judged['stay'], judged['with_exports'], acea)}")
+    print("  wrote nothing")
     return enriched
 
 
 def backfill_plan(start: str, end: str) -> list[dict]:
     """Print which months a historical HEV fill may touch. Writes nothing.
 
-    One count per cohort, no fuel join. The closer cohort within
-    HEV_MATCH_BAND wins; a month outside it stays blank.
+    One count per cohort, no fuel join. Per month, the closer cohort
+    within HEV_MATCH_BAND is the gate (``choose_cohort``). The fill itself
+    takes one cohort for the whole window (``window_cohort``) and only the
+    months where that cohort fits; the rest stay blank.
     """
     session = rdw_session()
     with open(CSV_PATHS["Whole"], encoding="utf-8", newline="") as f:
@@ -937,9 +965,46 @@ def backfill_plan(start: str, end: str) -> list[dict]:
     n_blank = sum(d["choice"] is None for d in decisions)
     print(f"plan {start}..{end}: {n_stay} stay, {n_exp} with_exports, "
           f"{n_blank} blank")
-    print(f"window cohort: {window or 'none — not a register fill, ACEA covers it'}")
+    if window is None:
+        print("window cohort: none — not a register fill, HEV stays blank")
+        print("wrote nothing")
+        return decisions
+    # One scope for the whole fill: a month is filled only if the window
+    # cohort itself is inside the band. A month where only the other
+    # cohort fits stays blank rather than switch scope mid-series.
+    for d in decisions:
+        d["fill"] = cohort_fits(d["swing"], d[window])
+    filled = sum(d["fill"] for d in decisions)
+    print(f"window cohort: {window} — {filled} of {len(decisions)} months inside "
+          f"{HEV_MATCH_BAND:.0%} of Swing with that one cohort")
+    for d in decisions:
+        if not d["fill"] and d["choice"] is not None:
+            print(f"  {d['period']}: only {d['choice']} fits, left blank under {window}")
+    run = fill_run(decisions)
+    if run:
+        print(f"  longest run without a hole: {run[0]}..{run[1]}")
     print("wrote nothing")
     return decisions
+
+
+def fill_run(decisions: list[dict]) -> tuple[str, str] | None:
+    """The longest stretch of consecutive plan months marked ``fill``.
+
+    A fill with holes in it is worse than a shorter one without: the plan
+    names the stretch a write path could take as one piece.
+    """
+    best: tuple[int, int] | None = None
+    start = None
+    for i, d in enumerate(decisions + [{"fill": False}]):
+        if d["fill"] and start is None:
+            start = i
+        elif not d["fill"] and start is not None:
+            if best is None or i - start > best[1] - best[0] + 1:
+                best = (start, i - 1)
+            start = None
+    if best is None:
+        return None
+    return decisions[best[0]]["period"], decisions[best[1]]["period"]
 
 
 # Display names only — the CSV never sees them. RDW's `merk` is consistent
@@ -1311,17 +1376,33 @@ def main() -> None:
         help="Print the RDW HEV/petrol split against the Swing row. Writes nothing.",
     )
     parser.add_argument(
+        "--cohort", choices=COHORTS,
+        help="With --shadow-hev: preview this cohort (the window cohort "
+             "--backfill-hev named) instead of the month's own pick.",
+    )
+    parser.add_argument(
+        "--acea", metavar="TOTAL:HEV",
+        help="With --shadow-hev: ACEA/RDC TOTAL and HEV for the month. Prints "
+             "which cohort ACEA's counted HEV agrees with; changes nothing.",
+    )
+    parser.add_argument(
         "--backfill-hev", metavar="YYYY-MM:YYYY-MM",
         help="Print which months the register may fill with HEV. Writes nothing.",
     )
     args = parser.parse_args()
 
+    if (args.cohort or args.acea) and not args.shadow_hev:
+        parser.error("--cohort and --acea only go with --shadow-hev")
     if args.backfill_hev:
         start, end = args.backfill_hev.split(":")
         backfill_plan(start, end)
         return
     if args.shadow_hev:
-        shadow_hev(args.shadow_hev)
+        acea = None
+        if args.acea:
+            total, hev = (float(x) for x in args.acea.split(":"))
+            acea = {"TOTAL": total, "HEV": hev}
+        shadow_hev(args.shadow_hev, cohort=args.cohort, acea=acea)
         return
     if args.probe_open:
         probe_open({"used": "Used", "hdv": "HDV"}.get(args.variant, "Whole"))

@@ -286,10 +286,11 @@ def test_enrich_keeps_swing_total_and_refuses_a_negative_residual():
     swing = {"TOTAL": 24739, "BEV": 9457, "PHEV": 5774, "DIESEL": 16, "OTHERS": 111}
     register = {"HEV": 7263, "PETROL": 1917, "DIESEL": 457, "OTHERS": 111}
     row = fn.enrich_swing(swing, register)
+    assert row is not None
     assert row["HEV"] == 7263 and row["PETROL"] == 1917 and row["DIESEL"] == 16
     assert row["TOTAL"] == 24739 and row["BEV"] == 9457 and row["PHEV"] == 5774
     assert row["OTHERS"] == 24739 - 9457 - 5774 - 7263 - 1917 - 16
-    assert row is not None and row["OTHERS"] > 0
+    assert row["OTHERS"] > 0
     assert "RDW register" in row["notes"] and "still in the country" in row["notes"]
     exported = fn.enrich_swing(swing, register, cohort="with_exports")
     assert exported is not None and "since-exported" in exported["notes"]
@@ -341,7 +342,103 @@ def test_closer_to_acea_absolute_when_totals_agree_relative_when_not():
 def test_cohort_flag_matches_the_plan():
     assert fn.cohort_exported("stay") is False
     assert fn.cohort_exported("with_exports") is None
-    assert fn.cohort_exported(None) is None
+    # A blank month has no cohort; it must not be fetched as "both".
+    try:
+        fn.cohort_exported(None)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a blank month was given a cohort")
+
+
+def test_fill_run_is_the_longest_stretch_without_a_hole():
+    marks = [("2021-01", True), ("2021-02", False), ("2021-03", True),
+             ("2021-04", True), ("2021-05", True), ("2021-06", False)]
+    decisions = [{"period": p, "fill": f} for p, f in marks]
+    assert fn.fill_run(decisions) == ("2021-03", "2021-05")
+    assert fn.fill_run([{"period": "2021-01", "fill": False}]) is None
+
+
+class _PlanStub:
+    """count_new_cars / register_split / CSV path, no network."""
+
+    def __init__(self, tmp, swing, counts, splits=None):
+        self.csv = Path(tmp) / "Netherlands.csv"
+        lines = ["period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes"]
+        for period, (total, bev, phev, die) in swing.items():
+            lines.append(f"{period},monthly,Whole,Swing,{bev},{phev},,,{die},,{total},")
+        self.csv.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        self.counts, self.splits = counts, splits or {}
+
+    def __enter__(self):
+        self.saved = (fn.CSV_PATHS["Whole"], fn.rdw_session, fn.count_new_cars, fn.register_split)
+        fn.CSV_PATHS["Whole"] = self.csv
+        fn.rdw_session = lambda: None
+        fn.count_new_cars = lambda _s, period, variant="Whole", exported=False: \
+            self.counts[period]["stay" if exported is False else "with_exports"]
+        fn.register_split = lambda _s, period, choice: self.splits[(period, choice)]
+        return self
+
+    def __exit__(self, *exc):
+        fn.CSV_PATHS["Whole"], fn.rdw_session, fn.count_new_cars, fn.register_split = self.saved
+
+
+def test_backfill_plan_fills_only_where_the_window_cohort_fits():
+    """One cohort for the whole fill: a month where only the other cohort
+    is inside the band stays blank instead of switching scope."""
+    import contextlib
+    import io
+    import tempfile
+    swing = {p: (1000, 0, 0, 0) for p in ("2022-01", "2022-02", "2022-03", "2025-01")}
+    counts = {
+        "2022-01": {"stay": 950, "with_exports": 1000},   # only exports fit
+        "2022-02": {"stay": 950, "with_exports": 1010},   # only exports fit
+        "2022-03": {"stay": 940, "with_exports": 995},    # only exports fit
+        "2025-01": {"stay": 1000, "with_exports": 1030},  # only stay fits
+    }
+    with tempfile.TemporaryDirectory() as tmp, _PlanStub(tmp, swing, counts) as stub:
+        before = stub.csv.read_bytes()
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            plan = fn.backfill_plan("2022-01", "2025-01")
+        assert stub.csv.read_bytes() == before
+    assert [d["choice"] for d in plan] == ["with_exports"] * 3 + ["stay"]
+    assert [d["fill"] for d in plan] == [True, True, True, False]
+    text = out.getvalue()
+    assert "window cohort: with_exports" in text and "ACEA" not in text
+    assert "2025-01: only stay fits" in text
+    assert "2022-01..2022-03" in text
+
+
+def test_shadow_takes_the_window_cohort_and_acea_only_cross_checks():
+    import contextlib
+    import io
+    import tempfile
+    swing = {"2026-09": (35529, 9457, 5774, 16)}
+    counts = {"2026-09": {"stay": 35333, "with_exports": 36086}}
+    # Splits sum to the plate counts; HEV is the September 2026 count, so
+    # the ACEA shares are the 0.36pp / 0.44pp in the PR (stay closer).
+    split = {"BEV": 10000, "PHEV": 6000, "HEV": 8254, "PETROL": 1837, "DIESEL": 457, "OTHERS": 8785}
+    exp_split = dict(split, HEV=8720, OTHERS=9072)
+    assert sum(split.values()) == 35333 and sum(exp_split.values()) == 36086
+    splits = {("2026-09", "stay"): split, ("2026-09", "with_exports"): exp_split}
+    with tempfile.TemporaryDirectory() as tmp, _PlanStub(tmp, swing, counts, splits):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            own = fn.shadow_hev("2026-09")
+            forced = fn.shadow_hev("2026-09", cohort="with_exports",
+                                   acea={"TOTAL": 36259, "HEV": 8601})
+    assert own["HEV"] == 8254 and "still in the country" in own["notes"]
+    # The forced cohort is still inside 2% of Swing, so it previews; the
+    # ACEA line is printed but the row is that cohort's, not ACEA's pick.
+    assert forced["HEV"] == 8720 and "since-exported" in forced["notes"]
+    assert forced["TOTAL"] == 35529
+    assert "ACEA cross-check" in out.getvalue() and "closer: stay" in out.getvalue()
+    # A forced cohort outside the band is blank, not a different scope.
+    counts["2026-09"]["with_exports"] = 37000
+    with tempfile.TemporaryDirectory() as tmp, _PlanStub(tmp, swing, counts, splits):
+        with contextlib.redirect_stdout(io.StringIO()):
+            assert fn.shadow_hev("2026-09", cohort="with_exports") is None
 
 
 if __name__ == "__main__":

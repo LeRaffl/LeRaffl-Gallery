@@ -268,8 +268,9 @@ the HEV line automatically.
 row would look like if HEV and pure petrol came from the register and
 TOTAL / BEV / PHEV / DIESEL stayed Swing's. It writes nothing. Register
 diesel is mostly campers, so it is not copied onto the row — that residual
-lands in OTHERS, and a negative residual refuses the month. Not wired into
-the daily fetch until a shadow window is accepted.
+lands in OTHERS, and a negative residual refuses the month. OTHERS on an
+enriched row is that slack, not a counted class. Not wired into the daily
+fetch until a shadow window is accepted.
 
 ACEA's Netherlands HEV is not a second register. The September 2026 release
 repeats the RDC figure BOVAG and RAI publish (36,259 cars). RDC freezes the
@@ -278,9 +279,10 @@ have `export_indicator=Ja` since — 466 of them HEV, 62% of the exports
 against a 23% HEV share in the cars still here. Adding them back takes HEV
 from 8,255 to 8,721 against RDC's 8,601 (120 over) and the total from
 35,333 to 36,086 against 36,259 (173 short). The leftover is not a missed
-hybrid class: pure petrol already matches RDC (1,837 vs 1,832). The shadow
-keeps `export_indicator=Nee` because that is the scope that matches Swing,
-so a gap to ACEA/RDC is expected and is not a reason to switch scope.
+hybrid class: pure petrol already matches RDC (1,837 vs 1,832). For the
+recent months the cohort that matches Swing is `export_indicator=Nee`, so a
+gap to ACEA/RDC is expected there and is not by itself a reason to switch
+scope.
 
 A historical fill uses the same register, not ACEA. `--backfill-hev 2020-01:2026-10`
 counts both cohorts and writes nothing. The closer one wins, and only inside
@@ -292,11 +294,30 @@ plates put back (still 4–8% under Swing — the cars are gone, not just
 flagged exported). 2021 has four months inside the band and eight outside;
 filling the four would open holes, so the fill starts at 2022-01.
 
-`--shadow-hev` now follows that choice instead of always dropping
-exports. 2022-06, live: `with_exports`, 29,145 plates against Swing
-29,250. HEV 6,563, pure petrol 11,983. The enriched OTHERS is 948, and
-that is slack, not a counted class — the same warning as the recent
-months, larger because the split is older. Nothing written.
+That per-month pick is the gate, not the scope. Taken month by month it
+flips inside one series (since-exported plates back through 2024, `Nee`
+from 2025), and a hybrid share is not comparable across that flip. So the
+fill takes **one** cohort, the one that covers more of the window
+(`window_cohort`; a tie keeps stay), and fills only the months where *that*
+cohort is inside the band (`cohort_fits`). A month where only the other
+cohort fits stays blank. The plan prints the window cohort, each month it
+leaves blank, and the longest stretch without a hole (`fill_run`). The
+58-month count above was per month; the one-cohort window is re-counted
+with the full fuel join, before any write path.
+
+`--shadow-hev YYYY-MM` uses the month's own pick by default.
+`--cohort stay|with_exports` previews the month under the window cohort
+the plan named — what the fill would write — and is still blank outside
+the band. 2022-06, live, own pick: `with_exports`, 29,145 plates against
+Swing 29,250. HEV 6,563, pure petrol 11,983. The enriched OTHERS is 948,
+slack as above, larger because the split is older. Nothing written.
+
+`--acea TOTAL:HEV` adds a cross-check: both cohorts are split and
+`closer_to_acea` says which one ACEA's counted HEV agrees with — the HEV
+count when both register totals are within 1% of ACEA's (the
+`acea_split` tolerance), the share otherwise, never a mix. September 2026:
+stay, 0.36 pp against 0.44 pp. It informs the review; it never fills a
+month and never changes the row. ACEA is not a fill.
 
 ### Number formatting
 
