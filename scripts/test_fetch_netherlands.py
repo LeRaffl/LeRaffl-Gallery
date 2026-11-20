@@ -263,6 +263,32 @@ def test_main_end_to_end_writes_the_csvs():
         assert used["2026-07"]["PHEV"] == "205.0" and used["2026-07"]["PETROL"] == "3030.0"
 
 
+def test_plate_bucket_splits_novc_hev_out_of_petrol():
+    """RDW hybrid class is the counted split Swing does not publish.
+    OVC-HEV is plug-in, NOVC-HEV is full/mild, campers stay diesel."""
+    assert fn.plate_bucket([("Elektriciteit", "")]) == "BEV"
+    assert fn.plate_bucket([("Benzine", "OVC-HEV"), ("Elektriciteit", "OVC-HEV")]) == "PHEV"
+    assert fn.plate_bucket([("Benzine", "NOVC-HEV"), ("Elektriciteit", "NOVC-HEV")]) == "HEV"
+    assert fn.plate_bucket([("Benzine", "")]) == "PETROL"
+    assert fn.plate_bucket([("Diesel", "")]) == "DIESEL"
+    assert fn.plate_bucket([("Benzine", ""), ("LPG", "")]) == "OTHERS"
+
+
+def test_enrich_keeps_swing_total_and_refuses_a_negative_residual():
+    """HEV and pure petrol come from the register. TOTAL, BEV, PHEV and
+    DIESEL stay Swing's — register diesel is mostly campers and would
+    make OTHERS negative."""
+    swing = {"TOTAL": 24739, "BEV": 9457, "PHEV": 5774, "DIESEL": 16, "OTHERS": 111}
+    register = {"HEV": 7263, "PETROL": 1917, "DIESEL": 457, "OTHERS": 111}
+    row = fn.enrich_swing(swing, register)
+    assert row["HEV"] == 7263 and row["PETROL"] == 1917 and row["DIESEL"] == 16
+    assert row["TOTAL"] == 24739 and row["BEV"] == 9457 and row["PHEV"] == 5774
+    assert row["OTHERS"] == 24739 - 9457 - 5774 - 7263 - 1917 - 16
+    assert row["OTHERS"] > 0
+    # Register diesel instead of Swing diesel does not add up.
+    assert fn.enrich_swing(swing, register, diesel="register") is None
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn_ in tests:

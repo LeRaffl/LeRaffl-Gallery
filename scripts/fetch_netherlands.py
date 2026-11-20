@@ -673,6 +673,90 @@ def powertrain_class(fuels: list) -> str:
     return ""
 
 
+def plate_bucket(fuels: list) -> str:
+    """Counted split for the CSV, not the brand ranking.
+
+    OVC-HEV is plug-in, NOVC-HEV is full/mild. Electricity alone is BEV.
+    Petrol or diesel with no hybrid class stays that fuel. LPG, CNG and
+    fuel-cell cars are OTHERS. `powertrain_class` still folds NOVC-HEV into
+    PETROL so the brand tables keep matching the unsplit chart.
+    """
+    kinds = {k for _, k in fuels if k}
+    if any(k.startswith("OVC") for k in kinds):
+        return "PHEV"
+    if any(k.startswith("NOVC") for k in kinds):
+        return "HEV"
+    names = {f for f, _ in fuels if f}
+    if names == {"Elektriciteit"}:
+        return "BEV"
+    if names == {"Benzine"}:
+        return "PETROL"
+    if names == {"Diesel"}:
+        return "DIESEL"
+    return "OTHERS"
+
+
+def count_plates(fuels_by_plate: dict) -> dict[str, int]:
+    """{BEV, PHEV, HEV, PETROL, DIESEL, OTHERS: n} over one month's plates."""
+    counts = {k: 0 for k in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")}
+    for fuels in fuels_by_plate.values():
+        counts[plate_bucket(fuels)] += 1
+    return counts
+
+
+def enrich_swing(swing: dict, register: dict, diesel: str = "swing") -> dict | None:
+    """Keep Swing TOTAL / BEV / PHEV. HEV and pure petrol come from the
+    register. Diesel stays Swing's unless `diesel="register"` — register
+    diesel is mostly campers and then OTHERS goes negative, which refuses
+    the merge (returns None) rather than publish a row that does not add up.
+    """
+    total = float(swing["TOTAL"])
+    bev = float(swing["BEV"])
+    phev = float(swing["PHEV"])
+    die = float(register["DIESEL"] if diesel == "register" else swing["DIESEL"])
+    hev = float(register["HEV"])
+    petrol = float(register["PETROL"])
+    others = total - bev - phev - hev - petrol - die
+    if others < 0:
+        return None
+    return {"TOTAL": total, "BEV": bev, "PHEV": phev, "HEV": hev,
+            "PETROL": petrol, "DIESEL": die, "OTHERS": others}
+
+
+def shadow_hev(period: str) -> dict | None:
+    """Print the register split against the Swing row. Writes nothing.
+
+    Scope is the one market_top already validates: Personenauto, both dates
+    in the month, export_indicator=Nee, campers included.
+    """
+    import csv
+    session = rdw_session()
+    cars = fetch_new_cars(session, period, "Whole")
+    fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
+    by_plate = {c["kenteken"]: fuels.get(c["kenteken"], []) for c in cars}
+    register = count_plates(by_plate)
+    swing_row = None
+    with open(CSV_PATHS["Whole"], encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            if row["period"] == period and row["variant"] == "Whole":
+                swing_row = row
+                break
+    if swing_row is None:
+        raise SystemExit(f"no Swing row for {period} in {CSV_PATHS['Whole']}")
+    swing = {k: float(swing_row[k] or 0) for k in ("TOTAL", "BEV", "PHEV", "DIESEL", "OTHERS")}
+    enriched = enrich_swing(swing, register)
+    print(f"shadow {period}: register {sum(register.values())} plates, "
+          f"Swing TOTAL {swing['TOTAL']:.0f}")
+    print("  register:", " ".join(f"{k}={register[k]}" for k in register))
+    if enriched is None:
+        print("  enrich refused (negative OTHERS)")
+    else:
+        print("  enriched:", " ".join(f"{k}={enriched[k]:.0f}" for k in
+              ("TOTAL", "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")))
+        print("  wrote nothing")
+    return enriched
+
+
 # Display names only — the CSV never sees them. RDW's `merk` is consistent
 # apart from a handful of spellings; `handelsbenaming` is the type-approval
 # trade name and carries engine, power and trim ("ID.4 PRO 210KW", "IX3 50
@@ -1037,8 +1121,15 @@ def main() -> None:
         "--no-top", action="store_true",
         help="Skip the top brands/models refresh (market/netherlands_top.json).",
     )
+    parser.add_argument(
+        "--shadow-hev", metavar="YYYY-MM",
+        help="Print the RDW HEV/petrol split against the Swing row. Writes nothing.",
+    )
     args = parser.parse_args()
 
+    if args.shadow_hev:
+        shadow_hev(args.shadow_hev)
+        return
     if args.probe_open:
         probe_open({"used": "Used", "hdv": "HDV"}.get(args.variant, "Whole"))
         return

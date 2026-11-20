@@ -264,6 +264,13 @@ If RDW ever adds an HEV split, the scraper's `FUEL_MAP` and the
 `to_csv_rows` function need one new entry and the post text starts emitting
 the HEV line automatically.
 
+`python scripts/fetch_netherlands.py --shadow-hev YYYY-MM` prints what that
+row would look like if HEV and pure petrol came from the register and
+TOTAL / BEV / PHEV / DIESEL stayed Swing's. It writes nothing. Register
+diesel is mostly campers, so it is not copied onto the row — that residual
+lands in OTHERS, and a negative residual refuses the month. Not wired into
+the daily fetch until a shadow window is accepted.
+
 ### Number formatting
 
 Dutch locale: `.` is the thousands separator (so `"10.075"` is ten-thousand-
