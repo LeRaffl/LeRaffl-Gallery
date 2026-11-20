@@ -211,6 +211,45 @@ blank and the renderer recovers ICE share from `(TOTAL − BEV − PHEV)`. If
 Statistics Finland ever adds a full-hybrid code, add it to `DRIV_TO_COL` and
 the post text starts emitting the HEV line automatically.
 
+The open register does have the class. `scripts/fetch_finland_register.py
+--shadow-hev YYYY-MM --snapshot <Ajoneuvorekisteri.zip>` counts M1+M1G
+from that snapshot and writes nothing. Whole is a new car: first
+registration and first use in the same month. Used is a first use before
+that month, the same classes, printed beside it, not folded into Whole.
+`ensirekisterointipvm` is DD.MM.YYYY, not the ISO the classification sheet
+claims. `kayttoonottopvm` is YYYYMMDD. Hybrid class 01 is PHEV, 02 is HEV.
+An unclassified hybrid is OTHERS, not petrol.
+
+StatFin stays the published TOTAL, BEV, PHEV and DIESEL until a shadow
+window is accepted. The register supplies HEV and pure petrol. The gap
+lands in OTHERS so the row still sums; that OTHERS is the slack, not a
+counted fuel (the register's own OTHERS was 0). A negative gap refuses
+the month. Not wired into the daily fetch.
+
+September 2026, snapshot of 30 September, against the StatFin row:
+register whole 6,809 versus 6,985 (−2.5%). HEV 1,197, pure petrol 481.
+The enriched row keeps 6,985 / BEV 4,338 / PHEV 765 / diesel 145, and
+the slack in OTHERS is 59. Used, same month, 3,315. Nothing written.
+
+```mermaid
+flowchart TB
+    subgraph Q["Quellen"]
+        TRA["Traficom-Register · Snapshot<br/>Ajoneuvorekisteri.zip<br/>M1+M1G · luokka 02 = HEV"]
+        SF["StatFin 121d<br/>TOTAL · BEV · PHEV · Diesel<br/>HEV fehlt · in Benzin"]
+    end
+    subgraph LIVE["Heute live"]
+        SF --> FCSV["data/Finland.csv · Whole"]
+    end
+    subgraph PLAN["Geplant · Shadow · schreibt nichts"]
+        TRA --> SPLIT{"ko = Monat?"}
+        SPLIT -->|ja| NEU["Neu-Kohorte"]
+        SPLIT -->|nein| US["Used-Kohorte"]
+        NEU -->|HEV · reines Benzin| SH["Shadow gegen StatFin"]
+        SH -->|Maintainer-OK| FCSV
+        US -->|gleicher Lauf| FUV["Finland_Used · noch keine Datei"]
+    end
+```
+
 ### Region: MA1 excludes Åland
 
 The `Maakunta` dimension's broadest aggregate is `MA1` ("Mainland Finland").
