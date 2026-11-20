@@ -13,7 +13,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 240
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
         with:
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - run: pip install requests
+      - run: pip install "requests[socks]"
       - name: DNS check (opendata.rdw.nl)
         run: |
           for r in "" @8.8.8.8 @1.1.1.1; do echo "== dig $r"; dig +short $r opendata.rdw.nl || true; done
@@ -34,11 +34,15 @@ jobs:
           echo "== CNAME"; dig +short CNAME opendata.rdw.nl @8.8.8.8 || true
           curl -sS -o /dev/null -w '%{http_code}\n' --max-time 30 'https://opendata.rdw.nl/resource/m9d7-ebf2.json?$limit=1' || true
       - run: python scripts/probe_tmp.py
+        env:
+          NL_PROXY: ${{ secrets.NL_PROXY || secrets.AUSTRIA_PROXY }}
+          NL_FETCH_RELAY: ${{ secrets.NL_FETCH_RELAY || secrets.AUSTRIA_FETCH_RELAY }}
+          NL_RELAY_TOKEN: ${{ secrets.NL_RELAY_TOKEN || secrets.AUSTRIA_RELAY_TOKEN }}
       - name: Commit probe output
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add --sparse -f probe_out data/Netherlands.csv
+          git add --sparse -f probe_out
           git commit -m "chore: probe output (temporary)" || exit 0
           git pull --rebase
           git push
