@@ -265,6 +265,24 @@ output (same rule as the flyer stack: no merge without review).
    the first real diffs are visible. The spike reports actual deltas
    before any threshold is fixed.
 
+### Weitere Entscheidungen & Befunde (2026-11-20, Gespräch)
+
+4. **M1 ist das Zielbild (Maintainer).** Für alle Länder ist die saubere
+   EU-Kategorie M1 (inkl. M1G) das eigentliche Ziel, nicht die exakte
+   Übereinstimmung mit der nationalen Statistikstelle. Ein Delta zu
+   StatFin/Swing ist akzeptabel, wenn es **bekannt und dokumentiert** ist.
+   Register-primary wird daran ausgerichtet; das Delta kommt in die
+   Source-Doc (und, wo es die Kurve ändert, in die Footnote).
+5. **NL `export_indicator` ist Gegenwarts-Zustand, kein Monatsfilter
+   (Befund, im Repo festzuhalten).** Siehe §10. Nicht als Filter für den
+   Zulassungsmonat verwenden — Snapshot-Drift nach oben akzeptieren und
+   über das Revisions-Log (§4) führen.
+6. **FI Used-Import-Variante als Spin-off (Maintainer-Idee).** Das
+   `kayttoonottopvm`-Datum trennt Used Imports im selben Snapshot; eine
+   eigene `Finland_Used`-Variante ist ohne neue Quelle machbar. Eigenes
+   Proposal/PR nach Phase 2 (Drift-Policy beachten: ältere Autos driften
+   stärker).
+
 Primary-source work happens in a separate session; the flyer stack is the
 current focus. This branch stays plan-only until that session picks it up.
 
@@ -364,3 +382,146 @@ current focus. This branch stays plan-only until that session picks it up.
 Primary-source implementation (Phase 1 Netherlands, Phase 2 Finland) can
 start from here; both still need the backward-overwrite / revision-log
 infrastructure in §4 before any fetcher writes to `data/`.
+
+## 10. Spike round 2 (2026-11-20): Delta zerlegt
+
+### Netherlands — der Rest ist Snapshot-Drift, kein Scope-Fehler
+
+April-2026-Kohorte (beide Daten im Monat, Personenauto, 25.508) gegen
+Swing (24.739), schrittweise Filter:
+
+| Filter | TOTAL | Δ zu Swing | BEV Δ | PHEV Δ | Diesel |
+|---|---|---|---|---|---|
+| roh | 25.508 | +3,11 % | +1,89 % | +2,32 % | 458 |
+| ohne Camper (`inrichting=kampeerwagen`, 415) | 25.093 | +1,43 % | +1,81 % | +2,25 % | 55 |
+| + ohne Sonderkarosserien (Ambulanz/Leichenwagen/Rolstoel/unreg., 87) | 25.006 | +1,08 % | +1,40 % | +2,25 % | 30 |
+| + ohne `export_indicator=Ja` (525) | 24.482 | **−1,04 %** | −0,95 % | +0,74 % | 30 |
+
+- **Camper sind der Diesel-Mythos:** Swing's "Diesel 16" vs Register 458 —
+  415 davon sind Wohnmobile (RIMOR, EURA MOBIL, NIESMANN+BISCHOFF, LMC …
+  auf Ducato-Chassis), die Swing nicht zählt. **Camper-Exclusion ist
+  Pflicht im Fetcher.** Sonderkarosserien (87) erklärt Swing offenbar auch
+  nicht mitzuzählen.
+- **`export_indicator` ist der heutige Registerstand, nicht "im April
+  exportiert".** Alle 525 Exporte rauszunehmen schießt unter das Ziel
+  (−1,04 %): ein Teil war im April regulär neu zugelassen und wurde erst
+  später exportiert. **Nicht als Monatsfilter verwenden.** Der verbleibende
+  Rest (+1,08 % nach Camper/Sonder, vor Export-Filter) ist überwiegend
+  **Nachzügler-Drift**: Fahrzeuge mit April-Zulassung, die erst nach dem
+  Swing-Stichtag im Register auftauchen. Benzine+HEV stimmt dabei auf
+  ±14 Stück exakt — der Scope sitzt, nur die Menge driftet.
+- Konsequenz: kein additional Scope-Filter nötig; Drift nach oben über das
+  Revisions-Log (§4) führen, Toleranz aus echten Shadow-Monaten setzen (§8.3).
+
+### Finland — M1G fehlte, und das Delta wohnt im ko-4–12-Monate-Bucket
+
+`M1` allein lässt **M1G** (Gelände-PKW, die SUV-Kategorie) weg — und M1G
+ist fast nur PHEV. Mit M1+M1G und ko-Distanz-Buckets (M1+M1G, neu =
+`kayttoonottopvm` im Zulassungsmonat):
+
+| Monat | neu (ko im Monat) | ko 1–3 Mo. vorher | ko 4–12 Mo. vorher | ko >12 Mo. (Used) | StatFin |
+|---|---|---|---|---|---|
+| 2025-06 | 7.125 | 71 | 261 | 2.806 | 7.452 |
+| 2026-06 | 7.276 | 74 | 245 | 2.788 | 7.566 |
+| 2026-09 | 6.809 | 66 | 244 | 3.005 | 6.985 |
+
+- **ko 4–12 Monate vorher (~250/Monat, fast nur BEV+PHEV)** sind
+  Neuwagen-Importe (junge Gebrauchte / Tageszulassungen aus DE). Nimmt man
+  sie zur Neu-Kohorte dazu: **2025-06: 7.457 (+5, +0,07 %), 2026-06: 7.595
+  (+29, +0,4 %)** an StatFin. Der frischeste Monat 2026-09 bleibt +1,9 %
+  darüber — konsistent mit StatFin-Revisions-Lag (jüngste Monate werden
+  nachträglich hochrevidiert).
+- **Das Delta ist also bekannt und lokalisiert**, nicht mehr rätselhaft:
+  es ist die Neu/Used-Grenze. StatFin zieht sie offenbar bei ~12 Monaten
+  Fahrzeugalter, nicht bei "ko im selben Monat". Die exakte Grenze aus
+  Tilastokeskus-Metadaten bestätigen, bevor Phase 2 sie festschreibt.
+- **Used-Import-Kohorte (ko >12 Mo.): ~2.800–3.000/Monat**, eigene
+  Fuel-Split verfügbar → Spin-off-Variante `Finland_Used` (§8.6).
+- Datum-Falle bestätigt: `ensirekisterointipvm` = **DD.MM.YYYY** (nicht ISO
+  wie das Klassifikationsblatt behauptet); `kayttoonottopvm` = VVVVKKPP.
+
+## 11. Herkunft / Fluss (visuell)
+
+Repo-Konvention sind Mermaid-Flowcharts mit Subgraphs (siehe
+`05-flows.md`, `02-components.md`) — sie rendern direkt auf GitHub. Echtes
+BPMN-XML bräuchte einen Viewer und ist hier nicht etabliert; die
+Swimlane-Form unten erfüllt denselben Zweck ("woher kommt was"). Wenn die
+Fetcher gebaut sind, ziehen diese Diagramme nach `05-flows.md` bzw. in die
+Source-Docs (§6-Doku-Pflicht).
+
+### Netherlands
+
+```mermaid
+flowchart TB
+    subgraph Q["Quellen"]
+        RDW["RDW-Register · Socrata<br/>m9d7-ebf2 Stamm+Datum<br/>8ys7-d773 Kraftstoff+Hybridklasse"]
+        SWING["Swing/ABF-BI auf RDW<br/>Pivot Personenauto Nieuw<br/>Monat eingefroren · ohne Camper"]
+        ACEA["ACEA · Importeurs-Verband<br/>eigene Taxonomie · HEV gezählt"]
+    end
+    subgraph LIVE["Heute live"]
+        SWING -->|"BEV · PHEV · Benzine inkl. HEV<br/>Diesel · Overig — HEV-Spalte leer"| CSV["data/Netherlands.csv · Whole"]
+    end
+    subgraph PLAN["Geplant · Phase 1 · noch nicht gebaut"]
+        RDW -->|"1 Kenteken je Monat · beide Daten im Monat<br/>2 Kraftstoff-Join in 400er-Chunks"| KO["M1-Kohorte<br/>ohne Camper + Sonderkarosserien"]
+        KO -->|"NOVC-HEV→HEV · OVC-HEV→PHEV<br/>Benzine/Diesel gezählt"| SP["Register-Split"]
+        SP --> SH["Shadow-Run + Revisions-Log<br/>Drift zu Swing je Monat"]
+        SH -->|"Gate + Maintainer-OK"| CSV
+        ACEA -.->|"Fallback je Monat ohne Register-Wert"| CSV
+    end
+```
+
+### Finland
+
+```mermaid
+flowchart TB
+    subgraph Q["Quellen"]
+        TRA["Traficom-Register · Snapshot<br/>Ajoneuvorekisteri.zip · ~5,3 Mio. Zeilen<br/>M1/M1G · sahkohybridi+luokka<br/>ensirekisterointipvm = DD.MM.YYYY"]
+        SF["StatFin 121d · Tilastokeskus<br/>M1-Neuzulassungen · PHEV nativ<br/>HEV fehlt · in Benzine"]
+    end
+    subgraph LIVE["Heute live"]
+        SF -->|"BEV · PHEV · Benzine inkl. HEV · Diesel"| FCSV["data/Finland.csv · Whole"]
+    end
+    subgraph PLAN["Geplant · Phase 2 · noch nicht gebaut"]
+        TRA -->|"ko-Datum jung = neu<br/>ko alt = Used Import · Grenze siehe §10"| NEU["Neu-Kohorte M1+M1G"]
+        TRA --> US["Used-Import-Kohorte · ko >12 Mo."]
+        NEU -->|"luokka 02→HEV · luokka 01→PHEV"| FSP["Register-Split<br/>+ Delta zu StatFin dokumentiert"]
+        FSP -->|"Shadow-Run · Maintainer-OK"| FCSV
+        US -.->|"Spin-off · eigenes Proposal nach Phase 2"| FUV["data/Finland_Used.csv · neu"]
+    end
+```
+
+## 12. Weiteres Vorgehen
+
+### Netherlands (Phase 1)
+
+1. **Fetcher `fetch_netherlands_register.py`** (RDW direkt, der Spike hat
+   den Weg gebaut): Kohorte = beide Daten im Monat, Personenauto, **ohne
+   Camper + Sonderkarosserien**; HEV/PHEV/BEV + gezählte Benzine/Diesel aus
+   dem Register; `export_indicator` **nicht** filtern.
+2. **Revisions-Log (§4)** gegen den Snapshot-Drift (Nachzügler nach oben);
+   ein Re-Fetch darf einen committed Monat nie still senken.
+3. **Shadow-Run neben Swing** (schreibt noch nichts nach `data/`), Deltas
+   je Monat loggen → daraus die echte Toleranz und das Switch-over-Fenster
+   (§5, §8.3 — deferred bis echte Deltas sichtbar).
+4. **Nach Maintainer-OK + Switch-over:** Register-primary für HEV +
+   gezählten Split; TOTAL/BEV/PHEV bleiben bis dahin Swing. Ändert sich
+   eine veröffentlichte Zahl → `Release:`-Zeile + Render-Gate.
+5. Doku (§6): `10-source-netherlands.md` bekommt `hev_split`, Camper-/
+   Drift-Caveats, das Herkunfts-Diagramm — **vor** dem Fetcher-Merge.
+
+### Finland (Phase 2)
+
+1. **Fetcher `fetch_finland_register.py`**: Traficom-Snapshot, **M1+M1G**,
+   Neu-Kohorte über `kayttoonottopvm`; HEV aus `luokka 02`, PHEV aus
+   `luokka 01`; Datum DD.MM.YYYY parsen.
+2. **Neu/Used-Grenze bestätigen** (~12 Monate Fahrzeugalter laut §10) aus
+   Tilastokeskus-Metadaten; bis dahin ko-im-Monat als konservative
+   Arbeitsdefinition, Delta dokumentieren.
+3. **StatFin bleibt primary für TOTAL/BEV/PHEV** (Proposal §3); Register
+   liefert HEV + die saubere M1-Kategorie. Das Delta zu StatFin kommt in
+   `12-source-finland.md` (und in die Footnote, wo es die Kurve ändert).
+4. **Spin-off `Finland_Used`** (§8.6): ko >12 Mo., eigene Fuel-Split,
+   eigenes Proposal/PR nach Phase 2 mit eigener Drift-Policy.
+5. Doku (§6): `12-source-finland.md` mit `hev_split`, Datums-Falle,
+   ko-Grenze, Delta-Tabelle, Herkunfts-Diagramm — vor dem Fetcher-Merge.
+
