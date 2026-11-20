@@ -550,6 +550,36 @@ def test_main_keeps_the_register_split_when_swing_rewrites_the_window():
     assert rows["2023-10"]["HEV"] == ""          # a month without the split stays Swing's
 
 
+def test_rdw_session_falls_back_to_the_socrata_edge_without_dns():
+    """opendata.rdw.nl lost its DNS record on 2026-11-20 while the datasets
+    kept updating; the tenant answers on Socrata's EU edge by Host header."""
+    real = fn.socket.getaddrinfo
+    try:
+        def no_dns(*a, **k):
+            raise OSError("no address")
+        fn.socket.getaddrinfo = no_dns
+        import contextlib
+        import io
+        with contextlib.redirect_stdout(io.StringIO()):
+            s = fn.rdw_session()
+        assert s.rdw_base == fn.RDW_EDGE_BASE and s.headers["Host"] == fn.RDW_HOST
+        fn.socket.getaddrinfo = lambda *a, **k: [("ok",)]
+        plain = fn.rdw_session()
+        assert not hasattr(plain, "rdw_base") and "Host" not in plain.headers
+    finally:
+        fn.socket.getaddrinfo = real
+    seen = []
+
+    class FakeSession:
+        rdw_base = fn.RDW_EDGE_BASE
+
+        def get(self, url, params=None, timeout=None):
+            seen.append(url)
+            return FakeResp(200, payload=[{"n": "1"}])
+    assert fn.rdw_get(FakeSession(), fn.RDW_VEHICLES, {}) == [{"n": "1"}]
+    assert seen == [f"{fn.RDW_EDGE_BASE}{fn.RDW_VEHICLES}.json"]
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn_ in tests:

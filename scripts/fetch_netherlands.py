@@ -87,6 +87,7 @@ import io
 import json
 import os
 import re
+import socket
 import sys
 import time
 from datetime import date
@@ -563,7 +564,12 @@ def upsert_csv(csv_path: str, new_rows: dict[tuple[str, str], dict]) -> tuple[in
 
 # ── Top brands / models (RDW open data; not used for the data CSV) ─────────
 
-RDW_BASE = "https://opendata.rdw.nl/resource/"
+RDW_HOST = "opendata.rdw.nl"
+RDW_BASE = f"https://{RDW_HOST}/resource/"
+# RDW's open data is a Socrata tenant hosted in Socrata's EU region. When the
+# vanity name has no DNS record (it lost it on 2026-11-20 while the datasets
+# kept updating), the same tenant answers on the EU edge with its Host header.
+RDW_EDGE_BASE = "https://api.eu.socrata.com/resource/"
 RDW_VEHICLES = "m9d7-ebf2"        # Gekentekende voertuigen (one row per plate)
 RDW_FUEL = "8ys7-d773"            # ... brandstof (one row per plate x fuel)
 TOP_SOURCE = "RDW open data"
@@ -589,9 +595,20 @@ RDW_TRIES = 5
 def rdw_session() -> requests.Session:
     """A plain session for opendata.rdw.nl — deliberately not the Swing
     session: NL_PROXY / NL_FETCH_RELAY exist because duurzamemobiliteit
-    blocks GitHub, RDW's open-data host does not."""
+    blocks GitHub, RDW's open-data host does not.
+
+    If opendata.rdw.nl does not resolve, the session talks to Socrata's EU
+    edge with `Host: opendata.rdw.nl` instead — the same tenant and data
+    (checked against the vanity host's own answers, docs 10 §11b)."""
     s = requests.Session()
     s.headers["User-Agent"] = "LeRaffl-Gallery/1.0 (+https://github.com/LeRaffl/LeRaffl-Gallery)"
+    try:
+        socket.getaddrinfo(RDW_HOST, 443)
+    except OSError:
+        print(f"[rdw] {RDW_HOST} does not resolve; using Socrata's EU edge "
+              f"({RDW_EDGE_BASE}) with Host: {RDW_HOST}")
+        s.rdw_base = RDW_EDGE_BASE  # type: ignore[attr-defined]
+        s.headers["Host"] = RDW_HOST
     return s
 
 
@@ -601,7 +618,8 @@ def rdw_get(session: requests.Session, resource: str, params: dict) -> list:
     err = None
     for attempt in range(RDW_TRIES):
         try:
-            r = session.get(f"{RDW_BASE}{resource}.json", params=params, timeout=180)
+            base = getattr(session, "rdw_base", RDW_BASE)
+            r = session.get(f"{base}{resource}.json", params=params, timeout=180)
             if r.status_code == 200:
                 return r.json()
             err = f"HTTP {r.status_code}"
