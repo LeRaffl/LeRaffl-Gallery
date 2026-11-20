@@ -1,5 +1,9 @@
 """Register shadow for Finland. No network, no CSV write."""
+import contextlib
+import io
 import sys
+import tempfile
+import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -35,9 +39,10 @@ def test_cohort_keeps_used_imports_out_of_whole():
 def test_enrich_keeps_statfin_total_and_refuses_a_negative_residual():
     statfin = {"TOTAL": 7566, "BEV": 3644, "PHEV": 911, "DIESEL": 300, "OTHERS": 0}
     ok = fn.enrich_statfin(statfin, {"HEV": 1800, "PETROL": 800})
+    assert ok is not None
     assert ok["TOTAL"] == 7566 and ok["BEV"] == 3644 and ok["PHEV"] == 911
     assert ok["DIESEL"] == 300 and ok["HEV"] == 1800 and ok["PETROL"] == 800
-    assert ok is not None and ok["OTHERS"] == 111
+    assert ok["OTHERS"] == 111
     assert "Traficom register" in ok["notes"] and "first use" in ok["notes"]
     assert fn.enrich_statfin(statfin, {"HEV": 2712, "PETROL": 1}) is None
     # A month StatFin has not published yet is a refusal, not a crash.
@@ -84,7 +89,52 @@ def test_tally_keeps_every_month_in_one_pass():
     tallied = fn.tally(rows)
     assert tallied["2026-06"]["whole"]["HEV"] == 1
     assert tallied["2026-09"]["used"]["BEV"] == 1
-    assert "2026-06" not in tallied or "used" not in tallied["2026-06"] or not tallied["2026-06"]["used"]
+    assert "used" not in tallied["2026-06"]
+    assert "whole" not in tallied["2026-09"]
+
+
+def _snapshot(path: Path, rows: list[dict]) -> None:
+    cols = ["ajoneuvoluokka", "ensirekisterointipvm", "kayttoonottopvm",
+            "kayttovoima", "sahkohybridi", "sahkohybridinluokka"]
+    body = ";".join(cols) + "\n" + "".join(
+        ";".join(r[c] for c in cols) + "\n" for r in rows)
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr("Ajoneuvorekisteri.csv", body.encode("iso-8859-1"))
+
+
+def test_shadow_reads_the_zip_and_keeps_the_thinned_years_out():
+    """End to end through a tiny snapshot: the month inside the fill window
+    is enriched, the same split before 2025-01 is printed and refused, and
+    neither touches the CSV."""
+    def car(day, fuel="01", hyb="false", cls=""):
+        d, m, y = day.split(".")
+        return {"ajoneuvoluokka": "M1", "ensirekisterointipvm": day,
+                "kayttoonottopvm": y + m + d, "kayttovoima": fuel,
+                "sahkohybridi": hyb, "sahkohybridinluokka": cls}
+    rows = [car("03.09.2026", hyb="true", cls="02"), car("04.09.2026"),
+            car("05.09.2026", "04"),
+            car("03.06.2024", hyb="true", cls="02"), car("04.06.2024")]
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        zpath = tmp / "Ajoneuvorekisteri.zip"
+        _snapshot(zpath, rows)
+        csv_path = tmp / "Finland.csv"
+        csv_path.write_text(
+            "period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes\n"
+            "2024-06,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,0.0,4.0,\n"
+            "2026-09,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,0.0,4.0,\n",
+            encoding="utf-8")
+        before = csv_path.read_bytes()
+        with contextlib.redirect_stdout(io.StringIO()):
+            ok = fn.shadow_hev("2026-09", zpath, csv_path)
+            early = fn.shadow_hev("2024-06", zpath, csv_path)
+            window = fn.shadow_window(zpath, csv_path)
+        assert ok is not None and ok["HEV"] == 1 and ok["PETROL"] == 1
+        assert ok["TOTAL"] == 4.0 and ok["BEV"] == 1.0 and ok["OTHERS"] == 1.0
+        assert early is None
+        by_period = {w["period"]: w for w in window}
+        assert by_period["2026-09"]["ok"] and not by_period["2024-06"]["ok"]
+        assert csv_path.read_bytes() == before
 
 
 if __name__ == "__main__":

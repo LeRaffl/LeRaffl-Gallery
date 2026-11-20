@@ -231,20 +231,20 @@ def shadow_hev(period: str, snapshot: Path, csv_path: Path = CSV_PATH) -> dict |
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--shadow-hev", metavar="YYYY-MM")
-    parser.add_argument("--shadow-window", action="store_true",
-                        help="Every StatFin month in one pass. Writes nothing.")
-    parser.add_argument("--snapshot", type=Path, required=False)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--shadow-hev", metavar="YYYY-MM",
+                      help="One month against StatFin. Writes nothing.")
+    mode.add_argument("--shadow-window", action="store_true",
+                      help="Every StatFin month in one pass. Writes nothing.")
+    parser.add_argument("--snapshot", type=Path, required=True,
+                        help="Traficom open-data Ajoneuvorekisteri.zip.")
     args = parser.parse_args()
-    if not args.snapshot:
-        parser.error("--snapshot PATH is required")
     if args.shadow_window:
         shadow_window(args.snapshot)
-        return
-    if not args.shadow_hev:
-        parser.error("--shadow-hev YYYY-MM or --shadow-window is required")
-    shadow_hev(args.shadow_hev, args.snapshot)
+    else:
+        shadow_hev(args.shadow_hev, args.snapshot)
 
 
 if __name__ == "__main__":

@@ -36,7 +36,7 @@ fragility_doc: docs/architecture/12-source-finland.md
 data_file: data/Finland.csv
 market_breakdown: market/finland_top.json
 market_class_labels:
-  PETROL: Petrol, full hybrids included (neither Traficom nor Statistics Finland has a hybrid code)
+  PETROL: Petrol, full hybrids included (neither StatFin 121d nor Traficom's statistics tables have a full-hybrid code)
 market_designation_note: 'Brands come from Traficom''s make table, designations from its model-series table; both are Traficom''s live register, so a month can differ from the chart''s StatFin figure by a few cars.'
 ---
 
@@ -211,9 +211,13 @@ blank and the renderer recovers ICE share from `(TOTAL − BEV − PHEV)`. If
 Statistics Finland ever adds a full-hybrid code, add it to `DRIV_TO_COL` and
 the post text starts emitting the HEV line automatically.
 
-The open register does have the class. `scripts/fetch_finland_register.py
---shadow-hev YYYY-MM --snapshot <Ajoneuvorekisteri.zip>` counts M1+M1G
-from that snapshot and writes nothing. Whole is a new car: first
+The open register does have the class. Traficom's open vehicle data
+(*Avoin data → ajoneuvojen avoin data*) is a zipped CSV of every vehicle
+on the register today, `Ajoneuvorekisteri.zip`, downloaded by hand for now.
+`scripts/fetch_finland_register.py --shadow-hev YYYY-MM --snapshot
+<Ajoneuvorekisteri.zip>` counts M1+M1G from that snapshot for one month,
+`--shadow-window --snapshot <zip>` does every StatFin month in one pass;
+both write nothing. Whole is a new car: first
 registration and first use in the same month. Used is a first use before
 that month, the same classes, printed beside it, not folded into Whole.
 `ensirekisterointipvm` is DD.MM.YYYY, not the ISO the classification sheet
@@ -243,27 +247,28 @@ ACEA, not the thinned register. From 2022 the monthly ACEA table is the
 number (same total as StatFin). Before 2022 the fuel split is quarterly.
 That quarter is spread across its three months by each month's share of
 the quarter's StatFin petrol — HEV sits in that column, so an equal third
-would miss a small month. Only the HEV cell is estimated. The month stays
-`monthly`: `monthly_est` would hollow a BEV point that was counted. Used
-exists for every month in the snapshot, and it is today's survivors, not
-the imports of that month.
+would miss a small month. Only the HEV cell is estimated, and the row's
+`notes` says so (invariant 6). The month stays `monthly`: `monthly_est`
+would hollow a BEV point that was counted. Used exists for every month in
+the snapshot, and it is today's survivors, not the imports of that month.
 
 ```mermaid
 flowchart TB
-    subgraph Q["Quellen"]
-        TRA["Traficom-Register · Snapshot<br/>Ajoneuvorekisteri.zip<br/>M1+M1G · luokka 02 = HEV"]
-        SF["StatFin 121d<br/>TOTAL · BEV · PHEV · Diesel<br/>HEV fehlt · in Benzin"]
+    subgraph SRC["Sources"]
+        TRA["Traficom open register · snapshot<br/>Ajoneuvorekisteri.zip<br/>M1+M1G · hybrid class 02 = HEV"]
+        SF["StatFin 121d<br/>TOTAL · BEV · PHEV · diesel<br/>no HEV code · folded into petrol"]
     end
-    subgraph LIVE["Heute live"]
+    subgraph LIVE["Live today"]
         SF --> FCSV["data/Finland.csv · Whole"]
     end
-    subgraph PLAN["Geplant · Shadow · schreibt nichts"]
-        TRA --> SPLIT{"ko = Monat?"}
-        SPLIT -->|ja| NEU["Neu-Kohorte"]
-        SPLIT -->|nein| US["Used-Kohorte"]
-        NEU -->|HEV · reines Benzin| SH["Shadow gegen StatFin"]
-        SH -->|Maintainer-OK| FCSV
-        US -->|gleicher Lauf| FUV["Finland_Used · noch keine Datei"]
+    subgraph PLAN["Planned · shadow · writes nothing"]
+        TRA --> SPLIT{"first use vs<br/>registration month"}
+        SPLIT -->|same month| NEW["Whole cohort"]
+        SPLIT -->|earlier| US["Used cohort"]
+        SPLIT -->|later or empty| SKIP["not counted"]
+        NEW -->|"HEV · pure petrol · from 2025-01"| SH["shadow against StatFin"]
+        SH -.->|"after maintainer review"| FCSV
+        US -->|"same pass"| PR["printed only · today's survivors · no file"]
     end
 ```
 
