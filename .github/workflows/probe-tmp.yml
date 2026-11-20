@@ -13,7 +13,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v5
         with:
@@ -35,7 +35,7 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add --sparse -f probe_out
+          git add --sparse -f probe_out data/Netherlands.csv
           git commit -m "chore: probe output (temporary)" || exit 0
           git pull --rebase
           git push
