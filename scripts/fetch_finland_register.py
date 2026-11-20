@@ -69,13 +69,16 @@ def cohort(vehicle_class: str, registered: str | None, used: str | None) -> str 
     return None
 
 
-def enrich_statfin(statfin: dict, register: dict) -> dict | None:
+def enrich_statfin(statfin: dict | None, register: dict) -> dict | None:
     """Keep StatFin's total and the columns it already publishes.
 
     HEV and pure petrol come from the register. The gap lands in OTHERS so
     the row still sums. A negative gap refuses the month — register diesel
-    is not copied onto the row to force it.
+    is not copied onto the row to force it. A month StatFin has not
+    published yet returns None instead of crashing.
     """
+    if not statfin:
+        return None
     total = statfin["TOTAL"]
     bev, phev, die = statfin["BEV"], statfin["PHEV"], statfin["DIESEL"]
     hev, petrol = register["HEV"], register["PETROL"]
@@ -173,12 +176,16 @@ def iter_snapshot(path: Path):
 
 
 def shadow_hev(period: str, snapshot: Path, csv_path: Path = CSV_PATH) -> dict | None:
-    """Print the register split against the StatFin row. Writes nothing."""
+    """Print the register split against the StatFin row. Writes nothing.
+
+    A month StatFin has not published yet is printed and refused, not
+    crashed — the snapshot can run ahead of the 121d row.
+    """
     counted = count_rows(iter_snapshot(snapshot), period)
     whole, used = counted["whole"], counted["used"]
     statfin = statfin_month(period, csv_path)
     register = {k: whole.get(k, 0) for k in FUELS}
-    enriched = enrich_statfin(statfin, register) if statfin else None
+    enriched = enrich_statfin(statfin, register)
     print(f"{period}  register whole {sum(whole.values())}  "
           + " ".join(f"{k}={whole.get(k, 0)}" for k in FUELS))
     print(f"{period}  register used  {sum(used.values())}  "

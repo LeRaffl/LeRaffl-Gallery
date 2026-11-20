@@ -39,6 +39,8 @@ def test_enrich_keeps_statfin_total_and_refuses_a_negative_residual():
     assert ok["DIESEL"] == 300 and ok["HEV"] == 1800 and ok["PETROL"] == 800
     assert ok["OTHERS"] == 111
     assert fn.enrich_statfin(statfin, {"HEV": 2712, "PETROL": 1}) is None
+    # A month StatFin has not published yet is a refusal, not a crash.
+    assert fn.enrich_statfin(None, {"HEV": 1, "PETROL": 1}) is None
 
 
 def test_count_rows_splits_whole_and_used_for_one_month():
