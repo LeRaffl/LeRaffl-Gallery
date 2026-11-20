@@ -13,7 +13,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v5
         with:
@@ -25,33 +25,17 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install "requests[socks]"
-      - name: Reach RDW's Socrata tenant without its DNS record
-        run: |
-          Q='resource/m9d7-ebf2.json?$select=count(*)&$where=datum_eerste_toelating_dt%3E%3D%272026-10-01%27'
-          for h in api.eu.socrata.com eu.socrata.com rdw.data.socrata.com opendata.rdw.nl.eu.socrata.com; do
-            echo "== $h: $(dig +short "$h" | tr '\n' ' ')"
-          done
-          for h in rdw.data.socrata.com; do
-            echo "== GET https://$h/$Q"; curl -sS --max-time 60 "https://$h/$Q" | head -c 300; echo
-          done
-          for edge in api.eu.socrata.com eu.socrata.com; do
-            ip=$(dig +short "$edge" | grep -E '^[0-9.]+$' | head -1)
-            [ -n "$ip" ] || continue
-            echo "== opendata.rdw.nl pinned to $edge ($ip)"
-            curl -sS --max-time 60 --resolve "opendata.rdw.nl:443:$ip" "https://opendata.rdw.nl/$Q" | head -c 300; echo
-            echo "== Host header on $edge"
-            curl -sS --max-time 60 -H "Host: opendata.rdw.nl" "https://$edge/$Q" -k | head -c 300; echo
-          done
-      - run: python scripts/probe_tmp.py || true
+      - run: python scripts/probe_tmp.py
         env:
           NL_PROXY: ${{ secrets.NL_PROXY || secrets.AUSTRIA_PROXY }}
           NL_FETCH_RELAY: ${{ secrets.NL_FETCH_RELAY || secrets.AUSTRIA_FETCH_RELAY }}
           NL_RELAY_TOKEN: ${{ secrets.NL_RELAY_TOKEN || secrets.AUSTRIA_RELAY_TOKEN }}
       - name: Commit probe output
+        if: always()
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add --sparse -f probe_out
+          git add --sparse -f probe_out data/Netherlands.csv
           git commit -m "chore: probe output (temporary)" || exit 0
           git pull --rebase
           git push
