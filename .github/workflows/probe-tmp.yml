@@ -25,6 +25,11 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install requests
+      - name: DNS check (opendata.rdw.nl)
+        run: |
+          for r in "" @8.8.8.8 @1.1.1.1; do echo "== dig $r"; dig +short $r opendata.rdw.nl || true; done
+          dig +short NS rdw.nl @8.8.8.8 || true
+          curl -sS -o /dev/null -w '%{http_code}\n' --max-time 30 'https://opendata.rdw.nl/resource/m9d7-ebf2.json?$limit=1' || true
       - run: python scripts/probe_tmp.py
       - name: Commit probe output
         run: |
