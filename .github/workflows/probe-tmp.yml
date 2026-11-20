@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   probe:
@@ -30,12 +31,28 @@ jobs:
           NL_PROXY: ${{ secrets.NL_PROXY || secrets.AUSTRIA_PROXY }}
           NL_FETCH_RELAY: ${{ secrets.NL_FETCH_RELAY || secrets.AUSTRIA_FETCH_RELAY }}
           NL_RELAY_TOKEN: ${{ secrets.NL_RELAY_TOKEN || secrets.AUSTRIA_RELAY_TOKEN }}
+      - name: Fetch the render-preview PNGs (Netherlands)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 60); do
+            id=$(gh run list -R "$GITHUB_REPOSITORY" -w preview-render.yml -b feat/nl-register-hev \
+                   -e workflow_dispatch -L 1 --json databaseId,status -q '.[0] | select(.status=="completed") | .databaseId')
+            [ -n "$id" ] && break; sleep 20
+          done
+          echo "preview run: $id"
+          mkdir -p /tmp/rp probe_out/preview
+          gh run download "$id" -R "$GITHUB_REPOSITORY" -n render-preview -D /tmp/rp
+          find /tmp/rp -type f -iname '*.png' | grep -i netherlands | while read -r f; do
+            rel="${f#/tmp/rp/}"; mkdir -p "probe_out/preview/$(dirname "$rel")"; cp "$f" "probe_out/preview/$rel"
+          done
+          ls -R probe_out/preview
       - name: Commit probe output
         if: always()
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add --sparse -f probe_out data/Netherlands.csv
+          git add --sparse -f probe_out
           git commit -m "chore: probe output (temporary)" || exit 0
           git pull --rebase
           git push
