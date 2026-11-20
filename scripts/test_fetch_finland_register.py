@@ -37,7 +37,8 @@ def test_enrich_keeps_statfin_total_and_refuses_a_negative_residual():
     ok = fn.enrich_statfin(statfin, {"HEV": 1800, "PETROL": 800})
     assert ok["TOTAL"] == 7566 and ok["BEV"] == 3644 and ok["PHEV"] == 911
     assert ok["DIESEL"] == 300 and ok["HEV"] == 1800 and ok["PETROL"] == 800
-    assert ok["OTHERS"] == 111
+    assert ok is not None and ok["OTHERS"] == 111
+    assert "Traficom register" in ok["notes"] and "first use" in ok["notes"]
     assert fn.enrich_statfin(statfin, {"HEV": 2712, "PETROL": 1}) is None
     # A month StatFin has not published yet is a refusal, not a crash.
     assert fn.enrich_statfin(None, {"HEV": 1, "PETROL": 1}) is None

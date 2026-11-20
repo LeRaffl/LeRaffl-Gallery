@@ -24,6 +24,12 @@ CSV_PATH = ROOT / "data" / "Finland.csv"
 PASSENGER = {"M1", "M1G"}
 FUELS = ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")
 
+# Same shape as acea_split.NOTE, so a row says where every column came
+# from. StatFin has no full-hybrid code; the register does.
+REGISTER_NOTE = ("TOTAL/BEV/PHEV/DIESEL StatFin 121d; HEV/PETROL Traficom "
+                 "register (counted, M1+M1G, first use in the registration "
+                 "month); OTHERS = TOTAL minus the rest")
+
 # The review call in 12-source-finland.md: the register is thinned by
 # snapshot drift (about -15% in 2014, -6% to -11% in 2022) and only stays
 # inside about -6% from 2025-01. Register HEV on a full StatFin total
@@ -101,7 +107,8 @@ def enrich_statfin(statfin: dict | None, register: dict) -> dict | None:
     if others < 0:
         return None
     return {"TOTAL": total, "BEV": bev, "PHEV": phev, "HEV": hev,
-            "PETROL": petrol, "DIESEL": die, "OTHERS": others}
+            "PETROL": petrol, "DIESEL": die, "OTHERS": others,
+            "notes": REGISTER_NOTE}
 
 
 def classify(row: dict) -> tuple[str, str, str] | None:
