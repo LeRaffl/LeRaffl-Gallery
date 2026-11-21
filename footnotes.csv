@@ -43,7 +43,7 @@ Cyprus,Buses,"ACEA quarterly figures (rebuilt from year-to-date totals). From ~2
 Czechia,Vans,"New N1 vans (register), monthly from 2016. Counts up to a quarter fewer electric vans than ACEA since 2025 (vans first registered abroad count as used). Non-plug hybrids inside petrol/diesel."
 Czechia,HDV,"New N2 + N3 lorries and tractor units. Non-plug hybrids inside petrol/diesel."
 Czechia,Buses,"New M2 + M3 buses and coaches. Low volume (about 50-200 a month), so the share swings with fleet orders. Non-plug hybrids inside petrol/diesel."
-Czechia,Whole,"New passenger cars (M1). The latest month comes from the register: its HEV/petrol/diesel split is an estimate until ACEA publishes. 2016-2021: hybrids inside petrol/diesel."
+Czechia,Whole,"New passenger cars (M1). The latest month comes from the register: its HEV/petrol/diesel split is an estimate until ACEA publishes. 2014-2021: HEV estimated from ACEA's quarterly fuel shares."
 Czechia,Used,"Used imports at their first Czech registration (about 10 years old on average) - not new cars. Non-plug hybrids inside petrol/diesel."
 Estonia,Whole,"New passenger cars (M1); Transpordiamet register from 2021, ACEA (quarterly) before. HEV includes mild hybrids."
 Estonia,Private,"New passenger cars (M1 incl. M1G) registered to a private person (owner type FÜÜSILINE in the register), from 2021-01. Counted from Transpordiamet's monthly workbook. Private + Industry = Whole."

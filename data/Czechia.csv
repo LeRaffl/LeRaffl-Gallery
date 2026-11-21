@@ -35,102 +35,102 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2013-10,monthly,Whole,ACEA / sda-cia.cz,5.0,34.0,,8254.0,6786.0,267.0,15346.0,
 2013-11,monthly,Whole,ACEA / sda-cia.cz,9.0,32.0,,7710.0,6684.0,262.0,14697.0,
 2013-12,monthly,Whole,ACEA / sda-cia.cz,3.0,26.0,,7732.0,6495.0,283.0,14539.0,
-2014-01,monthly,Whole,ACEA / sda-cia.cz,3.0,29.0,,6793.0,6523.0,290.0,13638.0,
-2014-02,monthly,Whole,ACEA / sda-cia.cz,6.0,27.0,,6977.0,5531.0,238.0,12779.0,
-2014-03,monthly,Whole,ACEA / sda-cia.cz,14.0,29.0,,9273.0,6934.0,326.0,16576.0,
-2014-04,monthly,Whole,ACEA / sda-cia.cz,13.0,26.0,,9838.0,7262.0,359.0,17498.0,
-2014-05,monthly,Whole,ACEA / sda-cia.cz,9.0,18.0,,8716.0,6312.0,341.0,15396.0,
-2014-06,monthly,Whole,ACEA / sda-cia.cz,5.0,33.0,,10386.0,7313.0,434.0,18171.0,
-2014-07,monthly,Whole,ACEA / sda-cia.cz,21.0,20.0,,9712.0,7395.0,552.0,17700.0,
-2014-08,monthly,Whole,ACEA / sda-cia.cz,12.0,25.0,,8269.0,5280.0,351.0,13937.0,
-2014-09,monthly,Whole,ACEA / sda-cia.cz,12.0,40.0,,9397.0,5917.0,409.0,15775.0,
-2014-10,monthly,Whole,ACEA / sda-cia.cz,30.0,34.0,,9738.0,7430.0,559.0,17791.0,
-2014-11,monthly,Whole,ACEA / sda-cia.cz,26.0,56.0,,8962.0,6843.0,478.0,16365.0,
-2014-12,monthly,Whole,ACEA / sda-cia.cz,46.0,49.0,,8725.0,7388.0,480.0,16688.0,
-2015-01,monthly,Whole,ACEA / sda-cia.cz,8.0,68.0,,8063.0,7078.0,510.0,15727.0,
-2015-02,monthly,Whole,ACEA / sda-cia.cz,25.0,58.0,,9219.0,6579.0,502.0,16383.0,
-2015-03,monthly,Whole,ACEA / sda-cia.cz,20.0,60.0,,12077.0,8437.0,561.0,21155.0,
-2015-04,monthly,Whole,ACEA / sda-cia.cz,32.0,77.0,,11147.0,8729.0,583.0,20568.0,
-2015-05,monthly,Whole,ACEA / sda-cia.cz,14.0,56.0,,9921.0,7621.0,501.0,18113.0,
-2015-06,monthly,Whole,ACEA / sda-cia.cz,48.0,87.0,,11612.0,8918.0,650.0,21315.0,
-2015-07,monthly,Whole,ACEA / sda-cia.cz,30.0,94.0,,11860.0,8841.0,590.0,21415.0,
-2015-08,monthly,Whole,ACEA / sda-cia.cz,18.0,92.0,,9419.0,8187.0,562.0,18278.0,
-2015-09,monthly,Whole,ACEA / sda-cia.cz,11.0,91.0,,9979.0,7552.0,423.0,18056.0,
-2015-10,monthly,Whole,ACEA / sda-cia.cz,15.0,140.0,,10125.0,8866.0,512.0,19658.0,
-2015-11,monthly,Whole,ACEA / sda-cia.cz,21.0,102.0,,10464.0,9440.0,394.0,20421.0,
-2015-12,monthly,Whole,ACEA / sda-cia.cz,26.0,99.0,,10245.0,9050.0,348.0,19768.0,
-2016-01,monthly,Whole,ACEA / sda-cia.cz,3.0,101.0,,8822.0,8204.0,370.0,17500.0,
-2016-02,monthly,Whole,ACEA / sda-cia.cz,25.0,107.0,,10511.0,8193.0,463.0,19299.0,
-2016-03,monthly,Whole,ACEA / sda-cia.cz,16.0,111.0,,12409.0,9750.0,513.0,22799.0,
-2016-04,monthly,Whole,ACEA / sda-cia.cz,17.0,124.0,,12632.0,9831.0,527.0,23131.0,
-2016-05,monthly,Whole,ACEA / sda-cia.cz,11.0,117.0,,13334.0,10268.0,605.0,24335.0,
-2016-06,monthly,Whole,ACEA / sda-cia.cz,14.0,116.0,,13864.0,11209.0,511.0,25714.0,
-2016-07,monthly,Whole,ACEA / sda-cia.cz,7.0,102.0,,10663.0,7576.0,391.0,18739.0,
-2016-08,monthly,Whole,ACEA / sda-cia.cz,15.0,160.0,,12023.0,8599.0,454.0,21251.0,
-2016-09,monthly,Whole,ACEA / sda-cia.cz,22.0,142.0,,11146.0,8200.0,436.0,19510.0,
-2016-10,monthly,Whole,ACEA / sda-cia.cz,6.0,146.0,,11853.0,9420.0,480.0,21425.0,
-2016-11,monthly,Whole,ACEA / sda-cia.cz,33.0,149.0,,12438.0,10074.0,467.0,22694.0,
-2016-12,monthly,Whole,ACEA / sda-cia.cz,31.0,166.0,,11996.0,9251.0,469.0,21444.0,
-2017-01,monthly,Whole,ACEA / sda-cia.cz,13.0,218.0,,10759.0,9285.0,543.0,20275.0,
-2017-02,monthly,Whole,ACEA / sda-cia.cz,40.0,178.0,,11662.0,8059.0,516.0,19939.0,
-2017-03,monthly,Whole,ACEA / sda-cia.cz,35.0,224.0,,15592.0,10270.0,665.0,26121.0,
-2017-04,monthly,Whole,ACEA / sda-cia.cz,17.0,222.0,,13309.0,8701.0,500.0,22249.0,
-2017-05,monthly,Whole,ACEA / sda-cia.cz,30.0,270.0,,16026.0,10016.0,667.0,26342.0,
-2017-06,monthly,Whole,ACEA / sda-cia.cz,14.0,231.0,,15377.0,10254.0,758.0,25876.0,
-2017-07,monthly,Whole,ACEA / sda-cia.cz,21.0,262.0,,11381.0,7444.0,541.0,19108.0,
-2017-08,monthly,Whole,ACEA / sda-cia.cz,22.0,244.0,,12832.0,7514.0,580.0,20612.0,
-2017-09,monthly,Whole,ACEA / sda-cia.cz,42.0,190.0,,12154.0,7328.0,505.0,19714.0,
-2017-10,monthly,Whole,ACEA / sda-cia.cz,28.0,281.0,,13528.0,8824.0,531.0,22661.0,
-2017-11,monthly,Whole,ACEA / sda-cia.cz,25.0,270.0,,13648.0,8396.0,222.0,22925.0,
-2017-12,monthly,Whole,ACEA / sda-cia.cz,20.0,236.0,,12528.0,6550.0,259.0,19967.0,
-2018-01,monthly,Whole,ACEA / sda-cia.cz,18.0,25.0,,14361.0,8183.0,283.0,23219.0,
-2018-02,monthly,Whole,ACEA / sda-cia.cz,34.0,22.0,,13437.0,6180.0,191.0,20201.0,
-2018-03,monthly,Whole,ACEA / sda-cia.cz,55.0,27.0,,16448.0,7316.0,291.0,24453.0,
-2018-04,monthly,Whole,ACEA / sda-cia.cz,57.0,24.0,,15678.0,7922.0,306.0,24259.0,
-2018-05,monthly,Whole,ACEA / sda-cia.cz,61.0,37.0,,17117.0,7825.0,354.0,25720.0,
-2018-06,monthly,Whole,ACEA / sda-cia.cz,42.0,30.0,,16976.0,8128.0,428.0,25932.0,
-2018-07,monthly,Whole,ACEA / sda-cia.cz,73.0,23.0,,15133.0,5812.0,392.0,21638.0,
-2018-08,monthly,Whole,ACEA / sda-cia.cz,39.0,29.0,,19998.0,6986.0,538.0,27830.0,
-2018-09,monthly,Whole,ACEA / sda-cia.cz,17.0,14.0,,9896.0,4381.0,187.0,14532.0,
-2018-10,monthly,Whole,ACEA / sda-cia.cz,59.0,19.0,,13517.0,5840.0,181.0,19704.0,
-2018-11,monthly,Whole,ACEA / sda-cia.cz,78.0,15.0,,12898.0,6022.0,164.0,19283.0,
-2018-12,monthly,Whole,ACEA / sda-cia.cz,85.0,13.0,,9817.0,4396.0,207.0,14666.0,
-2019-01,monthly,Whole,ACEA / sda-cia.cz,54.0,24.0,,12801.0,6111.0,173.0,19278.0,
-2019-02,monthly,Whole,ACEA / sda-cia.cz,43.0,18.0,,13498.0,4951.0,234.0,18847.0,
-2019-03,monthly,Whole,ACEA / sda-cia.cz,35.0,11.0,,15420.0,5616.0,264.0,21491.0,
-2019-04,monthly,Whole,ACEA / sda-cia.cz,53.0,19.0,,16175.0,6120.0,349.0,22921.0,
-2019-05,monthly,Whole,ACEA / sda-cia.cz,61.0,32.0,,16941.0,6495.0,320.0,24059.0,
-2019-06,monthly,Whole,ACEA / sda-cia.cz,78.0,25.0,,15563.0,5574.0,352.0,21902.0,
-2019-07,monthly,Whole,ACEA / sda-cia.cz,41.0,25.0,,15123.0,5971.0,384.0,21816.0,
-2019-08,monthly,Whole,ACEA / sda-cia.cz,96.0,63.0,,17995.0,6155.0,439.0,25026.0,
-2019-09,monthly,Whole,ACEA / sda-cia.cz,46.0,37.0,,10716.0,4622.0,225.0,15770.0,
-2019-10,monthly,Whole,ACEA / sda-cia.cz,38.0,70.0,,13285.0,6117.0,272.0,19935.0,
-2019-11,monthly,Whole,ACEA / sda-cia.cz,45.0,104.0,,13748.0,5886.0,237.0,20163.0,
-2019-12,monthly,Whole,ACEA / sda-cia.cz,46.0,42.0,,12620.0,5635.0,225.0,18707.0,
-2020-01,monthly,Whole,ACEA / sda-cia.cz,371.0,235.0,,12259.0,5826.0,223.0,19132.0,
-2020-02,monthly,Whole,ACEA / sda-cia.cz,208.0,128.0,,11790.0,4858.0,271.0,17377.0,
-2020-03,monthly,Whole,ACEA / sda-cia.cz,162.0,101.0,,8958.0,4002.0,326.0,13685.0,
-2020-04,monthly,Whole,ACEA / sda-cia.cz,127.0,78.0,,6980.0,3039.0,305.0,10679.0,
-2020-05,monthly,Whole,ACEA / sda-cia.cz,79.0,76.0,,9467.0,3268.0,360.0,13385.0,
-2020-06,monthly,Whole,ACEA / sda-cia.cz,81.0,128.0,,14147.0,5794.0,440.0,20722.0,
-2020-07,monthly,Whole,ACEA / sda-cia.cz,82.0,113.0,,12646.0,6272.0,448.0,19770.0,
-2020-08,monthly,Whole,ACEA / sda-cia.cz,87.0,130.0,,10719.0,5098.0,343.0,16611.0,
-2020-09,monthly,Whole,ACEA / sda-cia.cz,207.0,187.0,,10665.0,5220.0,358.0,16909.0,
-2020-10,monthly,Whole,ACEA / sda-cia.cz,127.0,162.0,,10492.0,5361.0,389.0,16835.0,
-2020-11,monthly,Whole,ACEA / sda-cia.cz,208.0,277.0,,10820.0,5545.0,354.0,17484.0,
-2020-12,monthly,Whole,ACEA / sda-cia.cz,1127.0,363.0,,12202.0,5984.0,325.0,20333.0,
-2021-01,monthly,Whole,ACEA / sda-cia.cz,231.0,235.0,,9269.0,4688.0,249.0,14794.0,
-2021-02,monthly,Whole,ACEA / sda-cia.cz,118.0,208.0,,9431.0,4404.0,374.0,14687.0,
-2021-03,monthly,Whole,ACEA / sda-cia.cz,214.0,501.0,,13103.0,5428.0,584.0,20053.0,
-2021-04,monthly,Whole,ACEA / sda-cia.cz,190.0,380.0,,12583.0,5096.0,539.0,18976.0,
-2021-05,monthly,Whole,ACEA / sda-cia.cz,235.0,396.0,,14870.0,5412.0,519.0,21734.0,
-2021-06,monthly,Whole,ACEA / sda-cia.cz,274.0,472.0,,15893.0,4998.0,501.0,22561.0,
-2021-07,monthly,Whole,ACEA / sda-cia.cz,164.0,252.0,,13400.0,3856.0,431.0,18405.0,
-2021-08,monthly,Whole,ACEA / sda-cia.cz,178.0,264.0,,11825.0,3340.0,512.0,16449.0,
-2021-09,monthly,Whole,ACEA / sda-cia.cz,221.0,270.0,,10018.0,3035.0,402.0,14165.0,
-2021-10,monthly,Whole,ACEA / sda-cia.cz,196.0,234.0,,8838.0,2780.0,472.0,12670.0,
-2021-11,monthly,Whole,ACEA / sda-cia.cz,292.0,214.0,,11059.0,4010.0,405.0,16174.0,
-2021-12,monthly,Whole,SDA,333,309,,10860,4054,652,16208,petrol + el and diesel + el are both PHEV as per alternative fuel observatory https://www.sda-cia.cz/repository-volnedostupna?lang=CZ
+2014-01,monthly,Whole,ACEA / sda-cia.cz,3.0,29.0,27.0,6779.0,6510.0,290.0,13638.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-02,monthly,Whole,ACEA / sda-cia.cz,6.0,27.0,25.0,6963.0,5520.0,238.0,12779.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-03,monthly,Whole,ACEA / sda-cia.cz,14.0,29.0,33.0,9254.0,6920.0,326.0,16576.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-04,monthly,Whole,ACEA / sda-cia.cz,13.0,26.0,26.0,9823.0,7251.0,359.0,17498.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-05,monthly,Whole,ACEA / sda-cia.cz,9.0,18.0,23.0,8703.0,6302.0,341.0,15396.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-06,monthly,Whole,ACEA / sda-cia.cz,5.0,33.0,27.0,10370.0,7302.0,434.0,18171.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-07,monthly,Whole,ACEA / sda-cia.cz,21.0,20.0,32.0,9694.0,7381.0,552.0,17700.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-08,monthly,Whole,ACEA / sda-cia.cz,12.0,25.0,25.0,8254.0,5270.0,351.0,13937.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-09,monthly,Whole,ACEA / sda-cia.cz,12.0,40.0,28.0,9380.0,5906.0,409.0,15775.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-10,monthly,Whole,ACEA / sda-cia.cz,30.0,34.0,49.0,9710.0,7409.0,559.0,17791.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-11,monthly,Whole,ACEA / sda-cia.cz,26.0,56.0,45.0,8936.0,6824.0,478.0,16365.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2014-12,monthly,Whole,ACEA / sda-cia.cz,46.0,49.0,46.0,8700.0,7367.0,480.0,16688.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2014-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-01,monthly,Whole,ACEA / sda-cia.cz,8.0,68.0,45.0,8039.0,7057.0,510.0,15727.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-02,monthly,Whole,ACEA / sda-cia.cz,25.0,58.0,47.0,9192.0,6559.0,502.0,16383.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-03,monthly,Whole,ACEA / sda-cia.cz,20.0,60.0,61.0,12041.0,8412.0,561.0,21155.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-04,monthly,Whole,ACEA / sda-cia.cz,32.0,77.0,68.0,11109.0,8699.0,583.0,20568.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-05,monthly,Whole,ACEA / sda-cia.cz,14.0,56.0,60.0,9887.0,7595.0,501.0,18113.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-06,monthly,Whole,ACEA / sda-cia.cz,48.0,87.0,70.0,11572.0,8888.0,650.0,21315.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-07,monthly,Whole,ACEA / sda-cia.cz,30.0,94.0,110.0,11797.0,8794.0,590.0,21415.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-08,monthly,Whole,ACEA / sda-cia.cz,18.0,92.0,93.0,9369.0,8144.0,562.0,18278.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-09,monthly,Whole,ACEA / sda-cia.cz,11.0,91.0,93.0,9926.0,7512.0,423.0,18056.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-10,monthly,Whole,ACEA / sda-cia.cz,15.0,140.0,113.0,10065.0,8813.0,512.0,19658.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-11,monthly,Whole,ACEA / sda-cia.cz,21.0,102.0,119.0,10401.0,9384.0,394.0,20421.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2015-12,monthly,Whole,ACEA / sda-cia.cz,26.0,99.0,115.0,10184.0,8996.0,348.0,19768.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2015-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-01,monthly,Whole,ACEA / sda-cia.cz,3.0,101.0,94.0,8773.0,8159.0,370.0,17500.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-02,monthly,Whole,ACEA / sda-cia.cz,25.0,107.0,103.0,10453.0,8148.0,463.0,19299.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-03,monthly,Whole,ACEA / sda-cia.cz,16.0,111.0,122.0,12341.0,9696.0,513.0,22799.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-04,monthly,Whole,ACEA / sda-cia.cz,17.0,124.0,113.0,12568.0,9782.0,527.0,23131.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-05,monthly,Whole,ACEA / sda-cia.cz,11.0,117.0,118.0,13267.0,10217.0,605.0,24335.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-06,monthly,Whole,ACEA / sda-cia.cz,14.0,116.0,126.0,13794.0,11153.0,511.0,25714.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-07,monthly,Whole,ACEA / sda-cia.cz,7.0,102.0,128.0,10588.0,7523.0,391.0,18739.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-08,monthly,Whole,ACEA / sda-cia.cz,15.0,160.0,144.0,11939.0,8539.0,454.0,21251.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-09,monthly,Whole,ACEA / sda-cia.cz,22.0,142.0,132.0,10819.0,7959.0,436.0,19510.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-10,monthly,Whole,ACEA / sda-cia.cz,6.0,146.0,151.0,11501.0,9141.0,480.0,21425.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-11,monthly,Whole,ACEA / sda-cia.cz,33.0,149.0,160.0,12092.0,9793.0,467.0,22694.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2016-12,monthly,Whole,ACEA / sda-cia.cz,31.0,166.0,151.0,11646.0,8981.0,469.0,21444.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2016-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-01,monthly,Whole,ACEA / sda-cia.cz,13.0,218.0,189.0,10366.0,8946.0,543.0,20275.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-02,monthly,Whole,ACEA / sda-cia.cz,40.0,178.0,186.0,11247.0,7772.0,516.0,19939.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-03,monthly,Whole,ACEA / sda-cia.cz,35.0,224.0,244.0,15044.0,9909.0,665.0,26121.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q1 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-04,monthly,Whole,ACEA / sda-cia.cz,17.0,222.0,217.0,12875.0,8418.0,500.0,22249.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-05,monthly,Whole,ACEA / sda-cia.cz,30.0,270.0,256.0,15458.0,9661.0,667.0,26342.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-06,monthly,Whole,ACEA / sda-cia.cz,14.0,231.0,251.0,14772.0,9850.0,758.0,25876.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q2 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-07,monthly,Whole,ACEA / sda-cia.cz,21.0,262.0,223.0,10919.0,7142.0,541.0,19108.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-08,monthly,Whole,ACEA / sda-cia.cz,22.0,244.0,241.0,12314.0,7211.0,580.0,20612.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-09,monthly,Whole,ACEA / sda-cia.cz,42.0,190.0,232.0,11694.0,7051.0,505.0,19714.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q3 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-10,monthly,Whole,ACEA / sda-cia.cz,28.0,281.0,270.0,13043.0,8508.0,531.0,22661.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-11,monthly,Whole,ACEA / sda-cia.cz,25.0,270.0,277.0,13702.0,8429.0,222.0,22925.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2017-12,monthly,Whole,ACEA / sda-cia.cz,20.0,236.0,240.0,12616.0,6596.0,259.0,19967.0,"HEV estimated (with PETROL/DIESEL): ACEA's 2017-Q4 HEV as a share of the quarter's TOTAL-BEV-PHEV-OTHERS, petrol:diesel as in the month (reference/acea_country_quarterly.csv)"
+2018-01,monthly,Whole,ACEA / sda-cia.cz,18.0,25.0,255.0,15194.0,7444.0,283.0,23219.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-02,monthly,Whole,ACEA / sda-cia.cz,34.0,22.0,222.0,13243.0,6489.0,191.0,20201.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-03,monthly,Whole,ACEA / sda-cia.cz,55.0,27.0,268.0,15982.0,7830.0,291.0,24453.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-04,monthly,Whole,ACEA / sda-cia.cz,57.0,24.0,297.0,15933.0,7642.0,306.0,24259.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-05,monthly,Whole,ACEA / sda-cia.cz,61.0,37.0,314.0,16865.0,8089.0,354.0,25720.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-06,monthly,Whole,ACEA / sda-cia.cz,42.0,30.0,316.0,16974.0,8142.0,428.0,25932.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-07,monthly,Whole,ACEA / sda-cia.cz,73.0,23.0,471.0,14969.0,5710.0,392.0,21638.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-08,monthly,Whole,ACEA / sda-cia.cz,39.0,29.0,606.0,19268.0,7350.0,538.0,27830.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-09,monthly,Whole,ACEA / sda-cia.cz,17.0,14.0,319.0,10130.0,3865.0,187.0,14532.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-10,monthly,Whole,ACEA / sda-cia.cz,59.0,19.0,533.0,13054.0,5858.0,181.0,19704.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-11,monthly,Whole,ACEA / sda-cia.cz,78.0,15.0,522.0,12772.0,5732.0,164.0,19283.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2018-12,monthly,Whole,ACEA / sda-cia.cz,85.0,13.0,394.0,9641.0,4326.0,207.0,14666.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2018-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-01,monthly,Whole,ACEA / sda-cia.cz,54.0,24.0,434.0,13283.0,5310.0,173.0,19278.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-02,monthly,Whole,ACEA / sda-cia.cz,43.0,18.0,423.0,12951.0,5178.0,234.0,18847.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-03,monthly,Whole,ACEA / sda-cia.cz,35.0,11.0,483.0,14787.0,5911.0,264.0,21491.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-04,monthly,Whole,ACEA / sda-cia.cz,53.0,19.0,711.0,15862.0,5927.0,349.0,22921.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-05,monthly,Whole,ACEA / sda-cia.cz,61.0,32.0,747.0,16670.0,6229.0,320.0,24059.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-06,monthly,Whole,ACEA / sda-cia.cz,78.0,25.0,677.0,15120.0,5650.0,352.0,21902.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-07,monthly,Whole,ACEA / sda-cia.cz,41.0,25.0,670.0,14975.0,5721.0,384.0,21816.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-08,monthly,Whole,ACEA / sda-cia.cz,96.0,63.0,766.0,17121.0,6541.0,439.0,25026.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-09,monthly,Whole,ACEA / sda-cia.cz,46.0,37.0,485.0,10837.0,4140.0,225.0,15770.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-10,monthly,Whole,ACEA / sda-cia.cz,38.0,70.0,776.0,12998.0,5781.0,272.0,19935.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-11,monthly,Whole,ACEA / sda-cia.cz,45.0,104.0,785.0,13145.0,5847.0,237.0,20163.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2019-12,monthly,Whole,ACEA / sda-cia.cz,46.0,42.0,730.0,12226.0,5438.0,225.0,18707.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2019-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-01,monthly,Whole,ACEA / sda-cia.cz,371.0,235.0,774.0,12131.0,5398.0,223.0,19132.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-02,monthly,Whole,ACEA / sda-cia.cz,208.0,128.0,709.0,11115.0,4946.0,271.0,17377.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-03,monthly,Whole,ACEA / sda-cia.cz,162.0,101.0,554.0,8680.0,3862.0,326.0,13685.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-04,monthly,Whole,ACEA / sda-cia.cz,127.0,78.0,457.0,6959.0,2753.0,305.0,10679.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-05,monthly,Whole,ACEA / sda-cia.cz,79.0,76.0,579.0,8807.0,3484.0,360.0,13385.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-06,monthly,Whole,ACEA / sda-cia.cz,81.0,128.0,903.0,13737.0,5433.0,440.0,20722.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-07,monthly,Whole,ACEA / sda-cia.cz,82.0,113.0,1076.0,12135.0,5916.0,448.0,19770.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-08,monthly,Whole,ACEA / sda-cia.cz,87.0,130.0,903.0,10183.0,4965.0,343.0,16611.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-09,monthly,Whole,ACEA / sda-cia.cz,207.0,187.0,909.0,10251.0,4997.0,358.0,16909.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-10,monthly,Whole,ACEA / sda-cia.cz,127.0,162.0,1066.0,10034.0,5057.0,389.0,16835.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-11,monthly,Whole,ACEA / sda-cia.cz,208.0,277.0,1098.0,10337.0,5210.0,354.0,17484.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2020-12,monthly,Whole,ACEA / sda-cia.cz,1127.0,363.0,1222.0,11500.0,5796.0,325.0,20333.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2020-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-01,monthly,Whole,ACEA / sda-cia.cz,231.0,235.0,1605.0,8293.0,4181.0,249.0,14794.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-02,monthly,Whole,ACEA / sda-cia.cz,118.0,208.0,1594.0,8239.0,4154.0,374.0,14687.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-03,monthly,Whole,ACEA / sda-cia.cz,214.0,501.0,2137.0,11047.0,5570.0,584.0,20053.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q1 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-04,monthly,Whole,ACEA / sda-cia.cz,190.0,380.0,2263.0,11189.0,4415.0,539.0,18976.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-05,monthly,Whole,ACEA / sda-cia.cz,235.0,396.0,2607.0,12891.0,5086.0,519.0,21734.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-06,monthly,Whole,ACEA / sda-cia.cz,274.0,472.0,2700.0,13347.0,5267.0,501.0,22561.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q2 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-07,monthly,Whole,ACEA / sda-cia.cz,164.0,252.0,1888.0,11968.0,3702.0,431.0,18405.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-08,monthly,Whole,ACEA / sda-cia.cz,178.0,264.0,1666.0,10562.0,3267.0,512.0,16449.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-09,monthly,Whole,ACEA / sda-cia.cz,221.0,270.0,1427.0,9047.0,2798.0,402.0,14165.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q3 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-10,monthly,Whole,ACEA / sda-cia.cz,196.0,234.0,1713.0,7149.0,2906.0,472.0,12670.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-11,monthly,Whole,ACEA / sda-cia.cz,292.0,214.0,2221.0,9273.0,3769.0,405.0,16174.0,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv)
+2021-12,monthly,Whole,SDA,333,309,2170.0,9061.0,3683.0,652,16208,HEV estimated (with PETROL/DIESEL): TOTAL-BEV-PHEV-OTHERS split by ACEA's 2021-Q4 HEV:petrol:diesel shares (reference/acea_country_quarterly.csv); petrol + el and diesel + el are both PHEV as per alternative fuel observatory https://www.sda-cia.cz/repository-volnedostupna?lang=CZ
 2022-01,monthly,Whole,ACEA / sda-cia.cz,187.0,271.0,2125.0,8505.0,4714.0,461.0,16263.0,
 2022-02,monthly,Whole,ACEA / sda-cia.cz,309.0,218.0,2108.0,7954.0,3246.0,390.0,14225.0,
 2022-03,monthly,Whole,ACEA / sda-cia.cz,289.0,213.0,2485.0,9749.0,3736.0,431.0,16903.0,
