@@ -1,8 +1,11 @@
 # Reference figures (not country data)
 
 Small files with figures quoted from a third party as they publish them.
-They are **not** country series: nothing in `data/` is derived from them,
-and writing them never touches a country CSV.
+They are **not** country series, and writing them never touches a country
+CSV. One exception is documented below: the HEV back-estimates
+(`acea_country_quarterly.csv`, the register fuel splits) were derived from
+these files once, by `scripts/backfill_hev_history.py`, and every such cell
+says so in its row's `notes`.
 
 ## ACEA, EU: `acea_eu_shares.csv` and `acea_eu_monthly.csv`
 
@@ -123,3 +126,33 @@ may end before the EU brief's data end. ACEA publishes month M around the
 
 Using ACEA as a fallback for missing country HEV (DK, FI, NL, LV) is a
 later, separate change. Country CSVs stay national-source only.
+
+## HEV back-estimates: `acea_country_quarterly.csv` and the register fuel splits
+
+A TTM chart whose HEV column starts mid-series shows hybrids inside petrol
+until twelve months of the split exist, then the band switches on (the
+late-start fold, [02](../docs/architecture/02-components.md)). For Czechia,
+the Netherlands and Finland the months before their counted split were
+filled once with **estimates**, so the chart shows hybrids for its whole
+span. Accuracy of a long-past month matters less here than a consistent
+picture; each estimated cell says so in its row's `notes`, with the file
+it came from, and each source doc records the seam to the counted months.
+
+- **`acea_country_quarterly.csv`** (`scripts/build_acea_quarterly.py`):
+  ACEA's quarterly per-country fuel-type releases, one row per country and
+  quarter — BEV, PHEV, HEV, petrol, diesel from the 2018 Q2 – 2022 Q4
+  "fuel types" XLSX files, HEV only from the 2015–2017 alternative-fuel
+  XLSX files (which merge BEV and PHEV for some countries). Each release's
+  own quarter is used; its prior-year column only where no release of that
+  quarter exists (2014, 2018 Q1). ACEA's HEV is full + mild hybrids.
+  Retrieved 2026-11-21 through the site's media library (the 2018–2019
+  release pages only embed charts). Czechia 2014–2021 is estimated from it;
+  for the Netherlands and Finland it is the cross-check.
+- **`nl_register_fuel_split.csv`**, **`fi_register_fuel_split.csv`**: the
+  registers' own monthly fuel split (RDW open data, Traficom's snapshot of
+  30 September 2026), counted the way the HEV write paths count it. The
+  Netherlands 2018-01 – 2023-06 and Finland 2014-01 – 2024-12 are estimated
+  from their HEV share of HEV + petrol.
+
+Nothing keeps these files current: they are the record of a one-off fill.
+New months get counted HEV from the country's write path.
