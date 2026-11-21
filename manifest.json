@@ -2,6 +2,126 @@
   "updated": "2026-11-21",
   "images": [
     {
+      "country": "Czechia",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-11-21",
+      "filename": "czechia_ICE_BEV_20261121.png",
+      "url": "images/2026-09/czechia_ICE_BEV_20261121.png",
+      "alt": "Czechia ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-11-21",
+      "filename": "czechia_20261121.png",
+      "url": "images/2026-09/czechia_20261121.png",
+      "alt": "Czechia BEV trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-11-21",
+      "filename": "czechia_time_20261121.png",
+      "url": "images/2026-09/czechia_time_20261121.png",
+      "alt": "Czechia Transition time curve",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-11-21",
+      "filename": "czechia_ttm_shares_20261121.png",
+      "url": "images/2026-09/czechia_ttm_shares_20261121.png",
+      "alt": "Czechia TTM market split graph",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Finland",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-21",
+      "filename": "finland_ICE_BEV_20261121.png",
+      "url": "images/2026-10/finland_ICE_BEV_20261121.png",
+      "alt": "Finland ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-21",
+      "filename": "finland_20261121.png",
+      "url": "images/2026-10/finland_20261121.png",
+      "alt": "Finland BEV trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-21",
+      "filename": "finland_time_20261121.png",
+      "url": "images/2026-10/finland_time_20261121.png",
+      "alt": "Finland Transition time curve",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-21",
+      "filename": "finland_ttm_shares_20261121.png",
+      "url": "images/2026-10/finland_ttm_shares_20261121.png",
+      "alt": "Finland TTM market split graph",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Netherlands",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-21",
+      "filename": "netherlands_ICE_BEV_20261121.png",
+      "url": "images/2026-10/netherlands_ICE_BEV_20261121.png",
+      "alt": "Netherlands ICE-BEV-Hybrid trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-21",
+      "filename": "netherlands_20261121.png",
+      "url": "images/2026-10/netherlands_20261121.png",
+      "alt": "Netherlands BEV trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-21",
+      "filename": "netherlands_time_20261121.png",
+      "url": "images/2026-10/netherlands_time_20261121.png",
+      "alt": "Netherlands Transition time curve",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-21",
+      "filename": "netherlands_ttm_shares_20261121.png",
+      "url": "images/2026-10/netherlands_ttm_shares_20261121.png",
+      "alt": "Netherlands TTM market split graph",
+      "country_slug": "netherlands"
+    },
+    {
       "country": "USA",
       "type": "ICE_BEV",
       "period": "2026-10",
