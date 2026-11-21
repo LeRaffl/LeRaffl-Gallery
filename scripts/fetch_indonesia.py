@@ -558,6 +558,12 @@ def upsert_csv(csv_path, variant, months, year, source, note, force):
             "period": period, "time_interval": "monthly", "variant": variant,
             "source": "GAIKINDO", "notes": note,
         }
+        # A fuel absent from `fuels` is a genuine zero here, not "not
+        # reported" (invariant 4, #438): validate() has already proven that
+        # every section's per-fuel rows add up to GAIKINDO's printed totals,
+        # and an edition without a FUEL column (or with a section that lost
+        # it) aborts before this point. So the fuel table is complete and a
+        # fuel with no model rows sold no units that month.
         for f in FUEL_KEYS:
             new[f] = str(fuels.get(f, 0))
         new["TOTAL"] = str(sum(fuels.get(f, 0) for f in FUEL_KEYS))

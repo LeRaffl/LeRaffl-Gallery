@@ -173,6 +173,17 @@ as a GAIKINDO-sourced row in `Indonesia.csv`, the run stops before the
 download. Only `Whole` is auto-rendered; the three variant CSVs accumulate
 data without a params/render entry until deliberately onboarded.
 
+**0 vs empty (#438).** A fuel with no model rows in a month is written `0`,
+and that is a sourced zero, not a default: the row is only written after §4
+has matched every section's per-fuel rows against GAIKINDO's printed totals,
+so the fuel table is complete. An edition that arrives without fuel types
+(the Jan–Jul 2026 wholesales file had no FUEL column) aborts in `validate()`
+before any CSV is touched, and so does one where only some sections lost the
+column (they are reported as missing sections) — such a file is never
+committed as zeros. The long leading-zero stretches in the history (HEV,
+OTHERS, early BEV/PHEV) predate the GAIKINDO automation; they can only be
+revisited against the matching PDFs (invariant 3).
+
 ## 6. Series continuity (R. Andrew handoff)
 
 The pre-2026 rows in `data/Indonesia.csv` come from robbieandrew.github.io's
