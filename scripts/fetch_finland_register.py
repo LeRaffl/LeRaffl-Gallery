@@ -59,6 +59,9 @@ PREVIOUS_NOTE = ("TOTAL/BEV/PHEV/DIESEL/OTHERS StatFin 121d; HEV/PETROL estimate
                  "StatFin petrol split by {prev}'s HEV share, until ACEA or a "
                  "Traficom register snapshot covers the month")
 PREVIOUS_PREFIX = PREVIOUS_NOTE.split("{prev}")[0]
+# The one-off back-estimate before 2025 (scripts/backfill_hev_history.py):
+# StatFin petrol split by the register's monthly HEV share.
+HISTORY_PREFIX = "HEV estimated"
 # ACEA's Finland row must be StatFin's month (the acea_split / Greece bands).
 ACEA_TOTAL_TOLERANCE = 0.01
 ACEA_PLUGIN_TOLERANCE = 0.02
@@ -84,6 +87,8 @@ def split_kind(row: dict) -> str | None:
         return "acea"
     if notes.startswith(PREVIOUS_PREFIX):
         return "previous"
+    if notes.startswith(HISTORY_PREFIX):
+        return "history"
     return None
 
 
@@ -102,7 +107,7 @@ def split_petrol(petrol: float, share: float) -> tuple[float, float]:
 def statfin_petrol(row: dict) -> float:
     """StatFin's own petrol figure, hybrids included, for a row that is
     blank or carries an estimate (an estimate never changes the sum)."""
-    if split_kind(row) in ("acea", "previous"):
+    if split_kind(row) in ("acea", "previous", "history"):
         return _f(row, "HEV") + _f(row, "PETROL")
     return _f(row, "PETROL")
 
@@ -123,7 +128,7 @@ def carry_split(old: dict, new: dict) -> dict:
     kind = split_kind(old)
     if kind is None:
         return new
-    if kind in ("acea", "previous"):
+    if kind in ("acea", "previous", "history"):
         # An estimate is a share of StatFin's petrol: apply it to the new
         # petrol, so the row keeps summing with StatFin's own OTHERS.
         share = hev_share(old)

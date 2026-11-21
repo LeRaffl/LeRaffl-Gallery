@@ -214,6 +214,11 @@ def test_carry_split_keeps_hev_through_a_statfin_restatement():
     moved = fn.carry_split(est, dict(new, PETROL=1600.0, OTHERS=3.0))
     assert moved["HEV"] == round(1600 * 1089 / 1527) and moved["HEV"] + moved["PETROL"] == 1600
     assert moved["OTHERS"] == 3.0 and moved["notes"] == est["notes"]
+    # The pre-2025 back-estimate is a share as well and survives the same way.
+    hist = dict(est, period="2019-05", notes="HEV estimated (with PETROL): StatFin petrol split by ...")
+    assert fn.split_kind(hist) == "history"
+    kept = fn.carry_split(hist, dict(new, PETROL=1600.0, OTHERS=3.0))
+    assert kept["HEV"] + kept["PETROL"] == 1600 and kept["notes"] == hist["notes"]
 
 
 def test_apply_register_covers_full_months_and_replaces_acea():
