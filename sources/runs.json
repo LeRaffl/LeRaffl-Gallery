@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-21T19:25:53Z",
+ "generated": "2026-11-21T20:47:48Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8176,6 +8176,14 @@
    "slug": "netherlands",
    "period": "2026-10",
    "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-11-21",
+   "label": "Türkiye",
+   "base": "Türkiye",
+   "slug": "tuerkiye",
+   "period": "2026-10",
+   "flag": "🇹🇷"
   }
  ]
 }
