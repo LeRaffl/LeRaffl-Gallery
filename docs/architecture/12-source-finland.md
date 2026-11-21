@@ -28,7 +28,7 @@ hev_note: "StatFin 121d has no code for non-plug-in hybrids, so Whole's HEV is S
 backfill: "HEV/PETROL for Whole: counted 2025-01 to 2026-09 from the Traficom snapshot of 30 September 2026; estimated 2014-01 to 2024-12 from the same snapshot's monthly HEV share (reference/fi_register_fuel_split.csv)"
 scope_note: Region MA1 (Mainland Finland); Åland is not in the table.
 caveats:
-- StatFin 121d (and Traficom's monthly tables) have no code for non-plug-in hybrids. Whole's HEV is StatFin's petrol split by the share of non-plug-in hybrids (full and mild, the EU type-approval class) counted in Traficom's quarterly register snapshot; the register's absolute counts are not used (it holds 2–6 % fewer of a month's cars than StatFin by now, which would put HEV about a point of TOTAL low — the share matches ACEA's).
+- StatFin 121d (and Traficom's monthly tables) have no code for non-plug-in hybrids. Whole's HEV is StatFin's petrol split by the share of non-plug-in hybrids (full and mild, the EU type-approval class) counted in Traficom's quarterly register snapshot; the register's absolute counts are not used (it holds 2–6% fewer of a month's cars than StatFin by now, which would put HEV about a point of TOTAL low — the share matches ACEA's).
 - The months after the latest snapshot (one to four) carry an estimated HEV/petrol split, flagged in notes, until the next snapshot.
 - 2014-01 to 2024-12 HEV is a flagged estimate by the same method (the register's share, from a snapshot taken years later).
 - Industry is derived cell-by-cell as possessor Total minus Private person.
