@@ -310,8 +310,8 @@ the chart shows the market's hybrid share for its whole span
   quarter's pool, the rest in the month's own petrol : diesel ratio.
 - Each row's `notes` says which; PETROL and DIESEL changed with it.
 - **Seam:** 2021-12 estimated 2,170 HEV, 2022-01 counted 2,125. TTM HEV:
-  0.2 % (2014-12), 1.7 % (2018-12), 5.1 % (2020-12), 11.6 % (2021-12),
-  14.7 % (2022-12, counted).
+  0.2% (2014-12), 1.7% (2018-12), 5.1% (2020-12), 11.6% (2021-12),
+  14.7% (2022-12, counted).
 - Before 2014 hybrids stay inside petrol; ACEA's earliest country HEV in
   the archive is 2014 (as the prior-year column of 2015's releases).
 

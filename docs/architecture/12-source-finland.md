@@ -28,7 +28,7 @@ hev_note: "StatFin 121d has no code for non-plug-in hybrids, so Whole's HEV is S
 backfill: "HEV/PETROL for Whole: counted 2025-01 to 2026-09 from the Traficom snapshot of 30 September 2026; estimated 2014-01 to 2024-12 from the same snapshot's monthly HEV share (reference/fi_register_fuel_split.csv)"
 scope_note: Region MA1 (Mainland Finland); Åland is not in the table.
 caveats:
-- StatFin 121d (and Traficom's monthly tables) have no code for non-plug-in hybrids. Whole's HEV is StatFin's petrol split by the share of non-plug-in hybrids (full and mild, the EU type-approval class) counted in Traficom's quarterly register snapshot; the register's absolute counts are not used (it holds 2–6 % fewer of a month's cars than StatFin by now, which would put HEV about a point of TOTAL low — the share matches ACEA's).
+- StatFin 121d (and Traficom's monthly tables) have no code for non-plug-in hybrids. Whole's HEV is StatFin's petrol split by the share of non-plug-in hybrids (full and mild, the EU type-approval class) counted in Traficom's quarterly register snapshot; the register's absolute counts are not used (it holds 2–6% fewer of a month's cars than StatFin by now, which would put HEV about a point of TOTAL low — the share matches ACEA's).
 - The months after the latest snapshot (one to four) carry an estimated HEV/petrol split, flagged in notes, until the next snapshot.
 - 2014-01 to 2024-12 HEV is a flagged estimate by the same method (the register's share, from a snapshot taken years later).
 - Industry is derived cell-by-cell as possessor Total minus Private person.
@@ -224,8 +224,8 @@ quarterly. So `Whole`'s HEV, by month:
 TOTAL, BEV, PHEV, DIESEL and OTHERS are always StatFin's; every row splits
 only StatFin's petrol, so HEV + PETROL is StatFin's petrol exactly. **Why a
 share, also for the register months:** the snapshot has lost a few percent
-of each month's cars since (−2.5 % to −5.6 % against StatFin), so its
-absolute HEV count runs 3.7 % low (33,560 vs 34,863, 2025-01 – 2026-09) and
+of each month's cars since (−2.5% to −5.6% against StatFin), so its
+absolute HEV count runs 3.7% low (33,560 vs 34,863, 2025-01 – 2026-09) and
 the gap would land in OTHERS; the share of hybrids among what remains is
 what ACEA's independent count confirms (2025-01: register share 0.725, ACEA
 0.716). The month stays `monthly` (`monthly_est` would hollow a BEV point
@@ -275,7 +275,7 @@ All of it lives in `scripts/fetch_finland_register.py`:
   2026-11-20.
 - **ACEA** (`apply_acea`): `fetch_acea.py` parses the Finland row of each
   release (`HEV_MERGE_COUNTRIES`, never a row ACEA writes) and, when ACEA's
-  TOTAL is within 1 % and BEV/PHEV within 2 % of StatFin's, puts ACEA's share on
+  TOTAL is within 1% and BEV/PHEV within 2% of StatFin's, puts ACEA's share on
   the month — never over the register's. `--acea-backfill START:END` does the
   same from the archived PDFs.
 - **New months** (`estimate_newest`, called by `fetch_finland.py` after the
@@ -290,18 +290,18 @@ hybrids for its whole span instead of a band switching on at 2025-12, every
 month 2014-01 – 2024-12 carries HEV = StatFin's petrol × the register's HEV
 share of HEV + petrol in that month (`scripts/backfill_hev_history.py
 --method register`, the split saved as `reference/fi_register_fuel_split.csv`
-from the 30 September 2026 snapshot). The register is thinned 10–20 % for
+from the 30 September 2026 snapshot). The register is thinned 10–20% for
 those years, but the share holds: quarter by quarter 2018–2022 it is within
 0.5–1.4 points of ACEA's own HEV share of HEV + petrol
 (`reference/acea_country_quarterly.csv`), the register slightly higher. TTM
-HEV: 2.2 % (2015-01), 10.3 % (2018-12), 19.5 % (2020-12), 30.8 % (2022-12),
-27.2 % (2025-06), 26.1 % (2026-10) — one method throughout, no seam at 2025.
+HEV: 2.2% (2015-01), 10.3% (2018-12), 19.5% (2020-12), 30.8% (2022-12),
+27.2% (2025-06), 26.1% (2026-10) — one method throughout, no seam at 2025.
 
-ACEA against the register's absolute counts, same months: ACEA's HEV is 3–5 %
+ACEA against the register's absolute counts, same months: ACEA's HEV is 3–5%
 higher (2025-01: 1,776 vs 1,707; 2026-09: 1,234 vs 1,197) — the register's
 thinning, and the reason the share is used. With HEV in every month the
 interactive gallery (`series/`) shows the HEV band for Finland too (it folds a
-column that is missing in more than 40 % of a series, which Finland's was
+column that is missing in more than 40% of a series, which Finland's was
 before).
 
 #### The register, in detail
@@ -322,12 +322,12 @@ unclassified hybrid is OTHERS, not petrol.
 
 Why only from 2025-01: one pass over every StatFin month with the 30 September
 2026 snapshot sums in every month 2014-01 to 2026-09, but summing is not a
-clean month. The register is thinned by cars that have left it: about −15 %
-against StatFin in 2014, −13 % to −20 % in 2020, −6 % to −11 % in 2022, and
-inside about −6 % only from 2025-01 (−2.5 % to −5.6 %, one month −6.0 %).
+clean month. The register is thinned by cars that have left it: about −15%
+against StatFin in 2014, −13% to −20% in 2020, −6% to −11% in 2022, and
+inside about −6% only from 2025-01 (−2.5% to −5.6%, one month −6.0%).
 Register HEV on a full StatFin total before that would understate the hybrid
 share, so those years stay blank. September 2026: register whole 6,809 against
-StatFin 6,985 (−2.5 %), HEV 1,197, pure petrol 481, slack 59; Used 3,315.
+StatFin 6,985 (−2.5%), HEV 1,197, pure petrol 481, slack 59; Used 3,315.
 
 ```mermaid
 flowchart TB
