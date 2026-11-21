@@ -24,11 +24,11 @@ variant_notes:
   Vans: Vans (vehicle class 02).
   Buses: Buses and coaches (vehicle class 04) — very low volume.
 hev_split: true
-hev_note: "StatFin 121d has no full-hybrid code, so Whole's HEV is StatFin's petrol split by a hybrid share: from 2025-01 the share counted in Traficom's open register snapshot (hybrid class 02, published quarterly), 2014-01 to 2024-12 the same register's share as a flagged estimate (it agrees with ACEA's quarterly share within about a point), and months newer than the latest snapshot ACEA's share for the month or the previous month's share, flagged until the next snapshot. TOTAL, BEV, PHEV, diesel and OTHERS stay StatFin's. In the other variants full hybrids are inside petrol."
+hev_note: "StatFin 121d has no code for non-plug-in hybrids, so Whole's HEV is StatFin's petrol split by a hybrid share: from 2025-01 the share counted in Traficom's open register snapshot (hybrid class 02, the EU type-approval NOVC-HEV class: full and mild hybrids, as ACEA's HEV; published quarterly), 2014-01 to 2024-12 the same register's share as a flagged estimate (it agrees with ACEA's quarterly share within about a point), and months newer than the latest snapshot ACEA's share for the month or the previous month's share, flagged until the next snapshot. TOTAL, BEV, PHEV, diesel and OTHERS stay StatFin's. In the other variants hybrids are inside petrol."
 backfill: "HEV/PETROL for Whole: counted 2025-01 to 2026-09 from the Traficom snapshot of 30 September 2026; estimated 2014-01 to 2024-12 from the same snapshot's monthly HEV share (reference/fi_register_fuel_split.csv)"
 scope_note: Region MA1 (Mainland Finland); Åland is not in the table.
 caveats:
-- StatFin 121d (and Traficom's monthly tables) have no full-hybrid code. Whole's HEV is StatFin's petrol split by the share of full hybrids counted in Traficom's quarterly register snapshot; the register's absolute counts are not used (it holds 2–6 % fewer of a month's cars than StatFin by now, which would put HEV about a point of TOTAL low — the share matches ACEA's).
+- StatFin 121d (and Traficom's monthly tables) have no code for non-plug-in hybrids. Whole's HEV is StatFin's petrol split by the share of non-plug-in hybrids (full and mild, the EU type-approval class) counted in Traficom's quarterly register snapshot; the register's absolute counts are not used (it holds 2–6 % fewer of a month's cars than StatFin by now, which would put HEV about a point of TOTAL low — the share matches ACEA's).
 - The months after the latest snapshot (one to four) carry an estimated HEV/petrol split, flagged in notes, until the next snapshot.
 - 2014-01 to 2024-12 HEV is a flagged estimate by the same method (the register's share, from a snapshot taken years later).
 - Industry is derived cell-by-cell as possessor Total minus Private person.
@@ -39,7 +39,7 @@ fragility_doc: docs/architecture/12-source-finland.md
 data_file: data/Finland.csv
 market_breakdown: market/finland_top.json
 market_class_labels:
-  PETROL: Petrol, full hybrids included — broader than the chart's petrol, which splits them out (Traficom's monthly tables have no full-hybrid code)
+  PETROL: Petrol, full and mild hybrids included — broader than the chart's petrol, which splits them out (Traficom's monthly tables have no hybrid code)
 market_designation_note: 'Brands come from Traficom''s make table, designations from its model-series table; both are Traficom''s live register, so a month can differ from the chart''s StatFin figure by a few cars.'
 ---
 
@@ -63,7 +63,7 @@ API:       POST <table>.px with a PxWeb JSON query (response: json-stat2)
            API guide: https://pxdata.stat.fi/api1.html
 Variants:  Whole, Private, Industry, HDV, Vans, Buses (6 separate CSV files)
 PHEV:      Split natively (driving-power 39 + 44)
-HEV:       NO non-plug-in full-hybrid code — full hybrids fold into Petrol;
+HEV:       NO non-plug-in hybrid code — full and mild hybrids fold into Petrol;
            HEV column left blank, same as Denmark/NL
 Region:    MA1 "Mainland Finland" (broadest aggregate; Åland not in the table)
 Industry:  Derived = possessor Total (00) − Private person (01), cell-by-cell
@@ -207,7 +207,7 @@ code, so the written `TOTAL` always equals the breakdown.
 ### HEV: the Traficom register from 2025, estimates for the newest months
 
 Finland **does** split plug-in hybrids (codes 39 and 44 → PHEV). But StatFin
-121d has **no driving-power code for a non-plug-in full hybrid**: those cars
+121d has **no driving-power code for a non-plug-in hybrid**: those cars
 are classified by their combustion fuel and sit in `Petrol` (01). Traficom's
 monthly first-registration tables (trafi2.stat.fi, all eight; the make/model
 workbook `MM.xlsx`) have the same codes — checked from CI on 2026-11-20. Only
@@ -231,6 +231,20 @@ what ACEA's independent count confirms (2025-01: register share 0.725, ACEA
 0.716). The month stays `monthly` (`monthly_est` would hollow a BEV point
 that was counted); estimates are flagged in `notes` (invariant 6) and the
 posts leave their HEV out (`R/post_text.R`, `.pt_hev_estimated`).
+
+**What HEV holds.** Hybrid class `02` (`sahkohybridinluokka`) is the
+EU type-approval class NOVC-HEV, so it is every non-plug-in hybrid, full
+**and** mild: Toyota, Lexus, Kia/Hyundai HEV, Renault E-Tech, Nissan
+e-Power, and the 12 V / 48 V systems of VW eTSI, Ford EcoBoost Hybrid,
+Suzuki, Volvo B4/B5, Mercedes, Audi and BMW. A probe of the snapshot on
+2026-11-21 lists them among the top models of 2019, 2022 and 2026. The register has no
+electric-power field, so mild hybrids cannot be told apart here. The
+column is therefore "full + mild", the same as ACEA's HEV (which is how
+the history was checked), Czechia's, the Netherlands' and Switzerland's
+and Estonia's register HEV, and not France's or the UK's split, where
+mild hybrids sit in petrol. Class 02 also holds a few diesel mild hybrids
+(BMW 520d/320d, Mercedes E 220 d); the share is applied to StatFin's
+petrol, so they lift HEV slightly at petrol's expense.
 
 **Why ACEA is a share, not a count.** Its Finland row is StatFin's month (same
 TOTAL, BEV, PHEV), but its HEV + petrol is 10–30 cars above StatFin's petrol in
@@ -468,7 +482,7 @@ time and builds the trailing-twelve-month + single-month rankings through
 
 - Classes follow this CSV: `Sähkö` → BEV, `… (ladattava hybridi)` → PHEV,
   `Bensiini` (01) → PETROL (since 2026-10); non-plug hybrids stay on the
-  combustion side, as in 121d — the page labels petrol "full hybrids included"
+  combustion side, as in 121d — the page labels petrol "full and mild hybrids included"
   (`market_class_labels`). **No diesel ranking:** Traficom's passenger-car table
   holds about 130 diesel cars a month fewer than StatFin (64 vs 196 in 2026-07 —
   the whole gap between the two totals), so it would not be the chart's diesel.

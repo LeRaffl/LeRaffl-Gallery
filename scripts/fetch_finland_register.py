@@ -1,26 +1,26 @@
-"""Finland's HEV: counted full hybrids on top of the StatFin row.
+"""Finland's HEV: StatFin's petrol split by a hybrid share.
 
-StatFin 121d stays the published TOTAL / BEV / PHEV / DIESEL and has no
-full-hybrid code (they sit in petrol). Neither do Traficom's monthly tables.
-HEV and pure petrol therefore come from two counted sources, and OTHERS is
-the slack that makes the row sum:
+StatFin 121d stays the published TOTAL / BEV / PHEV / DIESEL / OTHERS and
+has no full-hybrid code (they sit in petrol). Neither do Traficom's monthly
+tables. Every row splits only StatFin's petrol, HEV = petrol x a share, so
+HEV + PETROL is StatFin's petrol exactly:
 
   from 2025-01, covered by the latest register snapshot
-      counted: Traficom's open register (Ajoneuvorekisteri.zip, quarterly),
-      hybrid class 02; OTHERS is the slack
+      the share Traficom's open register (Ajoneuvorekisteri.zip, about
+      quarterly) counts: hybrid class 02 / (class 02 + pure petrol)
   newer months, once ACEA has published them
-      estimate: StatFin's own petrol split by ACEA's HEV share of HEV+petrol
+      estimate: ACEA's HEV share of HEV+petrol
   newer months before that
-      estimate: StatFin's petrol split by the previous month's HEV share
-  before 2025-01
-      blank (the register is thinned there and ACEA's archive has no
-      monthly country table before 2024-11); the TOTAL/BEV/PHEV curves
-      are unaffected and the TTM folds the hybrids into petrol
+      estimate: the previous month's share
+  2014-01 .. 2024-12
+      estimate, written once by backfill_hev_history.py from the
+      register's monthly split (reference/fi_register_fuel_split.csv)
 
-ACEA is never used as a count: its HEV+petrol runs 10-30 cars above
-StatFin's petrol (2024-11 .. 2026-09), so a counted merge leaves a
-negative slack. Its share is what it adds. Every estimate says so in
-`notes` (invariant 6), and the next snapshot replaces it with counts.
+A share, not the register's counts: the snapshot has lost a few percent of
+each month's cars since, and the gap would land in OTHERS. ACEA is never a
+count either: its HEV+petrol runs 10-30 cars above StatFin's petrol
+(2024-11 .. 2026-09). Every estimate says so in `notes` (invariant 6), and
+the next snapshot replaces it with the register's share.
 
 fetch_finland.py keeps the split when StatFin restates a month
 (carry_split) and estimates a new month (estimate_newest); fetch_acea.py
@@ -408,7 +408,10 @@ def cohort(vehicle_class: str, registered: str | None, used: str | None) -> str 
 
 
 def enrich_statfin(statfin: dict | None, register: dict) -> dict | None:
-    """Keep StatFin's total and the columns it already publishes.
+    """Shadow view only (--shadow-*): the register's absolute counts on the
+    StatFin row. The write path uses the share instead (apply_register).
+
+    Keep StatFin's total and the columns it already publishes.
 
     HEV and pure petrol come from the register. The gap lands in OTHERS so
     the row still sums. A negative gap refuses the month — register diesel
