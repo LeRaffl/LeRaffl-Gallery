@@ -777,10 +777,31 @@ def region_mark(slug: str, kind: str = "fl") -> str:
         f'aria-hidden="true">{body}</svg>')
 
 
+def weighted_ttm_series(contrib: list[dict], rows: list[dict]
+                        ) -> list[tuple[str, float]]:
+    """The drawn trailing-12-month line: for each month-end in `rows`, the
+    headline rule (weighted_share), so the line ends exactly on the headline.
+
+    The mean of 12 weighted monthly shares is NOT that figure: each member's
+    12-month share is volume-weighted over its own months, so seasonality in
+    member volumes moves it. Months without a full window for every
+    contributor are left out (same-set rule), never shortened.
+    """
+    out = []
+    for row in rows:
+        share = weighted_share(contrib, row["period"])
+        if share is not None:
+            out.append((row["period"], share))
+    return out
+
+
 def build_region_curve_svg(rows: list[dict], years: list[float],
                            model: list[float], width: int, height: int,
-                           left: int = 42) -> str:
-    """Observed monthly shares and the backtest model polyline."""
+                           left: int = 42,
+                           ttm: list[tuple[str, float]] | None = None) -> str:
+    """Observed monthly shares, the weighted 12-month line and the backtest
+    model polyline. `ttm` comes from weighted_ttm_series(); without it no
+    12-month line is drawn (a mean of monthly shares would be wrong)."""
     observed = []
     for row in rows:
         idx = mc.month_index(row["period"])
@@ -843,26 +864,22 @@ def build_region_curve_svg(rows: list[dict], years: list[float],
                 pts.append(f"{x_of(y):.1f},{y_of(s):.1f}")
         if len(pts) >= 2:
             parts.append(f'<polyline class="cv-fit" points="{" ".join(pts)}"/>')
-    # Trailing 12-month observed line, if we have a year of monthly points.
-    if len(observed) >= 12:
-        ttm_pts = []
-        for i in range(11, len(observed)):
-            window = observed[i-11:i+1]
-            if any(b - a > 1 / 12 + 0.01 for a, b in zip(
-                    [t for t, _ in window], [t for t, _ in window][1:])):
+    # Trailing 12-month line on the headline's weighted-member rule. A gap
+    # (a month without a full window for every contributor) breaks the line.
+    if ttm:
+        segments: list[list[str]] = [[]]
+        prev = None
+        for period, share in ttm:
+            idx = mc.month_index(period)
+            if idx is None:
                 continue
-            share = sum(v for _, v in window) / 12  # unweighted months of already-weighted shares
-            # The honest TTM is a re-weight of member windows, not the mean of
-            # monthly regional shares. Use the last point only if we stored it
-            # on the row? Monthly mean of weighted shares ≈ TTM only when
-            # member volumes (weights) are constant. Weights are fixed, so
-            # the average of monthly weighted shares is the weighted TTM.
-            # Yes: each monthly share is already weight-averaged, and weights
-            # do not change month to month, so mean of 12 monthly shares
-            # equals the 12-month weighted share. Good.
-            ttm_pts.append(f"{x_of(window[-1][0]):.1f},{y_of(share):.1f}")
-        if len(ttm_pts) >= 2:
-            parts.append(f'<polyline class="cv-ttm" points="{" ".join(ttm_pts)}"/>')
+            if prev is not None and idx - prev != 1:
+                segments.append([])
+            segments[-1].append(f"{x_of(idx / 12):.1f},{y_of(share):.1f}")
+            prev = idx
+        for pts in segments:
+            if len(pts) >= 2:
+                parts.append(f'<polyline class="cv-ttm" points="{" ".join(pts)}"/>')
     # Monthly dots (thin out if crowded).
     step_pt = 1 if len(observed) <= 80 else 2
     for t, v in observed[::step_pt]:
@@ -1007,8 +1024,11 @@ def load(slug: str) -> dict:
     state = _crossings_state(frame) if frame else None
     model_per = (frame or {}).get("data_per") or ""
 
+    ttm_line = weighted_ttm_series(contrib, rows)
+
     def curve_builder(width, height, left, model_note=True):
-        svg = build_region_curve_svg(rows, years, model, width, height, left)
+        svg = build_region_curve_svg(rows, years, model, width, height, left,
+                                     ttm=ttm_line)
         return svg, region_legend(model_note=model_note)
 
     side = ""
