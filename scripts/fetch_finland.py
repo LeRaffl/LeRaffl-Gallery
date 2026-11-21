@@ -90,6 +90,7 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fetch_finland_register  # noqa: E402
 import market_top  # noqa: E402
 
 # Statistics Finland restructured the PxWeb databases on 2026-06-08: table
@@ -426,6 +427,10 @@ def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
             print(f"  + {key[1]} {key[0]}")
         else:
             old = existing[key]
+            if key[1] == "Whole":
+                # Keep the counted HEV / pure petrol (ACEA or the Traficom
+                # register) on a StatFin restatement; OTHERS is the slack.
+                new_row = fetch_finland_register.carry_split(old, new_row)
             for col in ["BEV", "PHEV", "PETROL", "DIESEL", "OTHERS"]:
                 old_val = float(old.get(col) or 0)
                 new_val = float(new_row[col] or 0)
@@ -434,7 +439,7 @@ def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
                         f"  WARNING {key[1]} {key[0]} {col}: existing={old_val:.0f}, "
                         f"new={new_val:.0f} — diff >50%, please verify"
                     )
-            if not new_row.get("notes"):
+            if not new_row.get("notes") and not fetch_finland_register.split_kind(old):
                 new_row["notes"] = old.get("notes", "")
             existing[key] = {**old, **new_row}
             updated += 1
@@ -837,6 +842,11 @@ def main() -> None:
         added, updated = upsert_csv(VARIANT_CONFIG[variant]["csv"], keyed)
         print(f"[{variant}] {added} added, {updated} updated "
               f"-> {VARIANT_CONFIG[variant]['csv']}")
+        if variant == "Whole":
+            # A new month has no HEV split yet (ACEA is weeks later, the
+            # Traficom snapshot quarterly): estimate it from the previous
+            # month's share, flagged in notes, so the TTM does not stop early.
+            fetch_finland_register.estimate_newest(Path(VARIANT_CONFIG["Whole"]["csv"]))
     latest = latest_whole_period()
     if latest and ("Whole" in targets or not market_top.top_is_current(
             market_top.MARKET_DIR / f"{TOP_SLUG}_top.json", latest)):

@@ -131,6 +131,11 @@ Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
 on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
 from national databases/registries that also carry variants ACEA doesn't expose
 (Private / Industry / Used / HDV / Vans / Buses).
+Finland is parsed all the same (HEV_MERGE_COUNTRIES): StatFin has no
+full-hybrid code, so ACEA's HEV share of HEV + petrol splits the StatFin
+row's petrol for a month the Traficom register snapshot does not cover yet
+(scripts/fetch_finland_register.py, apply_acea; an estimate, flagged in
+notes). Never over register counts; the row stays StatFin's otherwise.
 
 Poland is a special case: it is PZPM-primary (scripts/fetch_poland.py, the
 CEP-based upstream behind ACEA's Poland numbers, additionally carrying
@@ -298,6 +303,12 @@ CONDITIONAL_COUNTRIES = [
 # Sweden additionally has a non-standard schema (FLEXFUEL column) that ACEA
 # can't fill. Each is handled by its own workflow.
 ALL_COUNTRIES = ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES
+# Countries whose rows ACEA never writes but whose national row lacks a
+# full-hybrid split: ACEA's HEV share is applied by the country's own
+# module. Finland: StatFin keeps TOTAL/BEV/PHEV/diesel/others;
+# scripts/fetch_finland_register.py (acea_merge) decides, and never
+# overwrites Traficom-register counts (docs/architecture/12-source-finland.md).
+HEV_MERGE_COUNTRIES = ["Finland"]
 
 ENGLISH_MONTHS = [
     "January", "February", "March", "April", "May", "June",
@@ -1391,7 +1402,8 @@ def main() -> int:
         return 0
 
     try:
-        parsed_all, period_label = parse_monthly_table(str(tmp_pdf))
+        parsed_all, period_label = parse_monthly_table(
+            str(tmp_pdf), ALL_COUNTRIES + HEV_MERGE_COUNTRIES)
     except PdfminerException as e:
         # For a download, load_pdf_bytes already checked the %PDF- header, so
         # this is a broken PDF, not a "not published yet" page.
@@ -1428,6 +1440,13 @@ def main() -> int:
             continue
         if update_country(data_dir, country, parsed_all[country], target_period, pdf_url):
             changed.append(country)
+
+    if "Finland" in parsed_all:
+        import fetch_finland_register
+        acea_fi = {k: float(v[0]) for k, v in parsed_all["Finland"].items()}
+        if fetch_finland_register.apply_acea(target_period, acea_fi,
+                                             data_dir / "Finland.csv"):
+            changed.append("Finland")
 
     print(f"\nCountries with CSV changes: {changed}")
 
