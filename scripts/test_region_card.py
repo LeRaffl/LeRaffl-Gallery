@@ -82,6 +82,55 @@ def test_four_requested_regions_load():
 
 
 
+def _seasonal_members():
+    # A's volume triples every December; B is flat. The weighted 12-month
+    # share then differs from the mean of 12 weighted monthly shares.
+    months = [f"2025-{m:02d}" for m in range(1, 13)] + [f"2026-{m:02d}" for m in range(1, 11)]
+    def rows(share_of, total_of):
+        return [{"period": p, "time_interval": "monthly",
+                 "TOTAL": total_of(p), "BEV": share_of(p) * total_of(p) / 100}
+                for p in months]
+    A = {"country": "A", "weight": 3, "rows": rows(
+        lambda p: 40 if p.endswith("-12") else 10,
+        lambda p: 3000 if p.endswith("-12") else 1000)}
+    B = {"country": "B", "weight": 1, "rows": rows(lambda p: 20, lambda p: 500)}
+    return [A, B]
+
+
+def test_ttm_line_ends_on_the_headline():
+    contrib = _seasonal_members()
+    rows = rc.synthetic_rows(contrib, "2026-10")
+    line = rc.weighted_ttm_series(contrib, rows)
+    assert line[-1][0] == "2026-10"
+    assert abs(line[-1][1] - rc.weighted_share(contrib, "2026-10")) < 1e-9
+    # The old drawn value (mean of 12 monthly weighted shares) is off.
+    old = sum(mc._bev_share(r) for r in rows[-12:]) / 12
+    assert abs(old - line[-1][1]) > 0.5
+    # Every point is the headline rule at its own month-end.
+    for period, share in line:
+        assert abs(share - rc.weighted_share(contrib, period)) < 1e-9
+    # Only month-ends with a full 12-month window for every contributor.
+    assert line[0][0] == "2025-12" and len(line) == 11
+
+
+def test_ttm_line_is_drawn_from_the_weighted_series():
+    contrib = _seasonal_members()
+    rows = rc.synthetic_rows(contrib, "2026-10")
+    line = rc.weighted_ttm_series(contrib, rows)
+    svg = rc.build_region_curve_svg(rows, [], [], 600, 300, ttm=line)
+    assert svg.count('class="cv-ttm"') == 1
+    # Without a weighted series no 12-month line is drawn at all.
+    assert 'cv-ttm' not in rc.build_region_curve_svg(rows, [], [], 600, 300)
+
+
+def test_ttm_line_breaks_at_a_gap():
+    pts = [("2025-12", 20.0), ("2026-01", 21.0), ("2026-03", 22.0), ("2026-04", 23.0)]
+    rows = [{"period": f"2025-{m:02d}", "time_interval": "monthly", "TOTAL": 100, "BEV": 20}
+            for m in range(1, 13)]
+    svg = rc.build_region_curve_svg(rows, [], [], 600, 300, ttm=pts)
+    assert svg.count('class="cv-ttm"') == 2
+
+
 def test_carriers_rank_by_weight_times_share():
     # A is heavy but low share; B is light but high share. B should lead.
     months = BASE[-12:]  # 12 months ending 2026-10
