@@ -285,23 +285,24 @@ def test_plate_bucket_splits_novc_hev_out_of_petrol():
     assert fn.plate_bucket([("Benzine", "NOVC-FCHV")]) == "PETROL"
 
 
-def test_enrich_keeps_swing_total_and_refuses_a_negative_residual():
-    """HEV and pure petrol come from the register. TOTAL, BEV, PHEV and
-    DIESEL stay Swing's — register diesel is mostly campers and would
-    make OTHERS negative."""
-    swing = {"TOTAL": 24739, "BEV": 9457, "PHEV": 5774, "DIESEL": 16, "OTHERS": 111}
+def test_enrich_splits_swing_petrol_by_the_register_share():
+    """Swing's petrol (hybrids included) split by the register's counted
+    HEV share of HEV + pure petrol. Every other column stays Swing's, so
+    cars that left the register since cannot pull HEV low."""
+    swing = {"TOTAL": 24739, "BEV": 9457, "PHEV": 5774, "PETROL": 9381, "DIESEL": 16, "OTHERS": 111}
     register = {"HEV": 7263, "PETROL": 1917, "DIESEL": 457, "OTHERS": 111}
     row = fn.enrich_swing(swing, register)
     assert row is not None
-    assert row["HEV"] == 7263 and row["PETROL"] == 1917 and row["DIESEL"] == 16
+    assert row["HEV"] == round(9381 * 7263 / (7263 + 1917)) and row["HEV"] > 7263
+    assert row["HEV"] + row["PETROL"] == 9381
     assert row["TOTAL"] == 24739 and row["BEV"] == 9457 and row["PHEV"] == 5774
-    assert row["OTHERS"] == 24739 - 9457 - 5774 - 7263 - 1917 - 16
-    assert row["OTHERS"] > 0
-    assert "RDW register" in row["notes"] and "still in the country" in row["notes"]
+    assert row["DIESEL"] == 16 and row["OTHERS"] == 111
+    assert row["notes"].startswith(fn.REGISTER_PREFIX) and "still in the country" in row["notes"]
     exported = fn.enrich_swing(swing, register, cohort="with_exports")
     assert exported is not None and "since-exported" in exported["notes"]
-    # Register diesel instead of Swing diesel does not add up.
-    assert fn.enrich_swing(swing, register, diesel="register") is None
+    # Nothing to split: no Swing petrol, or an empty register month.
+    assert fn.enrich_swing(dict(swing, PETROL=""), register) is None
+    assert fn.enrich_swing(swing, dict(register, HEV=0, PETROL=0)) is None
 
 
 def test_choose_cohort_sticks_to_swing_and_refuses_the_rest():
@@ -380,8 +381,9 @@ class _PlanStub:
     def __init__(self, tmp, swing, counts, splits=None):
         self.csv = Path(tmp) / "Netherlands.csv"
         lines = ["period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes"]
-        for period, (total, bev, phev, die) in swing.items():
-            lines.append(f"{period},monthly,Whole,Swing,{bev},{phev},,,{die},,{total},")
+        for period, (total, bev, phev, die, *petrol) in swing.items():
+            pet = petrol[0] if petrol else ""
+            lines.append(f"{period},monthly,Whole,Swing,{bev},{phev},,{pet},{die},,{total},")
         self.csv.write_text("\n".join(lines) + "\n", encoding="utf-8")
         self.counts, self.splits = counts, splits or {}
 
@@ -432,7 +434,7 @@ def test_shadow_takes_the_window_cohort_and_acea_only_cross_checks():
     import contextlib
     import io
     import tempfile
-    swing = {"2026-09": (35529, 9457, 5774, 16)}
+    swing = {"2026-09": (35529, 9457, 5774, 16, 10534)}     # Swing petrol, hybrids in
     counts = {"2026-09": {"stay": 35333, "with_exports": 36086}}
     # Splits sum to the plate counts; HEV is the September 2026 count, so
     # the ACEA shares are the 0.36pp / 0.44pp in the PR (stay closer).
@@ -446,10 +448,11 @@ def test_shadow_takes_the_window_cohort_and_acea_only_cross_checks():
             own = fn.shadow_hev("2026-09")
             forced = fn.shadow_hev("2026-09", cohort="with_exports",
                                    acea={"TOTAL": 36259, "HEV": 8601})
-    assert own["HEV"] == 8254 and "still in the country" in own["notes"]
+    assert own["HEV"] == round(10534 * 8254 / (8254 + 1837))
+    assert "still in the country" in own["notes"]
     # The forced cohort is still inside 2% of Swing, so it previews; the
     # ACEA line is printed but the row is that cohort's, not ACEA's pick.
-    assert forced["HEV"] == 8720 and "since-exported" in forced["notes"]
+    assert forced["HEV"] == round(10534 * 8720 / (8720 + 1837)) and "since-exported" in forced["notes"]
     assert forced["TOTAL"] == 35529
     assert "ACEA cross-check" in out.getvalue() and "closer: stay" in out.getvalue()
     # A forced cohort outside the band is blank, not a different scope.
@@ -494,7 +497,9 @@ def test_fill_register_hev_is_line_level_and_refuses_outside_the_band():
     assert text[1] == lines[0] and text[3] == lines[2] and text[5] == lines[4]   # untouched
     import csv
     row = next(csv.DictReader([text[0], text[2]]))
-    assert (row["HEV"], row["PETROL"], row["OTHERS"], row["TOTAL"]) == ("4000.0", "4800.0", "300.0", "16110.0")
+    hev = round(9000 * 4000 / 8800)                                   # Swing petrol x register share
+    assert (row["HEV"], row["PETROL"], row["OTHERS"], row["TOTAL"]) == (
+        f"{hev}.0", f"{9000 - hev}.0", "100.0", "16110.0")
     assert row["BEV"] == "5000.0" and row["DIESEL"] == "10.0"          # Swing's, not the register's
     assert row["notes"].strip('"') == fn.register_note("with_exports")
 
@@ -518,29 +523,28 @@ def test_fill_register_hev_cap_takes_the_newest_months():
 
 
 def test_carry_register_split_survives_a_swing_restatement():
+    """Swing rewrites its window with hybrids back inside Benzine. The
+    month keeps its HEV share, applied to Swing's new petrol."""
     note = fn.register_note("with_exports")
-    old = {"period": "2026-09", "variant": "Whole", "HEV": "8720.0", "PETROL": "1837.0",
-           "OTHERS": "9725.0", "notes": note}
+    old = {"period": "2026-09", "variant": "Whole", "HEV": "8000.0", "PETROL": "2000.0",
+           "OTHERS": "84.0", "notes": note}
     new = {"period": "2026-09", "variant": "Whole", "TOTAL": 35600.0, "BEV": 9500.0,
            "PHEV": 5800.0, "DIESEL": 16.0, "PETROL": 20200.0, "HEV": "", "OTHERS": 84.0,
            "notes": "workspace_guid=x"}
     kept = fn.carry_register_split(old, new)
-    assert kept["HEV"] == 8720.0 and kept["PETROL"] == 1837.0 and kept["TOTAL"] == 35600.0
-    assert kept["OTHERS"] == 35600 - 9500 - 5800 - 8720 - 1837 - 16 and kept["notes"] == note
-    # Swing restated past the split: Swing's row as published, counted again.
-    tiny = dict(new, TOTAL=12000.0)
-    import contextlib
-    import io
-    with contextlib.redirect_stdout(io.StringIO()):
-        assert fn.carry_register_split(old, tiny) is tiny
+    assert kept["HEV"] == 16160.0 and kept["PETROL"] == 4040.0 and kept["TOTAL"] == 35600.0
+    assert kept["OTHERS"] == 84.0 and kept["notes"] == note
     # A row without the register split, or another variant, is Swing's.
     assert fn.carry_register_split(dict(old, notes="workspace_guid=x"), new) is new
     assert fn.carry_register_split(old, dict(new, variant="Used"))["HEV"] == ""
+    # The old counted-and-slack notes are not the share split: counted again.
+    legacy = dict(old, notes="TOTAL/BEV/PHEV/DIESEL Swing; HEV/PETROL RDW register (counted)")
+    assert fn.carry_register_split(legacy, new) is new
 
 
 def test_main_keeps_the_register_split_when_swing_rewrites_the_window():
     """End to end: Swing re-delivers a month that already has register HEV;
-    the row keeps HEV / pure petrol and OTHERS is the slack again."""
+    the row keeps its HEV share on Swing's petrol."""
     import csv
     import tempfile
     pres = {"Whole": _whole_presentation(), "Used": _used_presentation()}
@@ -549,7 +553,7 @@ def test_main_keeps_the_register_split_when_swing_rewrites_the_window():
         fn.CSV_PATHS.update({v: str(Path(d) / f"{v}.csv") for v in fn.CSV_PATHS})
         # 2023-09 in the stub: TOTAL 29195, BEV 10075, PHEV 3574, Benzine 15301, Diesel 27.
         _write_csv(fn.CSV_PATHS["Whole"], [
-            "2023-09,monthly,Whole," + fn.SOURCE + ",10075.0,3574.0,6000.0,9000.0,27.0,,519.0,29195.0,"
+            "2023-09,monthly,Whole," + fn.SOURCE + ",10075.0,3574.0,6000.0,9000.0,27.0,,218.0,29195.0,"
             + '"' + fn.register_note("with_exports") + '"'])
         fn.fetch_table = lambda variant, session: fn.swing_table_to_legacy(pres[variant])
         fn.make_swing_session = lambda: None
@@ -562,9 +566,9 @@ def test_main_keeps_the_register_split_when_swing_rewrites_the_window():
             fn.CSV_PATHS.update(paths)
         rows = {r["period"]: r for r in csv.DictReader(open(Path(d) / "Whole.csv", encoding="utf-8"))}
     r = rows["2023-09"]
-    assert float(r["HEV"]) == 6000 and float(r["PETROL"]) == 9000 and float(r["TOTAL"]) == 29195
-    assert float(r["OTHERS"]) == 29195 - 10075 - 3574 - 6000 - 9000 - 27
-    assert "RDW register" in r["notes"]
+    hev = round(15301 * 6000 / 15000)
+    assert float(r["HEV"]) == hev and float(r["PETROL"]) == 15301 - hev and float(r["TOTAL"]) == 29195
+    assert r["notes"].startswith(fn.REGISTER_PREFIX)
     assert rows["2023-10"]["HEV"] == ""          # a month without the split stays Swing's
 
 

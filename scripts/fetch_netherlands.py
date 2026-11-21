@@ -42,9 +42,10 @@ Brief recap (so the script reads on its own):
 * Dutch label -> canonical column:
       BEV -> BEV;  PHEV -> PHEV;  Benzine -> PETROL;  Diesel -> DIESEL;
       FCEV + Overig -> OTHERS. Swing has no full-hybrid split; for Whole
-      from HEV_FROM (2023-07) the register's counted HEV and pure petrol
-      replace it after the upsert, OTHERS being the slack (fill_register_hev,
-      carry_register_split; docs 10, "HEV from the register").
+      from HEV_FROM (2023-07) Swing's petrol is split after the upsert by
+      the register's counted HEV share of HEV + pure petrol; OTHERS stays
+      Swing's (fill_register_hev, carry_register_split; docs 10, "HEV from
+      the register").
 * Dutch locale: "." is thousands separator (6.863 == 6863). Empty cell == 0.
 * Table orientation varies by view. Whole/HDV return periods-in-rows with one
   column per fuel. Used returns periods-in-rows too, but with fuels on the
@@ -778,35 +779,37 @@ def count_plates(fuels_by_plate: dict) -> dict[str, int]:
     return counts
 
 
-def enrich_swing(swing: dict, register: dict, diesel: str = "swing",
-                 cohort: str = "stay") -> dict | None:
-    """Keep Swing TOTAL / BEV / PHEV. HEV and pure petrol come from the
-    register. Diesel stays Swing's unless `diesel="register"` — register
-    diesel is mostly campers and then OTHERS goes negative, which refuses
-    the merge (returns None) rather than publish a row that does not add up.
+def enrich_swing(swing: dict, register: dict, cohort: str = "stay") -> dict | None:
+    """Swing's petrol (full hybrids included) split by the register's
+    counted HEV share of HEV + pure petrol. TOTAL, BEV, PHEV, DIESEL and
+    OTHERS stay Swing's, so the row sums as Swing published it.
+
+    The share, not the register's absolute counts: the register is today's,
+    Swing counted the month soon after it, and the cars that have left the
+    register since (exports, scrapping) would otherwise land in OTHERS and
+    pull HEV about a point of TOTAL low. September 2026: share method
+    8,617 HEV, absolute count 8,254, ACEA/RDC 8,601.
+    None when there is nothing to split.
     """
-    total = float(swing["TOTAL"])
-    bev = float(swing["BEV"])
-    phev = float(swing["PHEV"])
-    die = float(register["DIESEL"] if diesel == "register" else swing["DIESEL"])
-    hev = float(register["HEV"])
-    petrol = float(register["PETROL"])
-    others = total - bev - phev - hev - petrol - die
-    if others < 0:
+    hev_n, pet_n = float(register["HEV"]), float(register["PETROL"])
+    petrol = swing.get("PETROL")
+    if hev_n + pet_n <= 0 or petrol in (None, ""):
         return None
-    return {"TOTAL": total, "BEV": bev, "PHEV": phev, "HEV": hev,
-            "PETROL": petrol, "DIESEL": die, "OTHERS": others,
+    petrol = float(petrol)
+    hev = float(round(petrol * hev_n / (hev_n + pet_n)))
+    return {"TOTAL": float(swing["TOTAL"]), "BEV": float(swing["BEV"]),
+            "PHEV": float(swing["PHEV"]), "HEV": hev, "PETROL": petrol - hev,
+            "DIESEL": float(swing["DIESEL"]), "OTHERS": float(swing.get("OTHERS") or 0),
             "notes": register_note(cohort)}
 
 
 # Same shape as acea_split.NOTE. The cohort is the decision: cars still
 # in the country, or the since-exported plates put back.
+REGISTER_PREFIX = ("TOTAL/BEV/PHEV/DIESEL/OTHERS Swing; HEV/PETROL = Swing petrol "
+                   "split by the RDW register's counted HEV share of HEV+petrol")
 REGISTER_NOTES = {
-    "stay": ("TOTAL/BEV/PHEV/DIESEL Swing; HEV/PETROL RDW register "
-             "(counted, cars still in the country); OTHERS = TOTAL minus the rest"),
-    "with_exports": ("TOTAL/BEV/PHEV/DIESEL Swing; HEV/PETROL RDW register "
-                     "(counted, since-exported plates included); "
-                     "OTHERS = TOTAL minus the rest"),
+    "stay": REGISTER_PREFIX + " (cars still in the country)",
+    "with_exports": REGISTER_PREFIX + " (since-exported plates included)",
 }
 
 
@@ -951,7 +954,8 @@ def shadow_hev(period: str, cohort: str | None = None,
                 break
     if swing_row is None:
         raise SystemExit(f"no Swing row for {period} in {CSV_PATHS['Whole']}")
-    swing = {k: float(swing_row[k] or 0) for k in ("TOTAL", "BEV", "PHEV", "DIESEL", "OTHERS")}
+    swing = dict(swing_row)
+    swing["TOTAL"] = float(swing_row["TOTAL"] or 0)
     session = rdw_session()
     stay = count_new_cars(session, period, exported=False)
     both = count_new_cars(session, period, exported=None)
@@ -971,7 +975,7 @@ def shadow_hev(period: str, cohort: str | None = None,
           f"Swing TOTAL {swing['TOTAL']:.0f}")
     print("  register:", " ".join(f"{k}={register[k]}" for k in register))
     if enriched is None:
-        print("  enrich refused (negative OTHERS)")
+        print("  nothing to split (no Swing petrol)")
     else:
         print("  enriched:", " ".join(f"{k}={enriched[k]:.0f}" for k in
               ("TOTAL", "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")))
@@ -1055,9 +1059,8 @@ def fill_run(decisions: list[dict]) -> tuple[str, str] | None:
 
 # ── HEV from the register: the write path ──────────────────────────────────
 # Swing has no full-hybrid split; the register does (NOVC-HEV). From HEV_FROM
-# every Whole row carries the register's counted HEV and pure petrol on top of
-# Swing's TOTAL / BEV / PHEV / DIESEL, and OTHERS is the slack that makes the
-# row sum (enrich_swing). One cohort for the whole series (window_cohort over
+# every Whole row splits Swing's petrol by the register's counted HEV share of
+# HEV + pure petrol; every other column stays Swing's (enrich_swing). One cohort for the whole series (window_cohort over
 # `--backfill-hev`), and a month only where that cohort is inside
 # HEV_MATCH_BAND of Swing's total. The CSV is the store: a month is counted
 # once; a Swing restatement keeps the split (carry_register_split).
@@ -1068,29 +1071,22 @@ HEV_MAX_MONTHS = 3          # fuel joins per daily run (about a minute each)
 
 def has_register_split(row: dict) -> bool:
     return bool((row.get("HEV") or "").strip()) and \
-        (row.get("notes") or "").startswith("TOTAL/BEV/PHEV/DIESEL Swing; HEV/PETROL RDW register")
+        (row.get("notes") or "").startswith(REGISTER_PREFIX)
 
 
 def carry_register_split(old: dict, new: dict) -> dict:
     """A Swing restatement of a month that already has the register split.
 
     Swing rewrites its whole 36-month window every run, with HEV blank and
-    hybrids inside Benzine. The register's HEV and pure petrol stay; TOTAL,
-    BEV, PHEV and DIESEL take Swing's new values and OTHERS is the slack
-    again. If the slack would go negative the split is dropped (Swing's row
-    as published) and the register pass counts the month again.
+    hybrids inside Benzine. The month keeps its share: HEV = Swing's new
+    petrol x the stored HEV share, everything else Swing's new values.
     """
     if new.get("variant") != "Whole" or not has_register_split(old):
         return new
-    swing = {k: float(new[k] or 0) for k in ("TOTAL", "BEV", "PHEV", "DIESEL")}
     register = {"HEV": float(old["HEV"]), "PETROL": float(old["PETROL"] or 0)}
     cohort = "with_exports" if "since-exported" in old["notes"] else "stay"
-    merged = enrich_swing(swing, register, cohort=cohort)
-    if merged is None:
-        print(f"  {new['period']}: Swing restated the month past the register split "
-              "(negative OTHERS); split dropped, counted again")
-        return new
-    return {**new, **merged}
+    merged = enrich_swing(new, register, cohort=cohort)
+    return new if merged is None else {**new, **merged}
 
 
 def fill_register_hev(csv_path: str | None = None, session: requests.Session | None = None,
@@ -1100,7 +1096,7 @@ def fill_register_hev(csv_path: str | None = None, session: requests.Session | N
     that does not have it yet. Line-level: only the filled rows change.
 
     A month whose `cohort` count is outside HEV_MATCH_BAND of Swing's total,
-    or whose slack would be negative, is left as Swing published it and
+    or that has no petrol to split, is left as Swing published it and
     printed; it is tried again on the next run. Returns the filled periods.
     """
     csv_path = csv_path or CSV_PATHS["Whole"]
@@ -1121,7 +1117,8 @@ def fill_register_hev(csv_path: str | None = None, session: requests.Session | N
     by_period = {r["period"]: r for r in rows if r["variant"] == "Whole"}
     for period in todo:
         row = by_period[period]
-        swing = {k: float(row[k] or 0) for k in ("TOTAL", "BEV", "PHEV", "DIESEL")}
+        swing = {k: row.get(k) for k in ("TOTAL", "BEV", "PHEV", "PETROL", "DIESEL", "OTHERS")}
+        swing["TOTAL"] = float(swing["TOTAL"] or 0)
         n = count_new_cars(session, period, exported=cohort_exported(cohort))
         if not cohort_fits(swing["TOTAL"], n):
             print(f"  HEV {period}: {cohort} {n} vs Swing {swing['TOTAL']:.0f} "
@@ -1131,11 +1128,12 @@ def fill_register_hev(csv_path: str | None = None, session: requests.Session | N
         register = register_split(session, period, cohort)
         enriched = enrich_swing(swing, register, cohort=cohort)
         if enriched is None:
-            print(f"  HEV {period}: register HEV/petrol exceed Swing's rest — left blank")
+            print(f"  HEV {period}: no petrol to split — left blank")
             continue
         filled[period] = enriched
-        print(f"  HEV {period}: {cohort} {n} plates, HEV {enriched['HEV']:.0f}, "
-              f"petrol {enriched['PETROL']:.0f}, slack {enriched['OTHERS']:.0f}")
+        print(f"  HEV {period}: {cohort} {n} plates, share "
+              f"{register['HEV'] / max(1, register['HEV'] + register['PETROL']):.3f}, "
+              f"HEV {enriched['HEV']:.0f}, petrol {enriched['PETROL']:.0f}")
     if filled:
         write_register_split(csv_path, filled)
     return sorted(filled)
