@@ -143,7 +143,7 @@ period,time_interval,variant,source,BEV,PHEV,EREV,OTHERS,ICE,TOTAL,notes
 2021-10,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),259000.0,62000.0,0.0,0,1396000.0,1717000.0,
 2021-11,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),302000.0,77000.0,0.0,0,1437000.0,1816000.0,
 2021-12,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),392000.0,83000.0,0.0,0,1630000.0,2105000.0,
-2022-01,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),269000.0,77000.0,0.0,.0,1746000.0,2092000.0,
+2022-01,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),269000.0,77000.0,0.0,0.0,1746000.0,2092000.0,
 2022-02,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),206000.0,66000.0,0.0,0,974000.0,1246000.0,
 2022-03,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),360000.0,85000.0,0.0,0,1134000.0,1579000.0,
 2022-04,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),213000.0,70000.0,0.0,0,759000.0,1042000.0,
