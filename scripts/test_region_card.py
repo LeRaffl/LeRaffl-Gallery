@@ -327,6 +327,85 @@ def test_repo_acea_figure_is_current():
     assert rc_ == 0, out.getvalue()
 
 
+def _ytd_fixture():
+    # A's volume swings (Feb is 10x Jan/Mar); B is flat. The volume-weighted
+    # member YTD and the unweighted mean of monthly weighted shares differ.
+    A = {"country": "A", "weight": 1, "rows": [
+        {"period": "2026-01", "time_interval": "monthly", "TOTAL": 100, "BEV": 10},
+        {"period": "2026-02", "time_interval": "monthly", "TOTAL": 1000, "BEV": 100},
+        {"period": "2026-03", "time_interval": "monthly", "TOTAL": 100, "BEV": 50},
+    ]}
+    B = {"country": "B", "weight": 1, "rows": [
+        {"period": f"2026-0{m}", "time_interval": "monthly", "TOTAL": 100, "BEV": 20}
+        for m in (1, 2, 3)
+    ]}
+    return [A, B]
+
+
+def test_weighted_ytd_uses_member_volumes_not_month_mean():
+    contrib = _ytd_fixture()
+    ytd = rc.weighted_ytd(contrib, "2026-03")
+    assert ytd is not None
+    # A: 160/1200 = 13.333%, B: 20% -> weight-average 16.667%.
+    assert abs(ytd["share"] - (100 * 160 / 1200 + 20) / 2) < 1e-9
+    assert ytd["from"] == "2026-01" and ytd["to"] == "2026-03"
+    assert ytd["year"] == 2026
+    # The pre-fix path (constant-TOTAL synthetic rows + ytd_window) is the
+    # unweighted mean of monthly weighted shares: (15 + 15 + 35)/3 = 21.667%.
+    old = mc.ytd_window(rc.synthetic_rows(contrib, "2026-03"))
+    assert old is not None
+    assert abs(old["share"] - 65 / 3) < 1e-9
+    assert abs(old["share"] - ytd["share"]) > 1.0  # the bug is material
+
+
+def test_weighted_ytd_equals_month_mean_when_volumes_are_flat():
+    # With constant member volumes the two rules coincide (sanity).
+    contrib = [member("A", 3, [f"2026-0{m}" for m in range(1, 7)], share=12),
+               member("B", 1, [f"2026-0{m}" for m in range(1, 7)], share=30)]
+    ytd = rc.weighted_ytd(contrib, "2026-06")
+    old = mc.ytd_window(rc.synthetic_rows(contrib, "2026-06"))
+    assert ytd is not None and old is not None
+    assert abs(ytd["share"] - old["share"]) < 1e-9
+    assert abs(ytd["share"] - (3 * 12 + 1 * 30) / 4) < 1e-9
+
+
+def test_weighted_ytd_same_set_rule_omits_on_a_missing_month():
+    contrib = _ytd_fixture()
+    # B lacks February -> no complete Jan..Mar window for every contributor.
+    contrib[1]["rows"] = [r for r in contrib[1]["rows"] if r["period"] != "2026-02"]
+    assert rc.weighted_ytd(contrib, "2026-03") is None
+
+
+def test_weighted_ytd_needs_three_months():
+    contrib = _ytd_fixture()
+    assert rc.weighted_ytd(contrib, "2026-02") is None  # only Jan+Feb
+    assert rc.weighted_ytd(contrib, "2026-01") is None
+
+
+def test_brief_ytd_prefers_region_figure_and_omits_on_none():
+    rows = rc.synthetic_rows(_ytd_fixture(), "2026-03")
+    weighted = rc.weighted_ytd(_ytd_fixture(), "2026-03")
+    # Region: explicit figure wins over the synthetic-row mean.
+    assert flyer._brief_ytd({"ytd": weighted}, rows) == weighted
+    # Region with no usable window: omit, do NOT fall back to the mean.
+    assert flyer._brief_ytd({"ytd": None}, rows) is None
+    # Country: no "ytd" key -> derive from own rows.
+    assert flyer._brief_ytd({}, rows) == mc.ytd_window(rows)
+
+
+def test_region_briefs_carry_weighted_ytd():
+    for slug in ("eu", "world", "northern_europe", "south_america"):
+        info = rc.load(slug)
+        fig = info["figures"]
+        assert "ytd" in fig, slug
+        members, _, _ = rc.load_members(slug)
+        t, contrib, _ = rc.pick_common_end(members)
+        assert t and contrib, slug
+        assert fig["ytd"] == rc.weighted_ytd(contrib, t), slug
+        # The flyer resolves to the weighted figure, never the synthetic mean.
+        assert flyer._brief_ytd(fig, info["rows"]) == fig["ytd"], slug
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:
