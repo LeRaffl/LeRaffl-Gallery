@@ -301,6 +301,144 @@ def test_markup_path_yields_aligned_columns():
     assert fuels == TEMMUZ_EXPECTED, fuels
 
 
+# --- Ekim 2026: two reads, each one cell short --------------------------------
+# Transcribed from the run log of
+# https://github.com/LeRaffl/LeRaffl-Gallery/actions/runs/44923816102 (bulletin
+# 58049); every daily run from 2026-11-16 printed the same two tables. The 4x
+# read lost "72" from the Ocak-Ekim 2026 Toplam (727 317 -> 3117), the 6x read
+# missed the current-month Benzin and Hibrit counts. Both also carry noise the
+# other read gets right (4x: Benzin Pay% 21,7 for 51,7; 6x: Dizel 6 for 6 799).
+EKIM_4X = {
+    "Toplam":   ([87624, 62097, 877251, 3117], [100.0, 100.0, 100.0, 100.0]),
+    "Benzin":   ([45282, 22417, 406497, 293986], [21.7, 36.1, 46.3, 40.4]),
+    "Hibrit":   ([21401, 21571, 232817, 233185], [24.4, 34.7, 26.5, 32.1]),
+    "Elektrik": ([12863, 15251, 148353, 138810], [14.7, 24.6, 16.9, 19.1]),
+    "Dizel":    ([6799, 1248, 79419, 50699], [7.8, 2.0, 9.1, 7.0]),
+    "LPG":      ([1279, 1610, 10165, 10637], [1.4, 2.6, 1.2, 1.4]),
+}
+EKIM_6X = {
+    "Toplam":   ([87624, 62097, 877251, 727317], [100.0, 100.0, 100.0, 100.0]),
+    "Benzin":   ([45282, None, 406497, 293986], [51.7, 36.1, 46.3, 40.4]),
+    "Hibrit":   ([21401, None, 232817, 233185], [24.4, 34.7, 26.5, 32.1]),
+    "Elektrik": ([12863, 15251, 148353, 138810], [14.7, 24.6, 16.9, 19.1]),
+    "Dizel":    ([6, 1248, 79419, 50699], [7.8, 2.0, 9.1, 7.0]),
+    "LPG":      ([1279, 1610, 10165, 10637], [1.4, 2.6, 1.2, 1.4]),
+}
+EKIM_TOTAL = 62097
+EKIM_EXPECTED = {"Benzin": 22417, "Hibrit": 21571, "Elektrik": 15251,
+                 "Dizel": 1248, "LPG": 1610}
+
+
+def _copy(table):
+    return {l: (list(c), list(p)) for l, (c, p) in table.items()}
+
+
+def _passes_all_checks(table):
+    fuels, _ = ft.validate_and_repair(table, EKIM_TOTAL)
+    ft.cross_check_prev_year(table, str(CSV), 2026, 10)
+    ft.cross_check_ytd(table, str(CSV), 2026, 10, fuels, EKIM_TOTAL)
+    return fuels
+
+
+def test_ekim_2026_each_read_alone_is_refused():
+    for table, needle in ((EKIM_4X, "Year-to-date"), (EKIM_6X, "Missing col-1")):
+        try:
+            _passes_all_checks(_copy(table))
+        except RuntimeError as e:
+            assert needle in str(e), e
+        else:
+            raise AssertionError(f"expected {needle} failure")
+
+
+def test_ekim_2026_merged_read_passes_every_check():
+    merged = ft.merge_ocr_reads([_copy(EKIM_4X), _copy(EKIM_6X)])
+    assert merged is not None
+    assert _passes_all_checks(merged) == EKIM_EXPECTED
+    assert merged["Toplam"][0][ft.COL_YTD] == 727317, merged["Toplam"]
+    assert merged["Dizel"][0][ft.COL_MONTH_PREV] == 6799, merged["Dizel"]
+    # The Pay% conflict is settled by the share the chosen counts imply.
+    assert merged["Benzin"][1][ft.COL_MONTH_PREV] == 51.7, merged["Benzin"]
+
+
+def test_merge_leaves_an_unclosable_conflict_empty():
+    # Two different current-month Benzin reads and neither closes the column
+    # (both off by 10): the merge must not pick one, and validation must fail.
+    a, b = _copy(EKIM_4X), _copy(EKIM_4X)
+    a["Benzin"][0][ft.COL_MONTH] = 22427
+    b["Benzin"][0][ft.COL_MONTH] = 22407
+    merged = ft.merge_ocr_reads([a, b])
+    assert merged["Benzin"][0][ft.COL_MONTH] is None, merged["Benzin"]
+    try:
+        ft.validate_and_repair(merged, EKIM_TOTAL)
+    except RuntimeError as e:
+        assert "Missing col-1" in str(e), e
+    else:
+        raise AssertionError("an unresolved conflict must not validate")
+
+
+def test_merge_refuses_an_ambiguous_closure():
+    # Swapped misreads in two rows make two combinations add up; neither wins.
+    a, b = _copy(EKIM_4X), _copy(EKIM_4X)
+    a["Benzin"][0][ft.COL_MONTH] += 100
+    a["Hibrit"][0][ft.COL_MONTH] -= 100
+    merged = ft.merge_ocr_reads([a, b])
+    assert merged["Benzin"][0][ft.COL_MONTH] is None, merged["Benzin"]
+    assert merged["Hibrit"][0][ft.COL_MONTH] is None, merged["Hibrit"]
+
+
+def test_merge_adds_nothing_for_one_or_identical_reads():
+    assert ft.merge_ocr_reads([_copy(EKIM_4X)]) is None
+    assert ft.merge_ocr_reads([_copy(EKIM_4X), _copy(EKIM_4X)]) is None
+
+
+def test_merged_candidates_never_mix_two_images():
+    stock = _copy(EKIM_6X)
+    cands = [("html-img-003.png@4x", _copy(EKIM_4X)),
+             ("html-img-002.png@4x", stock),
+             ("html-img-003.png@6x", _copy(EKIM_6X))]
+    out = ft.merged_ocr_candidates(cands)
+    assert [o for o, _ in out] == ["html-img-003.png@merged(4x+6x)"], out
+    assert _passes_all_checks(out[0][1]) == EKIM_EXPECTED
+
+
+def test_ekim_2026_ingest_writes_the_merged_row():
+    # End to end through ingest_from_html with the OCR stubbed: the two reads
+    # come in as they did in the failing runs, the merged candidate is the one
+    # accepted, and only the 2026-10 line of a scratch copy of the CSV changes.
+    import shutil
+    import tempfile
+    from types import SimpleNamespace
+
+    reads = {"4x": EKIM_4X, "6x": EKIM_6X}
+    saved = (ft.extract_images_from_html, ft.iter_fuel_table_images, ft.parse_table)
+    ft.extract_images_from_html = lambda content, out_dir: []
+    ft.iter_fuel_table_images = lambda imgs: iter(
+        [(f"html-img-003.png@{k}", k) for k in reads])
+    ft.parse_table = lambda words: _copy(reads[words])
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            scratch = Path(td) / "Türkiye.csv"
+            shutil.copyfile(CSV, scratch)
+            before = scratch.read_bytes()
+            record = {"content": "<p>Ekim ayında 62 bin 97 adet otomobilin "
+                                 "trafiğe kaydı yapıldı.</p>"}
+            args = SimpleNamespace(csv=str(scratch), press_id=58049, dry_run=False,
+                                   force=False, no_ytd_check=False)
+            assert ft.ingest_from_html(record, args, 2026, 10, "2026-10") == 0
+            after = scratch.read_bytes()
+    finally:
+        ft.extract_images_from_html, ft.iter_fuel_table_images, ft.parse_table = saved
+
+    def lines(b):
+        return {l.split(b",", 1)[0]: l for l in b.splitlines(keepends=True)}
+    old, new = lines(before), lines(after)
+    changed = {k for k in set(old) | set(new) if old.get(k) != new.get(k)}
+    assert changed == {b"2026-10"}, changed
+    row = new[b"2026-10"].decode().rstrip("\r\n").split(",")
+    assert row[4:10] == ["15251.0", "21571.0", "22417.0", "1248.0", "1610.0",
+                         "62097.0"], row
+
+
 def main():
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     failed = 0

@@ -131,6 +131,14 @@ paragraphs, not the table cells. We therefore:
    month looks like from here. --no-ytd-check exists for that case, once a
    human has looked. It is not something a scheduled run should ever pass.
 
+   Several reads of one image: the table image is OCR'd at 4x, 6x and 8x, and
+   each read is a candidate of its own. When every read fails, a last candidate
+   merges them cell by cell (merge_ocr_reads): per column, a disagreement is
+   settled only if exactly one combination makes the fuels add up to Toplam.
+   It then goes through (a)-(e) like any other read. Ekim 2026 needed this: the
+   4x read lost digits from a Toplam, the 6x read missed two current-month
+   counts, and each was right where the other was wrong.
+
 Auto-discovery
 --------------
 The Veri Portalı is a React SPA — the press page URL returns an empty
@@ -170,6 +178,7 @@ These are all installed in the fetch-turkey.yml workflow step.
 """
 import argparse
 import csv
+import itertools
 import os
 import re
 import statistics
@@ -410,6 +419,101 @@ def iter_fuel_table_images(image_paths: list[Path], upscales=(4, 6, 8)):
                     if any(a in texts for a in aliases)}
             if needed.issubset(seen):
                 yield f"{p.name}@{scale}x", words
+
+
+MERGE_MAX_COMBINATIONS = 256   # per column; real disagreements are a handful
+
+
+def merge_ocr_reads(tables: list[dict[str, tuple[list, list]]]
+                    ) -> dict[str, tuple[list, list]] | None:
+    """Combine several OCR reads of ONE image into one table, cell by cell.
+
+    Each upscale factor can damage a different cell. The Ekim 2026 bulletin
+    (press id 58049) kept the cron red from 2026-11-16 on with two reads that
+    were each one cell short of passing: at 4x the Ocak-Ekim 2026 Toplam came
+    out as 3117 instead of 727 317, and at 6x the current-month Benzin and
+    Hibrit counts were missing. Every number the table needs was read cleanly
+    by one of the two.
+
+    Per column, the candidates for each row are the distinct values the reads
+    produced. A column is filled from them only when exactly one combination
+    makes the five fuels add up to that column's Toplam, so a misread can only
+    get in by cancelling another misread to the unit. A column that cannot be
+    closed that way keeps only the cells every read agrees on and leaves the
+    rest empty. Pay% cells that disagree take the value nearest the share the
+    chosen counts imply. Nothing here relaxes a check: the merged table goes
+    through the same narrative, sum, Pay%, prev-year and year-to-date checks as
+    any single read.
+
+    Returns None when there is nothing to merge (fewer than two reads) or when
+    the merge is identical to one of the reads and so adds no new candidate.
+    """
+    if len(tables) < 2:
+        return None
+    labels = list(FUEL_TO_CSV)
+
+    def options(label: str, part: int, j: int) -> list:
+        seen: list = []
+        for t in tables:
+            row = t.get(label, ([None] * N_COLS, [None] * N_COLS))[part]
+            v = row[j] if j < len(row) else None
+            if v is not None and v not in seen:
+                seen.append(v)
+        return seen
+
+    merged = {l: ([None] * N_COLS, [None] * N_COLS) for l in labels}
+    for j in range(N_COLS):
+        opts = {l: options(l, 0, j) for l in labels}
+        chosen: dict[str, int] | None = None
+        n_combos = 1
+        for l in labels:
+            n_combos *= max(len(opts[l]), 1)
+        if all(opts[l] for l in labels) and n_combos <= MERGE_MAX_COMBINATIONS:
+            closing = []
+            for combo in itertools.product(*(opts[l] for l in labels)):
+                cells = dict(zip(labels, combo))
+                if sum(v for l, v in cells.items() if l != "Toplam") == cells["Toplam"]:
+                    closing.append(cells)
+            if len(closing) == 1:
+                chosen = closing[0]
+        if chosen is None:
+            chosen = {l: (opts[l][0] if len(opts[l]) == 1 else None) for l in labels}
+        for l in labels:
+            merged[l][0][j] = chosen[l]
+
+        toplam = chosen["Toplam"]
+        for l in labels:
+            p_opts = options(l, 1, j)
+            if len(p_opts) == 1:
+                merged[l][1][j] = p_opts[0]
+            elif p_opts and toplam and chosen[l] is not None:
+                share = chosen[l] / toplam * 100
+                merged[l][1][j] = min(p_opts, key=lambda p: abs(p - share))
+
+    if any(merged == {l: (list(t[l][0]), list(t[l][1])) for l in labels if l in t}
+           for t in tables):
+        return None
+    return merged
+
+
+def merged_ocr_candidates(candidates: list[tuple[str, dict]]) -> list[tuple[str, dict]]:
+    """One merged candidate per image that was read at more than one upscale.
+
+    Origins look like ``html-img-003.png@4x``; reads are grouped by the part
+    before ``@`` so that two different tables (registrations and stock, which
+    share their row labels) are never mixed.
+    """
+    groups: dict[str, list[tuple[str, dict]]] = {}
+    for origin, table in candidates:
+        name, sep, scale = origin.rpartition("@")
+        if sep and scale.endswith("x"):
+            groups.setdefault(name, []).append((scale, table))
+    out = []
+    for name, reads in groups.items():
+        merged = merge_ocr_reads([t for _, t in reads])
+        if merged is not None:
+            out.append((f"{name}@merged({'+'.join(s for s, _ in reads)})", merged))
+    return out
 
 
 def find_table_image(image_paths: list[Path]) -> tuple[Path, list[dict]] | None:
@@ -1061,6 +1165,11 @@ def ingest_from_html(record: dict, args, target_year: int, target_month: int,
             for origin, words in iter_fuel_table_images(imgs):
                 print(f"[html]   {origin} has all six fuel labels")
                 candidates.append((origin, parse_table(words)))
+            # Single reads first, so a month that one upscale reads cleanly is
+            # written exactly as before; the merge is only the last resort.
+            for origin, table in merged_ocr_candidates(candidates):
+                print(f"[html]   {origin}: cell-by-cell merge of the reads above")
+                candidates.append((origin, table))
 
         if not candidates:
             print("[html] no fuel table found in markup or images")
