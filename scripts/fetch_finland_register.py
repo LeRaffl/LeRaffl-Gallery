@@ -48,9 +48,9 @@ FUELS = ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")
 
 # Same shape as acea_split.NOTE, so a row says where every column came
 # from. StatFin has no full-hybrid code; the register does.
-REGISTER_NOTE = ("TOTAL/BEV/PHEV/DIESEL StatFin 121d; HEV/PETROL Traficom "
-                 "register (counted, M1+M1G, first use in the registration "
-                 "month); OTHERS = TOTAL minus the rest")
+REGISTER_NOTE = ("TOTAL/BEV/PHEV/DIESEL/OTHERS StatFin 121d; HEV/PETROL = StatFin "
+                 "petrol split by the Traficom register's counted HEV share of "
+                 "HEV+petrol (M1+M1G, first use in the registration month)")
 
 ACEA_NOTE = ("TOTAL/BEV/PHEV/DIESEL/OTHERS StatFin 121d; HEV/PETROL estimated: "
              "StatFin petrol split by ACEA's HEV share of HEV+petrol for the month, "
@@ -107,7 +107,7 @@ def split_petrol(petrol: float, share: float) -> tuple[float, float]:
 def statfin_petrol(row: dict) -> float:
     """StatFin's own petrol figure, hybrids included, for a row that is
     blank or carries an estimate (an estimate never changes the sum)."""
-    if split_kind(row) in ("acea", "previous", "history"):
+    if split_kind(row) is not None:
         return _f(row, "HEV") + _f(row, "PETROL")
     return _f(row, "PETROL")
 
@@ -120,30 +120,18 @@ def carry_split(old: dict, new: dict) -> dict:
     """A StatFin restatement of a month that already has the split.
 
     StatFin rewrites its months with HEV blank and hybrids inside petrol.
-    The counted HEV and pure petrol stay, TOTAL / BEV / PHEV / DIESEL take
-    StatFin's new values and OTHERS is the slack again. If the slack would
-    go negative the split is dropped (StatFin's row as published) and the
-    next ACEA run or snapshot fills it again.
+    Every split here — the register's counted share, ACEA's share, the
+    previous month's or the pre-2025 back-estimate — is a share of
+    StatFin's petrol, so it is applied to the restated petrol: HEV + PETROL
+    stays StatFin's petrol, OTHERS stays StatFin's own.
     """
-    kind = split_kind(old)
-    if kind is None:
+    if split_kind(old) is None:
         return new
-    if kind in ("acea", "previous", "history"):
-        # An estimate is a share of StatFin's petrol: apply it to the new
-        # petrol, so the row keeps summing with StatFin's own OTHERS.
-        share = hev_share(old)
-        if share is None:
-            return new
-        hev, pet = split_petrol(_f(new, "PETROL"), share)
-        return {**new, "HEV": hev, "PETROL": pet, "notes": old["notes"]}
-    others = (_f(new, "TOTAL") - _f(new, "BEV") - _f(new, "PHEV")
-              - _f(old, "HEV") - _f(old, "PETROL") - _f(new, "DIESEL"))
-    if others < 0:
-        print(f"  {new.get('period')}: StatFin restated past the {kind} split "
-              "(negative OTHERS); split dropped")
+    share = hev_share(old)
+    if share is None:
         return new
-    return {**new, "HEV": old["HEV"], "PETROL": old["PETROL"],
-            "OTHERS": others, "notes": old["notes"]}
+    hev, pet = split_petrol(_f(new, "PETROL"), share)
+    return {**new, "HEV": hev, "PETROL": pet, "notes": old["notes"]}
 
 
 def same_month(row: dict, acea: dict) -> bool:
@@ -278,46 +266,38 @@ def covered_through(as_of: str) -> str:
 
 
 def apply_register(snapshot: Path, csv_path: Path = CSV_PATH) -> list[str]:
-    """Write the register's HEV / pure petrol onto every month from
-    HEV_FILL_FROM the snapshot covers in full. Replaces an ACEA gap-fill;
-    a month whose slack would be negative keeps what it has. Returns the
-    periods written."""
+    """Split StatFin's petrol by the register's counted HEV share of HEV +
+    pure petrol, for every month from HEV_FILL_FROM the snapshot covers in
+    full. Replaces an ACEA or previous-month estimate. Returns the periods
+    written.
+
+    The share, not the register's absolute count: the snapshot has lost a
+    few percent of each month's cars since (exports, scrapping), which
+    would land in OTHERS and pull HEV about a point of TOTAL low; the share
+    of HEV in what remains matched ACEA's to well within a point in every
+    quarter checked. A month the register has already split keeps that
+    share: the earliest snapshot is the least thinned (proposal 66 §4 — a
+    later snapshot does not silently revise a month).
+    """
     rows = list(iter_snapshot(snapshot))
     as_of = latest_registration(rows)
     if as_of is None:
         raise RuntimeError(f"{snapshot}: no passenger-car registration dates")
     through = covered_through(as_of)
     tallied = tally(rows)
-    current = whole_rows(csv_path)
     filled = {}
-    for period, row in sorted(current.items()):
-        if not in_fill_window(period) or period > through:
+    for period, row in sorted(whole_rows(csv_path).items()):
+        if not in_fill_window(period) or period > through or split_kind(row) == "register":
             continue
         whole = tallied.get(period, {}).get("whole", Counter())
-        sf = {k: _f(row, k) for k in ("TOTAL", "BEV", "PHEV", "DIESEL")}
-        enriched = enrich_statfin(sf, {k: whole.get(k, 0) for k in FUELS})
-        if enriched is None:
-            print(f"{period}  register refused (negative slack); kept {split_kind(row) or 'StatFin'}")
+        hev_n, pet_n = whole.get("HEV", 0), whole.get("PETROL", 0)
+        if hev_n + pet_n <= 0:
             continue
-        upd = {"HEV": enriched["HEV"], "PETROL": enriched["PETROL"],
-               "OTHERS": enriched["OTHERS"], "notes": register_note(as_of)}
-        if split_kind(row) == "register":
-            if row["notes"] == upd["notes"] and all(
-                    abs(_f(row, k) - float(upd[k])) < 0.5 for k in ("HEV", "PETROL", "OTHERS")):
-                continue
-            # Proposal 66 §4: a later snapshot may raise a month's counts
-            # (late registrations), never silently lower them — cars leave
-            # the register over time, which is drift, not a correction.
-            old_n = _f(row, "HEV") + _f(row, "PETROL")
-            new_n = float(upd["HEV"]) + float(upd["PETROL"])
-            if new_n < old_n:
-                print(f"::warning title=Finland HEV revision-down::{period}: snapshot {as_of} "
-                      f"counts HEV+petrol {new_n:.0f} < {old_n:.0f} already written "
-                      f"(HEV {_f(row, 'HEV'):.0f} -> {float(upd['HEV']):.0f}); kept")
-                continue
-        filled[period] = upd
-        print(f"{period}  register HEV {upd['HEV']:.0f} petrol {upd['PETROL']:.0f} "
-              f"slack {upd['OTHERS']:.0f} (was {split_kind(row) or 'blank'})")
+        hev, pet = split_petrol(statfin_petrol(row), hev_n / (hev_n + pet_n))
+        filled[period] = {"HEV": hev, "PETROL": pet, "OTHERS": _f(row, "OTHERS"),
+                          "notes": register_note(as_of)}
+        print(f"{period}  register share {hev_n / (hev_n + pet_n):.3f}: HEV {hev:.0f} "
+              f"petrol {pet:.0f} (was {split_kind(row) or 'blank'})")
     if filled:
         write_split(csv_path, filled)
     print(f"snapshot {as_of} (complete through {through}): {len(filled)} month(s) written")

@@ -24,13 +24,13 @@ variant_notes:
   Vans: Vans (vehicle class 02).
   Buses: Buses and coaches (vehicle class 04) — very low volume.
 hev_split: true
-hev_note: "Whole from 2025-01: StatFin 121d has no full-hybrid code, so HEV and pure petrol are counted from Traficom's open register snapshot (hybrid class 02, published quarterly) and taken out of petrol; TOTAL, BEV, PHEV and diesel stay StatFin's and OTHERS is the slack that makes the row sum. Months newer than the latest snapshot carry an estimate — StatFin's petrol split by ACEA's HEV share for the month, or by the previous month's share until ACEA publishes — flagged in the row's notes and replaced by counts at the next snapshot. 2014-01 to 2024-12 carry a flagged estimate: StatFin's petrol split by the register's HEV share of HEV + petrol in the month (it agrees with ACEA's quarterly share within about a point). In the other variants full hybrids are inside petrol."
+hev_note: "StatFin 121d has no full-hybrid code, so Whole's HEV is StatFin's petrol split by a hybrid share: from 2025-01 the share counted in Traficom's open register snapshot (hybrid class 02, published quarterly), 2014-01 to 2024-12 the same register's share as a flagged estimate (it agrees with ACEA's quarterly share within about a point), and months newer than the latest snapshot ACEA's share for the month or the previous month's share, flagged until the next snapshot. TOTAL, BEV, PHEV, diesel and OTHERS stay StatFin's. In the other variants full hybrids are inside petrol."
 backfill: "HEV/PETROL for Whole: counted 2025-01 to 2026-09 from the Traficom snapshot of 30 September 2026; estimated 2014-01 to 2024-12 from the same snapshot's monthly HEV share (reference/fi_register_fuel_split.csv)"
 scope_note: Region MA1 (Mainland Finland); Åland is not in the table.
 caveats:
-- StatFin 121d (and Traficom's monthly tables) have no full-hybrid code. Whole's HEV and pure petrol come from Traficom's quarterly register snapshot from 2025-01; OTHERS is then slack, not a fuel. The register counts about 2–6 % fewer cars than StatFin for a month, so its HEV is a few percent low (ACEA's HEV runs 3–5 % higher).
+- StatFin 121d (and Traficom's monthly tables) have no full-hybrid code. Whole's HEV is StatFin's petrol split by the share of full hybrids counted in Traficom's quarterly register snapshot; the register's absolute counts are not used (it holds 2–6 % fewer of a month's cars than StatFin by now, which would put HEV about a point of TOTAL low — the share matches ACEA's).
 - The months after the latest snapshot (one to four) carry an estimated HEV/petrol split, flagged in notes, until the next snapshot.
-- 2014-01 to 2024-12 HEV is an estimate (StatFin petrol × the register's HEV share of HEV + petrol); from 2025 it is counted, which runs about 3.7 % (about one point of TOTAL) lower than the share method would — the register's thinning lands in OTHERS there.
+- 2014-01 to 2024-12 HEV is a flagged estimate by the same method (the register's share, from a snapshot taken years later).
 - Industry is derived cell-by-cell as possessor Total minus Private person.
 - No pre-2014 history — the table starts 2014M01.
 fetcher: scripts/fetch_finland.py
@@ -217,22 +217,25 @@ quarterly. So `Whole`'s HEV, by month:
 | Months | HEV and pure petrol | `notes` starts with |
 |---|---|---|
 | 2014-01 – 2024-12 | **estimate**: StatFin petrol × the register's HEV share of HEV+petrol in the month | `HEV estimated (with PETROL): …` |
-| from 2025-01, covered by the latest snapshot | **counted**: Traficom register, hybrid class `02`; OTHERS = the slack | `… HEV/PETROL Traficom register …; snapshot <date>` |
+| from 2025-01, covered by the latest snapshot | StatFin petrol × the register's **counted** HEV share (hybrid class `02`) | `… HEV/PETROL = StatFin petrol split by the Traficom register's counted HEV share …; snapshot <date>` |
 | newer, ACEA has published the month | **estimate**: StatFin's petrol × ACEA's HEV share of HEV+petrol | `… HEV/PETROL estimated: StatFin petrol split by ACEA's HEV share …` |
 | newer, before ACEA | **estimate**: StatFin's petrol × the previous month's HEV share | `… HEV/PETROL estimated: StatFin petrol split by <YYYY-MM>'s HEV share …` |
 
-TOTAL, BEV, PHEV and DIESEL are always StatFin's. A counted row's OTHERS is
-`TOTAL − BEV − PHEV − HEV − PETROL − DIESEL`, the slack that makes it sum (not a
-fuel); a negative slack refuses the month. An estimate keeps StatFin's OTHERS
-and splits only its petrol, so HEV + PETROL is StatFin's petrol exactly. The
-month stays `monthly` (`monthly_est` would hollow a BEV point that was
-counted); the estimate is flagged in `notes` (invariant 6).
+TOTAL, BEV, PHEV, DIESEL and OTHERS are always StatFin's; every row splits
+only StatFin's petrol, so HEV + PETROL is StatFin's petrol exactly. **Why a
+share, also for the register months:** the snapshot has lost a few percent
+of each month's cars since (−2.5 % to −5.6 % against StatFin), so its
+absolute HEV count runs 3.7 % low (33,560 vs 34,863, 2025-01 – 2026-09) and
+the gap would land in OTHERS; the share of hybrids among what remains is
+what ACEA's independent count confirms (2025-01: register share 0.725, ACEA
+0.716). The month stays `monthly` (`monthly_est` would hollow a BEV point
+that was counted); estimates are flagged in `notes` (invariant 6) and the
+posts leave their HEV out (`R/post_text.R`, `.pt_hev_estimated`).
 
 **Why ACEA is a share, not a count.** Its Finland row is StatFin's month (same
 TOTAL, BEV, PHEV), but its HEV + petrol is 10–30 cars above StatFin's petrol in
 every month checked (2024-11 to 2026-09; e.g. 2024-11: 1,765 + 1,152 = 2,917 vs
-2,906) and its diesel differs too. A counted merge would leave a negative
-slack. **Why not before 2025.** The register is thinned there (below), and
+2,906) and its diesel differs too; only its share is used. **Why not before 2025.** The register is thinned there (below), and
 ACEA's release archive has no parseable monthly country table before 2024-11
 (the 2022 to mid-2023 release URLs return 520; later 2023–2024 releases have no
 per-country power-source grid) — so the earlier plan of ACEA for 2022–2024,
@@ -245,12 +248,10 @@ All of it lives in `scripts/fetch_finland_register.py`:
   was published more than a month after the newest snapshot date already in
   the CSV. The snapshot's date is its newest passenger-car registration; it
   covers its own month only when that date is in the month's last days
-  (`covered_through`). Every month from 2025-01 it covers gets counts,
-  replacing an estimate. A month that already has register counts is only
-  ever **raised** by a later snapshot (late registrations); a snapshot that
-  has lost cars since keeps what is written and logs a `revision-down`
-  warning (proposal 66 §4 — the register thins over time, that is drift,
-  not a correction).
+  (`covered_through`). Every month from 2025-01 it covers gets the register's
+  share, replacing an estimate. A month already split from a snapshot keeps
+  that share: the earliest snapshot is the least thinned, and a later one
+  does not silently revise a month (proposal 66 §4).
 - **No daily source.** Traficom's FAQ says the vehicle open data "is based
   on a cross-section taken at a given moment"; the open-data page dates the
   current file 30.09.2026, published 27.10.2026; Traficom's OData service
@@ -261,15 +262,14 @@ All of it lives in `scripts/fetch_finland_register.py`:
 - **ACEA** (`apply_acea`): `fetch_acea.py` parses the Finland row of each
   release (`HEV_MERGE_COUNTRIES`, never a row ACEA writes) and, when ACEA's
   TOTAL is within 1 % and BEV/PHEV within 2 % of StatFin's, puts ACEA's share on
-  the month — never over register counts. `--acea-backfill START:END` does the
+  the month — never over the register's. `--acea-backfill START:END` does the
   same from the archived PDFs.
 - **New months** (`estimate_newest`, called by `fetch_finland.py` after the
   Whole upsert): StatFin publishes in the first week, ACEA weeks later; the new
   month gets the previous month's share at once, so the TTM never stops a
   month early.
 - **StatFin restatements** (`carry_split`, in `fetch_finland.py`'s upsert):
-  counts keep HEV and pure petrol and recompute the slack (past a negative
-  slack the split is dropped); an estimate keeps its share of the new petrol.
+  every split keeps its share and applies it to the restated petrol.
 
 **Before 2025 (estimates, filled 2026-11-21).** So the TTM chart shows
 hybrids for its whole span instead of a band switching on at 2025-12, every
@@ -280,19 +280,15 @@ from the 30 September 2026 snapshot). The register is thinned 10–20 % for
 those years, but the share holds: quarter by quarter 2018–2022 it is within
 0.5–1.4 points of ACEA's own HEV share of HEV + petrol
 (`reference/acea_country_quarterly.csv`), the register slightly higher. TTM
-HEV: 2.2 % (2015-01), 10.3 % (2018-12), 19.5 % (2020-12), 30.8 % (2022-12).
-The counted months from 2025 run 3.7 % below what the share method would
-give (33,560 vs 34,863 HEV, 2025-01 – 2026-09) — about one point of TOTAL,
-the register's thinning landing in OTHERS — so the TTM steps down by about a
-point across 2025. Known, kept: counts are counts.
+HEV: 2.2 % (2015-01), 10.3 % (2018-12), 19.5 % (2020-12), 30.8 % (2022-12),
+27.2 % (2025-06), 26.1 % (2026-10) — one method throughout, no seam at 2025.
 
-The 2025-01 seam, ACEA against the register, same months: ACEA's HEV is 3–5 %
+ACEA against the register's absolute counts, same months: ACEA's HEV is 3–5 %
 higher (2025-01: 1,776 vs 1,707; 2026-09: 1,234 vs 1,197) — the register's
-thinning. The TTM chart keeps the pre-2025 history: `compute_ttm_long` folds a
-late-starting HEV column into petrol until twelve months of the split exist
-([02](02-components.md) key invariants), so the HEV band appears at 2025-12. The
-interactive gallery (`series/`) folds HEV into petrol for Finland, as for
-Czechia, because HEV covers only part of the history.
+thinning, and the reason the share is used. With HEV in every month the
+interactive gallery (`series/`) shows the HEV band for Finland too (it folds a
+column that is missing in more than 40 % of a series, which Finland's was
+before).
 
 #### The register, in detail
 

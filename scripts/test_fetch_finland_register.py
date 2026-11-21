@@ -195,35 +195,25 @@ def test_estimate_newest_uses_the_previous_months_share():
     assert text[1] == lines[0] and rows["2024-12"]["HEV"] == ""          # before 2025: blank
 
 
-def test_carry_split_keeps_hev_through_a_statfin_restatement():
-    old = {"period": "2026-09", "HEV": "1197.0", "PETROL": "481.0", "OTHERS": "59.0",
-           "notes": fn.register_note("2026-09-30")}
+def test_carry_split_keeps_the_share_through_a_statfin_restatement():
+    """Every split is a share of StatFin's petrol: a restatement applies it to
+    the new petrol and keeps StatFin's own OTHERS."""
     new = {"period": "2026-09", "TOTAL": 7000.0, "BEV": 4340.0, "PHEV": 765.0, "HEV": "",
-           "PETROL": 1700.0, "DIESEL": 145.0, "OTHERS": 52.0, "notes": ""}
-    kept = fn.carry_split(old, new)
-    assert kept["HEV"] == "1197.0" and kept["PETROL"] == "481.0" and kept["TOTAL"] == 7000.0
-    assert kept["OTHERS"] == 7000 - 4340 - 765 - 1197 - 481 - 145
-    assert kept["notes"] == old["notes"]
-    with contextlib.redirect_stdout(io.StringIO()):
-        assert fn.carry_split(old, dict(new, TOTAL=5000.0)) is not None
-        assert fn.carry_split(old, dict(new, TOTAL=5000.0))["HEV"] == ""   # dropped
+           "PETROL": 1700.0, "DIESEL": 145.0, "OTHERS": 50.0, "notes": ""}
+    for notes in (fn.register_note("2026-09-30"), fn.ACEA_NOTE,
+                  fn.PREVIOUS_NOTE.format(prev="2026-08"),
+                  "HEV estimated (with PETROL): StatFin petrol split by ..."):
+        old = {"period": "2026-09", "HEV": "1197.0", "PETROL": "481.0", "OTHERS": "52.0",
+               "notes": notes}
+        kept = fn.carry_split(old, new)
+        assert kept["HEV"] == round(1700 * 1197 / 1678) and kept["HEV"] + kept["PETROL"] == 1700
+        assert kept["OTHERS"] == 50.0 and kept["TOTAL"] == 7000.0 and kept["notes"] == notes
     assert fn.carry_split(dict(old, notes="manual"), new) is new          # not ours
-    # An estimate keeps its share of the new StatFin petrol; OTHERS stays StatFin's.
-    est = {"period": "2026-10", "HEV": "1089.0", "PETROL": "438.0", "OTHERS": "0.0",
-           "notes": fn.PREVIOUS_NOTE.format(prev="2026-09")}
-    moved = fn.carry_split(est, dict(new, PETROL=1600.0, OTHERS=3.0))
-    assert moved["HEV"] == round(1600 * 1089 / 1527) and moved["HEV"] + moved["PETROL"] == 1600
-    assert moved["OTHERS"] == 3.0 and moved["notes"] == est["notes"]
-    # The pre-2025 back-estimate is a share as well and survives the same way.
-    hist = dict(est, period="2019-05", notes="HEV estimated (with PETROL): StatFin petrol split by ...")
-    assert fn.split_kind(hist) == "history"
-    kept = fn.carry_split(hist, dict(new, PETROL=1600.0, OTHERS=3.0))
-    assert kept["HEV"] + kept["PETROL"] == 1600 and kept["notes"] == hist["notes"]
 
-
-def test_apply_register_covers_full_months_and_replaces_acea():
-    """A snapshot dated the 30th covers its own month; it replaces an ACEA
-    gap-fill, leaves 2024 (ACEA's years) alone and writes line-level."""
+def test_apply_register_covers_full_months_and_replaces_estimates():
+    """A snapshot dated the 30th covers its own month; its counted share
+    splits StatFin's petrol, replacing an estimate, leaving 2024 and the
+    uncovered month alone, line-level."""
     def car(day, fuel="01", hyb="false", cls=""):
         d, m, y = day.split(".")
         return {"ajoneuvoluokka": "M1", "ensirekisterointipvm": day,
@@ -236,9 +226,9 @@ def test_apply_register_covers_full_months_and_replaces_acea():
         zpath = tmp / "Ajoneuvorekisteri.zip"
         _snapshot(zpath, rows)
         lines = [
-            "2024-06,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,,0.0,4.0,",
-            "2026-08,monthly,Whole,StatFin,1.0,0.0,1.0,2.0,0.0,,0.0,4.0," + '"' + fn.ACEA_NOTE + '"',
-            "2026-09,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,,0.0,4.0,",
+            "2024-06,monthly,Whole,StatFin,1.0,0.0,,30.0,0.0,,0.0,31.0,",
+            "2026-08,monthly,Whole,StatFin,1.0,0.0,10.0,10.0,0.0,,0.0,21.0," + '"' + fn.ACEA_NOTE + '"',
+            "2026-09,monthly,Whole,StatFin,1.0,0.0,,40.0,0.0,,2.0,43.0,",
             "2026-10,monthly,Whole,StatFin,1.0,0.0,,3.0,0.0,,0.0,4.0,",
         ]
         path = _csv(tmp, lines)
@@ -249,15 +239,14 @@ def test_apply_register_covers_full_months_and_replaces_acea():
         rows_out = {r["period"]: r for r in csv.DictReader(text)}
         assert written == ["2026-08", "2026-09"] and again == []
         assert text[1] == lines[0] and text[4] == lines[3]                 # 2024 + October untouched
-        sep = rows_out["2026-09"]
-        assert (sep["HEV"], sep["PETROL"], sep["OTHERS"]) == ("1.0", "1.0", "1.0")
+        sep = rows_out["2026-09"]                                           # share 1/2 of 40
+        assert (sep["HEV"], sep["PETROL"], sep["OTHERS"]) == ("20.0", "20.0", "2.0")
         assert sep["notes"] == fn.register_note("2026-09-30")
-        assert rows_out["2026-08"]["notes"].startswith(fn.REGISTER_NOTE)  # ACEA replaced
+        aug = rows_out["2026-08"]                                           # share 1/1 of 10+10
+        assert (aug["HEV"], aug["PETROL"]) == ("20.0", "0.0") and aug["notes"].startswith(fn.REGISTER_NOTE)
         assert fn.newest_snapshot_date(path) == "2026-09-30"
-        # The snapshot published on 14 October is that one; January's is new.
         assert not fn.snapshot_is_new("Wed, 14 Oct 2026 09:42:59 GMT", path)
         assert fn.snapshot_is_new("Wed, 13 Jan 2027 09:00:00 GMT", path)
-
 
 def test_covered_through():
     assert fn.covered_through("2026-09-30") == "2026-09"
@@ -289,8 +278,8 @@ def test_fetch_finland_upsert_keeps_the_split():
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
         path = _csv(tmp, [
-            "2025-05,monthly,Whole,pxdata.stat.fi (StatFin 121d),2296.0,1435.0,1643.0,"
-            "994.0,257.0,,217.0,6842.0," + '"' + fn.register_note("2026-09-30") + '"',
+            "2025-05,monthly,Whole,pxdata.stat.fi (StatFin 121d),2296.0,1435.0,1700.0,"
+            "1150.0,257.0,,11.0,6849.0," + '"' + fn.register_note("2026-09-30") + '"',
             "2026-10,monthly,Whole,pxdata.stat.fi (StatFin 121d),3000.0,600.0,1089.0,"
             "438.0,100.0,,0.0,5227.0," + '"' + fn.PREVIOUS_NOTE.format(prev="2026-09") + '"'])
 
@@ -304,16 +293,16 @@ def test_fetch_finland_upsert_keeps_the_split():
             ff.upsert_csv(str(path), new)
         rows = {r["period"]: r for r in csv.DictReader(path.read_text(encoding="utf-8").splitlines())}
     reg = rows["2025-05"]
-    assert float(reg["HEV"]) == 1643 and float(reg["PETROL"]) == 994 and float(reg["TOTAL"]) == 6853
-    assert float(reg["OTHERS"]) == 6853 - 2296 - 1435 - 1643 - 994 - 257
+    assert float(reg["HEV"]) == round(2854 * 1700 / 2850) and float(reg["HEV"]) + float(reg["PETROL"]) == 2854
+    assert float(reg["OTHERS"]) == 11 and float(reg["TOTAL"]) == 6853
     assert reg["notes"].startswith(fn.REGISTER_NOTE)
     est = rows["2026-10"]
     assert float(est["HEV"]) + float(est["PETROL"]) == 1530 and float(est["OTHERS"]) == 0
     assert "WARNING" not in out.getvalue()
 
-def test_apply_register_never_lowers_a_month_already_counted():
-    """Proposal 66 §4: a later snapshot that has lost cars keeps the counts
-    already written; one that has more (late registrations) raises them."""
+def test_a_later_snapshot_does_not_revise_a_month_already_split():
+    """Proposal 66 §4: the earliest snapshot is the least thinned; a later
+    one leaves a register month as written."""
     def car(day, hyb="true", cls="02"):
         d, m, y = day.split(".")
         return {"ajoneuvoluokka": "M1", "ensirekisterointipvm": day,
@@ -324,20 +313,12 @@ def test_apply_register_never_lowers_a_month_already_counted():
         line = ("2026-09,monthly,Whole,StatFin,1.0,0.0,2.0,1.0,0.0,,1.0,5.0,"
                 + '"' + fn.register_note("2026-09-30") + '"')
         path = _csv(tmp, [line])
-        thinner = tmp / "thin.zip"
-        _snapshot(thinner, [car("03.09.2026"), car("30.12.2026", "false", "")])
-        richer = tmp / "rich.zip"
-        _snapshot(richer, [car("03.09.2026"), car("04.09.2026"), car("05.09.2026"),
-                           car("06.09.2026", "false", ""), car("30.12.2026", "false", "")])
-        out = io.StringIO()
-        with contextlib.redirect_stdout(out):
-            assert fn.apply_register(thinner, path) == []
-            assert path.read_text(encoding="utf-8").splitlines()[1] == line
-            assert "revision-down" in out.getvalue()
-            assert fn.apply_register(richer, path) == ["2026-09"]
-        row = next(csv.DictReader(path.read_text(encoding="utf-8").splitlines()))
-        assert row["HEV"] == "3.0" and row["notes"].endswith("snapshot 2026-12-30")
-
+        later = tmp / "later.zip"
+        _snapshot(later, [car("03.09.2026"), car("04.09.2026", "false", ""),
+                          car("30.12.2026", "false", "")])
+        with contextlib.redirect_stdout(io.StringIO()):
+            assert fn.apply_register(later, path) == []
+        assert path.read_text(encoding="utf-8").splitlines()[1] == line
 
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
