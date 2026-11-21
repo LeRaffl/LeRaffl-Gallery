@@ -203,6 +203,7 @@ stubs:
     notes:
       - "Brazil's figures come from ANFAVEA, the national manufacturers' association, which compiles them from the Renavam / Senatran registration records. Since ANFAVEA's September 2026 site relaunch our fetcher queries its interactive «Central de Dados» (registrations by fuel, Total Leves = Automóveis + Comerciais Leves, monthly); until then it parsed the yearly Excel workbook (sheet «III. Emplacamento Combustível»), which covered the same scope."
       - "The Central de Dados also reports a small pure-ethanol (Etanol) category that the old workbook did not; it is stored in OTHERS (combustion side). Rows fetched before September 2026 carry OTHERS = 0."
+      - "A fuel that ANFAVEA's response does not list at all is written empty (not reported), never 0; a «-» cell inside a listed column is ANFAVEA's zero and is written 0. A re-fetch that no longer lists a fuel keeps the value an earlier run stored and prints a warning."
       - "Brazil is the one country where FLEXFUEL is its own column and the largest one: most Brazilian cars run on any petrol/ethanol blend. It counts as combustion in the three-curve view, not as an alternative fuel."
     caveats:
       - "Cars and light commercials are combined — this is not a passenger-car-only series like most of the gallery."

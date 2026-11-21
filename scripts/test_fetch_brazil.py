@@ -112,6 +112,51 @@ def test_upsert_keeps_untouched_rows_byte_identical():
         assert got["2026-08"]["TOTAL"] == "263091.0"
 
 
+def _fixture_without_etanol() -> str:
+    """The fixture with ANFAVEA's ETANOL column (and its cells) removed and
+    the TOTALs reduced to match, as if the dashboard listed no ethanol."""
+    hdr = [h for h in HEADER if h != "ETANOL"]
+
+    def r(label, vals, total):
+        vals = vals[:2] + vals[3:]
+        return row(label, vals, total)
+    return (
+        '<table><thead><tr><th>PERÍODO</th>'
+        + "".join(f"<th>TOTAL LEVES - {h}</th>" for h in hdr)
+        + f"<th {B}>TOTAL</th></tr></thead><tbody>"
+        + r("2026 - JUL", [(23814, ""), (25858, ""), (523, ""), (172957, ""),
+                           (6049, ""), (16716, ""), (19749, "")], (265143, ""))
+        + r("2026 - AGO", [(22423, ""), (27251, ""), (796, ""), (170145, ""),
+                           (5528, ""), (17823, ""), (19125, "")], (262295, ""))
+        + "</tbody></table>"
+    )
+
+
+def test_unlisted_fuel_is_empty_not_zero():
+    # Invariant 4 (#424): a fuel with no column in ANFAVEA's response is not
+    # reported, so it is written empty, never 0.0.
+    rows = fb.parse_table(_fixture_without_etanol())
+    assert rows["2026-08"]["OTHERS"] == "", rows["2026-08"]
+    assert rows["2026-08"]["TOTAL"] == 262295
+    # A listed column whose cell is "-" is ANFAVEA's zero and stays 0.0.
+    dash = FIXTURE.replace('<td data-valor-export="523">523</td>', "<td>-</td>")
+    dash = dash.replace('data-valor-export="265666"', 'data-valor-export="265143"')
+    assert fb.parse_table(dash)["2026-07"]["OTHERS"] == 0.0
+
+    with tempfile.TemporaryDirectory() as d:
+        path = Path(d) / "Brazil.csv"
+        path.write_text(
+            ",".join(fb.CSV_COLUMNS) + "\n"
+            "2026-07,monthly,Whole,ANFAVEA,25787.0,19138.0,17375.0,6065.0,23809.0,172964.0,"
+            "523.0,265661.0,x\n", encoding="utf-8")
+        fb.upsert_csv(str(path), fb.parse_table(_fixture_without_etanol()), fb.PROVENANCE)
+        with open(path, newline="", encoding="utf-8") as f:
+            got = {r["period"]: r for r in csv.DictReader(f)}
+        # new month: empty; existing month: an earlier sourced value survives
+        assert got["2026-08"]["OTHERS"] == "", got["2026-08"]
+        assert got["2026-07"]["OTHERS"] == "523.0", got["2026-07"]
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

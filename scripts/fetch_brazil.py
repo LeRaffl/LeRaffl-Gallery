@@ -238,7 +238,12 @@ def parse_table(html: str) -> dict[str, dict]:
         period = parse_period(cells[0].get_text(" ", strip=True))
         if period is None:
             continue
-        values = dict.fromkeys(FUEL_COLUMNS, 0.0)
+        # Only the fuels ANFAVEA's header actually lists get a number. A fuel
+        # with no column in this response is "not reported", so it stays empty
+        # (invariant 4: empty = unknown, 0 = the source said zero) instead of a
+        # 0.0 that would claim "no ethanol cars". Within a listed column a "-"
+        # cell is ANFAVEA's zero and is written as 0.0 (_cell_value).
+        values = dict.fromkeys(sorted(set(col_map.values()), key=FUEL_COLUMNS.index), 0.0)
         for i, col in col_map.items():
             values[col] += _cell_value(cells[i])
         if all(v == 0.0 for v in values.values()):
@@ -248,7 +253,7 @@ def parse_table(html: str) -> dict[str, dict]:
             "time_interval": "monthly",
             "variant": "Whole",
             "source": "ANFAVEA",
-            **values,
+            **{col: values.get(col, "") for col in FUEL_COLUMNS},
         }
         row["TOTAL"] = sum(values.values())
         if total_idx is not None:
@@ -283,6 +288,11 @@ def upsert_csv(csv_path: str, new_rows: dict[str, dict], provenance: str) -> tup
         else:
             old = existing[period]
             for col in FUEL_COLUMNS:
+                if new_row[col] == "":
+                    if old.get(col):
+                        print(f"  WARNING {period} {col}: not in ANFAVEA's response, "
+                              f"keeping existing={old[col]} — please verify")
+                    continue
                 old_val = float(old.get(col) or 0)
                 new_val = float(new_row[col])
                 if old_val > 0 and abs(new_val - old_val) / old_val > 0.5:
@@ -290,7 +300,9 @@ def upsert_csv(csv_path: str, new_rows: dict[str, dict], provenance: str) -> tup
                         f"  WARNING {period} {col}: existing={old_val:.0f}, "
                         f"new={new_val:.0f} — diff >{50}%, please verify"
                     )
-            existing[period] = {**old, **new_row}
+            # A fuel missing from this response must not wipe a value an
+            # earlier fetch did get: overlay only the columns ANFAVEA listed.
+            existing[period] = {**old, **{k: v for k, v in new_row.items() if v != ""}}
             updated += 1
             print(f"  ~ {period}")
 
