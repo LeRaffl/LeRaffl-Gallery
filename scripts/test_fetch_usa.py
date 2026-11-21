@@ -8,8 +8,8 @@ that never gets revised again would go straight into the chart. These cases
 pin the row parser against lines copied from the real "Total Sales for
 Website" PDF (Aug-2026 release, text as pypdf extracts it), the sanity checks
 (gap, negative, sum > total, total band, repeated values), the drift report
-for rows outside the rewrite window, the upsert (OTHERS "" normalised to 0,
-ICE derived), and one end-to-end offline run of main().
+for rows outside the rewrite window, the upsert (OTHERS empty — ANL
+reports no "other" — legacy 0.0 converged to empty, ICE derived), and one end-to-end offline run of main().
 """
 import contextlib
 import csv
@@ -106,9 +106,9 @@ def test_validate_repeated_value_is_warning_only():
     assert warnings == ["2025-09: HEV identical to 2025-08 (187,113)"], warnings
 
 
-def test_build_row_derives_ice_and_zero_others():
+def test_build_row_derives_ice_and_empty_others():
     r = fu.build_row("2025-08", _table()["2025-08"])
-    assert r["OTHERS"] == 0.0
+    assert r["OTHERS"] == ""
     assert r["ICE"] == 1466105 - 148234 - 27597 - 187113
     assert r["source"] == "ANL" and r["variant"] == "Whole"
 
@@ -126,16 +126,16 @@ def _read(path):
         return {r["period"]: r for r in csv.DictReader(f)}
 
 
-def test_upsert_normalises_empty_others():
+def test_upsert_converges_legacy_zero_others_to_empty():
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "USA.csv"
         row = fu.build_row("2025-11", dict(BEV=54634, PHEV=12346, HEV=175814,
                                            TOTAL=1279378))
         legacy = {k: str(v) for k, v in row.items()}
-        legacy["OTHERS"] = ""
+        legacy["OTHERS"] = "0.0"
         _write_csv(p, [legacy])
         assert fu.upsert_window(str(p), {"2025-11": dict(row)}, False) == ["2025-11"]
-        assert _read(p)["2025-11"]["OTHERS"] == "0.0"
+        assert _read(p)["2025-11"]["OTHERS"] == ""
         # second run is a no-op
         assert fu.upsert_window(str(p), {"2025-11": dict(row)}, False) == []
 
@@ -173,7 +173,8 @@ def test_main_end_to_end_window_and_full_refresh():
                                 "2025-11"]
         for r in rows.values():
             tot = float(r["TOTAL"])
-            parts = sum(float(r[k]) for k in ("BEV", "PHEV", "HEV", "OTHERS", "ICE"))
+            assert r["OTHERS"] == "", r
+            parts = sum(float(r[k]) for k in ("BEV", "PHEV", "HEV", "ICE"))
             assert parts == tot, r
 
 
@@ -204,8 +205,9 @@ def test_repo_csv_is_consistent():
         cur = fu._next_period(cur)
         assert cur == nxt, f"gap before {nxt}"
     for r in rows.values():
-        assert r["OTHERS"] not in ("", None), r["period"]
-        parts = sum(float(r[k]) for k in ("BEV", "PHEV", "HEV", "OTHERS", "ICE"))
+        # one consistent column: all empty (#430), never a 0 / empty mix
+        assert r["OTHERS"] == "", r["period"]
+        parts = sum(float(r[k]) for k in ("BEV", "PHEV", "HEV", "ICE"))
         assert parts == float(r["TOTAL"]), r["period"]
 
 

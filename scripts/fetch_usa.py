@@ -68,11 +68,13 @@ ANL column        → CSV column
     BEV           → BEV
     PHEV          → PHEV
     HEV           → HEV
-    (none)        → OTHERS  (0; the PDF has no FCEV column — FCEVs, a few
+    (none)        → OTHERS  (empty: ANL reports no "other" category, so the
+                             column is "not reported", never 0 — invariant 4.
+                             The PDF has no FCEV column either; FCEVs, a few
                              dozen a month per ANL's web page, stay inside the
                              ICE residual; see docs/architecture/62-source-usa.md)
     Total LDV     → TOTAL
-    (derived)     → ICE = TOTAL − BEV − PHEV − HEV − OTHERS
+    (derived)     → ICE = TOTAL − BEV − PHEV − HEV
 
 HTTP details
 ------------
@@ -270,8 +272,10 @@ def build_row(period: str, vals: dict[str, int]) -> dict:
     phev = float(vals["PHEV"])
     hev = float(vals["HEV"])
     total = float(vals["TOTAL"])
-    others = 0.0
-    ice = total - bev - phev - hev - others
+    # ANL has no "other" category: OTHERS is not reported, so it stays empty
+    # (invariant 4, #430). A 0.0 here would claim "zero other vehicles".
+    others = ""
+    ice = total - bev - phev - hev
     return {
         "period": period,
         "time_interval": "monthly",
@@ -293,8 +297,9 @@ _NUMERIC_FIELDS = ("BEV", "PHEV", "HEV", "OTHERS", "ICE", "TOTAL")
 def _row_unchanged(existing: dict, new: dict) -> bool:
     """True if the existing CSV row already carries `new`'s numeric values.
 
-    Legacy rows may store OTHERS as "" — treated as a mismatch so the value
-    is normalised to 0.0 on the next write.
+    An empty cell only matches an empty value. Rows written before #430
+    store OTHERS as 0.0; they count as a mismatch, so they converge to empty
+    on the next write that covers them.
     """
     for field in _NUMERIC_FIELDS:
         raw = existing.get(field, "")
@@ -302,7 +307,8 @@ def _row_unchanged(existing: dict, new: dict) -> bool:
             cur = float(raw) if raw not in ("", None) else None
         except ValueError:
             cur = None
-        if cur != new[field]:
+        want = None if new[field] in ("", None) else new[field]
+        if cur != want:
             return False
     return True
 

@@ -33,7 +33,7 @@ caveats:
 - SALES, not registrations — the US has no free national new-registration feed (state DMVs publish separately; Experian/S&P registration data is paid).
 - Cars + light trucks INCLUDING pickups, SUVs and vans (GVWR ≤ 10,000 lb; EPA's light-duty definition is 8,500 lb). Not comparable 1:1 with EU-M1 passenger-car series. ANL publishes no car/truck split of the table, so a cars-only or pickups series is not possible from this source.
 - Combustion is not reported; ICE = Total − BEV − PHEV − HEV (no petrol/diesel split).
-- Fuel-cell cars are not in the PDF table and stay inside the ICE residual — a few dozen a month (ANL web page, Jul-2025 — 32 Toyota Mirai and 5 Honda CR-V), so OTHERS is 0.
+- Fuel-cell cars are not in the PDF table and stay inside the ICE residual — a few dozen a month (ANL web page, Jul-2025 — 32 Toyota Mirai and 5 Honda CR-V). ANL reports no "other" category at all, so OTHERS is left empty (not reported), never 0.
 - ANL revises recent months and sometimes whole earlier years between releases; the fetcher re-writes the last 3 months and warns about any older drift (full refresh with months=0). The full history was refreshed from the Aug-2026 release on 2026-10-18.
 - Source lineage changes in Oct-2019 (Wards Auto as reference); earlier months come from EDTA / Hybrid Dashboard / InsideEVs / Green Car Congress.
 processing:
@@ -56,7 +56,7 @@ processing:
       then: TOTAL
     - when: (none — fuel cell)
       then: inside ICE
-      note: OTHERS = 0; FCEVs are a few dozen a month
+      note: OTHERS empty (not reported); FCEVs are a few dozen a month
 - title: Which vehicles are counted
   text:
   - ANL's light-duty total is every new car and light truck up to 10,000 lb GVWR sold in the month. Nothing is reclassified.
@@ -84,7 +84,7 @@ processing:
       then: run fails, CSV untouched
 - title: Build the row
   text:
-  - ICE = TOTAL − BEV − PHEV − HEV; OTHERS = 0. The file is rewritten only when a value changed, then render-country.yml is dispatched for USA. The exact PDF and its text are kept as a 7-day workflow artifact (anl-total-sales).
+  - ICE = TOTAL − BEV − PHEV − HEV; OTHERS is left empty (ANL reports no other category). The file is rewritten only when a value changed, then render-country.yml is dispatched for USA. The exact PDF and its text are kept as a 7-day workflow artifact (anl-total-sales).
 fetcher: scripts/fetch_usa.py
 workflow: .github/workflows/fetch-usa.yml
 fragility_doc: docs/architecture/62-source-usa.md
@@ -102,7 +102,7 @@ Underlying: Wards Auto (since Oct-2019), compiled by ANL for DOE VTO
 Measure:   new-vehicle SALES (not registrations)
 Scope:     light-duty vehicles ≤ 10,000 lb GVWR = cars + light trucks
            INCLUDING pickups, SUVs, minivans, vans (not EU M1)
-Columns:   BEV · PHEV · HEV · Total LDV → ICE = residual, OTHERS = 0
+Columns:   BEV · PHEV · HEV · Total LDV → ICE = residual, OTHERS empty
            (no FCEV column; FCEVs — dozens/month — sit in the ICE residual)
 Coverage:  monthly, 2010-12 → latest (about 6–7 weeks lag)
 Revisions: last 3 months rewritten each run; older drift → ::warning;
@@ -139,7 +139,8 @@ compared with `data/USA.csv` row by row:
 | 2025-11 OTHERS empty | legacy row, never normalised | full refresh (now 0.0) + test |
 | 39 rows drifted from the current PDF (largest 2023-08 … 2025-08, e.g. 2025-06 BEV 92,514 → 111,577; plus single-digit typos in 2011–2021 such as 2015-07 TOTAL 1,410,941 vs 1,510,941) | revisions outside the window; hand-maintained history | full refresh; drift now reported every run |
 | 2010-12 missing | the CSV started in 2011-01 | added from the PDF |
-| FCEV "dropped" | the PDF has no FCEV column (only ANL's web text has the current month's counts) | documented; OTHERS stays 0 |
+| FCEV "dropped" | the PDF has no FCEV column (only ANL's web text has the current month's counts) | documented; FCEVs stay in ICE |
+| OTHERS `0.0` in every month (Nov-2026 0-vs-empty audit, #430) | ANL reports no other category; the 2025-11 normalisation above had turned "not reported" into an asserted zero | whole column set to empty in one line-level edit, writer writes empty, `test_repo_csv_is_consistent` pins it |
 
 ## 3 · Debugging
 
