@@ -582,6 +582,35 @@ def weighted_share(contrib: list[dict], end: str, size: int = 12) -> float | Non
     return num / den if den else None
 
 
+def weighted_ytd(contrib: list[dict], end: str) -> dict | None:
+    """Year to date for a group, by the same rule as the 12-month headline:
+    each contributor's own YTD share (its BEV / TOTAL, January to `end`),
+    averaged with the group weights. Every contributor must have the full
+    January..`end` run, else None (#458).
+
+    The synthetic rows carry a constant TOTAL, so running the country YTD
+    helper over them would give every month equal volume, an unweighted mean
+    of monthly shares, not a YTD.
+    """
+    t_idx = mc.month_index(end)
+    if t_idx is None:
+        return None
+    num = den = 0.0
+    ytd = None
+    for m in contrib:
+        rows = [r for r in m["rows"]
+                if (mc.month_index(r["period"]) if r.get("period") else None) is not None
+                and mc.month_index(r["period"]) <= t_idx]
+        ytd = mc.ytd_window(rows)
+        if not ytd or ytd["to"] != end:
+            return None
+        num += m["weight"] * ytd["share"]
+        den += m["weight"]
+    if not den or ytd is None:
+        return None
+    return {"share": num / den, "from": ytd["from"], "to": end, "year": ytd["year"]}
+
+
 def weighted_month(contrib: list[dict], period: str) -> float | None:
     num = den = 0.0
     for m in contrib:
@@ -967,7 +996,10 @@ def load(slug: str) -> dict:
 
     short_note, long_note = coverage_notes(label, members, contrib, t, cov)
 
-    figures: dict = {"ttm": {"share": share, "delta": delta, "end": t}}
+    # "ytd" is always set for a region (None = not shown), so the flyer
+    # never falls back to the equal-volume synthetic rows.
+    figures: dict = {"ttm": {"share": share, "delta": delta, "end": t},
+                     "ytd": weighted_ytd(contrib, t)}
     if latest is not None:
         figures["latest"] = {
             "row": {"period": t, "time_interval": "monthly"},

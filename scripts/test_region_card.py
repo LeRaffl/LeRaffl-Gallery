@@ -327,6 +327,31 @@ def test_repo_acea_figure_is_current():
     assert rc_ == 0, out.getvalue()
 
 
+def test_region_ytd_is_weighted_member_ytd_not_mean_of_months():
+    # #458. A sells 900 cars in January (BEV 0) and 100 a month after
+    # (BEV 50): its own YTD is 450/1800 = 25 %, while a mean of its monthly
+    # shares would be 45 %. B is flat at 10 %. Weights 3:1.
+    months = [f"2026-{m:02d}" for m in range(1, 11)]
+    a_rows = [{"period": p, "time_interval": "monthly",
+               "TOTAL": 900 if p == "2026-01" else 100,
+               "BEV": 0 if p == "2026-01" else 50} for p in months]
+    A = {"country": "A", "weight": 3, "rows": a_rows}
+    B = member("B", 1, months)
+    ytd = rc.weighted_ytd([A, B], "2026-10")
+    assert ytd["from"] == "2026-01" and ytd["to"] == "2026-10"
+    assert abs(ytd["share"] - (3 * 25 + 1 * 10) / 4) < 1e-9, ytd
+    # rows after the common end are ignored, not a reason to drop the YTD
+    A2 = dict(A, rows=a_rows + [{"period": "2026-11", "time_interval": "monthly",
+                                 "TOTAL": 100, "BEV": 99}])
+    assert abs(rc.weighted_ytd([A2, B], "2026-10")["share"] - ytd["share"]) < 1e-9
+    # a contributor missing a month this year -> no YTD at all
+    C = member("C", 1, [p for p in months if p != "2026-03"])
+    assert rc.weighted_ytd([A, C], "2026-10") is None
+    # the flyer takes the region figure, even when it is None
+    assert flyer._ytd({"ytd": None}, a_rows) is None
+    assert flyer._ytd({}, a_rows)["share"] == 25.0
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

@@ -761,7 +761,7 @@ def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
             mix += 32
         if figures.get("latest"):
             mix += 20
-        if mc.ytd_window(rows):
+        if _ytd(figures, rows):
             mix += 18
         mix = max(132, mix)
     # Compare is now three strips and the locator sits in the title row,
@@ -782,6 +782,14 @@ def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
         mix += 40
         curve += 170
     return mix, curve
+
+
+def _ytd(figures: dict, rows: list[dict]) -> dict | None:
+    """Year to date: a region payload brings its own weighted figure (or
+    None) in figures["ytd"]; a country's comes from its CSV rows."""
+    if "ytd" in figures:
+        return figures["ytd"]
+    return mc.ytd_window(rows)
 
 
 def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
@@ -819,7 +827,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         if latest:
             month += (f'<div class="fh-month">Single month · {esc(mc.period_label(latest["row"]["period"]))}: '
                       f'<b>{esc(mc.share(latest["share"]))}</b></div>')
-        ytd = mc.ytd_window(rows)
+        ytd = _ytd(figures, rows)
         if ytd:
             month += (f'<div class="fh-month fh-ytd">Year to date · {esc(mc.period_label(ytd["from"]).split()[0])}–'
                       f'{esc(mc.period_label(ytd["to"]))}: '
