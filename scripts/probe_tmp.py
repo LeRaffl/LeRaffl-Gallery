@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fetch_finland_register as fr  # noqa: E402
 
 snap = Path("/tmp/Ajoneuvorekisteri.zip")
-fr.fetch_snapshot(snap)
+fr.fetch_snapshot(snap, force=True)
 Path("probe_out").mkdir(exist_ok=True)
 out = open("probe_out/fi_hev_models.txt", "w", encoding="utf-8")
 
