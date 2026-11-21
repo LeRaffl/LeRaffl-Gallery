@@ -1,0 +1,6 @@
+🇹🇷 Türkiye - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++1.6pp  BEV     (16.7% → 18.3%)
++5.7pp  Hybrid  (25.9% → 31.6%)
+−7.3pp  ICE     (57.5% → 50.1%)

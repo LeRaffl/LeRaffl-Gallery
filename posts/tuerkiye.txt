@@ -1,11 +1,9 @@
-🇹🇷 Türkiye - September 26 - BEV Trajectory
-23.3% BEV
-29.4% Hybrid
-47.3% ICE
+🇹🇷 Türkiye - October 26 - BEV Trajectory
+24.6% BEV
+34.7% Hybrid
+40.7% ICE
 
 Trailing 12 months are:
-17.6% BEV
-30.7% Hybrid
-51.7% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+18.3% BEV
+31.6% Hybrid
+50.1% ICE
