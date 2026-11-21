@@ -1,0 +1,160 @@
+columns: ajoneuvoluokka, ensirekisterointipvm, ajoneuvoryhma, ajoneuvonkaytto, variantti, versio, kayttoonottopvm, vari, ovienLukumaara, korityyppi, ohjaamotyyppi, istumapaikkojenLkm, omamassa, teknSuurSallKokmassa, tieliikSuurSallKokmassa, ajonKokPituus, ajonLeveys, ajonKorkeus, kayttovoima, iskutilavuus, suurinNettoteho, sylintereidenLkm, ahdin, sahkohybridi, sahkohybridinluokka, merkkiSelvakielinen, mallimerkinta, vaihteisto, vaihteidenLkm, kaupallinenNimi, voimanvalJaTehostamistapa, tyyppihyvaksyntanro, yksittaisKayttovoima, kunta, NEDC_Co2, NEDC2_Co2, WLTP_Co2, WLTP2_Co2, matkamittarilukema, valmistenumero2, jarnro
+
+=== 2019: HEV 13950, pure petrol 57766
+  4315  Toyota TOYOTA COROLLA
+  1624  Toyota TOYOTA C-HR
+  1400  Toyota TOYOTA RAV4
+  1309  Toyota TOYOTA YARIS HYBRID
+   779  Toyota TOYOTA AURIS
+   698  Kia NIRO
+   474  Mercedes-Benz C 200 4MATIC
+   474  Toyota TOYOTA CAMRY
+   329  Mazda MAZDA3
+   223  Volvo XC60
+   217  Audi A6 Avant
+   200  Audi A4 Limousine
+   196  Audi A4 Avant
+   173  Audi A6 Limousine
+   163  FORD-CNG-TECHNIK Mondeo Hybrid
+   159  Honda CR-V
+   151  Suzuki SWIFT
+   148  Toyota TOYOTA PRIUS PLUS
+   114  Hyundai IONIQ
+   109  Mercedes-Benz C 200
+    99  Lexus LEXUS UX250H
+    95  Audi A5 Sportback
+    82  Mazda MAZDA CX-30
+    80  Lexus LEXUS NX300H
+    58  Lexus LEXUS ES300H
+    40  Toyota TOYOTA PRIUS
+    36  Lexus LEXUS IS300H
+    36  Land Rover Range Rover Evoque
+    34  Lexus LEXUS CT200H
+    20  Hyundai Kona
+    18  Audi Q8
+    17  Lexus LEXUS RX450H
+    14  Mercedes-Benz CLS 450 4MATIC
+    14  Volvo XC90
+    10  Audi A7 Sportback
+     8  Audi Q7
+     7  Lexus LEXUS RC300H
+     5  Suzuki IGNIS
+     4  Mercedes-Benz AMG E 53 4MATIC
+     3  Mercedes-Benz E 200 4MATIC
+     2  Mercedes-Benz GLE 450 4MATIC
+     2  Mercedes-Benz E 200
+     2  Audi A6 allroad quattro
+     2  BMW 520d xDrive
+     2  Ford Puma
+     1  Audi A8 L
+     1  Kia SPORTAGE
+     1  Lexus LEXUS LS500H
+     1  Audi A4 allroad quattro
+     1  Subaru FORESTER
+top pure-petrol: Nissan Nissan Qashqai 3774; Ford Focus 3342; Skoda OCTAVIA 3162; Toyota TOYOTA YARIS 2805; Ford Fiesta 2292; Volkswagen, VW GOLF 1754; Volkswagen, VW POLO 1729; Kia Ceed 1607; Renault CLIO 1465; Volkswagen, VW T-ROC 1129; Skoda FABIA 1123; Kia RIO 1089; Hyundai i 30 1035; Volvo V40 1035; Opel ASTRA SPORTS TOURER+ 994
+
+=== 2022: HEV 24009, pure petrol 17285
+  4501  Toyota TOYOTA COROLLA
+  2748  Toyota TOYOTA YARIS
+  1739  Toyota TOYOTA YARIS CROSS
+  1603  Toyota TOYOTA C-HR
+  1587  Nissan Nissan Qashqai
+  1193  Toyota TOYOTA RAV4
+   617  Skoda OCTAVIA
+   542  Kia Ceed
+   514  Ford Puma
+   505  Volkswagen, VW GOLF
+   492  Kia NIRO
+   444  Ford Fiesta
+   425  Volvo V60
+   412  Ford Focus
+   361  Renault ARKANA E-TECH
+   344  Suzuki VITARA
+   316  Audi A4 Avant
+   284  Ford Kuga
+   273  Kia SPORTAGE
+   249  Volvo XC40
+   241  Volvo XC60
+   220  Audi A4 Limousine
+   178  Mercedes-Benz C 180
+   178  Suzuki SX4
+   177  Toyota TOYOTA CAMRY
+   164  Mazda MAZDA3
+   156  Hyundai i 30
+   144  Audi A3 Sportback
+   140  Mazda MAZDA CX-30
+   127  Mercedes-Benz E 220 d 4MATIC
+   125  Volvo V60 Cross Country
+   122  Renault CAPTUR
+   114  BMW 520d xDrive
+   102  Fiat Fiat 500
+   101  Mazda MAZDA2 HYBRID
+   100  FORD-CNG-TECHNIK Mondeo Hybrid
+    98  Hyundai TUCSON
+    93  Kia XCeed
+    93  Audi A3 Limousine
+    92  Mercedes-Benz C 200 4MATIC
+    91  Hyundai i20
+    88  Honda HR-V
+    86  Audi A6 Avant
+    84  BMW 320d xDrive
+    82  Honda CR-V
+    81  Volvo V90
+    78  Suzuki SWIFT
+    77  Kia STONIC
+    77  Audi A5 Sportback
+    76  Volvo S60
+top pure-petrol: Kia Ceed 994; Kia RIO 716; Citroen C3 691; Skoda KAMIQ 645; Kia STONIC 612; Volkswagen, VW T-ROC 608; Volkswagen, VW POLO 558; Skoda FABIA 496; Opel ASTRA SPORTS TOURER+ 481; Dacia DUSTER 443; Volkswagen, VW TAIGO 432; Dacia SANDERO 395; Peugeot 208 361; Hyundai i20 356; Volkswagen, VW T-CROSS 345
+
+=== 2026: HEV 14847, pure petrol 4058
+  2609  Toyota TOYOTA YARIS CROSS
+  1848  Toyota TOYOTA YARIS
+  1610  Toyota TOYOTA COROLLA
+   997  Volkswagen, VW T-ROC
+   922  Nissan Nissan Qashqai
+   685  Toyota TOYOTA C-HR
+   581  Skoda OCTAVIA
+   379  Volkswagen, VW GOLF
+   311  Volvo XC40
+   259  Kia Ceed
+   243  Suzuki VITARA
+   213  Ford Puma
+   194  Dacia BIGSTER
+   171  Kia SPORTAGE
+   167  Dacia DUSTER
+   161  Ford Kuga
+   149  Opel ASTRA SPORTS TOURER
+   145  Audi A3 Sportback
+   141  BMW 120
+   136  Kia NIRO
+   129  Renault SYMBIOZ
+   125  Volkswagen, VW TIGUAN
+   109  Peugeot 408
+   105  Lexus LEXUS LBX
+    95  Peugeot 2008
+    91  Opel CORSA
+    87  Hyundai KONA
+    85  Suzuki SWIFT
+    85  Toyota TOYOTA AYGO X
+    76  Mazda MAZDA CX-30
+    75  Peugeot 208
+    73  Citroen C4
+    72  Mazda MAZDA3
+    72  Peugeot 3008
+    71  Opel FRONTERA
+    70  Peugeot 5008
+    70  Citroen C3 AIRCROSS
+    68  Opel MOKKA
+    64  Hyundai TUCSON
+    59  Citroen C5 AIRCROSS
+    58  Suzuki S-CROSS
+    55  Mazda MAZDA CX-5
+    53  Skoda SUPERB
+    53  MG MG3 Hybrid+
+    46  Ford Focus
+    45  Peugeot 308
+    45  Mitsubishi ASX
+    43  Alfa Romeo ALFA ROMEO JUNIOR
+    43  Renault CLIO
+    42  Skoda KODIAQ
+top pure-petrol: Kia STONIC 649; Skoda FABIA 459; Volkswagen, VW T-CROSS 330; Skoda KAMIQ 262; Subaru OUTBACK 184; Volkswagen, VW TAIGO 172; Skoda KAROQ 150; Hyundai BAYON 141; Kia Picanto 136; Skoda SCALA 119; Renault CLIO 117; Kia XCeed 114; Cupra CUPRA LEON SP 112; Nissan Nissan Juke 89; Skoda OCTAVIA 84
