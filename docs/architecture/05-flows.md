@@ -893,6 +893,8 @@ sequenceDiagram
 2. **Sum check with auto-repair**: sum of the five fuel counts must equal Toplam. If off, we identify the wrong fuel by the largest deviation from its OCR'd Pay %, then set wrong_fuel = Toplam − sum(others) and verify the implied Pay % rounds to the OCR'd Pay %. Single-digit OCR misreads are recovered; multi-fuel mismatches hard-fail.
 3. **Previous-year column check**: the OCR'd column 0 (e.g. Nisan 2025 in the Nisan 2026 bulletin) must match the corresponding row already in `data/Türkiye.csv`. Catches row-grouping bugs that would otherwise pass layers 1–2.
 
+Since then a fourth exact check was added (the year-to-date column minus the months the CSV already holds must equal the month just parsed), and the table image is OCR'd at 4×, 6× and 8×, each read a candidate of its own. When every read fails, one last candidate merges the reads of the same image cell by cell; it goes through every check like any other read. The module docstring of `scripts/fetch_turkey.py` has the current list.
+
 ### Design decisions
 
 | Decision | Rationale |
@@ -902,6 +904,7 @@ sequenceDiagram
 | Pull authoritative TOTAL from narrative, fuel breakdown from OCR | The narrative `"<Month> ayında X bin Y adet otomobilin trafiğe kaydı yapıldı"` extracts deterministically with a single regex and gives us a ground-truth Toplam. We use it as the canchor for all three validation layers, which lets OCR be lossy on individual digits without corrupting the CSV. |
 | 4× upscale before tesseract | Some bulletins embed the fuel table as a ~98 dpi PPM (Mart 2026 sample) which tesseract misreads at native resolution (observed: "27 715" instead of "27 775" for Hibrit). 4× resize with the Mitchell filter pushed effective DPI high enough to fix this on every sample we have; the residual single-digit errors are caught by the sum check + auto-repair. |
 | Sum-check auto-repair (single fuel only) | OCR digit-swaps are common but rarely multi-fuel on the same image. Repairing the single largest deviation lets the script handle the most common failure mode without human intervention; multi-fuel deviations hard-fail so a layout change can't silently mis-correct the data. |
+| Merge the OCR reads of one image only as a last resort | Each upscale can damage a different cell: for Ekim 2026 (press id 58049) the 4× read lost digits from a Toplam and the 6× read missed two current-month counts, each right where the other was wrong. Per column, a disagreement is settled only when exactly one combination makes the five fuels add up to that column's Toplam; otherwise the cell stays empty and the month hard-fails. Single reads are tried first, two different images (registrations, stock) are never mixed, and no check is relaxed. |
 | `source = "TUIK"`, `notes = https://veriportali.tuik.gov.tr/tr/press/<id>` for new rows | Matches the Brazil/Chile/Japan/Uruguay convention (short agency label in `source`, canonical source URL in `notes`). Historical rows use `data.tuik.gov.tr/` and are left untouched per the project rule of never rewriting historical rows. |
 | OCR-alias list for row labels | Spotted in dev: tesseract sometimes misreads "Elektrik" as "Elekirik" / "Elekftrik" on low-res rasters. Maintaining an explicit alias list per canonical label means future label-OCR drift is a one-line fix instead of a hard failure. |
 
