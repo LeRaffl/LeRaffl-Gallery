@@ -974,11 +974,11 @@ def load(slug: str) -> dict:
             break
         monthly.append((period, s))
     if len(monthly) == 12:
-        lo_p, lo = min(monthly, key=lambda x: (x[1], x[0]))
-        # first occurrence already from min of (share, period) — period tie-break
-        # is chronological because YYYY-MM sorts. Prefer first occurrence by scan:
-        lo_p, lo = next((p, s) for p, s in monthly if s == min(s for _, s in monthly))
-        hi_p, hi = next((p, s) for p, s in monthly if s == max(s for _, s in monthly))
+        # Lowest and highest month; on a tie, the earliest one.
+        lo = min(s for _, s in monthly)
+        hi = max(s for _, s in monthly)
+        lo_p = next(p for p, s in monthly if s == lo)
+        hi_p = next(p for p, s in monthly if s == hi)
         rng = {"min": lo, "max": hi, "latest": monthly[-1][1], "end": t,
                "min_period": lo_p, "max_period": hi_p}
 
