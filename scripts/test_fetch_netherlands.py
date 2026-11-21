@@ -243,15 +243,21 @@ def test_main_end_to_end_writes_the_csvs():
             "2023-09,monthly,Whole,old,1.0,1.0,,1.0,1.0,,1.0,5.0,keep-me\n", encoding="utf-8")
         fn.fetch_table = lambda variant, session: fn.swing_table_to_legacy(pres[variant])
         fn.make_swing_session = lambda: None
+        real_rdw = fn.rdw_session
+
+        def offline():
+            raise RuntimeError("tests never reach RDW")
+        fn.rdw_session = offline
         try:
             sys.argv = ["x", "--variant", "whole", "--force", "--no-top", "--dry-run"]
             fn.main()
             assert "old" in Path(fn.CSV_PATHS["Whole"]).read_text(encoding="utf-8")   # untouched
-            sys.argv = ["x", "--variant", "all", "--force", "--no-top"]
+            sys.argv = ["x", "--variant", "all", "--force", "--no-top", "--no-hev"]
             pres["HDV"] = _whole_presentation()
             fn.main()
         finally:
             fn.fetch_table, fn.make_swing_session, sys.argv = real_fetch, real_session, real_argv
+            fn.rdw_session = real_rdw
             fn.CSV_PATHS.update(real_paths)
         rows = {r["period"]: r for r in csv.DictReader(open(Path(d) / "Whole.csv", encoding="utf-8"))}
         assert sorted(rows) == ["2023-09", "2023-10", "2026-08"]      # future zero month skipped
