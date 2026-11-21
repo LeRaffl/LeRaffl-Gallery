@@ -132,7 +132,7 @@ later, separate change. Country CSVs stay national-source only.
 A TTM chart whose HEV column starts mid-series shows hybrids inside petrol
 until twelve months of the split exist, then the band switches on (the
 late-start fold, [02](../docs/architecture/02-components.md)). For Czechia,
-the Netherlands and Finland the months before their counted split were
+the Netherlands and Finland the months before their own split were
 filled once with **estimates**, so the chart shows hybrids for its whole
 span. Accuracy of a long-past month matters less here than a consistent
 picture; each estimated cell says so in its row's `notes`, with the file
@@ -152,7 +152,8 @@ it came from, and each source doc records the seam to the counted months.
   registers' own monthly fuel split (RDW open data, Traficom's snapshot of
   30 September 2026), counted the way the HEV write paths count it. The
   Netherlands 2018-01 – 2023-06 and Finland 2014-01 – 2024-12 are estimated
-  from their HEV share of HEV + petrol.
+  from their HEV share of HEV + petrol; the Netherlands 2011–2017, which
+  has no petrol split, from the HEV share of all the month's cars.
 
 Nothing keeps these files current: they are the record of a one-off fill.
-New months get counted HEV from the country's write path.
+New months get HEV from the country's write path.
