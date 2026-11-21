@@ -352,6 +352,12 @@ stub. `_normalize_zero_cells` therefore fills every *active* column (any
 non-zero value in the file) with explicit `0`s, while leaving *entirely-zero*
 columns blank so the renderer skips them (e.g. PHEV/HEV for trucks). See §10.
 
+This is a **deliberate, documented exception** to invariant 4 ("not reported →
+empty"), not an import leftover: DPSHTRR lists only the fuels registered in a
+month, so a quiet month of an active fuel is read as zero. Do not blank these
+zeros in a repo-wide 0-vs-empty pass (#439, audit #441); changing the policy
+needs a source check and a decision on how strict TTM treats quiet months.
+
 ## 9. Source attribution & footnote
 
 * **`source` column** (`data/Albania.csv`): `dpshtrr.al` for every row.
