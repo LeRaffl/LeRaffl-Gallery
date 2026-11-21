@@ -40,6 +40,7 @@ backfill: Whole is SDA/ACEA from 2011 (the register writes from 2026-09 on, repl
 scope_note: Vehicles in the road register RSV (not the historic-vehicle register RHSV). Vehicles deregistered since are still counted in the month they were first registered.
 caveats:
 - 'Register-written Whole rows (from 2026-09, until ACEA publishes the month — and for July, which ACEA never publishes on its own): BEV, PHEV, other fuels and TOTAL are register counts; HEV, PETROL and DIESEL are estimated in the previous ACEA month''s proportions, and the row says so in its notes.'
+- '2014-01 to 2021-12: HEV, petrol and diesel are estimates — each month''s TOTAL − BEV − PHEV − OTHERS split by ACEA''s quarterly fuel shares (2018–2021) or ACEA''s quarterly HEV share (2014–2017), from reference/acea_country_quarterly.csv; each row says so in its notes. Counted SDA/ACEA HEV starts 2022-01; the seam is smooth (2021-12 estimated 2,170, 2022-01 counted 2,125). Before 2014 hybrids are inside petrol.'
 - 'Until ACEA replaces a register row, the generated posts give no HEV share for that month (ICE includes HEV) — the estimate is not quoted.'
 - Vans count about 2–3% fewer vehicles than SDA/ACEA, and up to a quarter fewer electric vans since 2025 — SDA also counts vans first registered abroad shortly before import, which the register files as used.
 - Vans, HDV and Buses were quarterly ACEA figures before 2026-10 (BEV and PHEV merged into one "electrically chargeable" number); they are now monthly register counts with a BEV/PHEV split, back to 2016.
@@ -286,6 +287,33 @@ rewritten.) September 2026: BEV 2,141 = SDA/ACEA exactly; PHEV 877 vs 920.
 
 The van gap is near-new imports: 164 electric vans with a foreign first registration
 entered the register in 2025-H2 — SDA counts most of them as new, the register as used.
+
+### 4b. HEV before 2022 (estimates, filled 2026-11-21)
+
+`Whole` has SDA's counted HEV (via ACEA) from 2022-01. Before that the CSV
+left it blank, and the TTM chart showed no hybrids until the band switched
+on at 2022-12. The months 2014-01 – 2021-12 now carry an **estimate**, so
+the chart shows the market's hybrid share for its whole span
+(`scripts/backfill_hev_history.py --country Czechia --method acea`):
+
+- **Pool** = TOTAL − BEV − PHEV − OTHERS of the month: petrol, diesel and
+  whatever hybrids the row left unsplit. The older rows are not uniform —
+  2018–2020 petrol/diesel equal ACEA's pure petrol/diesel to the car and the
+  hybrids are missing from them, 2021 has part of them inside petrol, and in
+  2016–2017 the listed fuels exceed TOTAL by up to 1,900 a quarter — so the
+  pool, not the petrol column, is split. TOTAL, BEV, PHEV and OTHERS stay.
+- **2018–2021:** the pool split by ACEA's HEV : petrol : diesel shares of
+  the quarter (`reference/acea_country_quarterly.csv`; ACEA's Czech figures
+  are SDA's, the same source as the counted HEV from 2022).
+- **2014–2017:** ACEA's alternative-fuel releases have HEV but no
+  petrol/diesel split: HEV = ACEA's quarterly HEV as a share of the
+  quarter's pool, the rest in the month's own petrol : diesel ratio.
+- Each row's `notes` says which; PETROL and DIESEL changed with it.
+- **Seam:** 2021-12 estimated 2,170 HEV, 2022-01 counted 2,125. TTM HEV:
+  0.2 % (2014-12), 1.7 % (2018-12), 5.1 % (2020-12), 11.6 % (2021-12),
+  14.7 % (2022-12, counted).
+- Before 2014 hybrids stay inside petrol; ACEA's earliest country HEV in
+  the archive is 2014 (as the prior-year column of 2015's releases).
 
 ## 5. Month and revisions
 

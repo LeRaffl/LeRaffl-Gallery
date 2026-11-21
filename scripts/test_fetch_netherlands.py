@@ -243,15 +243,21 @@ def test_main_end_to_end_writes_the_csvs():
             "2023-09,monthly,Whole,old,1.0,1.0,,1.0,1.0,,1.0,5.0,keep-me\n", encoding="utf-8")
         fn.fetch_table = lambda variant, session: fn.swing_table_to_legacy(pres[variant])
         fn.make_swing_session = lambda: None
+        real_rdw = fn.rdw_session
+
+        def offline():
+            raise RuntimeError("tests never reach RDW")
+        fn.rdw_session = offline
         try:
             sys.argv = ["x", "--variant", "whole", "--force", "--no-top", "--dry-run"]
             fn.main()
             assert "old" in Path(fn.CSV_PATHS["Whole"]).read_text(encoding="utf-8")   # untouched
-            sys.argv = ["x", "--variant", "all", "--force", "--no-top"]
+            sys.argv = ["x", "--variant", "all", "--force", "--no-top", "--no-hev"]
             pres["HDV"] = _whole_presentation()
             fn.main()
         finally:
             fn.fetch_table, fn.make_swing_session, sys.argv = real_fetch, real_session, real_argv
+            fn.rdw_session = real_rdw
             fn.CSV_PATHS.update(real_paths)
         rows = {r["period"]: r for r in csv.DictReader(open(Path(d) / "Whole.csv", encoding="utf-8"))}
         assert sorted(rows) == ["2023-09", "2023-10", "2026-08"]      # future zero month skipped
@@ -261,6 +267,339 @@ def test_main_end_to_end_writes_the_csvs():
         assert r["source"] == fn.SOURCE and r["HEV"] == ""
         used = {r["period"]: r for r in csv.DictReader(open(Path(d) / "Used.csv", encoding="utf-8"))}
         assert used["2026-07"]["PHEV"] == "205.0" and used["2026-07"]["PETROL"] == "3030.0"
+
+
+def test_plate_bucket_splits_novc_hev_out_of_petrol():
+    """RDW hybrid class is the counted split Swing does not publish.
+    OVC-HEV is plug-in, NOVC-HEV is full/mild, campers stay diesel."""
+    assert fn.plate_bucket([("Elektriciteit", "")]) == "BEV"
+    assert fn.plate_bucket([("Benzine", "OVC-HEV"), ("Elektriciteit", "OVC-HEV")]) == "PHEV"
+    assert fn.plate_bucket([("Benzine", "NOVC-HEV"), ("Elektriciteit", "NOVC-HEV")]) == "HEV"
+    assert fn.plate_bucket([("Benzine", "")]) == "PETROL"
+    assert fn.plate_bucket([("Diesel", "")]) == "DIESEL"
+    assert fn.plate_bucket([("Benzine", ""), ("LPG", "")]) == "OTHERS"
+    assert fn.plate_bucket([("Elektriciteit", "NOVC-FCHV"), ("Waterstof", "NOVC-FCHV")]) == "OTHERS"
+    # RDW files some combustion cars under NOVC-FCHV. No hydrogen, no
+    # electricity: not a hybrid, keep the fuel.
+    assert fn.plate_bucket([("Diesel", "NOVC-FCHV")]) == "DIESEL"
+    assert fn.plate_bucket([("Benzine", "NOVC-FCHV")]) == "PETROL"
+
+
+def test_enrich_splits_swing_petrol_by_the_register_share():
+    """Swing's petrol (hybrids included) split by the register's counted
+    HEV share of HEV + pure petrol. Every other column stays Swing's, so
+    cars that left the register since cannot pull HEV low."""
+    swing = {"TOTAL": 24739, "BEV": 9457, "PHEV": 5774, "PETROL": 9381, "DIESEL": 16, "OTHERS": 111}
+    register = {"HEV": 7263, "PETROL": 1917, "DIESEL": 457, "OTHERS": 111}
+    row = fn.enrich_swing(swing, register)
+    assert row is not None
+    assert row["HEV"] == round(9381 * 7263 / (7263 + 1917)) and row["HEV"] > 7263
+    assert row["HEV"] + row["PETROL"] == 9381
+    assert row["TOTAL"] == 24739 and row["BEV"] == 9457 and row["PHEV"] == 5774
+    assert row["DIESEL"] == 16 and row["OTHERS"] == 111
+    assert row["notes"].startswith(fn.REGISTER_PREFIX) and "still in the country" in row["notes"]
+    exported = fn.enrich_swing(swing, register, cohort="with_exports")
+    assert exported is not None and "since-exported" in exported["notes"]
+    # Nothing to split: no Swing petrol, or an empty register month.
+    assert fn.enrich_swing(dict(swing, PETROL=""), register) is None
+    assert fn.enrich_swing(swing, dict(register, HEV=0, PETROL=0)) is None
+
+
+def test_choose_cohort_sticks_to_swing_and_refuses_the_rest():
+    """The cohort whose total sticks to Swing, or nothing.
+
+    Stay wins when it is as close as the since-exported cohort. Since-exported
+    cars win when they are closer and still inside the band, including when
+    stay has drifted past it. Neither match means leave the month blank.
+    """
+    assert fn.choose_cohort(35529, 35333, 36086) == "stay"          # 2026-09
+    assert fn.choose_cohort(29250, 27529, 29145) == "with_exports"  # 2022-06
+    assert fn.choose_cohort(40401, 39550, 40504) == "with_exports"  # 2023-06, stay -2.1%
+    assert fn.choose_cohort(34668, 34389, 34933) == "with_exports"  # 2024-06, exports closer
+    assert fn.choose_cohort(10000, 10100, 9900) == "stay"           # tie: stay
+    assert fn.choose_cohort(10000, 9000, 8000) is None              # both past 2%
+    assert fn.choose_cohort(0, 100, 100) is None
+
+
+def test_window_cohort_is_the_one_that_reaches_the_newest_month():
+    """One cohort for the fill, and the fill must reach the live edge.
+    Shaped like the 2026-11-20 plan: the since-exported plates fit the old
+    months, only stay fits the recent ones."""
+    def d(period, stay, exp, swing=1000):
+        return {"period": period, "swing": swing, "stay": stay, "with_exports": exp,
+                "choice": fn.choose_cohort(swing, stay, exp)}
+    plan = [d("2022-01", 950, 1000), d("2022-02", 960, 1005), d("2022-03", 955, 998),
+            d("2022-04", 960, 1010), d("2025-03", 998, 1025), d("2025-04", 1002, 1030)]
+    # Majority of per-month picks would be with_exports; it does not reach 2025.
+    assert sum(x["choice"] == "with_exports" for x in plan) > sum(x["choice"] == "stay" for x in plan)
+    assert fn.live_run(plan, "stay") == 2 and fn.live_run(plan, "with_exports") == 0
+    assert fn.window_cohort(plan) == "stay"
+    tie = [d("2025-01", 1000, 1000)]
+    assert fn.window_cohort(tie) == "stay"
+    assert fn.window_cohort([d("2025-01", 900, 900)]) is None
+    assert fn.window_cohort([]) is None
+
+def test_closer_to_acea_absolute_when_totals_agree_relative_when_not():
+    """ACEA is the only counted HEV. Absolute when the totals are the same
+    month, relative when they are not — September 2026 is the first case."""
+    acea = {"TOTAL": 36259, "HEV": 8601}
+    stay = {"TOTAL": 35333, "HEV": 8254}
+    exports = {"TOTAL": 36086, "HEV": 8720}
+    # Only the export cohort is the same month as ACEA, so both are judged
+    # by share, and stay is closer (0.36pp against 0.44pp).
+    assert fn.closer_to_acea(stay, exports, acea) == "stay"
+    # Both totals within 1%: the count decides, and the export cohort's
+    # 119 is closer than stay's 347.
+    near = {"TOTAL": 36100, "HEV": 8254}
+    assert fn.closer_to_acea(near, exports, acea) == "with_exports"
+
+
+def test_cohort_flag_matches_the_plan():
+    assert fn.cohort_exported("stay") is False
+    assert fn.cohort_exported("with_exports") is None
+    # A blank month has no cohort; it must not be fetched as "both".
+    try:
+        fn.cohort_exported(None)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a blank month was given a cohort")
+
+
+def test_fill_run_is_the_stretch_that_reaches_the_newest_month():
+    marks = [("2021-01", True), ("2021-02", True), ("2021-03", True),
+             ("2021-04", False), ("2021-05", True), ("2021-06", True)]
+    decisions = [{"period": p, "fill": f} for p, f in marks]
+    # The longer run 2021-01..03 does not reach the live edge.
+    assert fn.fill_run(decisions) == ("2021-05", "2021-06")
+    assert fn.fill_run(decisions + [{"period": "2021-07", "fill": False}]) is None
+    assert fn.fill_run([]) is None
+
+class _PlanStub:
+    """count_new_cars / register_split / CSV path, no network."""
+
+    def __init__(self, tmp, swing, counts, splits=None):
+        self.csv = Path(tmp) / "Netherlands.csv"
+        lines = ["period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes"]
+        for period, (total, bev, phev, die, *petrol) in swing.items():
+            pet = petrol[0] if petrol else ""
+            lines.append(f"{period},monthly,Whole,Swing,{bev},{phev},,{pet},{die},,{total},")
+        self.csv.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        self.counts, self.splits = counts, splits or {}
+
+    def __enter__(self):
+        self.saved = (fn.CSV_PATHS["Whole"], fn.rdw_session, fn.count_new_cars, fn.register_split)
+        fn.CSV_PATHS["Whole"] = self.csv
+        fn.rdw_session = lambda: None
+        fn.count_new_cars = lambda _s, period, variant="Whole", exported=False: \
+            self.counts[period]["stay" if exported is False else "with_exports"]
+        fn.register_split = lambda _s, period, choice: self.splits[(period, choice)]
+        return self
+
+    def __exit__(self, *exc):
+        fn.CSV_PATHS["Whole"], fn.rdw_session, fn.count_new_cars, fn.register_split = self.saved
+
+
+def test_backfill_plan_fills_only_where_the_window_cohort_fits():
+    """One cohort for the whole fill, the one that reaches the newest month:
+    a month where only the other cohort is inside the band stays blank
+    instead of switching scope."""
+    import contextlib
+    import io
+    import tempfile
+    swing = {p: (1000, 0, 0, 0) for p in ("2022-01", "2022-02", "2022-03", "2025-01")}
+    counts = {
+        "2022-01": {"stay": 950, "with_exports": 1000},   # only exports fit
+        "2022-02": {"stay": 950, "with_exports": 1010},   # only exports fit
+        "2022-03": {"stay": 940, "with_exports": 995},    # only exports fit
+        "2025-01": {"stay": 1000, "with_exports": 1030},  # only stay fits
+    }
+    with tempfile.TemporaryDirectory() as tmp, _PlanStub(tmp, swing, counts) as stub:
+        before = stub.csv.read_bytes()
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            plan = fn.backfill_plan("2022-01", "2025-01")
+        assert stub.csv.read_bytes() == before
+    assert [d["choice"] for d in plan] == ["with_exports"] * 3 + ["stay"]
+    # stay is the cohort that reaches the newest month, so it is the window;
+    # the old months only the exported plates fit stay blank.
+    assert [d["fill"] for d in plan] == [False, False, False, True]
+    text = out.getvalue()
+    assert "window cohort: stay" in text and "ACEA" not in text
+    assert "2022-01: only with_exports fits" in text
+    assert "2025-01..2025-01" in text
+
+
+def test_shadow_takes_the_window_cohort_and_acea_only_cross_checks():
+    import contextlib
+    import io
+    import tempfile
+    swing = {"2026-09": (35529, 9457, 5774, 16, 10534)}     # Swing petrol, hybrids in
+    counts = {"2026-09": {"stay": 35333, "with_exports": 36086}}
+    # Splits sum to the plate counts; HEV is the September 2026 count, so
+    # the ACEA shares are the 0.36pp / 0.44pp in the PR (stay closer).
+    split = {"BEV": 10000, "PHEV": 6000, "HEV": 8254, "PETROL": 1837, "DIESEL": 457, "OTHERS": 8785}
+    exp_split = dict(split, HEV=8720, OTHERS=9072)
+    assert sum(split.values()) == 35333 and sum(exp_split.values()) == 36086
+    splits = {("2026-09", "stay"): split, ("2026-09", "with_exports"): exp_split}
+    with tempfile.TemporaryDirectory() as tmp, _PlanStub(tmp, swing, counts, splits):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            own = fn.shadow_hev("2026-09")
+            forced = fn.shadow_hev("2026-09", cohort="with_exports",
+                                   acea={"TOTAL": 36259, "HEV": 8601})
+    assert own["HEV"] == round(10534 * 8254 / (8254 + 1837))
+    assert "still in the country" in own["notes"]
+    # The forced cohort is still inside 2% of Swing, so it previews; the
+    # ACEA line is printed but the row is that cohort's, not ACEA's pick.
+    assert forced["HEV"] == round(10534 * 8720 / (8720 + 1837)) and "since-exported" in forced["notes"]
+    assert forced["TOTAL"] == 35529
+    assert "ACEA cross-check" in out.getvalue() and "closer: stay" in out.getvalue()
+    # A forced cohort outside the band is blank, not a different scope.
+    counts["2026-09"]["with_exports"] = 37000
+    with tempfile.TemporaryDirectory() as tmp, _PlanStub(tmp, swing, counts, splits):
+        with contextlib.redirect_stdout(io.StringIO()):
+            assert fn.shadow_hev("2026-09", cohort="with_exports") is None
+
+
+def _write_csv(path, rows):
+    head = "period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes\n"
+    Path(path).write_text(head + "".join(r + "\n" for r in rows), encoding="utf-8")
+
+
+def test_fill_register_hev_is_line_level_and_refuses_outside_the_band():
+    """Only the filled Whole lines change; a month outside the band, or one
+    that already has the split, is not touched; the cap takes the newest."""
+    import contextlib
+    import io
+    import tempfile
+    lines = [
+        "2021-12,monthly,Whole,S,5000.0,2000.0,,9000.0,10.0,,100.0,16110.0,workspace_guid=x",
+        "2022-01,monthly,Whole,S,5000.0,2000.0,,9000.0,10.0,,100.0,16110.0,workspace_guid=x",
+        "2022-02,monthly,Whole,S,5000.0,2000.0,,9000.0,10.0,,100.0,16110.0,workspace_guid=x",
+        "2022-03,monthly,Whole,S,5000.0,2000.0,,9000.0,10.0,,100.0,16110.0,workspace_guid=x",
+        "2022-04,monthly,Whole,S,5000.0,2000.0,4000.0,4900.0,10.0,,200.0,16110.0,"
+        + '"' + fn.register_note("with_exports") + '"',
+    ]
+    counts = {p: {"stay": 16000, "with_exports": 16100} for p in ("2022-01", "2022-02", "2022-03")}
+    counts["2022-02"]["with_exports"] = 17000          # +5.5 %: outside the band
+    split = {"BEV": 5000, "PHEV": 2000, "HEV": 4000, "PETROL": 4800, "DIESEL": 200, "OTHERS": 100}
+    splits = {(p, "with_exports"): split for p in counts}
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "NL_under_test.csv"
+        _write_csv(path, lines)
+        with _PlanStub(tmp, {}, counts, splits):
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                filled = fn.fill_register_hev(str(path), start="2022-01", cohort="with_exports", limit=None)
+        text = path.read_text(encoding="utf-8").splitlines()
+    assert filled == ["2022-01", "2022-03"]
+    assert "2022-02: with_exports 17000" in out.getvalue()
+    assert text[1] == lines[0] and text[3] == lines[2] and text[5] == lines[4]   # untouched
+    import csv
+    row = next(csv.DictReader([text[0], text[2]]))
+    hev = round(9000 * 4000 / 8800)                                   # Swing petrol x register share
+    assert (row["HEV"], row["PETROL"], row["OTHERS"], row["TOTAL"]) == (
+        f"{hev}.0", f"{9000 - hev}.0", "100.0", "16110.0")
+    assert row["BEV"] == "5000.0" and row["DIESEL"] == "10.0"          # Swing's, not the register's
+    assert row["notes"].strip('"') == fn.register_note("with_exports")
+
+
+def test_fill_register_hev_cap_takes_the_newest_months():
+    import contextlib
+    import io
+    import tempfile
+    periods = ["2022-01", "2022-02", "2022-03", "2022-04"]
+    lines = [f"{p},monthly,Whole,S,10.0,10.0,,70.0,0.0,,10.0,100.0,x" for p in periods]
+    counts = {p: {"stay": 100, "with_exports": 100} for p in periods}
+    split = {"BEV": 10, "PHEV": 10, "HEV": 30, "PETROL": 40, "DIESEL": 0, "OTHERS": 10}
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "NL_under_test.csv"
+        _write_csv(path, lines)
+        with _PlanStub(tmp, {}, counts, {(p, "with_exports"): split for p in periods}):
+            with contextlib.redirect_stdout(io.StringIO()):
+                assert fn.fill_register_hev(str(path), start="2022-01", cohort="with_exports", limit=2) == ["2022-03", "2022-04"]
+                assert fn.fill_register_hev(str(path), start="2022-01", cohort="with_exports", limit=2) == ["2022-01", "2022-02"]
+                assert fn.fill_register_hev(str(path), start="2022-01", cohort="with_exports", limit=2) == []
+
+
+def test_carry_register_split_survives_a_swing_restatement():
+    """Swing rewrites its window with hybrids back inside Benzine. The
+    month keeps its HEV share, applied to Swing's new petrol."""
+    note = fn.register_note("with_exports")
+    old = {"period": "2026-09", "variant": "Whole", "HEV": "8000.0", "PETROL": "2000.0",
+           "OTHERS": "84.0", "notes": note}
+    new = {"period": "2026-09", "variant": "Whole", "TOTAL": 35600.0, "BEV": 9500.0,
+           "PHEV": 5800.0, "DIESEL": 16.0, "PETROL": 20200.0, "HEV": "", "OTHERS": 84.0,
+           "notes": "workspace_guid=x"}
+    kept = fn.carry_register_split(old, new)
+    assert kept["HEV"] == 16160.0 and kept["PETROL"] == 4040.0 and kept["TOTAL"] == 35600.0
+    assert kept["OTHERS"] == 84.0 and kept["notes"] == note
+    # A row without the register split, or another variant, is Swing's.
+    assert fn.carry_register_split(dict(old, notes="workspace_guid=x"), new) is new
+    assert fn.carry_register_split(old, dict(new, variant="Used"))["HEV"] == ""
+    # The old counted-and-slack notes are not the share split: counted again.
+    legacy = dict(old, notes="TOTAL/BEV/PHEV/DIESEL Swing; HEV/PETROL RDW register (counted)")
+    assert fn.carry_register_split(legacy, new) is new
+
+
+def test_main_keeps_the_register_split_when_swing_rewrites_the_window():
+    """End to end: Swing re-delivers a month that already has register HEV;
+    the row keeps its HEV share on Swing's petrol."""
+    import csv
+    import tempfile
+    pres = {"Whole": _whole_presentation(), "Used": _used_presentation()}
+    real = (fn.fetch_table, dict(fn.CSV_PATHS), sys.argv, fn.make_swing_session, fn.fill_register_hev)
+    with tempfile.TemporaryDirectory() as d:
+        fn.CSV_PATHS.update({v: str(Path(d) / f"{v}.csv") for v in fn.CSV_PATHS})
+        # 2023-09 in the stub: TOTAL 29195, BEV 10075, PHEV 3574, Benzine 15301, Diesel 27.
+        _write_csv(fn.CSV_PATHS["Whole"], [
+            "2023-09,monthly,Whole," + fn.SOURCE + ",10075.0,3574.0,6000.0,9000.0,27.0,,218.0,29195.0,"
+            + '"' + fn.register_note("with_exports") + '"'])
+        fn.fetch_table = lambda variant, session: fn.swing_table_to_legacy(pres[variant])
+        fn.make_swing_session = lambda: None
+        fn.fill_register_hev = lambda *a, **k: []
+        try:
+            sys.argv = ["x", "--variant", "whole", "--force", "--no-top"]
+            fn.main()
+        finally:
+            fn.fetch_table, paths, sys.argv, fn.make_swing_session, fn.fill_register_hev = real
+            fn.CSV_PATHS.update(paths)
+        rows = {r["period"]: r for r in csv.DictReader(open(Path(d) / "Whole.csv", encoding="utf-8"))}
+    r = rows["2023-09"]
+    hev = round(15301 * 6000 / 15000)
+    assert float(r["HEV"]) == hev and float(r["PETROL"]) == 15301 - hev and float(r["TOTAL"]) == 29195
+    assert r["notes"].startswith(fn.REGISTER_PREFIX)
+    assert rows["2023-10"]["HEV"] == ""          # a month without the split stays Swing's
+
+
+def test_rdw_session_falls_back_to_the_socrata_edge_without_dns():
+    """opendata.rdw.nl lost its DNS record on 2026-11-20 while the datasets
+    kept updating; the tenant answers on Socrata's EU edge by Host header."""
+    real = fn.socket.getaddrinfo
+    try:
+        def no_dns(*a, **k):
+            raise OSError("no address")
+        fn.socket.getaddrinfo = no_dns
+        import contextlib
+        import io
+        with contextlib.redirect_stdout(io.StringIO()):
+            s = fn.rdw_session()
+        assert s.rdw_base == fn.RDW_EDGE_BASE and s.headers["Host"] == fn.RDW_HOST
+        fn.socket.getaddrinfo = lambda *a, **k: [("ok",)]
+        plain = fn.rdw_session()
+        assert not hasattr(plain, "rdw_base") and "Host" not in plain.headers
+    finally:
+        fn.socket.getaddrinfo = real
+    seen = []
+
+    class FakeSession:
+        rdw_base = fn.RDW_EDGE_BASE
+
+        def get(self, url, params=None, timeout=None):
+            seen.append(url)
+            return FakeResp(200, payload=[{"n": "1"}])
+    assert fn.rdw_get(FakeSession(), fn.RDW_VEHICLES, {}) == [{"n": "1"}]
+    assert seen == [f"{fn.RDW_EDGE_BASE}{fn.RDW_VEHICLES}.json"]
 
 
 if __name__ == "__main__":

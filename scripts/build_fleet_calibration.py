@@ -245,6 +245,13 @@ def attrition(stock: dict[int, dict], reg: dict[int, dict]) -> dict | None:
         "by_year": {str(y): round(v, 4) for y, v in sorted(total.items())},
     }
     by_fuel = {}
+    # A stock that keeps hybrids inside petrol (no HEV column: the
+    # Netherlands, Finland) is compared with petrol + HEV registrations;
+    # pure petrol alone would understate the inflow and the attrition.
+    if not any((s.get("HEV+") or 0) > 0 for s in stock.values()):
+        reg = {y: dict(r, PETROL=None if r.get("PETROL") is None
+                       else r["PETROL"] + (r.get("HEV") or 0))
+               for y, r in reg.items()}
     for label, (sk, rk) in {"BEV": ("BEV", "BEV"), "PHEV": ("PHEV+", "PHEV"),
                             "PETROL": ("PETROL", "PETROL"),
                             "DIESEL": ("DIESEL", "DIESEL")}.items():
