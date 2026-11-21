@@ -23,7 +23,13 @@ register  Netherlands, Finland. HEV = the published petrol (full hybrids
           that month (reference/<slug>_register_fuel_split.csv). The register
           is thinned for old months, but a share survives thinning better
           than a count, and it is the same classification as the counted
-          months that follow.
+          months that follow. A month with no published petrol or diesel
+          (the Netherlands before 2018: BEV, PHEV and TOTAL only) takes
+          HEV = TOTAL x the register's HEV share of all the month's cars,
+          and leaves petrol and diesel blank. Not the share of the
+          non-plug-in pool: those rows' BEV / PHEV are smoothed over the
+          year, so a plug-in rush month (December 2015) would sit in the
+          pool and inflate HEV.
 
     python scripts/backfill_hev_history.py --country Czechia --method acea \\
         --from 2014-01 --to 2021-12
@@ -47,6 +53,8 @@ NOTE_ACEA_HEV = (HISTORY_PREFIX + " (with PETROL/DIESEL): ACEA's {q} HEV as a sh
                  "(reference/acea_country_quarterly.csv)")
 NOTE_REGISTER = (HISTORY_PREFIX + " (with PETROL): {src} petrol split by the {register}'s "
                  "HEV share of HEV+petrol in the month (reference/{file})")
+NOTE_REGISTER_TOTAL = (HISTORY_PREFIX + ": TOTAL x the {register}'s HEV share of all "
+                       "the month's cars, petrol/diesel unsplit (reference/{file})")
 
 
 def _f(row: dict, k: str) -> float:
@@ -91,7 +99,18 @@ def acea_estimate(row: dict, q: dict, quarter_pool: float) -> dict | None:
 
 def register_estimate(row: dict, reg: dict, src: str, register: str, file: str) -> dict | None:
     hev, pet = float(reg["HEV"]), float(reg["PETROL"])
-    if hev + pet <= 0 or not (row.get("PETROL") or "").strip():
+    blank = lambda k: not (row.get(k) or "").strip()
+    if blank("PETROL") and blank("DIESEL"):
+        # No combustion split at all: HEV as a share of all the month's
+        # cars; petrol and diesel stay blank (invariant 4).
+        plates = float(reg.get("plates") or sum(float(reg.get(k) or 0) for k in
+                       ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")))
+        total = _f(row, "TOTAL")
+        if plates <= 0 or total <= 0:
+            return None
+        return {"HEV": float(round(total * hev / plates)),
+                "notes": NOTE_REGISTER_TOTAL.format(register=register, file=file)}
+    if hev + pet <= 0 or blank("PETROL"):
         return None             # no published petrol to split (invariant 4)
     petrol = _f(row, "PETROL")
     h = round(petrol * hev / (hev + pet))

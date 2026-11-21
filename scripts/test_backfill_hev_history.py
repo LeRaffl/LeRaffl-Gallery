@@ -37,8 +37,25 @@ def test_register_share_splits_the_published_petrol():
     assert est == {"HEV": 600.0, "PETROL": 1400.0, "notes": est["notes"]}
     assert "StatFin petrol" in est["notes"] and "fi_register_fuel_split.csv" in est["notes"]
     assert bh.register_estimate(row, {"HEV": "0", "PETROL": "0"}, "s", "r", "f") is None
-    # A month whose source left petrol blank gets no estimate, never a zero.
-    assert bh.register_estimate({"PETROL": ""}, {"HEV": "3", "PETROL": "7"}, "s", "r", "f") is None
+    # Petrol blank but diesel published: nothing to split, never a zero.
+    assert bh.register_estimate({"PETROL": "", "DIESEL": "50"}, {"HEV": "3", "PETROL": "7"},
+                                "s", "r", "f") is None
+
+
+def test_register_total_share_when_the_source_has_no_combustion_split():
+    """Netherlands before 2018: BEV, PHEV, TOTAL only, the plug-ins smoothed
+    over the year. HEV is TOTAL times the register's HEV share of all the
+    month's cars; petrol and diesel stay blank (invariant 4)."""
+    row = {"TOTAL": "10000", "BEV": "100", "PHEV": "900", "PETROL": "", "DIESEL": "", "OTHERS": ""}
+    reg = {"plates": "8000", "HEV": "400", "PETROL": "5000", "DIESEL": "1500", "OTHERS": "200"}
+    est = bh.register_estimate(row, reg, "Swing", "RDW register (with_exports cohort)",
+                               "nl_register_fuel_split.csv")
+    assert set(est) == {"HEV", "notes"} and est["HEV"] == 500.0
+    assert est["notes"].startswith(bh.HISTORY_PREFIX) and "petrol/diesel unsplit" in est["notes"]
+    # Without a plates column the fuel buckets are the month's cars.
+    no_plates = {k: v for k, v in reg.items() if k != "plates"}
+    assert bh.register_estimate(row, no_plates, "s", "r", "f")["HEV"] == round(10000 * 400 / 7100)
+    assert bh.register_estimate(dict(row, TOTAL=""), reg, "s", "r", "f") is None
 
 
 def test_run_touches_only_blank_hev_rows_line_level():
