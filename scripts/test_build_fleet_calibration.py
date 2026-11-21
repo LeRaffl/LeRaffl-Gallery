@@ -216,6 +216,19 @@ check(nv["HDV"]["attrition"]["rate"] > cs["Norway"]["attrition"]["rate"], "commi
 check("generated_by" in doc and "T" not in json.dumps(doc.get("generated_at", "")),
       "the file carries no timestamp (a rebuild on unchanged data is a no-op)")
 
+# --- per-fuel petrol: a stock without HEV keeps hybrids inside petrol -----
+# Petrol stock 600,000 flat; 2,500 petrol + 400 HEV registered a month.
+# No HEV in the stock -> the inflow is petrol + HEV: 34,800 / 600,000.
+hev_in_petrol = world(fleet, {"Aland": (REG_HEADER, reg)})["Aland"]["attrition"]["by_fuel"]
+check(abs(hev_in_petrol["PETROL"] - 34800 / 600000) < 1e-3,
+      f"stock without HEV: petrol attrition against petrol + HEV inflow, got {hev_in_petrol}")
+# A stock with its own HEV column keeps petrol as petrol: 30,000 / 600,000.
+fleet_hev = [fleet_row("Aland", y, 10000 + 5000 * (y - 2019), 600000, 390000 - 5000 * (y - 2019),
+                       hev=20000 + 4800 * (y - 2019)) for y in range(2019, 2026)]
+own_hev = world(fleet_hev, {"Aland": (REG_HEADER, reg)})["Aland"]["attrition"]["by_fuel"]
+check(abs(own_hev["PETROL"] - 30000 / 600000) < 1e-3,
+      f"stock with HEV: pure petrol against pure petrol, got {own_hev}")
+
 bad = [msg for ok, msg in checks if not ok]
 for msg in bad:
     print("FAIL:", msg)

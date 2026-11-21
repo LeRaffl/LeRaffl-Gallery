@@ -674,7 +674,9 @@ with at least three of them. It is a **net** figure and it describes the
 used by the model.** It shows what a single rate hides — Germany loses 12 % of
 its battery cars a year (young used BEVs exported), the Netherlands 16 % of its
 diesels — and it is what a later per-category calibration would start from.
-Values beyond ±50 % (India's BEV row) are a scope mismatch and are left out.
+Values beyond ±50 % (India's BEV row) are a scope mismatch and are left out. Where the stock keeps hybrids inside petrol (no HEV
+column, e.g. the Netherlands, Finland) the petrol row is compared with petrol
++ HEV registrations, the same scope.
 
 **`inflow_mix`** — shares of the combustion side (`TOTAL − BEV − PHEV − EREV`)
 over the latest 12 months of registrations: `HEV` (incl. `MHEV` where the source
