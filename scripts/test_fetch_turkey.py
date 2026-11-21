@@ -405,7 +405,9 @@ def test_ekim_2026_ingest_writes_the_merged_row():
     # End to end through ingest_from_html with the OCR stubbed: the two reads
     # come in as they did in the failing runs, the merged candidate is the one
     # accepted, and only the 2026-10 line of a scratch copy of the CSV changes.
-    import shutil
+    # The scratch copy stops at September 2026, as the CSV did on the day of
+    # the failing runs: since the 21 Nov fetch the real CSV carries 2026-10,
+    # and the writer rightly refuses to overwrite a committed month.
     import tempfile
     from types import SimpleNamespace
 
@@ -418,7 +420,10 @@ def test_ekim_2026_ingest_writes_the_merged_row():
     try:
         with tempfile.TemporaryDirectory() as td:
             scratch = Path(td) / "Türkiye.csv"
-            shutil.copyfile(CSV, scratch)
+            committed = CSV.read_bytes()
+            scratch.write_bytes(b"".join(
+                l for l in committed.splitlines(keepends=True)
+                if not (l[:2] == b"20" and l[:7] >= b"2026-10")))
             before = scratch.read_bytes()
             record = {"content": "<p>Ekim ayında 62 bin 97 adet otomobilin "
                                  "trafiğe kaydı yapıldı.</p>"}
@@ -437,6 +442,11 @@ def test_ekim_2026_ingest_writes_the_merged_row():
     row = new[b"2026-10"].decode().rstrip("\r\n").split(",")
     assert row[4:10] == ["15251.0", "21571.0", "22417.0", "1248.0", "1610.0",
                          "62097.0"], row
+    # Once the live fetch has written the month, it is the same line, byte
+    # for byte.
+    live = lines(committed).get(b"2026-10")
+    if live is not None:
+        assert new[b"2026-10"] == live, (new[b"2026-10"], live)
 
 
 def main():

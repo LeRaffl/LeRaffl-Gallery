@@ -362,6 +362,10 @@ A GitHub Action that rebuilds `manifest.json` whenever PNG files change.
 
 Defensive — if a manual upload bypasses the Render action (legacy local R workflow), the cron still picks it up within a day.
 
+### After the commit
+
+On `master` the last step dispatches `build-source-pages.yml`. The country briefs (`sources/flyer/<slug>.html`) read the fitted curve a render has just written to `params.csv` and `bands/`, and the source pages read their newest charts from `manifest.json`. A commit pushed with `GITHUB_TOKEN` fires no push trigger, so without this dispatch both would show last month's data until the daily 04:37 UTC run. The dispatch sits here and not in render-country.yml so that the build already sees the new `manifest.json`. A fan-in of renders (ACEA) still ends in one source-pages build: both workflows cancel superseded runs in their own concurrency group. A failed dispatch is a warning annotation, not a red manifest run; the daily run catches up.
+
 ---
 
 ## 2.7 Fetch Actions (overview)
