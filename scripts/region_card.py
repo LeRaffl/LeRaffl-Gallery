@@ -582,6 +582,32 @@ def weighted_share(contrib: list[dict], end: str, size: int = 12) -> float | Non
     return num / den if den else None
 
 
+def weighted_ytd(contrib: list[dict], t: str) -> dict | None:
+    """Region year-to-date BEV share, on the headline's weighted-member rule.
+
+    Each member's YTD is its own volume-weighted share over the Jan..t
+    window (window_ending with size = months so far this year); the group
+    figure is the registration-weight average of those, exactly like the
+    12-month headline. Same-set rule: if any contributor lacks a complete
+    Jan..t window the figure is omitted (None) — never an unweighted mean
+    of monthly shares, and never a shorter window relabelled as YTD.
+
+    synthetic_rows() carries a constant TOTAL so it cannot express this:
+    mc.ytd_window() over those rows averages months equally (#458).
+    """
+    idx = mc.month_index(t)
+    if idx is None:
+        return None
+    year, n = idx // 12, idx % 12 + 1
+    if n < mc.YTD_MIN_MONTHS:
+        return None
+    share = weighted_share(contrib, t, size=n)
+    if share is None:
+        return None
+    return {"share": share, "from": mc._shift(t, -(n - 1)), "to": t,
+            "year": year}
+
+
 def weighted_month(contrib: list[dict], period: str) -> float | None:
     num = den = 0.0
     for m in contrib:
@@ -974,6 +1000,11 @@ def load(slug: str) -> dict:
             "share": latest,
             "delta": latest_delta,
         }
+
+    # Region YTD on the weighted-member rule (#458), not the unweighted mean
+    # of synthetic monthly shares. Always set (None ⇒ omit) so the flyer never
+    # falls back to mc.ytd_window(synthetic_rows) for a group.
+    figures["ytd"] = weighted_ytd(contrib, t)
 
     # Who-gained and the mix use a powertrain split on a member set that
     # keeps the headline BEV at one decimal. See choose_mix_split.
