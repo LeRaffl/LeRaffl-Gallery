@@ -213,16 +213,57 @@ def test_eu_and_northern_europe_split_phev_not_hev():
         assert "trailing 12-month share" in rc.region_legend()
 
 
+def _pt_member(name, w, bev, phev=None, hev=None):
+    rows = []
+    for p in BASE:
+        r = {"period": p, "time_interval": "monthly", "TOTAL": 100, "BEV": bev}
+        if phev is not None:
+            r["PHEV"] = phev
+        if hev is not None:
+            r["HEV"] = hev
+        rows.append(r)
+    return {"country": name, "weight": w, "rows": rows}
+
+
+def test_phev_subset_is_taken_when_it_keeps_printed_bev():
+    # B has no PHEV series. Leaving it out keeps 90% of the weight and the
+    # headline BEV, so the split runs on A alone, with A's HEV too.
+    A = _pt_member("A", 90, 10, phev=5, hev=20)
+    B = _pt_member("B", 10, 10)
+    ch = rc.choose_mix_split([A, B], "2026-10", None)
+    assert [m["country"] for m in ch["members"]] == ["A"]
+    assert ch["bands"] == ["PHEV", "HEV"]
+    assert "1 of 2" in ch["note"] and "B" in ch["note_long"]
+
+
+def test_phev_subset_is_refused_when_it_moves_printed_bev():
+    # Same set, but B's BEV differs: the subset would print 10.0% against a
+    # 12.0% headline, so the headline set stays and PHEV is not split out.
+    A = _pt_member("A", 90, 10, phev=5, hev=20)
+    B = _pt_member("B", 10, 30)
+    ch = rc.choose_mix_split([A, B], "2026-10", None)
+    assert [m["country"] for m in ch["members"]] == ["A", "B"]
+    assert ch["bands"] == []
+    assert "would move BEV from 12.0% to 10.0%" in ch["note"]
+
+
 def test_world_phev_subset_keeps_printed_bev():
+    # Live data: which branch World takes depends on the month the headline
+    # lands on, so check the rule, not one month's outcome.
     info = rc.load("world")
-    assert "PHEV" in info["mix_bands"] and "HEV" not in info["mix_bands"]
-    assert set(info["mix_members"]) < set(info["contributors"])
-    for name in ("Colombia", "Malaysia", "Nepal", "Türkiye", "Vietnam"):
-        assert name not in info["mix_members"]
-        assert name in (info.get("mix_note_long") or info["fm"]["scope_note"])
-    bev = next(r for r in info["shift"]["rows"] if r["key"] == "BEV")
-    assert abs(round(bev["after"], 1) - round(info["share"], 1)) < 1e-9
-    assert "51 of 56" in info["mix_note"]
+    members, contrib = set(info["mix_members"]), set(info["contributors"])
+    assert members <= contrib
+    if "PHEV" in info["mix_bands"]:
+        bev = next(r for r in info["shift"]["rows"] if r["key"] == "BEV")
+        assert abs(round(bev["after"], 1) - round(info["share"], 1)) < 1e-9
+        if members < contrib:
+            assert f"{len(members)} of {len(contrib)}" in info["mix_note"]
+            for name in contrib - members:
+                assert name in (info.get("mix_note_long")
+                                or info["fm"]["scope_note"])
+    else:
+        assert members == contrib
+        assert "Plug-in hybrid is not split out" in info["mix_note"]
 
 
 def test_south_america_splits_hev_not_phev():
