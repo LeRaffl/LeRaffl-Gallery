@@ -128,7 +128,7 @@ sequenceDiagram
     Pages->>Pages: serve updated assets
 ```
 
-After this, Flow E (manifest rebuild) is explicitly dispatched by the Render-country workflow. Direct maintainer pushes to `images/**` still trigger Flow E through the path filter. The manifest commit then pushes to `master`, which GitHub Pages auto-deploys (Pages-from-branch; no separate Pages workflow exists or is needed).
+After this, Flow E (manifest rebuild) is explicitly dispatched by the Render-country workflow. Direct maintainer pushes to `images/**` still trigger Flow E through the path filter. The manifest commit then pushes to `master`, which GitHub Pages auto-deploys (Pages-from-branch; no separate Pages workflow exists or is needed). Flow E ends with an explicit dispatch of `build-source-pages.yml` (master only), so the source pages and country briefs show the new month once it has finished.
 
 **Performance notes:**
 - Cold runner: ~2 min including R-package install
@@ -220,6 +220,7 @@ sequenceDiagram
     Runner->>Repo: git add manifest.json
     Runner->>Repo: git commit (only if changed)
     Runner->>Repo: git push
+    Runner->>Repo: gh workflow run build-source-pages.yml (master only)
 ```
 
 ---
@@ -547,7 +548,7 @@ sequenceDiagram
         RC->>RC: R image → Rscript R/render_country.R → commit images/params/weights/posts
         RC->>Manifest: gh workflow run build-manifest.yml
     end
-    Note over Manifest: build-manifest.yml has `concurrency: manifest-${{ github.ref }}, cancel-in-progress: true` so the ~16 fan-in triggers coalesce to a single final manifest build.
+    Note over Manifest: build-manifest.yml has `concurrency: manifest-${{ github.ref }}, cancel-in-progress: true` so the ~16 fan-in triggers coalesce to a single final manifest build. That final run dispatches Build source pages once.
 ```
 
 **Where parsing lives:** [scripts/fetch_acea.py](../../scripts/fetch_acea.py). The module docstring documents the column-position detection, the dash-glyph handling, and the per-row write rules. The offline regression tests [scripts/test_fetch_acea.py](../../scripts/test_fetch_acea.py) gate every run.

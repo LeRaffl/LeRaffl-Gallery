@@ -122,7 +122,8 @@ Use this when you (the owner, or a dev agent) are editing or extending the repo.
 `data/<Country>.csv` → change-gated commit → dispatch **`render-country.yml`
 once with the touched variants** (it renders them serially in one run and
 commits `images/`+`params.csv`+`weights.csv`+`posts/`) → `build-manifest.yml`
-reindexes → GitHub Pages redeploys. `fetch-acea.yml` is the one multi-**country**
+reindexes, then dispatches `build-source-pages.yml` (country briefs and source
+pages) → GitHub Pages redeploys. `fetch-acea.yml` is the one multi-**country**
 fetcher and fans render-country out via a `workflow_call` matrix instead.
 
 ### Invariants — never break these

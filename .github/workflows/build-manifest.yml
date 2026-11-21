@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write               # erlaubt das Committen von manifest.json
+      actions: write                # dispatch build-source-pages.yml after the commit
       packages: read                # pull the R image from GHCR
     # R + packages come from the prebuilt image (was r-lib/actions setup-r +
     # setup-r-dependencies). Contents, adding a package, rollback:
@@ -57,3 +58,20 @@ jobs:
           # (e.g. a data-fetch job committing at the same time) doesn't reject
           # this one with a non-fast-forward error.
           pull: '--rebase --autostash'
+
+      # Build source pages reads what a render writes: the fitted curve from
+      # params.csv and bands/ (country briefs, sources/flyer/<slug>.html) and
+      # the newest charts from manifest.json (source pages). Commits pushed
+      # with GITHUB_TOKEN fire no push triggers, so without this dispatch both
+      # would show last month until the daily 04:37 UTC run. Dispatched here,
+      # after the manifest commit has landed, so that build sees the new
+      # manifest.json too. Master only: no bot commits on feature branches
+      # (#243). Build source pages has its own concurrency group, which
+      # coalesces a burst of these (the ACEA fan-out) into one final build.
+      - name: Trigger source pages build
+        if: github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run build-source-pages.yml --ref "${GITHUB_REF_NAME}" \
+            || echo "::warning::Could not dispatch build-source-pages.yml; the daily 04:37 UTC run will pick the briefs up."
