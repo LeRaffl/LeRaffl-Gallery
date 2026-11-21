@@ -11,12 +11,15 @@ the hand-kept checks/vietnam_reference.csv, writes market/vietnam_checks.json
                 type) — must match our inputs; a gap means a revision or a
                 typo on one side
   media_year    the same for a calendar year
+  (a media_total / media_year row with an empty figure and a note, e.g.
+  "none published by 2026-12", records that no outlet printed one: it
+  needs no URL and stops the reminder for that period)
   csgt          the traffic police's new-registration count (cars incl.
                 trucks, 15 Dec → 14 Jun / 14 Dec) — a different measure,
                 shown for scale only
 
-Due: a media total for each of the three newest months once the 20th of the
-following month has passed (older gaps stay open: such reports are hard to
+Due: a media total for each of the three newest months that our inputs
+cover in full, once the 20th of the following month has passed (older gaps stay open: such reports are hard to
 find later); CSGT H1 from 1 July, the CSGT year from 5 January; any row
 without a URL. `--due FILE` writes that list as Markdown (for the reminder
 issue) and prints it; the exit code is 0 either way.
@@ -109,7 +112,7 @@ def check_rows(comp: dict[str, dict], refs: list[dict]) -> list[dict]:
         gap = (ours - theirs) if ours is not None and theirs is not None else None
         pct = round(gap / theirs * 100, 2) if gap is not None and theirs else None
         if theirs is None:
-            status = "missing"
+            status = "none found" if base["note"] else "missing"
         elif tol is None or ours is None:
             status = "info"
         else:
@@ -124,12 +127,17 @@ def due_items(comp: dict[str, dict], refs: list[dict], today: dt.date) -> tuple[
     have = {(r["kind"], r["period_from"], r["period_to"]) for r in refs}
     lines, missing = [], []
     for p in sorted(comp)[-RECENT:]:
+        # A month our own inputs do not cover yet (e.g. TC Group's release is
+        # still out) has nothing to compare a media figure with: it is due
+        # once the month is complete, not before (#459).
+        if all_vehicles(comp[p]) is None:
+            continue
         y, m = int(p[:4]), int(p[5:7])
         ny, nm = (y + 1, 1) if m == 12 else (y, m + 1)
         if today >= dt.date(ny, nm, 20) and ("media_total", p, p) not in have:
             lines.append(f"- **Media total {p}**: the whole-market figure (VAMA + VinFast + TC Group) "
                          f"a Vietnamese outlet printed for {p} — our inputs add up to "
-                         f"{all_vehicles(comp[p]) or 0:,}.")
+                         f"{all_vehicles(comp[p]):,}.")
             missing.append({"period": p, "check": "Media: whole market, every vehicle type",
                             "source": "", "url": "", "ours": all_vehicles(comp[p]), "theirs": None,
                             "gap": None, "gap_pct": None, "tolerance": "", "status": "missing",
@@ -144,7 +152,9 @@ def due_items(comp: dict[str, dict], refs: list[dict], today: dt.date) -> tuple[
             lines.append(f"- **CSGT year {year}** (15 Dec {year - 1} → 14 Dec {year}): new car registrations "
                          "from the traffic police's year-end report.")
     for r in refs:
-        if not r.get("url"):
+        # A row with no figure and a note ("none published …") records that
+        # nobody printed one; it needs no URL and is never due again.
+        if not r.get("url") and not (not r.get("figure") and r.get("note")):
             lines.append(f"- **URL missing** for {r['kind']} {r['period_from']} → {r['period_to']} "
                          f"({r.get('figure') or 'no figure'}).")
     return lines, missing

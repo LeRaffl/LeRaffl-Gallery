@@ -419,7 +419,11 @@ and the 1st–11th of January and July) lists what is due — the media total of
 the three newest months from the 20th of the following month, CSGT H1 from 1 July, the
 CSGT year from 5 January, rows without a URL — in its run summary and in ONE open issue
 labelled `vietnam-reference` (found by the marker `<!-- vietnam-reference -->`), which
-it closes once nothing is due. It is the first workflow here with `issues: write`.
+it closes once nothing is due. A month is only due once our own inputs cover it
+in full (VAMA, VinFast and TC Group all in). A row with an empty `figure` and a
+`note` (e.g. "none published by 2026-12") records that no outlet printed a
+figure: it needs no URL, shows as "none found", and stops the reminder for that
+period. It is the first workflow here with `issues: write`.
 
 ## 6. Fragility and runbook
 
@@ -430,6 +434,7 @@ it closes once nothing is due. It is the first workflow here with `issues: write
 | month stays incomplete after the 20th | a release not found (new URL pattern or wording) | dispatch with `vinfast_url` / `tc_url`; if a parser fails, fix it with a test |
 | VinFast release never appears | vingroup.net changed its news pages | enter `vinfast`, `vinfast_ytd`, `vinfast_kind=manual` in the components file and dispatch with `rebuild` |
 | notice "VinFast revision" | next month's YTD implies another figure | expected; the row is rewritten and noted |
+| warning "VinFast revision refused" | the YTD read for the new month implies a negative month or a swing of more than half (2026-10: a model's 13,297 read as the YTD, which drove 2026-09 to −163,672, #459) | the stored month is kept; check the YTD in `components.csv` and enter it by hand if the parser missed it. A YTD below the month's own deliveries is dropped at parse time |
 | vama.org.vn unreachable | the site is http-only and slow | the run retries; dispatch later |
 
 Reachability from GitHub's runners (2026-10 probe): vama.org.vn, thanhcong.vn,

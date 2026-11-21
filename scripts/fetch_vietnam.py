@@ -489,6 +489,13 @@ def parse_vinfast(text: str) -> dict:
                       r"[^.]{0,120}?total of " + NUM, t, re.I))
     if m:
         out["ytd"] = num(m.group(1))
+    # A year-to-date figure below the month's own deliveries is impossible:
+    # the pattern caught a model's cumulative count instead (October 2026:
+    # 13,297 was read as the YTD instead of 200,593, #459). Drop it rather
+    # than let apply_vinfast_revision book a negative month.
+    if "ytd" in out and "units" in out and out["ytd"] < out["units"]:
+        print(f"  ! VinFast YTD {out['ytd']:,} < month {out['units']:,} — not a year-to-date figure, dropped")
+        del out["ytd"]
     if "units" in out:
         out["models"] = vinfast_models(t, out["units"])
     return out
@@ -732,6 +739,15 @@ def apply_vinfast_revision(comp: dict[str, dict], period: str) -> str | None:
     if prev["period"][5:] != "01" and not (pp and pp.get("vinfast_ytd")):
         return None
     new_units = implied - base
+    old_units = _i(prev, "vinfast")
+    # VinFast's own restatements move a month by a few thousand (July 2026:
+    # 21,781 → 17,996). A negative month or one that moves by more than half
+    # is a misread YTD, not a revision: leave the stored month alone (#459).
+    if new_units < 0 or (old_units and abs(new_units - old_units) > 0.5 * old_units):
+        print(f"::warning title=VinFast revision refused::{prev['period']}: {old_units:,} → "
+              f"{new_units:,} implied by YTD {period} {_i(cur, 'vinfast_ytd'):,} − "
+              f"{_i(cur, 'vinfast'):,}; check the YTD figure parsed for {period}")
+        return None
     msg = (f"VinFast {prev['period']}: {_i(prev, 'vinfast'):,} → {new_units:,} "
            f"(YTD {period} {_i(cur, 'vinfast_ytd'):,} − {_i(cur, 'vinfast'):,})")
     prev.update(vinfast=str(new_units), vinfast_ytd=str(implied), vinfast_kind="revised")

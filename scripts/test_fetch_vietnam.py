@@ -169,6 +169,8 @@ def test_vinfast():
     eq((v["units"], v["period"], v["ytd"]), (13914, "2025-09", 103884), "6-K text")
     eq(v["models"], {"VF 5 / HERIO GREEN": 6020, "VF 3": 2682, "VF 6": 1933, "VF 7": 778},
        "6-K models: Herio Green pooled with VF 5, footnote digits and cumulative figures ignored")
+    v = fv.parse_vinfast(VG_VN.replace("tổng cộng 177.697 xe", "tổng cộng 13.297 xe"))
+    check("ytd" not in v, "a YTD below the month's deliveries is dropped")
     v = fv.parse_vinfast(ROUNDED)
     eq((v["units"], v["exact"]), (9300, False), "'hơn' = rounded")
 
@@ -256,6 +258,14 @@ def test_revision():
     comp = {"2024-08": dict(SEP26, period="2024-08", vinfast="3948.75", vinfast_ytd="", vinfast_kind="estimate"),
             "2024-09": dict(SEP26, period="2024-09", vinfast="9300", vinfast_ytd="40000")}
     eq(fv.apply_vinfast_revision(comp, "2024-09"), None, "an estimate is never 'revised' from a YTD")
+    # #459: October 2026's YTD was misread as 13,297 and drove September to -163,672
+    comp = {"2026-08": dict(SEP26, period="2026-08", vinfast="20161", vinfast_ytd="154073"),
+            "2026-09": dict(SEP26, period="2026-09", vinfast="23624", vinfast_ytd="177697"),
+            "2026-10": dict(SEP26, period="2026-10", vinfast="22896", vinfast_ytd="13297")}
+    eq(fv.apply_vinfast_revision(comp, "2026-10"), None, "negative implied month is refused")
+    eq(comp["2026-09"]["vinfast"], "23624", "September left alone")
+    comp["2026-10"]["vinfast_ytd"] = "180000"      # implies Sep 3,031: moves by > 50 %
+    eq(fv.apply_vinfast_revision(comp, "2026-10"), None, "implausible swing is refused")
 
 
 def test_models_roundtrip():
@@ -295,6 +305,17 @@ def test_reference_checks():
     check(any("URL missing" in x for x in cr.due_items(comp, refs, dt.date(2026, 10, 24))[0]),
           "empty URL is due")
     check(any("CSGT H1 2026" in x for x in lines), "CSGT H1 due from July")
+    # #459: a month our inputs do not cover yet (no TC Group figure) is not due
+    part = dict(comp, **{"2026-10": dict(SEP26, period="2026-10", tc_total="")})
+    _, missing = cr.due_items(part, refs[2:], dt.date(2026, 11, 21))
+    eq([m["period"] for m in missing], ["2026-08", "2026-09"], "incomplete month is not due")
+    # a "none published" row needs no URL, stops the reminder and reads "none found"
+    none = {"kind": "media_total", "period_from": "2026-08", "period_to": "2026-08", "figure": "",
+            "rounded": "", "url": "", "note": "none published by 2026-11"}
+    lines, missing = cr.due_items(comp, refs[2:] + [none], dt.date(2026, 10, 24))
+    eq([m["period"] for m in missing], ["2026-09"], "none-published row is not due again")
+    check(not any("URL missing" in x for x in lines), "none-published row needs no URL")
+    eq(cr.check_rows(comp, [none])[0]["status"], "none found", "status of a none-published row")
 
 
 def main() -> int:
