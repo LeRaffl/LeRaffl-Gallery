@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-21T15:28:20Z",
+ "generated": "2026-11-21T16:23:11Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8152,6 +8152,30 @@
    "slug": "usa",
    "period": "2026-10",
    "flag": "🇺🇸"
+  },
+  {
+   "date": "2026-11-21",
+   "label": "Czechia",
+   "base": "Czechia",
+   "slug": "czechia",
+   "period": "2026-09",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-11-21",
+   "label": "Finland",
+   "base": "Finland",
+   "slug": "finland",
+   "period": "2026-10",
+   "flag": "🇫🇮"
+  },
+  {
+   "date": "2026-11-21",
+   "label": "Netherlands",
+   "base": "Netherlands",
+   "slug": "netherlands",
+   "period": "2026-10",
+   "flag": "🇳🇱"
   }
  ]
 }
