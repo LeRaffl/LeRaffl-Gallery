@@ -37,6 +37,8 @@ def test_register_share_splits_the_published_petrol():
     assert est == {"HEV": 600.0, "PETROL": 1400.0, "notes": est["notes"]}
     assert "StatFin petrol" in est["notes"] and "fi_register_fuel_split.csv" in est["notes"]
     assert bh.register_estimate(row, {"HEV": "0", "PETROL": "0"}, "s", "r", "f") is None
+    # A month whose source left petrol blank gets no estimate, never a zero.
+    assert bh.register_estimate({"PETROL": ""}, {"HEV": "3", "PETROL": "7"}, "s", "r", "f") is None
 
 
 def test_run_touches_only_blank_hev_rows_line_level():
