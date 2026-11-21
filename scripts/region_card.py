@@ -587,6 +587,32 @@ def weighted_share(contrib: list[dict], end: str, size: int = 12) -> float | Non
     return num / den if den else None
 
 
+def weighted_ytd(contrib: list[dict], t: str) -> dict | None:
+    """Region year-to-date BEV share, on the headline's weighted-member rule.
+
+    Each member's YTD is its own volume-weighted share over the Jan..t
+    window (window_ending with size = months so far this year); the group
+    figure is the registration-weight average of those, exactly like the
+    12-month headline. Same-set rule: if any contributor lacks a complete
+    Jan..t window the figure is omitted (None) — never an unweighted mean
+    of monthly shares, and never a shorter window relabelled as YTD.
+
+    synthetic_rows() carries a constant TOTAL so it cannot express this:
+    mc.ytd_window() over those rows averages months equally (#458).
+    """
+    idx = mc.month_index(t)
+    if idx is None:
+        return None
+    year, n = idx // 12, idx % 12 + 1
+    if n < mc.YTD_MIN_MONTHS:
+        return None
+    share = weighted_share(contrib, t, size=n)
+    if share is None:
+        return None
+    return {"share": share, "from": mc._shift(t, -(n - 1)), "to": t,
+            "year": year}
+
+
 def weighted_month(contrib: list[dict], period: str) -> float | None:
     num = den = 0.0
     for m in contrib:
@@ -1015,11 +1041,32 @@ def region_mark(slug: str, kind: str = "fl") -> str:
         f'aria-hidden="true">{body}</svg>')
 
 
+def weighted_ttm_series(contrib: list[dict], rows: list[dict]
+                        ) -> list[tuple[str, float]]:
+    """The drawn trailing-12-month line: for each month-end in `rows`, the
+    headline rule (weighted_share), so the line ends exactly on the headline.
+
+    The mean of 12 weighted monthly shares is NOT that figure: each member's
+    12-month share is volume-weighted over its own months, so seasonality in
+    member volumes moves it. Months without a full window for every
+    contributor are left out (same-set rule), never shortened.
+    """
+    out = []
+    for row in rows:
+        share = weighted_share(contrib, row["period"])
+        if share is not None:
+            out.append((row["period"], share))
+    return out
+
+
 def build_region_curve_svg(rows: list[dict], years: list[float],
                            model: list[float], width: int, height: int,
-                           left: int = 42, band: dict | None = None) -> str:
-    """Observed monthly shares and the backtest model polyline, with the
-    group 95% CI shaded behind the fit when `band` is ok (#454)."""
+                           left: int = 42, band: dict | None = None,
+                           ttm: list[tuple[str, float]] | None = None) -> str:
+    """Observed monthly shares, the weighted 12-month line and the backtest
+    model polyline, with the group 95% CI shaded behind the fit when `band`
+    is ok (#454). `ttm` comes from weighted_ttm_series(); without it no
+    12-month line is drawn (a mean of monthly shares would be wrong)."""
     observed = []
     for row in rows:
         idx = mc.month_index(row["period"])
@@ -1104,26 +1151,22 @@ def build_region_curve_svg(rows: list[dict], years: list[float],
                 pts.append(f"{x_of(y):.1f},{y_of(s):.1f}")
         if len(pts) >= 2:
             parts.append(f'<polyline class="cv-fit" points="{" ".join(pts)}"/>')
-    # Trailing 12-month observed line, if we have a year of monthly points.
-    if len(observed) >= 12:
-        ttm_pts = []
-        for i in range(11, len(observed)):
-            window = observed[i-11:i+1]
-            if any(b - a > 1 / 12 + 0.01 for a, b in zip(
-                    [t for t, _ in window], [t for t, _ in window][1:])):
+    # Trailing 12-month line on the headline's weighted-member rule. A gap
+    # (a month without a full window for every contributor) breaks the line.
+    if ttm:
+        segments: list[list[str]] = [[]]
+        prev = None
+        for period, share in ttm:
+            idx = mc.month_index(period)
+            if idx is None:
                 continue
-            share = sum(v for _, v in window) / 12  # unweighted months of already-weighted shares
-            # The honest TTM is a re-weight of member windows, not the mean of
-            # monthly regional shares. Use the last point only if we stored it
-            # on the row? Monthly mean of weighted shares ≈ TTM only when
-            # member volumes (weights) are constant. Weights are fixed, so
-            # the average of monthly weighted shares is the weighted TTM.
-            # Yes: each monthly share is already weight-averaged, and weights
-            # do not change month to month, so mean of 12 monthly shares
-            # equals the 12-month weighted share. Good.
-            ttm_pts.append(f"{x_of(window[-1][0]):.1f},{y_of(share):.1f}")
-        if len(ttm_pts) >= 2:
-            parts.append(f'<polyline class="cv-ttm" points="{" ".join(ttm_pts)}"/>')
+            if prev is not None and idx - prev != 1:
+                segments.append([])
+            segments[-1].append(f"{x_of(idx / 12):.1f},{y_of(share):.1f}")
+            prev = idx
+        for pts in segments:
+            if len(pts) >= 2:
+                parts.append(f'<polyline class="cv-ttm" points="{" ".join(pts)}"/>')
     # Monthly dots (thin out if crowded).
     step_pt = 1 if len(observed) <= 80 else 2
     for t, v in observed[::step_pt]:
@@ -1223,11 +1266,11 @@ def load(slug: str) -> dict:
             break
         monthly.append((period, s))
     if len(monthly) == 12:
-        lo_p, lo = min(monthly, key=lambda x: (x[1], x[0]))
-        # first occurrence already from min of (share, period) — period tie-break
-        # is chronological because YYYY-MM sorts. Prefer first occurrence by scan:
-        lo_p, lo = next((p, s) for p, s in monthly if s == min(s for _, s in monthly))
-        hi_p, hi = next((p, s) for p, s in monthly if s == max(s for _, s in monthly))
+        # Lowest and highest month; on a tie, the earliest one.
+        lo = min(s for _, s in monthly)
+        hi = max(s for _, s in monthly)
+        lo_p = next(p for p, s in monthly if s == lo)
+        hi_p = next(p for p, s in monthly if s == hi)
         rng = {"min": lo, "max": hi, "latest": monthly[-1][1], "end": t,
                "min_period": lo_p, "max_period": hi_p}
 
@@ -1240,6 +1283,11 @@ def load(slug: str) -> dict:
             "share": latest,
             "delta": latest_delta,
         }
+
+    # Region YTD on the weighted-member rule (#458), not the unweighted mean
+    # of synthetic monthly shares. Always set (None ⇒ omit) so the flyer never
+    # falls back to mc.ytd_window(synthetic_rows) for a group.
+    figures["ytd"] = weighted_ytd(contrib, t)
 
     # Who-gained and the mix use a powertrain split on a member set that
     # keeps the headline BEV at one decimal. See choose_mix_split.
@@ -1279,9 +1327,11 @@ def load(slug: str) -> dict:
         if fits:
             band = group_band(fits[0], fits[1], years, model)
 
+    ttm_line = weighted_ttm_series(contrib, rows)
+
     def curve_builder(width, height, left, model_note=True):
         svg = build_region_curve_svg(rows, years, model, width, height, left,
-                                     band=band)
+                                     band=band, ttm=ttm_line)
         return svg, region_legend(model_note=model_note,
                                   band_ok=bool(band and band["ok"]))
 

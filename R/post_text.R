@@ -104,13 +104,16 @@
 
 # TRUE when a row's HEV figure is a placeholder estimate, not a count. A
 # fetcher that can count BEV/PHEV/TOTAL but not the hybrid split says so in the
-# row's notes (Czechia's register rows, scripts/fetch_czechia.py:
-# "HEV/PETROL/DIESEL estimated from the YYYY-MM ACEA split") until the official
-# figure replaces the row. Posts then leave HEV out instead of publishing the
-# estimate as a fact; BEV, PHEV and ICE stay exact.
+# row's notes until the official figure replaces the row: Czechia's register
+# rows ("HEV/PETROL/DIESEL estimated from the YYYY-MM ACEA split",
+# scripts/fetch_czechia.py), Finland's newest months ("HEV/PETROL estimated:
+# ...", scripts/fetch_finland_register.py) and the back-estimates ("HEV
+# estimated (with ...)", scripts/backfill_hev_history.py). Posts then leave
+# HEV out instead of publishing the estimate as a fact; BEV, PHEV and ICE stay
+# exact.
 .pt_hev_estimated <- function(rows) {
   if (!("notes" %in% names(rows)) || nrow(rows) == 0) return(FALSE)
-  any(grepl("HEV/PETROL/DIESEL estimated", rows$notes[nrow(rows)], fixed = TRUE))
+  grepl("HEV/PETROL(/DIESEL)? estimated|^HEV estimated", rows$notes[nrow(rows)])
 }
 
 # Build the share triplet (BEV / second / ICE) for either monthly row or TTM

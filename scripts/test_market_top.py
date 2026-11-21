@@ -612,6 +612,13 @@ def test_netherlands_rdw_top():
     assert fn.powertrain_class([("Benzine", ""), ("LPG", "")]) == ""
     assert fn.powertrain_class([("Waterstof", "NOVC-FCHV"), ("Elektriciteit", "NOVC-FCHV")]) == ""
     assert fn.powertrain_class([]) == ""
+    # Whole's tables follow Whole's CSV, which splits HEV out of petrol (the
+    # register pass); Used's CSV does not, so its tables keep them in petrol.
+    hev = [("Benzine", "NOVC-HEV"), ("Elektriciteit", "NOVC-HEV")]
+    assert fn.market_class(hev, "Whole") == "HEV" and fn.market_class(hev, "Used") == "PETROL"
+    assert fn.market_class([("Benzine", "")], "Whole") == "PETROL"
+    assert fn.market_class([("Diesel", "")], "Whole") == ""
+    assert fn.market_class([("Benzine", ""), ("LPG", "")], "Whole") == ""
     assert fn.next_month("2025-12") == "2026-01" and fn.next_month("2026-06") == "2026-07"
     # display names: brand aliases, prefix, engine / power / trim codes
     dm = fn.display_model
@@ -634,14 +641,19 @@ def test_netherlands_rdw_top():
             {"kenteken": "AA2", "merk": "TESLA", "handelsbenaming": "MODEL Y"},
             {"kenteken": "AA3", "merk": "VOLVO", "handelsbenaming": "XC60"},
             {"kenteken": "AA4", "merk": "TOYOTA", "handelsbenaming": "TOYOTA YARIS"},
-            {"kenteken": "AA5", "merk": "KIA", "handelsbenaming": "EV3"}]   # no fuel row
+            {"kenteken": "AA5", "merk": "KIA", "handelsbenaming": "EV3"},   # no fuel row
+            {"kenteken": "AA6", "merk": "TOYOTA", "handelsbenaming": "TOYOTA COROLLA"}]
     fuel = [{"kenteken": "AA1", "brandstof_omschrijving": "Elektriciteit"},
             {"kenteken": "AA2", "brandstof_omschrijving": "Elektriciteit"},
             {"kenteken": "AA3", "brandstof_omschrijving": "Benzine",
              "klasse_hybride_elektrisch_voertuig": "OVC-HEV"},
             {"kenteken": "AA3", "brandstof_omschrijving": "Elektriciteit",
              "klasse_hybride_elektrisch_voertuig": "OVC-HEV"},
-            {"kenteken": "AA4", "brandstof_omschrijving": "Benzine"}]
+            {"kenteken": "AA4", "brandstof_omschrijving": "Benzine"},
+            {"kenteken": "AA6", "brandstof_omschrijving": "Benzine",
+             "klasse_hybride_elektrisch_voertuig": "NOVC-HEV"},
+            {"kenteken": "AA6", "brandstof_omschrijving": "Elektriciteit",
+             "klasse_hybride_elektrisch_voertuig": "NOVC-HEV"}]
     seen = []
 
     def fake_get(session, resource, params):
@@ -655,9 +667,9 @@ def test_netherlands_rdw_top():
         units, total = fn.aggregate_month(None, "2026-06")
     finally:
         fn.rdw_get = real
-    assert total == 5
+    assert total == 6
     assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("PHEV", "VOLVO", "XC60"): 1,
-                     ("PETROL", "TOYOTA", "YARIS"): 1}
+                     ("PETROL", "TOYOTA", "YARIS"): 1, ("HEV", "TOYOTA", "COROLLA"): 1}
     where = seen[0][1]["$where"]
     assert "2026-06-01" in where and "2026-07-01" in where and "export_indicator='Nee'" in where
     # Whole: admitted in the month; Used: admitted before it (a used import)
@@ -672,7 +684,10 @@ def test_netherlands_rdw_top():
     assert "datum_eerste_toelating_dt < '2026-06-01'" in used_where
     assert "datum_eerste_toelating_dt >= '2026-06-01'" not in used_where
     assert "datum_eerste_tenaamstelling_in_nederland_dt >= '2026-06-01'" in used_where
-    assert (u_units, u_total) == (units, total)          # same fake plates, same class logic
+    # Same fake plates; Used keeps the full hybrid inside petrol, like its CSV.
+    assert u_total == total and u_units == {
+        ("BEV", "TESLA", "MODEL Y"): 2, ("PHEV", "VOLVO", "XC60"): 1,
+        ("PETROL", "TOYOTA", "YARIS"): 1, ("PETROL", "TOYOTA", "COROLLA"): 1}
     # one top file + month store per variant, slugs feed market_top's paths
     assert fn.TOP_SLUGS == {"Whole": "netherlands", "Used": "netherlands_used"}
     assert set(fn.TOP_UNITS) == set(fn.TOP_SLUGS) and "used" in fn.TOP_UNITS["Used"]

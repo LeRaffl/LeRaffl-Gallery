@@ -10,6 +10,10 @@ name: Fetch ACEA data (multi-country)
 #      (EU region brief; see reference/SOURCES.md).
 #      The script self-throttles via the latest period across the always-list
 #      countries, so the cheapest run is "all CSVs already at target, no HTTP".
+#      Finland is never written as a row: ACEA's HEV share splits the StatFin
+#      row's petrol for a month the Traficom register snapshot does not cover
+#      yet (scripts/fetch_finland_register.py apply_acea, an estimate flagged in
+#      notes). StatFin is out in the first week, ACEA weeks later.
 #
 #   2. render job — matrix over the changed countries with max-parallel=1.
 #      Each entry calls render-country.yml as a reusable workflow, so the

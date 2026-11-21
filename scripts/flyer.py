@@ -745,6 +745,15 @@ CURVE_MODEL_NOTE_GROUP = (
     "based only on historical data.")
 
 
+def _brief_ytd(figures: dict, rows: list[dict]) -> dict | None:
+    """YTD figure for the hero. Region briefs carry an explicit weighted YTD
+    in figures["ytd"] (None ⇒ omit, #458); country briefs derive it from their
+    own BEV/TOTAL rows via mc.ytd_window."""
+    if "ytd" in figures:
+        return figures["ytd"]
+    return mc.ytd_window(rows)
+
+
 def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
                        region: bool = False) -> tuple[int, int]:
     """The mix fills the number column; leftover brand-row slots go to both charts.
@@ -761,7 +770,7 @@ def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
             mix += 32
         if figures.get("latest"):
             mix += 20
-        if mc.ytd_window(rows):
+        if _brief_ytd(figures, rows):
             mix += 18
         mix = max(132, mix)
     # Compare is now three strips and the locator sits in the title row,
@@ -819,7 +828,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
         if latest:
             month += (f'<div class="fh-month">Single month · {esc(mc.period_label(latest["row"]["period"]))}: '
                       f'<b>{esc(mc.share(latest["share"]))}</b></div>')
-        ytd = mc.ytd_window(rows)
+        ytd = _brief_ytd(figures, rows)
         if ytd:
             month += (f'<div class="fh-month fh-ytd">Year to date · {esc(mc.period_label(ytd["from"]).split()[0])}–'
                       f'{esc(mc.period_label(ytd["to"]))}: '

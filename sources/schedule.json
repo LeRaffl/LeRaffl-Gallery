@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-20T13:33:46Z",
- "today": "2026-11-20",
+ "generated": "2026-11-21T16:23:11Z",
+ "today": "2026-11-21",
  "countries": [
   {
    "country": "Albania",
@@ -1000,7 +1000,7 @@
     ],
     "workflow": ".github/workflows/fetch-czechia.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-11-21",
    "flag": "🇨🇿",
    "variants": [
     {
@@ -1381,7 +1381,7 @@
     ],
     "workflow": ".github/workflows/fetch-finland.yml"
    },
-   "last_render": "2026-11-05",
+   "last_render": "2026-11-21",
    "flag": "🇫🇮",
    "variants": [
     {
@@ -2956,7 +2956,7 @@
     ],
     "workflow": ".github/workflows/fetch-netherlands.yml"
    },
-   "last_render": "2026-11-11",
+   "last_render": "2026-11-21",
    "flag": "🇳🇱",
    "variants": [
     {

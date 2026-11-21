@@ -41,8 +41,11 @@ Brief recap (so the script reads on its own):
   --probe-swing / --probe-open diagnose the portal (docs 10, section 11).
 * Dutch label -> canonical column:
       BEV -> BEV;  PHEV -> PHEV;  Benzine -> PETROL;  Diesel -> DIESEL;
-      FCEV + Overig -> OTHERS;  HEV column is always blank (RDW doesn't
-      split it; full hybrids fold into Benzine/Diesel upstream).
+      FCEV + Overig -> OTHERS. Swing has no full-hybrid split; for Whole
+      from HEV_FROM (2023-07) Swing's petrol is split after the upsert by
+      the register's counted HEV share of HEV + pure petrol; OTHERS stays
+      Swing's (fill_register_hev, carry_register_split; docs 10, "HEV from
+      the register").
 * Dutch locale: "." is thousands separator (6.863 == 6863). Empty cell == 0.
 * Table orientation varies by view. Whole/HDV return periods-in-rows with one
   column per fuel. Used returns periods-in-rows too, but with fuels on the
@@ -81,9 +84,11 @@ import argparse
 import base64
 import collections
 import csv
+import io
 import json
 import os
 import re
+import socket
 import sys
 import time
 from datetime import date
@@ -535,6 +540,7 @@ def upsert_csv(csv_path: str, new_rows: dict[tuple[str, str], dict]) -> tuple[in
             print(f"  + {key[1]} {key[0]}")
         else:
             old = existing[key]
+            new_row = carry_register_split(old, new_row)
             for col in ["BEV", "PHEV", "PETROL", "DIESEL", "OTHERS"]:
                 old_val = float(old.get(col) or 0)
                 new_val = float(new_row[col] or 0)
@@ -559,7 +565,12 @@ def upsert_csv(csv_path: str, new_rows: dict[tuple[str, str], dict]) -> tuple[in
 
 # ── Top brands / models (RDW open data; not used for the data CSV) ─────────
 
-RDW_BASE = "https://opendata.rdw.nl/resource/"
+RDW_HOST = "opendata.rdw.nl"
+RDW_BASE = f"https://{RDW_HOST}/resource/"
+# RDW's open data is a Socrata tenant hosted in Socrata's EU region. When the
+# vanity name has no DNS record (it lost it on 2026-11-20 while the datasets
+# kept updating), the same tenant answers on the EU edge with its Host header.
+RDW_EDGE_BASE = "https://api.eu.socrata.com/resource/"
 RDW_VEHICLES = "m9d7-ebf2"        # Gekentekende voertuigen (one row per plate)
 RDW_FUEL = "8ys7-d773"            # ... brandstof (one row per plate x fuel)
 TOP_SOURCE = "RDW open data"
@@ -585,9 +596,20 @@ RDW_TRIES = 5
 def rdw_session() -> requests.Session:
     """A plain session for opendata.rdw.nl — deliberately not the Swing
     session: NL_PROXY / NL_FETCH_RELAY exist because duurzamemobiliteit
-    blocks GitHub, RDW's open-data host does not."""
+    blocks GitHub, RDW's open-data host does not.
+
+    If opendata.rdw.nl does not resolve, the session talks to Socrata's EU
+    edge with `Host: opendata.rdw.nl` instead — the same tenant and data
+    (checked against the vanity host's own answers, docs 10 §11b)."""
     s = requests.Session()
     s.headers["User-Agent"] = "LeRaffl-Gallery/1.0 (+https://github.com/LeRaffl/LeRaffl-Gallery)"
+    try:
+        socket.getaddrinfo(RDW_HOST, 443)
+    except OSError:
+        print(f"[rdw] {RDW_HOST} does not resolve; using Socrata's EU edge "
+              f"({RDW_EDGE_BASE}) with Host: {RDW_HOST}")
+        s.rdw_base = RDW_EDGE_BASE  # type: ignore[attr-defined]
+        s.headers["Host"] = RDW_HOST
     return s
 
 
@@ -597,7 +619,8 @@ def rdw_get(session: requests.Session, resource: str, params: dict) -> list:
     err = None
     for attempt in range(RDW_TRIES):
         try:
-            r = session.get(f"{RDW_BASE}{resource}.json", params=params, timeout=180)
+            base = getattr(session, "rdw_base", RDW_BASE)
+            r = session.get(f"{base}{resource}.json", params=params, timeout=180)
             if r.status_code == 200:
                 return r.json()
             err = f"HTTP {r.status_code}"
@@ -612,14 +635,13 @@ def next_month(period: str) -> str:
     return f"{y + m // 12}-{m % 12 + 1:02d}"
 
 
-def fetch_new_cars(session: requests.Session, period: str,
-                   variant: str = "Whole") -> list[dict]:
-    """The plates counted for `period`: first NL registration in the month,
-    not exported since, and
+def new_car_where(period: str, variant: str = "Whole",
+                  exported: bool | None = False) -> str:
+    """Socrata filter for one month's plates.
 
-    * Whole — first admission in the same month (a new car);
-    * Used  — first admission BEFORE the month (a used import: the car had
-      been admitted, and driven, abroad before it was registered here).
+    ``exported=False`` is export_indicator=Nee, the live scope. ``True`` is
+    the since-exported plates only. ``None`` keeps both, which is the cohort
+    a historical fill uses when stay has drifted off Swing.
     """
     a, b = f"{period}-01", f"{next_month(period)}-01"
     admitted = (f"datum_eerste_toelating_dt >= '{a}' and datum_eerste_toelating_dt < '{b}'"
@@ -627,8 +649,28 @@ def fetch_new_cars(session: requests.Session, period: str,
     where = ("voertuigsoort='Personenauto' "
              f"and datum_eerste_tenaamstelling_in_nederland_dt >= '{a}' "
              f"and datum_eerste_tenaamstelling_in_nederland_dt < '{b}' "
-             f"and {admitted} "
-             "and export_indicator='Nee'")
+             f"and {admitted}")
+    if exported is True:
+        where += " and export_indicator='Ja'"
+    elif exported is False:
+        where += " and export_indicator='Nee'"
+    return where
+
+
+def fetch_new_cars(session: requests.Session, period: str,
+                   variant: str = "Whole",
+                   exported: bool | None = False) -> list[dict]:
+    """The plates counted for `period`: first NL registration in the month,
+    and
+
+    * Whole — first admission in the same month (a new car);
+    * Used  — first admission BEFORE the month (a used import: the car had
+      been admitted, and driven, abroad before it was registered here).
+
+    ``exported`` defaults to Nee so the brand tables and the live shadow keep
+    the scope market_top already validates.
+    """
+    where = new_car_where(period, variant, exported)
     rows: list[dict] = []
     while True:
         page = rdw_get(session, RDW_VEHICLES, {
@@ -637,6 +679,16 @@ def fetch_new_cars(session: requests.Session, period: str,
         rows += page
         if len(page) < PAGE:
             return rows
+
+
+def count_new_cars(session: requests.Session, period: str,
+                   variant: str = "Whole",
+                   exported: bool | None = False) -> int:
+    """How many plates `fetch_new_cars` would return, without pulling them."""
+    rows = rdw_get(session, RDW_VEHICLES, {
+        "$select": "count(*) as n",
+        "$where": new_car_where(period, variant, exported)})
+    return int(rows[0]["n"])
 
 
 def fetch_fuels(session: requests.Session, plates: list[str]) -> dict[str, list]:
@@ -671,6 +723,448 @@ def powertrain_class(fuels: list) -> str:
     if combustion == {"Benzine"}:
         return "PETROL"
     return ""
+
+
+def market_class(fuels: list, variant: str = "Whole") -> str:
+    """The brand tables' class, the same split as the variant's CSV.
+
+    Whole carries the register's HEV / pure-petrol split, so its tables do
+    too: HEV is ranked and PETROL is petrol alone. Used has no HEV column,
+    so full hybrids stay inside petrol there (powertrain_class). Diesel and
+    OTHERS are never ranked.
+    """
+    if variant != "Whole":
+        return powertrain_class(fuels)
+    bucket = plate_bucket(fuels)
+    return bucket if bucket in ("BEV", "PHEV", "HEV", "PETROL") else ""
+
+
+def plate_bucket(fuels: list) -> str:
+    """Counted split for the CSV, not the brand ranking.
+
+    OVC-HEV is plug-in, NOVC-HEV is full/mild. Electricity alone is BEV.
+    Petrol or diesel with no hybrid class stays that fuel. LPG, CNG and
+    fuel-cell cars are OTHERS. `powertrain_class` still folds NOVC-HEV into
+    PETROL so the brand tables keep matching the unsplit chart.
+    """
+    kinds = {k for _, k in fuels if k}
+    if any(k.startswith("OVC-HEV") for k in kinds):
+        return "PHEV"
+    if any(k.startswith("NOVC-HEV") for k in kinds):
+        return "HEV"
+    # A hybrid class with no electricity is not a hybrid. RDW files some
+    # combustion cars (mostly diesel) under NOVC-FCHV; counting that as HEV
+    # would inflate a historical fill. September 2026 had none.
+    names = {f for f, _ in fuels if f}
+    if "Elektriciteit" not in names and "Waterstof" not in names:
+        if names == {"Diesel"}:
+            return "DIESEL"
+        if names == {"Benzine"}:
+            return "PETROL"
+        return "OTHERS"
+    if names == {"Elektriciteit"}:
+        return "BEV"
+    if names == {"Benzine"}:
+        return "PETROL"
+    if names == {"Diesel"}:
+        return "DIESEL"
+    return "OTHERS"
+
+
+def count_plates(fuels_by_plate: dict) -> dict[str, int]:
+    """{BEV, PHEV, HEV, PETROL, DIESEL, OTHERS: n} over one month's plates."""
+    counts = {k: 0 for k in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")}
+    for fuels in fuels_by_plate.values():
+        counts[plate_bucket(fuels)] += 1
+    return counts
+
+
+def enrich_swing(swing: dict, register: dict, cohort: str = "stay") -> dict | None:
+    """Swing's petrol (full hybrids included) split by the register's
+    counted HEV share of HEV + pure petrol. TOTAL, BEV, PHEV, DIESEL and
+    OTHERS stay Swing's, so the row sums as Swing published it.
+
+    The share, not the register's absolute counts: the register is today's,
+    Swing counted the month soon after it, and the cars that have left the
+    register since (exports, scrapping) would otherwise land in OTHERS and
+    pull HEV about a point of TOTAL low. September 2026: share method
+    8,617 HEV, absolute count 8,254, ACEA/RDC 8,601.
+    None when there is nothing to split.
+    """
+    hev_n, pet_n = float(register["HEV"]), float(register["PETROL"])
+    petrol = swing.get("PETROL")
+    if hev_n + pet_n <= 0 or petrol in (None, ""):
+        return None
+    petrol = float(petrol)
+    hev = float(round(petrol * hev_n / (hev_n + pet_n)))
+    return {"TOTAL": float(swing["TOTAL"]), "BEV": float(swing["BEV"]),
+            "PHEV": float(swing["PHEV"]), "HEV": hev, "PETROL": petrol - hev,
+            "DIESEL": float(swing["DIESEL"]), "OTHERS": float(swing.get("OTHERS") or 0),
+            "notes": register_note(cohort)}
+
+
+# Same shape as acea_split.NOTE. The cohort is the decision: cars still
+# in the country, or the since-exported plates put back.
+REGISTER_PREFIX = ("TOTAL/BEV/PHEV/DIESEL/OTHERS Swing; HEV/PETROL = Swing petrol "
+                   "split by the RDW register's counted HEV share of HEV+petrol")
+REGISTER_NOTES = {
+    "stay": REGISTER_PREFIX + " (cars still in the country)",
+    "with_exports": REGISTER_PREFIX + " (since-exported plates included)",
+}
+
+
+def register_note(cohort: str) -> str:
+    return REGISTER_NOTES.get(cohort, REGISTER_NOTES["stay"])
+
+
+HEV_MATCH_BAND = 0.02
+COHORTS = ("stay", "with_exports")
+
+
+def cohort_fits(swing_total: float, n: int, band: float = HEV_MATCH_BAND) -> bool:
+    """Is a register count inside ``band`` of Swing's total?"""
+    return bool(swing_total) and abs(n / swing_total - 1) <= band
+
+
+def choose_cohort(swing_total: float, stay: int, with_exports: int,
+                  band: float = HEV_MATCH_BAND) -> str | None:
+    """Which register cohort may fill HEV onto a Swing row.
+
+    ``stay`` is export_indicator=Nee. ``with_exports`` is the same new-car
+    scope with the since-exported plates put back. The closer one wins, and
+    only if it is within ``band`` of Swing's total. A tie keeps stay, the
+    scope the live fetch already uses. None means leave HEV blank — ACEA is
+    not a fill.
+    """
+    if not swing_total:
+        return None
+
+    def drift(n: int) -> float:
+        return abs(n / swing_total - 1)
+
+    stay_d, exp_d = drift(stay), drift(with_exports)
+    if stay_d <= band and stay_d <= exp_d:
+        return "stay"
+    if exp_d <= band:
+        return "with_exports"
+    return None
+
+
+def live_run(decisions: list[dict], cohort: str) -> int:
+    """How many plan months, counted back from the newest, `cohort` fits
+    without a hole (inside HEV_MATCH_BAND of Swing's total)."""
+    n = 0
+    for d in reversed(decisions):
+        if not cohort_fits(d["swing"], d[cohort]):
+            break
+        n += 1
+    return n
+
+
+def window_cohort(decisions: list[dict]) -> str | None:
+    """One cohort for a whole fill, not one per month.
+
+    A per-month pick flips the scope inside one series, and a hybrid share
+    is not comparable across that flip. The fill must also reach the newest
+    month — the daily run continues it, so a window that stops short leaves
+    a hole at the live edge. The window cohort is therefore the one with
+    the longest hole-free run ending at the newest plan month. A tie keeps
+    stay, the scope the live fetch and the brand tables use. No run at all
+    means the window is not a register fill.
+
+    Counted on 2026-11-20: stay fits 2023-07..2026-10 (40 months); the
+    since-exported plates fit 2021-12..2025-02 but run +2.1..+3.6 % over
+    Swing from 2025-03, so they reach the live edge for none of it.
+    """
+    runs = {c: live_run(decisions, c) for c in COHORTS}
+    if not any(runs.values()):
+        return None
+    return "with_exports" if runs["with_exports"] > runs["stay"] else "stay"
+
+
+# Same-month band from acea_split: ACEA and the register are the same
+# cars when their totals agree. Past this, the totals are different
+# things and only the share is comparable.
+ACEA_TOTAL_BAND = 0.01
+
+
+def closer_to_acea(stay: dict, with_exports: dict, acea: dict,
+                   band: float = ACEA_TOTAL_BAND) -> str:
+    """Which cohort ACEA would rather have. ACEA is the only counted HEV.
+
+    Absolute when the totals are the same month (within ``band``, the
+    Greece tolerance): both cohorts are the same cars as ACEA, so the
+    closer HEV count wins. Relative when they are not: the totals are
+    different things and only the share is comparable. Both cohorts are
+    judged on the same scale — mixing the two would let a small count gap
+    beat a closer share.
+    """
+    def same_month(cohort: dict) -> bool:
+        return bool(cohort["TOTAL"]) and abs(cohort["TOTAL"] / acea["TOTAL"] - 1) <= band
+
+    if same_month(stay) and same_month(with_exports):
+        stay_gap = abs(stay["HEV"] - acea["HEV"])
+        exp_gap = abs(with_exports["HEV"] - acea["HEV"])
+    else:
+        acea_share = acea["HEV"] / acea["TOTAL"]
+        stay_gap = abs(stay["HEV"] / stay["TOTAL"] - acea_share)
+        exp_gap = abs(with_exports["HEV"] / with_exports["TOTAL"] - acea_share)
+    return "stay" if stay_gap <= exp_gap else "with_exports"
+
+
+def cohort_exported(choice: str) -> bool | None:
+    """The ``exported`` flag ``fetch_new_cars`` expects for a cohort.
+
+    ``False`` is export_indicator=Nee; ``None`` keeps both, i.e. the
+    since-exported plates put back. A blank month has no cohort to fetch.
+    """
+    if choice == "stay":
+        return False
+    if choice == "with_exports":
+        return None
+    raise ValueError(f"no register cohort for {choice!r}")
+
+
+def register_split(session: requests.Session, period: str, choice: str) -> dict[str, int]:
+    """One month's counted fuel split for one cohort (the fuel join)."""
+    cars = fetch_new_cars(session, period, "Whole", exported=cohort_exported(choice))
+    fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
+    return count_plates({c["kenteken"]: fuels.get(c["kenteken"], []) for c in cars})
+
+
+def shadow_hev(period: str, cohort: str | None = None,
+               acea: dict | None = None) -> dict | None:
+    """Print the register split against the Swing row. Writes nothing.
+
+    ``cohort`` is the scope to preview, normally the window cohort
+    ``--backfill-hev`` named, so a historical month is shadowed the way the
+    one-cohort fill would write it. Without it the month's own
+    ``choose_cohort`` pick is used. Either way the cohort must be inside
+    HEV_MATCH_BAND of Swing, or the month is printed and left blank.
+
+    ``acea`` ({TOTAL, HEV}, the month's ACEA/RDC release) adds a
+    cross-check only: both cohorts are split and ``closer_to_acea`` says
+    which one ACEA's counted HEV agrees with. It never changes the row.
+    """
+    swing_row = None
+    with open(CSV_PATHS["Whole"], encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            if row["period"] == period and row["variant"] == "Whole":
+                swing_row = row
+                break
+    if swing_row is None:
+        raise SystemExit(f"no Swing row for {period} in {CSV_PATHS['Whole']}")
+    swing = dict(swing_row)
+    swing["TOTAL"] = float(swing_row["TOTAL"] or 0)
+    session = rdw_session()
+    stay = count_new_cars(session, period, exported=False)
+    both = count_new_cars(session, period, exported=None)
+    counts = {"stay": stay, "with_exports": both}
+    if cohort is None:
+        choice = choose_cohort(swing["TOTAL"], stay, both)
+    else:
+        choice = cohort if cohort_fits(swing["TOTAL"], counts[cohort]) else None
+    if choice is None:
+        print(f"shadow {period}: blank{f' under {cohort}' if cohort else ''} "
+              f"(stay {stay}, with exports {both}, Swing {swing['TOTAL']:.0f})")
+        print("  wrote nothing")
+        return None
+    register = register_split(session, period, choice)
+    enriched = enrich_swing(swing, register, cohort=choice)
+    print(f"shadow {period}: {choice}, register {sum(register.values())} plates, "
+          f"Swing TOTAL {swing['TOTAL']:.0f}")
+    print("  register:", " ".join(f"{k}={register[k]}" for k in register))
+    if enriched is None:
+        print("  nothing to split (no Swing petrol)")
+    else:
+        print("  enriched:", " ".join(f"{k}={enriched[k]:.0f}" for k in
+              ("TOTAL", "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")))
+    if acea:
+        other = "with_exports" if choice == "stay" else "stay"
+        splits = {choice: register, other: register_split(session, period, other)}
+        judged = {k: {"TOTAL": sum(v.values()), "HEV": v["HEV"]} for k, v in splits.items()}
+        print(f"  ACEA cross-check: TOTAL {acea['TOTAL']:.0f} HEV {acea['HEV']:.0f}; "
+              + "; ".join(f"{k} {judged[k]['TOTAL']} HEV {judged[k]['HEV']}" for k in COHORTS)
+              + f" -> closer: {closer_to_acea(judged['stay'], judged['with_exports'], acea)}")
+    print("  wrote nothing")
+    return enriched
+
+
+def backfill_plan(start: str, end: str) -> list[dict]:
+    """Print which months a historical HEV fill may touch. Writes nothing.
+
+    One count per cohort, no fuel join. Per month, the closer cohort
+    within HEV_MATCH_BAND is the gate (``choose_cohort``). The fill itself
+    takes one cohort for the whole window (``window_cohort``) and only the
+    months where that cohort fits; the rest stay blank.
+    """
+    session = rdw_session()
+    with open(CSV_PATHS["Whole"], encoding="utf-8", newline="") as f:
+        rows = [r for r in csv.DictReader(f)
+                if r["variant"] == "Whole" and r["time_interval"] == "monthly"
+                and r.get("TOTAL") and start <= r["period"] <= end]
+    rows.sort(key=lambda r: r["period"])
+    decisions = []
+    for row in rows:
+        period = row["period"]
+        swing = float(row["TOTAL"])
+        stay = count_new_cars(session, period, exported=False)
+        both = count_new_cars(session, period, exported=None)
+        choice = choose_cohort(swing, stay, both)
+        print(f"{period}  Swing {swing:.0f}  stay {(stay / swing - 1) * 100:+.1f}%  "
+              f"+export {(both / swing - 1) * 100:+.1f}%  -> {choice or 'blank'}")
+        decisions.append({"period": period, "swing": swing, "stay": stay,
+                          "with_exports": both, "choice": choice})
+    window = window_cohort(decisions)
+    n_stay = sum(d["choice"] == "stay" for d in decisions)
+    n_exp = sum(d["choice"] == "with_exports" for d in decisions)
+    n_blank = sum(d["choice"] is None for d in decisions)
+    print(f"plan {start}..{end}: {n_stay} stay, {n_exp} with_exports, "
+          f"{n_blank} blank")
+    if window is None:
+        print("window cohort: none — not a register fill, HEV stays blank")
+        print("wrote nothing")
+        return decisions
+    # One scope for the whole fill: a month is filled only if the window
+    # cohort itself is inside the band. A month where only the other
+    # cohort fits stays blank rather than switch scope mid-series.
+    for d in decisions:
+        d["fill"] = cohort_fits(d["swing"], d[window])
+    filled = sum(d["fill"] for d in decisions)
+    print(f"window cohort: {window} — {filled} of {len(decisions)} months inside "
+          f"{HEV_MATCH_BAND:.0%} of Swing with that one cohort")
+    for d in decisions:
+        if not d["fill"] and d["choice"] is not None:
+            print(f"  {d['period']}: only {d['choice']} fits, left blank under {window}")
+    run = fill_run(decisions)
+    if run:
+        print(f"  run without a hole up to the newest month: {run[0]}..{run[1]}")
+    print("wrote nothing")
+    return decisions
+
+
+def fill_run(decisions: list[dict]) -> tuple[str, str] | None:
+    """The stretch of consecutive plan months marked ``fill`` that ends at
+    the newest month — the one piece a write path can take without leaving
+    a hole for the daily run to fall into. None if the newest month is not
+    a fill month."""
+    end = len(decisions) - 1
+    if end < 0 or not decisions[end]["fill"]:
+        return None
+    start = end
+    while start > 0 and decisions[start - 1]["fill"]:
+        start -= 1
+    return decisions[start]["period"], decisions[end]["period"]
+
+
+# ── HEV from the register: the write path ──────────────────────────────────
+# Swing has no full-hybrid split; the register does (NOVC-HEV). From HEV_FROM
+# every Whole row splits Swing's petrol by the register's counted HEV share of
+# HEV + pure petrol; every other column stays Swing's (enrich_swing). One cohort for the whole series (window_cohort over
+# `--backfill-hev`), and a month only where that cohort is inside
+# HEV_MATCH_BAND of Swing's total. The CSV is the store: a month is counted
+# once; a Swing restatement keeps the split (carry_register_split).
+HEV_FROM = "2023-07"        # the plan's live run (docs 10, "HEV from the register")
+HEV_COHORT = "stay"
+HEV_MAX_MONTHS = 3          # fuel joins per daily run (about a minute each)
+
+
+def has_register_split(row: dict) -> bool:
+    return bool((row.get("HEV") or "").strip()) and \
+        (row.get("notes") or "").startswith(REGISTER_PREFIX)
+
+
+def carry_register_split(old: dict, new: dict) -> dict:
+    """A Swing restatement of a month that already has the register split.
+
+    Swing rewrites its whole 36-month window every run, with HEV blank and
+    hybrids inside Benzine. The month keeps its share: HEV = Swing's new
+    petrol x the stored HEV share, everything else Swing's new values.
+    """
+    if new.get("variant") != "Whole" or not has_register_split(old):
+        return new
+    register = {"HEV": float(old["HEV"]), "PETROL": float(old["PETROL"] or 0)}
+    cohort = "with_exports" if "since-exported" in old["notes"] else "stay"
+    merged = enrich_swing(new, register, cohort=cohort)
+    return new if merged is None else {**new, **merged}
+
+
+def fill_register_hev(csv_path: str | None = None, session: requests.Session | None = None,
+                      start: str = HEV_FROM, end: str | None = None,
+                      cohort: str = HEV_COHORT, limit: int | None = HEV_MAX_MONTHS) -> list[str]:
+    """Put the register's HEV / pure petrol on every Whole month from `start`
+    that does not have it yet. Line-level: only the filled rows change.
+
+    A month whose `cohort` count is outside HEV_MATCH_BAND of Swing's total,
+    or that has no petrol to split, is left as Swing published it and
+    printed; it is tried again on the next run. Returns the filled periods.
+    """
+    csv_path = csv_path or CSV_PATHS["Whole"]
+    with open(csv_path, encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    todo = [r["period"] for r in rows
+            if r["variant"] == "Whole" and r["time_interval"] == "monthly"
+            and r.get("TOTAL") and r["period"] >= start
+            and (end is None or r["period"] <= end) and not has_register_split(r)]
+    todo.sort()
+    if limit is not None and len(todo) > limit:
+        # Newest first, so a missed month never holds up the current one.
+        todo = sorted(todo[-limit:])
+    if not todo:
+        return []
+    session = session or rdw_session()
+    filled: dict[str, dict] = {}
+    by_period = {r["period"]: r for r in rows if r["variant"] == "Whole"}
+    for period in todo:
+        row = by_period[period]
+        swing = {k: row.get(k) for k in ("TOTAL", "BEV", "PHEV", "PETROL", "DIESEL", "OTHERS")}
+        swing["TOTAL"] = float(swing["TOTAL"] or 0)
+        n = count_new_cars(session, period, exported=cohort_exported(cohort))
+        if not cohort_fits(swing["TOTAL"], n):
+            print(f"  HEV {period}: {cohort} {n} vs Swing {swing['TOTAL']:.0f} "
+                  f"({(n / swing['TOTAL'] - 1) * 100:+.1f}%), outside "
+                  f"{HEV_MATCH_BAND:.0%} — left blank")
+            continue
+        register = register_split(session, period, cohort)
+        enriched = enrich_swing(swing, register, cohort=cohort)
+        if enriched is None:
+            print(f"  HEV {period}: no petrol to split — left blank")
+            continue
+        filled[period] = enriched
+        print(f"  HEV {period}: {cohort} {n} plates, share "
+              f"{register['HEV'] / max(1, register['HEV'] + register['PETROL']):.3f}, "
+              f"HEV {enriched['HEV']:.0f}, petrol {enriched['PETROL']:.0f}")
+    if filled:
+        write_register_split(csv_path, filled)
+    return sorted(filled)
+
+
+def _fmt(v: float) -> str:
+    """The CSV's own number style ("6696.0")."""
+    return f"{float(v):.1f}"
+
+
+def write_register_split(csv_path: str, filled: dict[str, dict]) -> None:
+    """Rewrite only the Whole lines of the filled periods (invariant 2: no
+    round trip of the untouched lines through the CSV writer)."""
+    path = Path(csv_path)
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+    header = next(csv.reader([lines[0]]))
+    out = [lines[0]]
+    for line in lines[1:]:
+        cells = next(csv.reader([line]))
+        rec = dict(zip(header, cells))
+        upd = filled.get(rec.get("period")) if rec.get("variant") == "Whole" else None
+        if upd is None:
+            out.append(line)
+            continue
+        for k in ("HEV", "PETROL", "OTHERS"):
+            rec[k] = _fmt(upd[k])
+        rec["notes"] = upd["notes"]
+        buf = io.StringIO()
+        csv.writer(buf, lineterminator="\n").writerow([rec.get(h, "") for h in header])
+        out.append(buf.getvalue())
+    path.write_text("".join(out), encoding="utf-8")
 
 
 # Display names only — the CSV never sees them. RDW's `merk` is consistent
@@ -742,7 +1236,7 @@ def aggregate_month(session: requests.Session, period: str,
     fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
     units: collections.Counter = collections.Counter()
     for c in cars:
-        cls = powertrain_class(fuels.get(c["kenteken"], []))
+        cls = market_class(fuels.get(c["kenteken"], []), variant)
         if cls:
             units[(cls, display_brand(c.get("merk")),
                    display_model(c.get("merk"), c.get("handelsbenaming")))] += 1
@@ -761,9 +1255,11 @@ def refresh_top(session: requests.Session | None = None,
         return
     target = max(totals)
     stored = market_top.load_store(store_path)
-    # A month stored before petrol / diesel were counted is read again.
+    # A month stored before petrol / diesel were counted is read again, and
+    # so is a Whole month stored before HEV was split out of petrol.
     need = [p for p in market_top.month_window(target)
-            if p not in stored or not any(c == "PETROL" for c, _, _ in stored[p][0])]
+            if p not in stored or not any(c == "PETROL" for c, _, _ in stored[p][0])
+            or (variant == "Whole" and not any(c == "HEV" for c, _, _ in stored[p][0]))]
     if not need and market_top.top_is_current(top_path, target):
         print(f"{top_path.relative_to(market_top.REPO)}: current ({target}).")
         return
@@ -1037,8 +1533,53 @@ def main() -> None:
         "--no-top", action="store_true",
         help="Skip the top brands/models refresh (market/netherlands_top.json).",
     )
+    parser.add_argument(
+        "--shadow-hev", metavar="YYYY-MM",
+        help="Print the RDW HEV/petrol split against the Swing row. Writes nothing.",
+    )
+    parser.add_argument(
+        "--cohort", choices=COHORTS,
+        help="With --shadow-hev: preview this cohort (the window cohort "
+             "--backfill-hev named) instead of the month's own pick.",
+    )
+    parser.add_argument(
+        "--acea", metavar="TOTAL:HEV",
+        help="With --shadow-hev: ACEA/RDC TOTAL and HEV for the month. Prints "
+             "which cohort ACEA's counted HEV agrees with; changes nothing.",
+    )
+    parser.add_argument(
+        "--backfill-hev", metavar="YYYY-MM:YYYY-MM",
+        help="Print which months the register may fill with HEV. Writes nothing.",
+    )
+    parser.add_argument(
+        "--fill-hev", metavar="YYYY-MM:YYYY-MM",
+        help="Write the register's HEV / pure petrol onto every Whole month in "
+             "the range that does not have it yet (no per-run cap).",
+    )
+    parser.add_argument(
+        "--no-hev", action="store_true",
+        help="Skip the daily register HEV pass.",
+    )
     args = parser.parse_args()
 
+    if (args.cohort or args.acea) and not args.shadow_hev:
+        parser.error("--cohort and --acea only go with --shadow-hev")
+    if args.backfill_hev:
+        start, end = args.backfill_hev.split(":")
+        backfill_plan(start, end)
+        return
+    if args.fill_hev:
+        start, end = args.fill_hev.split(":")
+        filled = fill_register_hev(start=start, end=end, limit=None)
+        print(f"register HEV: {len(filled)} month(s) filled")
+        return
+    if args.shadow_hev:
+        acea = None
+        if args.acea:
+            total, hev = (float(x) for x in args.acea.split(":"))
+            acea = {"TOTAL": total, "HEV": hev}
+        shadow_hev(args.shadow_hev, cohort=args.cohort, acea=acea)
+        return
     if args.probe_open:
         probe_open({"used": "Used", "hdv": "HDV"}.get(args.variant, "Whole"))
         return
@@ -1066,6 +1607,8 @@ def main() -> None:
             print(f"[{v}] CSV already has {prev}; skipping (use --force to re-fetch).")
         if not targets:
             print("All requested variants are current; nothing to do.")
+            if not args.no_hev and args.variant in ("all", "whole"):
+                market_top.guarded(fill_register_hev)
             if not args.no_top:
                 refresh_tops()
             return
@@ -1107,6 +1650,10 @@ def main() -> None:
         added, updated = upsert_csv(CSV_PATHS[variant], keyed)
         print(f"[{variant}] {added} added, {updated} updated -> {CSV_PATHS[variant]}")
 
+    if not args.no_hev and not args.dry_run and "Whole" in targets:
+        # After the Swing upsert: a new month gets its split the same run;
+        # a failure (RDW down) leaves HEV blank and the next run retries.
+        market_top.guarded(fill_register_hev)
     if not args.no_top and not args.dry_run:
         refresh_tops()
 

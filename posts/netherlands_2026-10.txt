@@ -1,9 +1,9 @@
 🇳🇱 Netherlands - October 26 - BEV Trajectory
 55.5% BEV
 16.6% PHEV
-27.9% ICE
+27.9% ICE (of which 21.8%p were HEV)
 
 Trailing 12 months are:
 46.5% BEV
 19.1% PHEV
-34.4% ICE
+34.4% ICE (of which 26.5%p were HEV)
