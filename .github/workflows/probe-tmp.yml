@@ -1,0 +1,43 @@
+name: probe-tmp (temporary, removed before merge)
+
+# Phase 0 probe pattern (docs/architecture/42-adding-a-country.md): runs on a
+# push to this branch, commits probe_out/ back to it. Deleted before merge.
+on:
+  push:
+    branches: [feat/nl-register-hev]
+    paths: [.github/workflows/probe-tmp.yml]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts
+      - name: Fetch the render-preview PNGs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p probe_out/preview
+          for id in 44912922344 44912924880; do
+            gh run watch "$id" -R "$GITHUB_REPOSITORY" --exit-status > /dev/null || echo "run $id did not succeed"
+            rm -rf /tmp/rp && mkdir -p /tmp/rp
+            gh run download "$id" -R "$GITHUB_REPOSITORY" -n render-preview -D /tmp/rp || continue
+            find /tmp/rp -type f -iname '*ttm_shares*.png' | grep -i -E 'netherlands|finland' | while read -r f; do
+              rel="${f#/tmp/rp/}"; mkdir -p "probe_out/preview/$id/$(dirname "$rel")"; cp "$f" "probe_out/preview/$id/$rel"
+            done
+          done
+          ls -R probe_out/preview
+      - name: Commit probe output
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add --sparse -f probe_out
+          git commit -m "chore: probe output (temporary)" || exit 0
+          git pull --rebase
+          git push
