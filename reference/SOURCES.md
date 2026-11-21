@@ -148,7 +148,7 @@ it came from, and each source doc records the seam to the counted months.
   Retrieved 2026-11-21 through the site's media library (the 2018–2019
   release pages only embed charts). Czechia 2014–2021 is estimated from it;
   for the Netherlands and Finland it is the cross-check.
-- **`fi_register_fuel_split.csv`** (and `nl_register_fuel_split.csv` on the Netherlands side): the
+- **`nl_register_fuel_split.csv`**, **`fi_register_fuel_split.csv`**: the
   registers' own monthly fuel split (RDW open data, Traficom's snapshot of
   30 September 2026), counted the way the HEV write paths count it. The
   Netherlands 2018-01 – 2023-06 and Finland 2014-01 – 2024-12 are estimated
