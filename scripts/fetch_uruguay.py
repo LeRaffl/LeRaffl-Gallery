@@ -157,6 +157,8 @@ CSV_COLUMNS = [
     "TOTAL", "notes",
 ]
 
+FUEL_COLUMNS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
+
 # Variant → (source sheets in the Compilado workbook, output CSV path).
 VARIANT_CONFIG = {
     "Whole": {"sheets": ("AUTOS", "SUV"),  "csv": "data/Uruguay.csv"},
@@ -386,6 +388,36 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
     return fuel_totals, total_per_month
 
 
+def workbook_fuel_columns(wb) -> set[str]:
+    """CSV fuel columns whose Combustible code occurs anywhere in the workbook.
+
+    Used to tell "not reported" from "zero" (invariant 4, #437). A code that
+    no sheet uses at all is not part of that year's taxonomy — the 2024/2025
+    Compilados have no MHEV code (mild hybrids sit under H) — so its column
+    is left empty. A code that occurs on some sheet but not on this variant's
+    sheets is a genuine zero (e.g. no petrol buses), because each sheet's
+    fuel rows are checked against its own TOTAL row. Sheets without a
+    Combustible header (cover / notes pages) are ignored.
+    """
+    seen: set[str] = set()
+    for ws in wb.worksheets:
+        rows = ws.iter_rows(values_only=True)
+        fuel_col = None
+        for i, row in enumerate(rows):
+            if fuel_col is None:
+                if i >= 25:
+                    break
+                fuel_col = next((k for k, c in enumerate(row)
+                                 if isinstance(c, str) and c.strip() == "Combustible"), None)
+                continue
+            code = row[fuel_col] if fuel_col < len(row) else None
+            if code is None or (isinstance(code, str) and code.strip() == ""):
+                continue
+            # unknown codes are folded into OTHERS by parse_sheet
+            seen.add(FUEL_MAP.get(str(code).strip().upper(), "OTHERS"))
+    return seen
+
+
 def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[str, dict]:
     """Parse the given variant's sheets into per-period CSV rows.
 
@@ -459,7 +491,9 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
                 combined[f][j] += vals[j]
 
     # Build per-month CSV rows; skip months where all fuel values are zero
-    # (future months — ACAU pre-fills the year with zeros).
+    # (future months — ACAU pre-fills the year with zeros). A fuel whose code
+    # the workbook never uses is written empty, not 0 (workbook_fuel_columns).
+    reported = workbook_fuel_columns(wb)
     rows: dict[str, dict] = {}
     for j in range(12):
         values = {f: combined[f][j] for f in combined}
@@ -472,14 +506,9 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
             "time_interval": "monthly",
             "variant": variant,
             "source": "ACAU",
-            "BEV":    values.get("BEV",    0.0),
-            "PHEV":   values.get("PHEV",   0.0),
-            "HEV":    values.get("HEV",    0.0),
-            "PETROL": values.get("PETROL", 0.0),
-            "DIESEL": values.get("DIESEL", 0.0),
-            "OTHERS": values.get("OTHERS", 0.0),
+            **{c: (values.get(c, 0.0) if c in reported else "") for c in FUEL_COLUMNS},
         }
-        row["TOTAL"] = sum(row[c] for c in ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"])
+        row["TOTAL"] = sum(values.get(c, 0.0) for c in FUEL_COLUMNS)
         rows[period] = row
 
     return rows
@@ -597,7 +626,21 @@ def upsert_csv(csv_path: str, new_rows: dict[str, dict], source_url: str,
             updated += 1
             print(f"  ~ {period} (--force)")
         else:
-            print(f"  = {period} (already present, skipping)")
+            # Filling a cell that was empty ("not reported") with a sourced
+            # number never rewrites history, so it happens without --force:
+            # a code the January workbook did not use yet can turn up later
+            # in the year, and its earlier months must not stay a blank
+            # inside an otherwise-populated column (strict TTM).
+            old = existing[period]
+            filled = [c for c in FUEL_COLUMNS
+                      if old.get(c, "") == "" and new_row.get(c, "") != ""]
+            if filled:
+                for c in filled:
+                    old[c] = new_row[c]
+                updated += 1
+                print(f"  ~ {period} (filled previously empty {filled})")
+            else:
+                print(f"  = {period} (already present, skipping)")
 
     if added == 0 and updated == 0:
         return 0, 0

@@ -61,6 +61,10 @@ jobs:
       - name: Test the top brands/models builder
         run: python scripts/test_market_top.py
 
+      # Offline; pins the 0-vs-empty rule of the writer (#437).
+      - name: Test the Uruguay writer
+        run: python scripts/test_fetch_uruguay.py
+
       - name: Fetch & update Uruguay CSVs
         run: |
           python scripts/fetch_uruguay.py \

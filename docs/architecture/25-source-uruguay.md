@@ -167,6 +167,19 @@ Future months in the workbook are pre-filled with zeros. Any month where **all**
 fuel values across the variant's combined sheets are zero is skipped — this
 means the script can run mid-year without writing fake all-zero rows.
 
+**0 vs empty (#437).** Within a published month, a fuel with no model rows
+on the variant's sheets is written `0` — each sheet is checked against its
+own TOTAL row, so the fuel rows are complete — *provided* its Combustible
+code is used somewhere in the workbook. A code no sheet uses at all is not
+part of that year's taxonomy and its column is left **empty**: the 2024/2025
+Compilados have no `MHEV` code (mild hybrids are under `H`), which is why
+OTHERS only starts in 2026-01 and HEV drops there. The existing 2024–2025
+`OTHERS = 0.0` rows predate this rule and are left as-is until checked
+against those workbooks (invariant 3). An existing row's *empty* cell is
+filled when a later run reports a number for it, even without `--force`
+(filling "not reported" never rewrites a sourced value); everything else in
+an existing row still needs `--force`. Tests: `scripts/test_fetch_uruguay.py`.
+
 ### 3.1 Top brands / models (`market/uruguay_top.json`)
 
 The Compilado is per-model, so `parse_models()` tallies AUTOS + SUV rows by
