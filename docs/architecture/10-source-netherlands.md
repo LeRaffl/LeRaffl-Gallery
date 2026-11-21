@@ -18,7 +18,7 @@ variant_notes:
   Used: Imported used passenger cars at first Dutch registration (Personenauto Occasion import).
   HDV: New heavy commercial vehicles (Zware bedrijfsvoertuigen) — broader than EU N2/N3.
 hev_split: true
-hev_note: "Whole from 2023-07: full hybrids (RDW's NOVC-HEV class) are counted from the RDW open-data register, one cohort for the whole series, and taken out of petrol; TOTAL, BEV, PHEV and diesel stay Swing's, and OTHERS is the slack that makes the row sum. Before 2023-07 they are inside petrol (that cohort runs more than 2 % off Swing there). Used and HDV have no HEV column — full hybrids are inside petrol/diesel."
+hev_note: "Whole from 2023-07: full hybrids (RDW's NOVC-HEV class) are counted from the RDW open-data register, one cohort for the whole series, and taken out of petrol; TOTAL, BEV, PHEV and diesel stay Swing's, and OTHERS is the slack that makes the row sum. 2018-01 to 2023-06 carry a flagged estimate: Swing's petrol split by the register's HEV share of HEV + petrol in the month (it agrees with ACEA's quarterly share within about half a point from 2020). Used and HDV have no HEV column — full hybrids are inside petrol/diesel."
 fcev: folded into OTHERS (~1 unit/month Whole, ~30/month Used)
 backfill: pre-2018 Whole rows already in data/Netherlands.csv
 scope_note: HDV ≈ Zware bedrijfsvoertuigen, not a strict EU N-class.
@@ -31,7 +31,7 @@ column_map:
   Overig + FCEV: OTHERS (the slack from 2023-07)
 caveats:
 - Swing doesn't split full hybrids. For Whole from 2023-07 HEV and pure petrol are counted from the RDW register record by record; OTHERS then also holds the few hundred cars the register and Swing count differently (mostly motorhomes), so it is slack, not a fuel.
-- Before 2023-07 full hybrids are inside petrol; the TTM chart shows petrol incl. hybrids until twelve months of the split exist.
+- 2018-01 to 2023-06 HEV is an estimate: Swing petrol × the register's HEV share of HEV + petrol in the month (reference/nl_register_fuel_split.csv). Before 2018 Swing has no petrol column, so there is nothing to split.
 - Publication date varies within the first half of the month.
 - The portal blocks GitHub Actions and Cloudflare IPs; data is fetched via a Deno Deploy relay.
 fetcher: scripts/fetch_netherlands.py
@@ -282,8 +282,23 @@ How it stays current (`fetch-netherlands.yml`, every run):
    Whole ranks HEV and pure petrol (`market_class`); Used keeps full hybrids in
    petrol, like its CSV.
 
-Before 2023-07 HEV is blank and full hybrids stay inside petrol: there the
-one cohort runs more than 2 % off Swing (see the plan below). The TTM chart keeps
+**Before 2023-07 (estimates, filled 2026-11-21).** The counted window starts
+where one cohort stays within 2 % of Swing (see the plan below). Before it,
+so the TTM chart shows hybrids for its whole span, every month 2018-01 –
+2023-06 carries HEV = Swing's petrol × the register's HEV share of HEV +
+pure petrol in that month (`scripts/backfill_hev_history.py --method
+register --cohort stay`; the split saved as
+`reference/nl_register_fuel_split.csv`). A share hardly depends on the
+cohort (stay and since-exported plates differ by at most 0.5 points) and
+tracks ACEA's own quarterly HEV share of HEV + petrol
+(`reference/acea_country_quarterly.csv`): within 0.5 points 2020–2022 except
+2022-Q3 (ACEA 3.5 higher), 0.5–2.8 points above ACEA in 2018–2019 when old
+petrol cars have left the register. At 2023-07 the share is the counted
+months' own (0.480 both ways). TTM HEV: 5.2 % (2018-12), 13.9 % (2020-12),
+22.5 % (2021-12), 25.5 % (2022-12), 27.4 % (2024-06, counted). One visible
+seam: OTHERS is the slack in the counted months (about 2 % of TOTAL) and
+Swing's own small OTHERS before them, so the grey band widens from about
+0.6 % to about 2 % across 2023-07 – 2024-06. The TTM chart keeps
 that history — `compute_ttm_long` folds a late-starting HEV column into petrol
 until twelve months of the split exist ([02](02-components.md) key invariants),
 then the HEV band appears. The post text's "(of which X%p were HEV)" appears

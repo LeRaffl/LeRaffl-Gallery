@@ -91,8 +91,8 @@ def acea_estimate(row: dict, q: dict, quarter_pool: float) -> dict | None:
 
 def register_estimate(row: dict, reg: dict, src: str, register: str, file: str) -> dict | None:
     hev, pet = float(reg["HEV"]), float(reg["PETROL"])
-    if hev + pet <= 0:
-        return None
+    if hev + pet <= 0 or not (row.get("PETROL") or "").strip():
+        return None             # no published petrol to split (invariant 4)
     petrol = _f(row, "PETROL")
     h = round(petrol * hev / (hev + pet))
     return {"HEV": float(h), "PETROL": petrol - h,
