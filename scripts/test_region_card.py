@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Common-window rule and a smoke load of the region flyers."""
+import datetime as dt
+import math
 import sys
 from pathlib import Path
 
@@ -374,6 +376,275 @@ def test_repo_acea_figure_is_current():
     with contextlib.redirect_stdout(io.StringIO()) as out:
         rc_ = rc.check_acea()
     assert rc_ == 0, out.getvalue()
+
+
+# --- Group confidence band (#454) -------------------------------------------
+
+TODAY = dt.date(2026, 11, 21)
+
+
+def _param(country, data_per="2026-09", v2=2.0, swing="1.5", ttm=0.2):
+    return {"country": country, "variant": "Whole", "v1": "-0.001",
+            "v2": str(v2), "t0": "2015", "data_per": data_per,
+            "ttm_bev_share": str(ttm), "refit_swing": swing}
+
+
+def _band(data_per="2026-09", v2=2.0, usable=True, reasons=None,
+          t=(2020.0, 2021.0, 2022.0), fit=(0.10, 0.20, 0.30),
+          lo=(0.08, 0.17, 0.26), hi=(0.12, 0.23, 0.34)):
+    return {"schema": 2, "data_per": data_per,
+            "fit_params": {"v1": -0.001, "v2": v2, "t0": 2015},
+            "quality": {"usable": usable, "reasons": reasons or []},
+            "t": list(t), "fit": list(fit), "ci": [list(lo), list(hi)]}
+
+
+def _const_band(hw_lo, hw_hi, data_per="2026-09", v2=2.0):
+    # Constant half-widths on the grid: interpolation is the identity.
+    return _band(data_per=data_per, v2=v2, fit=(0.5, 0.5, 0.5),
+                 lo=(0.5 - hw_lo,) * 3, hi=(0.5 + hw_hi,) * 3)
+
+
+def _loader(bands):
+    return lambda country: bands.get(country)
+
+
+def test_group_band_combines_in_quadrature_not_average():
+    rows = [_param("A"), _param("B")]
+    weights = {"A|whole": 75.0, "B|whole": 25.0}
+    bands = {"A": _const_band(0.02, 0.03), "B": _const_band(0.02, 0.03)}
+    out = rc.group_band(rows, weights, [2021.0], [20.0],
+                        band_loader=_loader(bands), today=TODAY)
+    assert out["ok"] and out["coverage"] == 1.0
+    # sqrt((0.75*0.02)^2 + (0.25*0.02)^2) = 0.02*sqrt(0.625)
+    dlo = 100 * 0.02 * math.sqrt(0.625)
+    dhi = 100 * 0.03 * math.sqrt(0.625)
+    assert abs(out["lo"][0] - (20.0 - dlo)) < 1e-9
+    assert abs(out["hi"][0] - (20.0 + dhi)) < 1e-9
+    # A weighted average of half-widths would give 18.0 / 23.0 — wrong class.
+    assert abs(out["lo"][0] - 18.0) > 0.05
+    assert abs(out["hi"][0] - 23.0) > 0.05
+
+
+def test_group_band_asymmetric_half_widths_stay_separate():
+    rows = [_param("A"), _param("B")]
+    weights = {"A|whole": 50.0, "B|whole": 50.0}
+    bands = {"A": _const_band(0.01, 0.05), "B": _const_band(0.03, 0.01)}
+    out = rc.group_band(rows, weights, [2021.0], [40.0],
+                        band_loader=_loader(bands), today=TODAY)
+    dlo = 100 * math.sqrt((0.5 * 0.01) ** 2 + (0.5 * 0.03) ** 2)
+    dhi = 100 * math.sqrt((0.5 * 0.05) ** 2 + (0.5 * 0.01) ** 2)
+    assert abs(out["lo"][0] - (40.0 - dlo)) < 1e-9
+    assert abs(out["hi"][0] - (40.0 + dhi)) < 1e-9
+
+
+def test_group_band_single_member_is_the_file_band():
+    out = rc.group_band([_param("A")], {"A|whole": 10.0}, [2021.0], [20.0],
+                        band_loader=_loader({"A": _const_band(0.02, 0.03)}),
+                        today=TODAY)
+    assert out["ok"]
+    assert abs(out["lo"][0] - 18.0) < 1e-9
+    assert abs(out["hi"][0] - 23.0) < 1e-9
+
+
+def test_group_band_coverage_floor_and_dilution():
+    rows = [_param("A"), _param("B")]
+    bands = {"A": _const_band(0.02, 0.02)}  # B has no band file
+    ok = rc.group_band(rows, {"A|whole": 80.0, "B|whole": 20.0},
+                       [2021.0], [20.0], band_loader=_loader(bands), today=TODAY)
+    assert ok["ok"] and abs(ok["coverage"] - 0.8) < 1e-9
+    # B keeps its weight in the denominator: A's spread is diluted by 0.8.
+    assert abs(ok["lo"][0] - (20.0 - 100 * 0.8 * 0.02)) < 1e-9
+    assert ok["excluded"] == [{"label": "B", "why": "no band yet"}]
+    bad = rc.group_band(rows, {"A|whole": 79.0, "B|whole": 21.0},
+                        [2021.0], [20.0], band_loader=_loader(bands), today=TODAY)
+    assert not bad["ok"] and abs(bad["coverage"] - 0.79) < 1e-9
+
+
+def test_group_band_stale_data_per_is_excluded():
+    out = rc.group_band([_param("A", data_per="2026-08")], {"A|whole": 10.0},
+                        [2021.0], [20.0],
+                        band_loader=_loader({"A": _band(data_per="2026-09")}),
+                        today=TODAY)
+    assert not out["ok"]
+    assert out["excluded"] == [{"label": "A", "why": "band out of date"}]
+
+
+def test_group_band_v2_drift_two_percent_gate():
+    rows = [_param("A", v2=2.0)]
+    inside = rc.group_band(rows, {"A|whole": 10.0}, [2021.0], [20.0],
+                           band_loader=_loader({"A": _band(v2=2.0 * 1.019)}),
+                           today=TODAY)
+    assert inside["ok"]
+    outside = rc.group_band(rows, {"A|whole": 10.0}, [2021.0], [20.0],
+                            band_loader=_loader({"A": _band(v2=2.0 * 1.021)}),
+                            today=TODAY)
+    assert not outside["ok"]
+    assert outside["excluded"][0]["why"] == "band out of date"
+
+
+def test_group_band_unusable_quality_is_excluded_with_reason():
+    for reasons, why in ((["poor fit"], "poor fit"),
+                         (["too few rows"], "too few rows")):
+        out = rc.group_band([_param("A")], {"A|whole": 10.0}, [2021.0], [20.0],
+                            band_loader=_loader({"A": _band(usable=False, reasons=reasons)}),
+                            today=TODAY)
+        assert not out["ok"]
+        assert out["excluded"] == [{"label": "A", "why": why}]
+
+
+def test_group_band_reliability_gate_and_unknown_swing():
+    # Measured unstable fit: excluded as unreliable.
+    out = rc.group_band([_param("A", swing="30")], {"A|whole": 10.0},
+                        [2021.0], [20.0],
+                        band_loader=_loader({"A": _band()}), today=TODAY)
+    assert out["excluded"] == [{"label": "A", "why": "unreliable fit"}]
+    # Empty swing (the backtest archive writes NA): same gate, precise name.
+    out = rc.group_band([_param("A", swing="")], {"A|whole": 10.0},
+                        [2021.0], [20.0],
+                        band_loader=_loader({"A": _band()}), today=TODAY)
+    assert out["excluded"] == [{"label": "A", "why": "no refit swing recorded"}]
+    # A no-transition row is not gated by reliability (mirror of
+    # rowIsUnreliableFit = !rowHasNoTransition && excluded).
+    out = rc.group_band([_param("A", swing="", ttm=0.001)], {"A|whole": 10.0},
+                        [2021.0], [20.0],
+                        band_loader=_loader({"A": _band()}), today=TODAY)
+    assert out["ok"]
+
+
+def test_group_band_missing_or_old_schema_file():
+    out = rc.group_band([_param("A")], {"A|whole": 10.0}, [2021.0], [20.0],
+                        band_loader=_loader({}), today=TODAY)
+    assert out["excluded"] == [{"label": "A", "why": "no band yet"}]
+    old = _band()
+    old["schema"] = 1
+    out = rc.group_band([_param("A")], {"A|whole": 10.0}, [2021.0], [20.0],
+                        band_loader=_loader({"A": old}), today=TODAY)
+    assert out["excluded"] == [{"label": "A", "why": "no band yet"}]
+
+
+def test_group_band_zero_weight_rows_are_skipped():
+    out = rc.group_band([_param("A")], {"A|whole": 0.0}, [2021.0], [20.0],
+                        band_loader=_loader({"A": _band()}), today=TODAY)
+    assert not out["ok"] and out["members"] == 0 and out["coverage"] == 0.0
+
+
+def test_band_half_widths_interpolation_edges():
+    b = _band()
+    assert rc._band_half_widths(b, 2019.0) == (0.0, 0.0)  # before first year
+    hw = rc._band_half_widths(b, 2020.5)
+    assert hw and abs(hw[0] - 0.025) < 1e-12 and abs(hw[1] - 0.025) < 1e-12
+    hw = rc._band_half_widths(b, 2025.0)  # past the grid: last value holds
+    assert hw and abs(hw[0] - 0.04) < 1e-12 and abs(hw[1] - 0.04) < 1e-12
+    b["ci"][1][1] = None  # a null node means no value around it
+    assert rc._band_half_widths(b, 2020.5) is None
+    malformed = _band()
+    malformed["ci"] = [[0.08, 0.17, 0.26]]  # upper edge missing
+    assert rc._band_half_widths(malformed, 2021.0) is None
+
+
+def test_group_band_all_null_grid_claims_nothing():
+    b = _band(fit=(0.5, 0.5, 0.5), lo=(None, None, None), hi=(None, None, None))
+    out = rc.group_band([_param("A")], {"A|whole": 10.0},
+                        [2020.0, 2021.0, 2022.0], [10.0] * 3,
+                        band_loader=_loader({"A": b}), today=TODAY)
+    assert not out["ok"] and out.get("empty")
+    note = rc.band_note(out)
+    assert "No confidence band available" in note and "no values" in note
+
+
+def test_group_band_null_node_gaps_the_year():
+    # A null node invalidates both intervals touching it (mirror of
+    # bandHalfWidths: interpolation reads both neighbours).
+    b = _band(t=(2020.0, 2021.0, 2022.0, 2023.0, 2024.0),
+              fit=(0.5,) * 5, lo=(0.48,) * 5, hi=(0.52,) * 5)
+    b["ci"][0][2] = None
+    years = [2020.0, 2021.0, 2022.0, 2023.0, 2024.0]
+    out = rc.group_band([_param("A")], {"A|whole": 10.0},
+                        years, [10.0] * 5,
+                        band_loader=_loader({"A": b}), today=TODAY)
+    assert out["ok"]
+    assert out["lo"][0] is not None
+    # The null at 2022 kills the intervals [2021,2022] and [2022,2023];
+    # 2023.0 already reads the clean interval [2023,2024].
+    assert out["lo"][1] is None and out["lo"][2] is None
+    assert out["lo"][3] is not None and out["lo"][4] is not None
+
+
+def test_group_band_nan_curve_year_has_no_band():
+    out = rc.group_band([_param("A")], {"A|whole": 10.0},
+                        [2020.0, 2021.0], [10.0, float("nan")],
+                        band_loader=_loader({"A": _const_band(0.02, 0.02)}),
+                        today=TODAY)
+    assert out["ok"] and out["lo"][1] is None and out["hi"][1] is None
+
+
+def test_band_note_states_the_concrete_reason():
+    ok = {"ok": True, "excluded": [], "coverage": 1.0, "members": 2}
+    assert "95% confidence band" in rc.band_note(ok)
+    none = rc.band_note(None)
+    assert "not archived" in none
+    stale = {"ok": False, "coverage": 0.09, "members": 27,
+             "excluded": [{"label": "A", "why": "no refit swing recorded"}] * 26
+                         + [{"label": "B", "why": "band out of date"}]}
+    note = rc.band_note(stale)
+    assert "No confidence band available" in note
+    assert "9%" in note and "80% needed" in note
+    assert "refit swing" in note
+    few = {"ok": False, "coverage": 0.5, "members": 2,
+           "excluded": [{"label": "B", "why": "no band yet"}]}
+    assert "no confidence band file yet" in rc.band_note(few)
+
+
+def test_region_curve_svg_draws_band_only_when_ok():
+    years = [2020.0 + 0.5 * i for i in range(21)]
+    model = [10.0] * len(years)
+    band = {"ok": True, "lo": [8.0] * len(years), "hi": [55.0] * len(years)}
+    svg = rc.build_region_curve_svg([], years, model, 700, 300, band=band)
+    assert 'class="cv-ci"' in svg
+    assert ">60<" in svg  # y scale grew to hold the band's upper edge
+    plain = rc.build_region_curve_svg([], years, model, 700, 300)
+    assert 'class="cv-ci"' not in plain
+    assert ">60<" not in plain
+    off = rc.build_region_curve_svg([], years, model, 700, 300,
+                                    band={"ok": False, "lo": [], "hi": []})
+    assert 'class="cv-ci"' not in off
+
+
+def test_region_legend_band_entry():
+    assert "95% confidence band of the curve" in rc.region_legend(band_ok=True)
+    assert "no confidence band available" not in rc.region_legend(band_ok=True)
+    assert "no confidence band available" in rc.region_legend()
+    assert "95% confidence band of the curve" not in rc.region_legend()
+
+
+def test_region_band_is_gated_on_the_archived_fits():
+    # Structural smoke test on the real repo: the band exists as a decision,
+    # and it is gated on the frame's own archived fits (never newer than the
+    # frame). Whether a band can be stated today depends on the data cadence,
+    # so the test pins the contract, not the current outcome.
+    import contextlib, io
+    with contextlib.redirect_stderr(io.StringIO()):
+        info = rc.load("eu")
+    band = info["band"]
+    assert band is not None, "EU backtest archives are missing"
+    bt = rc._load_backtest("eu")
+    assert bt is not None
+    frame = rc._pick_frame(bt, info["t"])
+    assert frame is not None
+    fits = rc._frame_fits("eu", frame)
+    assert fits is not None
+    rows, _ = fits
+    assert rows and all((r.get("data_per") or "") <= (frame.get("date") or "")
+                        for r in rows)
+    svg, legend = info["fm"]["region_curve"](700, 300, 42)
+    if band["ok"]:
+        assert 'class="cv-ci"' in svg
+        assert "95% confidence band of the curve" in legend
+    else:
+        assert 'class="cv-ci"' not in svg
+        note = rc.band_note(band)
+        assert "No confidence band available" in note
+        assert "80% needed" in note
 
 
 def _ytd_fixture():

@@ -17,8 +17,13 @@ measured to the same month.
 Latest-month share, the 12-month range, and the change versus the prior
 12 months are shown only when the same contributors all have the months
 needed to compute them. The S-curve is the existing Builder/backtest
-group fit, labelled as a model, not a forecast. There is no brand block:
-brand tables cover too few members to describe a region honestly.
+group fit, labelled as a model, not a forecast. Around it a 95 %
+confidence band is drawn only when the members' own band files belong to
+the archived fits the frame was computed from — the same combination and
+gates as the Builder's group band (docs/architecture/44-uncertainty-bands.md
+§10); otherwise the brief says why no band can be stated (#454). There is
+no brand block: brand tables cover too few members to describe a region
+honestly.
 """
 
 from __future__ import annotations
@@ -725,6 +730,239 @@ def _pick_frame(data: dict, t: str) -> dict | None:
     return usable[-1] if usable else frames[-1]
 
 
+# --- Group confidence band (#454) -------------------------------------------
+# Python mirror of aggregateBand() in index.html, CI only: each member's CI
+# half-width is a spread, and independent fits combine in quadrature with the
+# curve's own weights. Canonical explanation:
+# docs/architecture/44-uncertainty-bands.md §10.
+BAND_MIN_COVERAGE = 0.8  # mirror of BAND_MIN_COVERAGE in index.html
+
+_BAND_WHY_TEXT = {
+    "band out of date": "bands belong to other fits",
+    "no band yet": "no band file yet",
+    "unreliable fit": "unreliable fit",
+    "no refit swing recorded": "refit swing not recorded",
+    "too few rows": "too few rows",
+    "poor fit": "poor fit",
+}
+
+
+def _band_half_widths(b: dict, x: float) -> tuple[float, float] | None:
+    """CI half-widths (share, 0-1) below / above the file's curve at calendar
+    year x, by linear interpolation — mirror of bandHalfWidths() in
+    index.html. Before the first data year the band is zero-width; past the
+    last grid point the last value holds; a null node means no value there."""
+    t = b.get("t") or []
+    band = b.get("ci")
+    fit = b.get("fit") or []
+    if (len(t) < 2 or not band or len(band) < 2
+            or not isinstance(band[0], list) or not isinstance(band[1], list)):
+        return None
+    if x < t[0]:
+        return (0.0, 0.0)
+    i = len(t) - 2
+    if x < t[-1]:
+        a, z = 0, len(t) - 1
+        while z - a > 1:
+            m = (a + z) // 2
+            if t[m] <= x:
+                a = m
+            else:
+                z = m
+        i = a
+    f = min(1.0, max(0.0, (x - t[i]) / (t[i + 1] - t[i])))
+
+    def at(arr):
+        try:
+            if arr[i] is None or arr[i + 1] is None:
+                return math.nan
+            return arr[i] + f * (arr[i + 1] - arr[i])
+        except IndexError:
+            return math.nan
+
+    fit_v, lo, hi = at(fit), at(band[0]), at(band[1])
+    if not (math.isfinite(fit_v) and math.isfinite(lo) and math.isfinite(hi)):
+        return None
+    return (max(0.0, fit_v - lo), max(0.0, hi - fit_v))
+
+
+def group_band(rows: list[dict], weights: dict[str, float],
+               years: list[float], curve_pct: list[float],
+               band_loader=mc.load_bands, today=None) -> dict:
+    """95 % CI around a weighted group curve, combined from the members' own
+    band files — mirror of aggregateBand() in index.html (CI only).
+
+    `rows` must be the params rows the drawn curve was computed from (for a
+    backtest frame: backtest/params/<month>.csv), so a band is only used when
+    it belongs to the fit it surrounds: same data_per, v2 within 2 %,
+    quality.usable, and the fit reliability gate. Members whose band passes
+    every gate must carry >= 80 % of the group weight, else no band is
+    stated. Excluded members keep their weight in the denominator (their
+    spread is zero, which widens nothing but dilutes the rest — the
+    conservative direction).
+
+    Returns {ok, lo, hi, excluded, coverage, members}; lo/hi are % lists on
+    `years`, None where no band value can be stated."""
+    parts = []
+    for r in rows:
+        w = sb.weight_for_row(r, weights)
+        if not math.isfinite(w) or w <= 0:
+            continue
+        label = r.get("country") or ""
+        v = str(r.get("variant") or "").strip()
+        if v and v.lower() != "whole":
+            label = f"{label} ({v})"
+        if not mc.has_no_transition(r):
+            rel = mc.fit_reliability(r, today)
+            if rel["status"] == "excluded":
+                # An empty refit_swing is "unknown", not "measured unstable":
+                # R/build_backtest.R archives fits with refit_swing = NA, and
+                # the gate reads unknown swing as unsettled. Name that case
+                # precisely so the brief's reason is not mistaken for a
+                # genuinely jumpy fit.
+                raw = str(r.get("refit_swing") or "").strip()
+                why = ("no refit swing recorded"
+                       if raw == "" and "unsettled" in rel["reasons"]
+                       else "unreliable fit")
+                parts.append({"label": label, "w": w, "b": None, "why": why})
+                continue
+        b = band_loader(r.get("country") or "")
+        if not (isinstance(b, dict) and b.get("schema") == 2 and b.get("quality")
+                and isinstance(b.get("t"), list) and isinstance(b.get("fit"), list)):
+            parts.append({"label": label, "w": w, "b": None, "why": "no band yet"})
+            continue
+        # A band computed for a different fit than the one drawn is not used:
+        # same data period, and the shape parameter within 2 % (tiny
+        # differences are optimizer noise between R versions).
+        v2file = mc._f((b.get("fit_params") or {}).get("v2"))
+        v2row = mc._f(r.get("v2"))
+        same_per = str(b.get("data_per") or "") == str(r.get("data_per") or "").strip()
+        if not (same_per and math.isfinite(v2file) and math.isfinite(v2row)
+                and abs(v2file - v2row) <= 0.02 * abs(v2row)):
+            parts.append({"label": label, "w": w, "b": None, "why": "band out of date"})
+            continue
+        if not (b.get("quality") or {}).get("usable"):
+            why = ((b.get("quality") or {}).get("reasons") or ["poor fit"])[0]
+            parts.append({"label": label, "w": w, "b": None, "why": why})
+            continue
+        parts.append({"label": label, "w": w, "b": b, "why": None})
+    W = sum(p["w"] for p in parts)
+    inc = [p for p in parts if p["b"]]
+    coverage = (sum(p["w"] for p in inc) / W) if W > 0 else 0.0
+    excluded = [{"label": p["label"], "why": p["why"]} for p in parts if not p["b"]]
+    if not inc or coverage < BAND_MIN_COVERAGE:
+        return {"ok": False, "lo": [], "hi": [], "excluded": excluded,
+                "coverage": coverage, "members": len(parts)}
+    single = len(parts) == 1
+    lo: list[float | None] = []
+    hi: list[float | None] = []
+    for x, c in zip(years, curve_pct):
+        if c is None or not math.isfinite(c):
+            lo.append(None)
+            hi.append(None)
+            continue
+        vlo = vhi = 0.0
+        bad = False
+        for p in inc:
+            hw = _band_half_widths(p["b"], x)
+            if hw is None:
+                bad = True
+                break
+            s = 1.0 if single else p["w"] / W
+            vlo += (s * hw[0]) ** 2
+            vhi += (s * hw[1]) ** 2
+        if bad:
+            lo.append(None)
+            hi.append(None)
+            continue
+        # z cancels: half-width = z * sqrt(sum((w/W * h/z)^2)).
+        lo.append(max(0.0, c - 100.0 * math.sqrt(vlo)))
+        hi.append(min(100.0, c + 100.0 * math.sqrt(vhi)))
+    if not any(v is not None for v in lo):
+        # Every grid point null: nothing can be shaded, so claim nothing.
+        return {"ok": False, "lo": [], "hi": [], "excluded": excluded,
+                "coverage": coverage, "members": len(parts), "empty": True}
+    return {"ok": True, "lo": lo, "hi": hi, "excluded": excluded,
+            "coverage": coverage, "members": len(parts)}
+
+
+def _frame_fits(slug: str, frame: dict) -> tuple[list[dict], dict[str, float]] | None:
+    """The archived member fits and weights the backtest frame's curve was
+    computed from (backtest/params|weights/<month>.csv, written by
+    R/build_backtest.R; same selection as build_backtest_series.curves_for).
+    A group band must be gated against these, not the current params.csv:
+    the drawn curve is only as new as the frame."""
+    per = frame.get("date") or frame.get("data_per") or ""
+    ppath = REPO / "backtest" / "params" / f"{per}.csv"
+    wpath = REPO / "backtest" / "weights" / f"{per}.csv"
+    if not (per and ppath.is_file() and wpath.is_file()):
+        return None
+    params = sb.load_params(ppath)
+    weights = sb.load_weights(wpath)
+    groups = sb.resolve_groups(params, weights)
+    if slug not in groups:
+        return None
+    countries = set(groups[slug])
+    rows = [r for r in params
+            if r.get("country") in countries
+            and sb.normalize_base(r.get("variant") or "") == sb.DEFAULT_VARIANT]
+    return rows, weights
+
+
+def band_note(band: dict | None) -> str:
+    """The flyer note under 'The curve reaches': what the shaded band is, or
+    the concrete reason none can be stated (#454). band is None when the
+    frame's member fits are not archived at all."""
+    if band and band.get("ok"):
+        note = ('<p class="fm-note">Shaded: 95% confidence band of the curve, '
+                "combined from the members' own bands (independent fits, "
+                'weighted like the curve).</p>')
+        exc = band.get("excluded") or []
+        if exc:
+            if len(exc) <= 3:
+                names = ", ".join(
+                    f'{esc(e["label"])} ({esc(_BAND_WHY_TEXT.get(e["why"], e["why"]))})'
+                    for e in exc)
+                note += f'<p class="fm-note">Without {names}.</p>'
+            else:
+                counts: dict[str, int] = {}
+                for e in exc:
+                    counts[e["why"]] = counts.get(e["why"], 0) + 1
+                dom = max(counts, key=lambda k: counts[k])
+                note += (f'<p class="fm-note">{len(exc)} members left out, mainly: '
+                         f'{esc(_BAND_WHY_TEXT.get(dom, dom))}.</p>')
+        return note
+    if band is None:
+        return ('<p class="fm-note">No confidence band available: the member '
+                'fits behind this curve are not archived, so no matching '
+                'bands can be checked.</p>')
+    if not band.get("members"):
+        return ('<p class="fm-note">No confidence band available: no member '
+                'fit carries a usable weight.</p>')
+    if band.get("empty"):
+        return ('<p class="fm-note">No confidence band available: the member '
+                "bands carry no values on the curve's grid.</p>")
+    cov = 100.0 * (band.get("coverage") or 0.0)
+    note = ('<p class="fm-note">No confidence band available: bands that match '
+            f"the curve's fits carry only {cov:.0f}% of the group weight "
+            f'({100 * BAND_MIN_COVERAGE:.0f}% needed).')
+    counts = {}
+    for e in band.get("excluded") or []:
+        counts[e["why"]] = counts.get(e["why"], 0) + 1
+    dom = max(counts, key=lambda k: counts[k]) if counts else ""
+    tail = {
+        "band out of date": ' The available member bands are computed for other '
+                            'fits than the curve shown.',
+        "no band yet": ' Some members have no confidence band file yet.',
+        "unreliable fit": " Some members' fits fail the reliability gate.",
+        "no refit swing recorded": " Some members' fits do not record the refit "
+                                   "swing the reliability gate needs.",
+        "too few rows": " Some members' series are too short for a reliable band.",
+        "poor fit": " Some members' curves fit too poorly for a band.",
+    }.get(dom, "")
+    return note + tail + "</p>"
+
+
 def region_mark(slug: str, kind: str = "fl") -> str:
     """A simple glyph in place of a flag. `kind` is 'fl' or 'sc'."""
     cls = "fl-mark" if kind == "fl" else "sc-mark"
@@ -823,10 +1061,11 @@ def weighted_ttm_series(contrib: list[dict], rows: list[dict]
 
 def build_region_curve_svg(rows: list[dict], years: list[float],
                            model: list[float], width: int, height: int,
-                           left: int = 42,
+                           left: int = 42, band: dict | None = None,
                            ttm: list[tuple[str, float]] | None = None) -> str:
     """Observed monthly shares, the weighted 12-month line and the backtest
-    model polyline. `ttm` comes from weighted_ttm_series(); without it no
+    model polyline, with the group 95% CI shaded behind the fit when `band`
+    is ok (#454). `ttm` comes from weighted_ttm_series(); without it no
     12-month line is drawn (a mean of monthly shares would be wrong)."""
     observed = []
     for row in rows:
@@ -859,6 +1098,13 @@ def build_region_curve_svg(rows: list[dict], years: list[float],
         vis = [s for y, s in zip(years, model) if start <= y <= end]
         if vis:
             peak = max(peak, max(vis))
+    band_pts = []
+    if band and band.get("ok") and years:
+        band_pts = [(y, a, b) for y, a, b in zip(years, band["lo"], band["hi"])
+                    if a is not None and b is not None
+                    and start - 0.05 <= y <= end + 0.05]
+        if band_pts:
+            peak = max(peak, max(b for _, _, b in band_pts))
     ymax = next((float(m) for m in (20, 40, 60, 80, 100) if m >= peak * 1.1 or m == 100), 100.0)
 
     def y_of(v: float) -> float:
@@ -879,6 +1125,21 @@ def build_region_curve_svg(rows: list[dict], years: list[float],
         parts.append(f'<line class="cv-grid" x1="{x:.1f}" x2="{x:.1f}" y1="{top}" y2="{top+plot_h}"/>')
         if x <= width - 16:
             parts.append(f'<text class="ax" x="{x:.1f}" y="{top+plot_h+16}" text-anchor="middle">{year}</text>')
+    # Group confidence band behind the fit (#454), split at null gaps.
+    if band_pts:
+        step = (years[1] - years[0]) if len(years) > 1 else 0.5
+        runs: list[list[tuple[float, float, float]]] = [[]]
+        for pt in band_pts:
+            if runs[-1] and pt[0] - runs[-1][-1][0] > step * 1.01:
+                runs.append([])
+            runs[-1].append(pt)
+        for run in runs:
+            if len(run) < 2:
+                continue
+            path = [f"M{x_of(run[0][0]):.1f},{y_of(run[0][2]):.1f}"]
+            path += [f"L{x_of(y):.1f},{y_of(b):.1f}" for y, _, b in run[1:]]
+            path += [f"L{x_of(y):.1f},{y_of(a):.1f}" for y, a, _ in reversed(run)]
+            parts.append(f'<path d="{" ".join(path)} Z" class="cv-ci"/>')
     # Now marker.
     xn = x_of(data_end)
     parts.append(f'<line class="cv-now" x1="{xn:.1f}" x2="{xn:.1f}" y1="{top}" y2="{top+plot_h}"/>')
@@ -916,9 +1177,14 @@ def build_region_curve_svg(rows: list[dict], years: list[float],
         f'{"".join(parts)}</svg>')
 
 
-def region_legend(model_note: bool = True) -> str:
+def region_legend(model_note: bool = True, band_ok: bool = False) -> str:
     note = ('<span class="cv-leg-note">a model, not a forecast</span>'
             if model_note else "")
+    band = (
+        '<span class="cv-leg-i"><svg class="cv-g" width="22" height="10">'
+        '<rect x="1" y="1" width="20" height="8" fill="#3d9a68" fill-opacity=".25"/>'
+        '</svg>95% confidence band of the curve</span>' if band_ok else
+        '<span class="cv-leg-note">no confidence band available</span>')
     return (
         '<div class="cv-leg">'
         '<span class="cv-leg-i"><svg class="cv-g" width="22" height="10">'
@@ -930,7 +1196,7 @@ def region_legend(model_note: bool = True) -> str:
         '<span class="cv-leg-i"><svg class="cv-g" width="14" height="10">'
         '<circle cx="7" cy="5" r="2.2" fill="#55534c" fill-opacity=".55"/></svg>'
         'single month</span>'
-        '<span class="cv-leg-note">no confidence band available</span>'
+        f'{band}'
         f'{note}'
         '</div>')
 
@@ -1054,13 +1320,20 @@ def load(slug: str) -> dict:
     model = (frame or {}).get("all", {}).get("bev") or []
     state = _crossings_state(frame) if frame else None
     model_per = (frame or {}).get("data_per") or ""
+    # Group CI (#454): only around the fits the drawn curve actually used.
+    band = None
+    if frame and years and model:
+        fits = _frame_fits(slug, frame)
+        if fits:
+            band = group_band(fits[0], fits[1], years, model)
 
     ttm_line = weighted_ttm_series(contrib, rows)
 
     def curve_builder(width, height, left, model_note=True):
         svg = build_region_curve_svg(rows, years, model, width, height, left,
-                                     ttm=ttm_line)
-        return svg, region_legend(model_note=model_note)
+                                     band=band, ttm=ttm_line)
+        return svg, region_legend(model_note=model_note,
+                                  band_ok=bool(band and band["ok"]))
 
     side = ""
     sub = flyer.CURVE_MODEL_NOTE_GROUP
@@ -1069,7 +1342,7 @@ def load(slug: str) -> dict:
         if model_per and model_per != t:
             note = (f'<p class="fm-note">Model fitted through '
                     f'{esc(mc.period_label(model_per, long=True))}.</p>')
-        note += '<p class="fm-note">No confidence band available.</p>'
+        note += band_note(band)
         side = (
             '<div class="fm-side"><div class="fm-head">The curve reaches</div>'
             f'<div class="fm">{flyer.build_miles(state)}</div>{note}</div>')
@@ -1135,6 +1408,7 @@ def load(slug: str) -> dict:
         "delta": delta,
         "latest": latest,
         "model_per": model_per,
+        "band": band,
         "n_contrib": len(contrib),
         "n_members": len(members),
         "carriers": carriers,

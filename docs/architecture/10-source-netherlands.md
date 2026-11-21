@@ -266,7 +266,7 @@ with it:
   Swing published it.
 - Why the share and not the counts: the register is today's, Swing counted
   the month soon after it. Cars exported or scrapped since are missing from
-  the register's counts (HEV ran about 3 % low, 2023-07 – 2026-10), but they
+  the register's counts (HEV ran about 3% low, 2023-07 – 2026-10), but they
   hardly move the share. September 2026: share method 8,617 HEV, absolute
   count 8,254, ACEA/RDC 8,601. Until 2026-11-21 the branch wrote the counts
   with OTHERS as the slack; those 40 months were re-derived from Swing's
@@ -281,9 +281,9 @@ with it:
 
   | Month | NOVC-HEV plates | of which under 25 kW | typical mild models |
   |---|---|---|---|
-  | 2019-06 | 2,779 | 19 % | Audi A4/A6 (2 kW), Mazda3, Suzuki Swift, Mercedes EQ Boost |
-  | 2022-06 | 6,274 | 54 % | Nissan Qashqai (2022), Ford Focus/Puma, Fiat 500, Kia Stonic, VW/Audi/Škoda 48 V |
-  | 2026-09 | 8,254 | 40 % | Peugeot 2008/208 (16 kW), Suzuki Swift, VW T-Roc, BMW 120, Ford Puma, Mazda CX-5 |
+  | 2019-06 | 2,779 | 19% | Audi A4/A6 (2 kW), Mazda3, Suzuki Swift, Mercedes EQ Boost |
+  | 2022-06 | 6,274 | 54% | Nissan Qashqai (2022), Ford Focus/Puma, Fiat 500, Kia Stonic, VW/Audi/Škoda 48 V |
+  | 2026-09 | 8,254 | 40% | Peugeot 2008/208 (16 kW), Suzuki Swift, VW T-Roc, BMW 120, Ford Puma, Mazda CX-5 |
 
   So the column is "full + mild hybrids", the same as ACEA's HEV, Czechia's,
   Italy's, Spain's and the other EU register countries here (Switzerland,
@@ -293,7 +293,7 @@ with it:
   no such field, so both stay on the ACEA definition.
 - One cohort for the whole series (`HEV_COHORT`, chosen by `--backfill-hev`'s
   `window_cohort`), and a month only where that cohort's plate count is inside
-  2 % of Swing's TOTAL. The row's `notes` names the cohort.
+  2% of Swing's TOTAL. The row's `notes` names the cohort.
 
 How it stays current (`fetch-netherlands.yml`, every run):
 
@@ -311,7 +311,7 @@ How it stays current (`fetch-netherlands.yml`, every run):
    petrol, like its CSV.
 
 **Before 2023-07 (estimates, filled 2026-11-21).** The counted window starts
-where one cohort stays within 2 % of Swing (see the plan below). Before it,
+where one cohort stays within 2% of Swing (see the plan below). Before it,
 so the charts show hybrids for their whole span, every month carries a
 flagged estimate from the same register (`scripts/backfill_hev_history.py
 --method register`; the split saved as `reference/nl_register_fuel_split.csv`,
@@ -329,29 +329,29 @@ flagged estimate from the same register (`scripts/backfill_hev_history.py
   TOTAL × the register's HEV share of *all* the month's cars, the
   since-exported plates included (`--cohort with_exports`: many 2015–16
   plug-ins left the country). Petrol and diesel stay blank (invariant 4).
-  Not the share of TOTAL − BEV − PHEV: the December 2015 plug-in rush (27 %
+  Not the share of TOTAL − BEV − PHEV: the December 2015 plug-in rush (27%
   of the register's cars that month) is missing from the smoothed PHEV and
-  would inflate HEV to 13.5 % of the month instead of 9.7 %.
+  would inflate HEV to 13.5% of the month instead of 9.7%.
 
 How close to ACEA (HEV count per year, ACEA's quarterly releases):
 
 | | 2014 | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 |
 |---|---|---|---|---|---|---|---|---|---|
 | ACEA | 14,992 | 21,499 | 11,618 | 17,667 | 20,513 | 24,455 | 46,628 | 71,757 | 80,890 |
-| this CSV | +9 % | −17 % | +7 % | +24 % | +13 % | +30 % | +5 % | −1 % | −4 % |
+| this CSV | +9% | −17% | +7% | +24% | +13% | +30% | +5% | −1% | −4% |
 
 Quarters scatter more than years (2015: register low in Q1–Q2, high in Q4,
 the December rush before the 2016 company-car tax change). The 2018–2019
-gap is the mild hybrids: the register's `NOVC-HEV` class holds them (19 %
+gap is the mild hybrids: the register's `NOVC-HEV` class holds them (19%
 of the class in 2019-06, by electric power, see "What HEV holds"), ACEA's
-NL count did not yet; take them out and 2019 lands about 5 % above ACEA.
+NL count did not yet; take them out and 2019 lands about 5% above ACEA.
 Every month of the series, live ones included, uses that same class, so
 the series is consistent with itself. Nothing before 2014 to compare.
 
 The TTM chart starts at 2018-12, the first full twelve months with a petrol
-split, as before. TTM HEV: 5.2 % (2018-12), 7.2 % (2019-12), 13.9 %
-(2020-12), 25.5 % (2022-12), 28.3 % (2024-06), 26.5 % (2026-10). Other
-stays at Swing's own 0.3–0.8 % throughout. `compute_ttm_long` would fold a
+split, as before. TTM HEV: 5.2% (2018-12), 7.2% (2019-12), 13.9%
+(2020-12), 25.5% (2022-12), 28.3% (2024-06), 26.5% (2026-10). Other
+stays at Swing's own 0.3–0.8% throughout. `compute_ttm_long` would fold a
 late-starting HEV column into petrol until twelve months of the split
 exist ([02](02-components.md) key invariants). The post text's "(of which
 X%p were HEV)" appears automatically
@@ -391,7 +391,7 @@ scope.
 
 A historical fill uses the same register, not ACEA. `--backfill-hev START:END`
 counts both cohorts per month and writes nothing. Per month, the closer one
-inside 2 % of Swing's total is the gate (`choose_cohort`). The fill itself
+inside 2% of Swing's total is the gate (`choose_cohort`). The fill itself
 takes **one** cohort: a per-month pick flips the scope inside one series, and
 a hybrid share is not comparable across that flip. And it must reach the
 newest month, because the daily run continues it — a window that stops short
@@ -403,14 +403,14 @@ The counted plan, 2026-11-20, 2018-01..2026-10 (through the Socrata edge):
 
 | | stay (`export_indicator=Nee`) | since-exported plates put back |
 |---|---|---|
-| 2018–2020 | −13 % … −28 % | −4 % … −23 % — the cars are gone, not just flagged |
-| 2021-01 … 2021-11 | −9.6 % … −11.1 % | −1.8 % … −3.4 %, three months inside 2 % |
-| 2021-12 … 2023-06 | −1.6 % … −10.3 % | inside 2 % |
-| 2023-07 … 2025-02 | inside 2 % | inside 2 % (closer in most months) |
-| 2025-03 … 2026-10 | inside 2 % (−1.5 % … +1.8 %) | +1.3 % … +3.6 %, outside 2 % in 12 of 20 months |
+| 2018–2020 | −13% … −28% | −4% … −23% — the cars are gone, not just flagged |
+| 2021-01 … 2021-11 | −9.6% … −11.1% | −1.8% … −3.4%, three months inside 2% |
+| 2021-12 … 2023-06 | −1.6% … −10.3% | inside 2% |
+| 2023-07 … 2025-02 | inside 2% | inside 2% (closer in most months) |
+| 2025-03 … 2026-10 | inside 2% (−1.5% … +1.8%) | +1.3% … +3.6%, outside 2% in 12 of 20 months |
 
-New Dutch cars are exported soon after registration often enough (about 2 %;
-in September 2026, 62 % of them hybrids) that the since-exported plates overshoot Swing
+New Dutch cars are exported soon after registration often enough (about 2%;
+in September 2026, 62% of them hybrids) that the since-exported plates overshoot Swing
 for every recent month: Swing's figure for a month is counted soon after it,
 the register keeps flagging exports later. A majority vote of the per-month
 picks named the since-exported plates (36 months against 26) — and their
