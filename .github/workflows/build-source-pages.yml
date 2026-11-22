@@ -82,10 +82,11 @@ jobs:
     steps:
       # Full history, but no old file contents: the home page's "Latest
       # updates" feed (scripts/build_updates.py) reads the last 60 days of
-      # data/*.csv diffs, and git fetches only those blobs on demand.
+      # data/*.csv diffs, and git fetches only those blobs on demand. PR runs
+      # only test the generators, so they keep the default shallow clone.
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 0 }}
           filter: blob:none
 
       - uses: actions/setup-python@v6

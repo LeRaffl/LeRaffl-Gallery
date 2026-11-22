@@ -73,7 +73,8 @@ render (dispatched by `build-manifest.yml`), daily at 04:37 UTC, and on pushes
 to its generators, so a new month shows up within minutes of its charts, and a
 merged PR's `Release:` line by the next run at the latest. The checkout is
 `fetch-depth: 0` with `filter: blob:none`: full history, but only the
-`data/*.csv` blobs of the last 60 days are downloaded, on demand.
+`data/*.csv` blobs of the last 60 days are downloaded, on demand. Pull-request
+runs only run the tests and keep the shallow default checkout.
 
 Run locally (full clone): `python3 scripts/build_updates.py` (add `--no-gh`
 to skip the PR half, `--stdout` to only print). Tests:
