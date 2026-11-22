@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-22T12:55:11Z",
+ "generated": "2026-11-22T12:59:01Z",
  "today": "2026-11-22",
  "countries": [
   {
@@ -1098,7 +1098,7 @@
     ],
     "workflow": ".github/workflows/fetch-denmark.yml"
    },
-   "last_render": "2026-11-13",
+   "last_render": "2026-11-22",
    "flag": "🇩🇰",
    "variants": [
     {
