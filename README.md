@@ -49,6 +49,7 @@ Key files in the repository root:
 | File | Purpose |
 |------|---------|
 | **index.html** | The full interactive UI, single file, no build step. Four primary nav entries — **Charts / Map / Rankings / Tools** — with a sub-nav, over 14 sections (Gallery, World Map, Thresholds, Durations, Time Interval, Builder, Compare, Raw Data, Fleet, Data freshness, Submit Data, About, FAQ, Feedback). Runs 100% in the browser. |
+| **scripts/build_updates.py** | Builds `sources/updates.json`, the home page's **Latest updates** (content changes, never renders): new months, countries, series, fuel columns and revisions read from the `data/*.csv` diffs, plus the `Release:` lines of merged PRs. Run by `build-source-pages.yml` after every render and daily. See [docs/architecture/66-latest-updates.md](docs/architecture/66-latest-updates.md). |
 | **manifest.json** | Auto-generated list of all available charts, used by the Gallery to display images. |
 | **build_manifest.R** | Scans `images/` and generates `manifest.json`. |
 | **params.csv** | Contains the model parameters (v1, v2, t0, baseline year, last data month) for each market. Used for Thresholds & Durations. |

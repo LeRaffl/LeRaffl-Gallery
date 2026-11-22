@@ -2587,6 +2587,39 @@ a:focus-visible{
 }
 @media(max-width:700px){.about-grid{grid-template-columns:1fr;gap:0}}
 
+/* Latest updates (home). Content changes only, never renders: built by
+   scripts/build_updates.py into sources/updates.json from the data commits
+   and the pull requests' Release: lines (docs/architecture/66-latest-updates.md). */
+.upd-intro{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.55;max-width:70ch}
+.upd-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:0 48px;margin:14px 0 0}
+.upd-col{min-width:0}
+.upd-col-head{font-family:var(--font-ui);font-size:12px;font-weight:600;color:var(--muted);margin:0;padding:0 0 8px;border-bottom:1px solid var(--text);display:flex;justify-content:space-between;gap:12px}
+.upd-col-head span{font-weight:400}
+.upd-list{list-style:none;margin:0;padding:0}
+.upd-row{display:grid;grid-template-columns:54px minmax(0,1fr);gap:0 12px;padding:11px 0 12px;border-bottom:1px solid var(--line)}
+.upd-row[hidden]{display:none}
+.upd-date{font-family:var(--font-ui);font-size:12px;color:var(--muted);padding-top:2px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.upd-line{font-size:15px;line-height:1.45;color:var(--text)}
+.upd-flag{margin-right:6px}
+.upd-country{font-weight:600;color:var(--text);text-decoration:none}
+.upd-country:hover,.upd-country:focus-visible{color:var(--accent);text-decoration:underline}
+.upd-what{margin-left:6px}
+.upd-kind{display:inline-block;margin-left:8px;padding:0 7px;border:1px solid var(--accent);border-radius:999px;color:var(--accent);font-family:var(--font-ui);font-size:11px;font-weight:600;line-height:18px;vertical-align:1px;white-space:nowrap}
+.upd-kind--revised{border-color:var(--line);color:var(--muted);font-weight:500}
+.upd-meta{margin-top:2px;font-size:13px;line-height:1.5;color:var(--muted)}
+.upd-meta a{color:var(--muted);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:2px}
+.upd-meta a:hover,.upd-meta a:focus-visible{color:var(--accent);text-decoration-color:currentColor}
+.upd-site .upd-line{font-size:14.5px}
+.upd-more{margin:10px 0 0;padding:0;border:0;background:none;color:var(--accent);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.upd-more:hover,.upd-more:focus-visible{text-decoration:underline}
+.upd-foot{margin:14px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
+.upd-foot a{color:var(--muted)}
+.upd-empty{padding:14px 0;color:var(--muted);font-size:13px}
+@media(max-width:820px){
+  .upd-grid{grid-template-columns:1fr;gap:28px}
+  .upd-row{grid-template-columns:46px minmax(0,1fr);gap:0 10px}
+}
+
 .about-card{
   position:relative;background:transparent;border:0;border-bottom:1px solid var(--line);
   border-radius:0;padding:16px 0 18px;
@@ -3786,6 +3819,30 @@ const VIEW_START_YEAR = 2015;
       </figure>
     </div>
 
+    <!-- LATEST UPDATES. Inhaltliche Updates, keine Renders: neue Monate,
+         neue Länder/Serien, neue Kraftstoffspalten, Revisionen (aus den
+         Daten-Commits) und die Release:-Zeilen gemergter PRs. Gebaut von
+         scripts/build_updates.py nach sources/updates.json (täglich und nach
+         jedem Render, build-source-pages.yml). Doc 66. -->
+    <section class="upd" id="latestUpdates" aria-labelledby="updTitle">
+      <h2 class="about-section-label" id="updTitle">Latest updates</h2>
+      <p class="upd-intro">What changed in the numbers and on the site, newest first. New months, new countries and series, revised figures. Chart re-renders are left out.</p>
+      <div class="upd-grid">
+        <div class="upd-col">
+          <h3 class="upd-col-head">New figures <span id="updDataCount"></span></h3>
+          <ul class="upd-list" id="updData"><li class="upd-empty">Loading…</li></ul>
+          <button type="button" class="upd-more" id="updDataMore" hidden>Show more</button>
+        </div>
+        <div class="upd-col">
+          <h3 class="upd-col-head">On the site <span id="updSiteCount"></span></h3>
+          <ul class="upd-list upd-site" id="updSite"><li class="upd-empty">Loading…</li></ul>
+          <button type="button" class="upd-more" id="updSiteMore" hidden>Show more</button>
+        </div>
+      </div>
+      <p class="upd-foot" id="updFoot">Built automatically from the data files’ history and the release notes. When each country’s next figures are due: <a href="#schedule">Data freshness</a>.</p>
+    </section>
+
+
     <div class="about-section-label">What you can do here</div>
     <div class="about-grid">
       <a class="about-card about-card--link" href="#gallery">
@@ -3899,6 +3956,83 @@ const VIEW_START_YEAR = 2015;
 
   </div>
 </section>
+<script>
+/* Latest updates on the home tab: renders sources/updates.json (written by
+   scripts/build_updates.py, docs/architecture/66-latest-updates.md). Content
+   updates only, never renders. A missing feed hides the section. */
+(function(){
+  var SHOW = (window.matchMedia && matchMedia('(max-width:820px)').matches) ? 3 : 5, MORE = 15;
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var KIND = { country:'New country', series:'New series', revised:'Revised', fields:'New column' };
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function day(iso, refYear){
+    var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||''); if(!m) return '';
+    return (+m[3])+' '+MON[+m[2]-1]+(+m[1]!==refYear?' '+m[1]:'');
+  }
+  // Same two-candidate dance as loadSchedule(): the page carries a <base>
+  // pointing at the published site, so resolve against location.href first.
+  async function load(){
+    var urls=[new URL('sources/updates.json', location.href).href, 'sources/updates.json'];
+    for(var i=0;i<urls.length;i++){
+      try{ var r=await fetch(urls[i],{cache:'no-store'}); if(r.ok) return await r.json(); }catch(e){ /* next */ }
+    }
+    return null;
+  }
+  function dataRow(e, ref){
+    var kind = e.kind && KIND[e.kind] && e.kind!=='fields'
+      ? ' <span class="upd-kind upd-kind--'+esc(e.kind)+'">'+esc(KIND[e.kind])+'</span>' : '';
+    var what = e.kind==='country' ? '' : '<span class="upd-what">'+esc(e.headline)+'</span>';
+    var meta = [];
+    if(e.detail) meta.push(esc(e.detail));
+    if(e.source) meta.push('via '+esc(e.source));
+    meta.push('<a href="#rawdata?c='+encodeURIComponent(e.country)+'">Numbers</a>');
+    if(e.slug) meta.push('<a href="sources/'+encodeURIComponent(e.slug)+'.html">Source</a>');
+    return '<li class="upd-row"><time class="upd-date" datetime="'+esc(e.date)+'">'+esc(day(e.date,ref))+'</time>'+
+      '<div class="upd-body"><div class="upd-line">'+(e.flag?'<span class="upd-flag" aria-hidden="true">'+esc(e.flag)+'</span>':'')+
+      '<a class="upd-country" href="#rawdata?c='+encodeURIComponent(e.country)+'">'+esc(e.country)+'</a>'+what+kind+'</div>'+
+      '<div class="upd-meta">'+meta.join(' · ')+'</div></div></li>';
+  }
+  function siteRow(e, ref){
+    var link = e.pr ? '<a href="https://github.com/LeRaffl/LeRaffl-Gallery/pull/'+encodeURIComponent(e.pr)+'" target="_blank" rel="noopener">#'+esc(e.pr)+' ↗</a>' : '';
+    return '<li class="upd-row"><time class="upd-date" datetime="'+esc(e.date)+'">'+esc(day(e.date,ref))+'</time>'+
+      '<div class="upd-body"><div class="upd-line">'+esc(e.headline)+'</div>'+
+      (link?'<div class="upd-meta">'+link+'</div>':'')+'</div></li>';
+  }
+  function fill(listId, moreId, countId, items, row, ref){
+    var ul=document.getElementById(listId), more=document.getElementById(moreId), cnt=document.getElementById(countId);
+    if(!ul) return;
+    if(!items.length){ ul.innerHTML='<li class="upd-empty">Nothing in the last weeks.</li>'; return; }
+    items=items.slice(0, SHOW+MORE);
+    ul.innerHTML=items.map(function(e){ return row(e, ref); }).join('');
+    var lis=ul.children;
+    for(var i=SHOW;i<lis.length;i++) lis[i].hidden=true;
+    if(cnt){
+      var days=items.map(function(e){return e.date;}).filter(Boolean).sort();
+      cnt.textContent = days.length ? 'since '+day(days[0], ref) : '';
+    }
+    if(more && lis.length>SHOW){
+      more.hidden=false;
+      more.textContent='Show '+(lis.length-SHOW)+' more';
+      more.addEventListener('click', function(){
+        var open=more.getAttribute('aria-expanded')==='true';
+        for(var i=SHOW;i<lis.length;i++) lis[i].hidden=open;
+        more.setAttribute('aria-expanded', open?'false':'true');
+        more.textContent= open ? 'Show '+(lis.length-SHOW)+' more' : 'Show less';
+      });
+    }
+  }
+  async function init(){
+    var box=document.getElementById('latestUpdates'); if(!box) return;
+    var feed=await load();
+    var entries=feed && Array.isArray(feed.entries) ? feed.entries : null;
+    if(!entries || !entries.length){ box.hidden=true; return; }
+    var ref=+(String(feed.generated||'').slice(0,4)) || new Date().getFullYear();
+    fill('updData','updDataMore','updDataCount', entries.filter(function(e){return e.type==='data';}), dataRow, ref);
+    fill('updSite','updSiteMore','updSiteCount', entries.filter(function(e){return e.type==='site';}), siteRow, ref);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
 
 <!-- FAQ TAB -->
 <section id="tab-faq" class="tab">

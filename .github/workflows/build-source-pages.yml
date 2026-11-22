@@ -30,6 +30,7 @@ on:
       - 'reference/**'               # ACEA's EU shares on the EU brief
       - 'footnotes.csv'              # chart footnote repeated under Caveats
       - 'scripts/build_schedule.py'
+      - 'scripts/build_updates.py'   # sources/updates.json (home "Latest updates")
       - 'scripts/build_theme.py'
       - 'index.html'                 # the palette's source of truth (#221)
       - 'params.csv'
@@ -59,6 +60,8 @@ on:
       - 'scripts/test_region_card.py'
       - 'scripts/test_locator_map.py'
       - 'scripts/build_schedule.py'
+      - 'scripts/build_updates.py'
+      - 'scripts/test_build_updates.py'
       - 'scripts/build_theme.py'
       - 'index.html'
       - 'classification/**'
@@ -72,11 +75,19 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      pull-requests: read   # Release: lines of merged PRs for sources/updates.json
     concurrency:
       group: source-pages-${{ github.ref }}
       cancel-in-progress: true
     steps:
+      # Full history, but no old file contents: the home page's "Latest
+      # updates" feed (scripts/build_updates.py) reads the last 60 days of
+      # data/*.csv diffs, and git fetches only those blobs on demand. PR runs
+      # only test the generators, so they keep the default shallow clone.
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 0 }}
+          filter: blob:none
 
       - uses: actions/setup-python@v6
         with:
@@ -93,6 +104,10 @@ jobs:
       - name: Generator tests (reconciliation section)
         if: github.event_name == 'pull_request'
         run: python3 scripts/test_build_source_pages.py
+
+      - name: Latest-updates feed tests
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/test_build_updates.py
 
       - name: Locator map tests
         if: github.event_name == 'pull_request'
@@ -125,6 +140,16 @@ jobs:
       - name: Build schedule data
         if: github.event_name != 'pull_request'
         run: python3 scripts/build_schedule.py
+
+      # "Latest updates" on the home page: content changes only (new months,
+      # countries, series, columns, revisions from the data commits; the
+      # Release: lines of merged PRs). Never fails the build: without gh it
+      # keeps the previous feed's site entries. docs/architecture/66-latest-updates.md.
+      - name: Build latest-updates feed
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/build_updates.py || echo "::warning::build_updates.py failed; the home page keeps the previous feed."
 
       - name: Commit regenerated pages
         if: github.event_name != 'pull_request'

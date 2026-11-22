@@ -1,0 +1,997 @@
+{
+ "generated": "2026-11-22",
+ "window_days": 60,
+ "entries": [
+  {
+   "date": "2026-11-21",
+   "time": "2026-11-21T19:27:54Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Türkiye",
+   "flag": "🇹🇷",
+   "slug": "turkiye",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "TÜİK",
+   "commit": "6069026164f2"
+  },
+  {
+   "date": "2026-11-21",
+   "time": "2026-11-21T16:50:55Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Region briefs now draw the members' combined 95% confidence band when it matches the curve's fits, and otherwise say exactly why no band can be stated.",
+   "title": "feat(region): honest group confidence bands for the region briefs (#454)",
+   "pr": 463
+  },
+  {
+   "date": "2026-11-21",
+   "time": "2026-11-21T15:26:59Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Finland's charts now show hybrids (HEV, full and mild hybrids as ACEA counts them) separately from petrol from 2014, split out of petrol by the hybrid share in Traficom's vehicle register (a flagged estimate before 2025, and for the newest months until the next quarterly snapshot).",
+   "title": "feat(fi): HEV for Finland from the Traficom register, kept current",
+   "pr": 461
+  },
+  {
+   "date": "2026-11-21",
+   "time": "2026-11-21T15:26:29Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "The Netherlands' and Czechia's charts now show hybrids (HEV, full and mild hybrids as ACEA counts them) separately from petrol over the whole period they cover: for the Netherlands from the RDW register's hybrid share (a flagged estimate before July 2023), for Czechia from SDA via ACEA (estimated from ACEA's quarterly shares before 2022).",
+   "title": "feat(nl, cz): HEV for the Netherlands from the RDW register, history estimates for NL and Czechia",
+   "pr": 460
+  },
+  {
+   "date": "2026-11-21",
+   "time": "2026-11-21T14:14:39Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "On region briefs the drawn 12-month BEV line now uses the same weighting as the headline figure, so it ends exactly on the printed number instead of slightly below it.",
+   "title": "fix(region): draw the 12-month line on the headline's weighted rule",
+   "pr": 464
+  },
+  {
+   "date": "2026-11-21",
+   "time": "2026-11-21T14:14:30Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Region briefs now show a volume-weighted year-to-date BEV share, consistent with the 12-month headline, instead of an unweighted average of monthly shares.",
+   "title": "fix(region): weight the brief YTD by member volumes, not a month mean (#458)",
+   "pr": 462
+  },
+  {
+   "date": "2026-11-19",
+   "time": "2026-11-19T20:38:58Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Social cards go live for every country and region, and region A4 briefs (EU, World, groups) join them. Flyer polish: labelled hero windows, a plain-language hook, a calmer curve, and a fade + chevron when \"other brands\" outruns the scale. The EU brief shows ACEA's own published HEV share as a labelled line.",
+   "title": "Region briefs and social cards (EU, World and groups)",
+   "pr": 453
+  },
+  {
+   "date": "2026-11-19",
+   "time": "2026-11-19T20:33:01Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Country briefs get a ranked brand block — who sells the battery-electric cars — with Wikimedia Commons logos and one consistent confidence-band term.",
+   "title": "Brand block and social cards for the country briefs",
+   "pr": 452
+  },
+  {
+   "date": "2026-11-19",
+   "time": "2026-11-19T20:24:06Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Every country has a one-page A4 brief — the shift to battery-electric cars in plain words, who gained and lost share, and where the fitted curve points. It saves as PDF, and the source pages open with the same figures.",
+   "title": "feat: country briefs (one-page A4) and model-card sections on the source pages",
+   "pr": 450
+  },
+  {
+   "date": "2026-11-18",
+   "time": "2026-11-18T18:58:49Z",
+   "type": "data",
+   "kind": "data",
+   "country": "USA",
+   "flag": "🇺🇸",
+   "slug": "usa",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 2 earlier periods revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "ANL",
+   "commit": "902ec95a0e69"
+  },
+  {
+   "date": "2026-11-17",
+   "time": "2026-11-17T12:21:22Z",
+   "type": "data",
+   "kind": "data",
+   "country": "South Korea",
+   "flag": "🇰🇷",
+   "slug": "south-korea",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · FCEV added",
+   "variants": [
+    "Whole"
+   ],
+   "source": "MOTIR (자동차산업 동향)",
+   "commit": "eeeb0fa8d188"
+  },
+  {
+   "date": "2026-11-16",
+   "time": "2026-11-16T21:17:47Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Greece",
+   "flag": "🇬🇷",
+   "slug": "greece",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "SEAA",
+   "commit": "2bf24e0231ab"
+  },
+  {
+   "date": "2026-11-16",
+   "time": "2026-11-16T08:37:00Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Taiwan",
+   "flag": "🇹🇼",
+   "slug": "taiwan",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans, Trucks, Buses",
+   "variants": [
+    "Whole",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "THB register via MOTC statistics",
+   "commit": "e24e6afcd263"
+  },
+  {
+   "date": "2026-11-15",
+   "time": "2026-11-15T21:11:46+01:00",
+   "type": "data",
+   "kind": "data",
+   "country": "Malaysia",
+   "flag": "🇲🇾",
+   "slug": "malaysia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 91 earlier periods revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "data.gov.my",
+   "commit": "b985de5a1e52",
+   "pr": 448
+  },
+  {
+   "date": "2026-11-15",
+   "time": "2026-11-15T21:11:46+01:00",
+   "type": "data",
+   "kind": "data",
+   "country": "Singapore",
+   "flag": "🇸🇬",
+   "slug": "singapore",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 10 earlier periods revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "lta.gov.sg (M03)",
+   "commit": "b985de5a1e52",
+   "pr": 448
+  },
+  {
+   "date": "2026-11-15",
+   "time": "2026-11-15T20:57:36+01:00",
+   "type": "data",
+   "kind": "revised",
+   "country": "South Africa",
+   "flag": "🇿🇦",
+   "slug": "south_africa",
+   "headline": "Figures revised",
+   "detail": "2 periods",
+   "variants": [],
+   "source": "",
+   "commit": "a6957a4ba49c",
+   "pr": 418
+  },
+  {
+   "date": "2026-11-15",
+   "time": "2026-11-15T20:39:17Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "The Fleet tab now projects vans, heavy trucks and buses as their own vehicle classes, starting with Norway.",
+   "title": "feat(fleet): vans, trucks and buses as vehicle classes (Norway pilot)",
+   "pr": 415
+  },
+  {
+   "date": "2026-11-15",
+   "time": "2026-11-15T20:37:51Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Chart titles now name the vehicles they count (\"Austria: New Cars\", \"new heavy truck registrations\"), and series that count more than passenger cars say \"Vehicles\".",
+   "title": "feat: name the vehicle kind in chart titles, one variant vocabulary for charts and UI",
+   "pr": 416
+  },
+  {
+   "date": "2026-11-15",
+   "time": "2026-11-15T20:11:47Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Singapore and Malaysia show a current 12-month BEV share again: zero counts that had been stored as empty are filled in, and Malaysia's history follows the register's restated counts.",
+   "title": "fix(singapore, malaysia): write a counted zero as 0.0, not as empty",
+   "pr": 448
+  },
+  {
+   "date": "2026-11-15",
+   "time": "2026-11-15T20:10:42Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Country source pages now open with that country's own 12-month powertrain mix.",
+   "title": "feat(sources): open each country page with its own 12-month powertrain mix",
+   "pr": 446
+  },
+  {
+   "date": "2026-11-15",
+   "time": "2026-11-15T14:46:59Z",
+   "type": "data",
+   "kind": "revised",
+   "country": "Spain",
+   "flag": "🇪🇸",
+   "slug": "spain",
+   "headline": "Figures revised",
+   "detail": "8 periods",
+   "variants": [],
+   "source": "DGT",
+   "commit": "3fabae6af7ed"
+  },
+  {
+   "date": "2026-11-15",
+   "time": "2026-11-15T13:11:52Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Code is now licensed under MIT, and charts, fits, footnotes and method text under CC BY 4.0; the registration figures themselves are not licensed here.",
+   "title": "docs: license code as MIT and charts as CC BY",
+   "pr": 442
+  },
+  {
+   "date": "2026-11-14",
+   "time": "2026-11-14T20:07:08Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Peru",
+   "flag": "🇵🇪",
+   "slug": "peru",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans",
+   "variants": [
+    "Whole",
+    "Vans"
+   ],
+   "source": "SUNARP via AAP (BI-AAP)",
+   "commit": "b115f69f8344"
+  },
+  {
+   "date": "2026-11-13",
+   "time": "2026-11-13T17:17:41Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Austria",
+   "flag": "🇦🇹",
+   "slug": "austria",
+   "headline": "Oct 2026 data",
+   "detail": "Resale",
+   "variants": [
+    "Resale"
+   ],
+   "source": "Statistik Austria (DE2/DE3/GE2)",
+   "commit": "550a11ee2809"
+  },
+  {
+   "date": "2026-11-13",
+   "time": "2026-11-13T15:04:08Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Albania",
+   "flag": "🇦🇱",
+   "slug": "albania",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Trucks, Buses, Two-wheelers",
+   "variants": [
+    "Whole",
+    "HDV",
+    "Buses",
+    "2-Wheelers"
+   ],
+   "source": "dpshtrr.al",
+   "commit": "c2afaa26fcab"
+  },
+  {
+   "date": "2026-11-13",
+   "time": "2026-11-13T14:53:13Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Lithuania",
+   "flag": "🇱🇹",
+   "slug": "lithuania",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Used",
+   "variants": [
+    "Whole",
+    "Used"
+   ],
+   "source": "Regitra",
+   "commit": "6d307f6c7b90"
+  },
+  {
+   "date": "2026-11-13",
+   "time": "2026-11-13T13:08:53Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Denmark",
+   "flag": "🇩🇰",
+   "slug": "denmark",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Private, Industry, Vans, Trucks · 19 earlier periods revised",
+   "variants": [
+    "Whole",
+    "Private",
+    "Industry",
+    "Vans",
+    "HDV"
+   ],
+   "source": "api.statbank.dk (BIL53)",
+   "commit": "2bcac54a7006"
+  },
+  {
+   "date": "2026-11-12",
+   "time": "2026-11-12T20:07:45Z",
+   "type": "data",
+   "kind": "revised",
+   "country": "South Africa",
+   "flag": "🇿🇦",
+   "slug": "south_africa",
+   "headline": "Figures revised",
+   "detail": "2 periods",
+   "variants": [],
+   "source": "naamsa quarterly review",
+   "commit": "11903412b46c"
+  },
+  {
+   "date": "2026-11-12",
+   "time": "2026-11-12T17:55:13Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Italy",
+   "flag": "🇮🇹",
+   "slug": "italy",
+   "headline": "Oct 2026 data",
+   "detail": "Vans",
+   "variants": [
+    "Vans"
+   ],
+   "source": "UNRAE",
+   "commit": "b454d23795f6"
+  },
+  {
+   "date": "2026-11-11",
+   "time": "2026-11-11T14:43:30Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Luxembourg",
+   "flag": "🇱🇺",
+   "slug": "luxembourg",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans, Trucks",
+   "variants": [
+    "Whole",
+    "Vans",
+    "HDV"
+   ],
+   "source": "lustat.statec.lu",
+   "commit": "b8f521d1576c"
+  },
+  {
+   "date": "2026-11-11",
+   "time": "2026-11-11T14:39:56Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Netherlands",
+   "flag": "🇳🇱",
+   "slug": "netherlands",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Used, Trucks · 41 earlier periods revised",
+   "variants": [
+    "Whole",
+    "Used",
+    "HDV"
+   ],
+   "source": "duurzamemobiliteit.databank.nl",
+   "commit": "8b7cbf086728"
+  },
+  {
+   "date": "2026-11-10",
+   "time": "2026-11-10T20:13:27Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "The Fleet tab's projection is now calibrated per country (observed turnover, mileage and grid intensity instead of global defaults), and a new page explains how it is calculated.",
+   "title": "Fleet tab: calibrate the projection per country, fix the emissions view",
+   "pr": 414
+  },
+  {
+   "date": "2026-11-10",
+   "time": "2026-11-10T17:12:37Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Poland",
+   "flag": "🇵🇱",
+   "slug": "poland",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans, Trucks, Buses",
+   "variants": [
+    "Whole",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "PZPM (eRegistrations)",
+   "commit": "8b64e65fde3a"
+  },
+  {
+   "date": "2026-11-10",
+   "time": "2026-11-10T16:19:05Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Austria",
+   "flag": "🇦🇹",
+   "slug": "austria",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans, Trucks",
+   "variants": [
+    "Whole",
+    "Vans",
+    "HDV"
+   ],
+   "source": "Statistik Austria (DE2/DE3/GE2)",
+   "commit": "9a025e57ae1a"
+  },
+  {
+   "date": "2026-11-09",
+   "time": "2026-11-09T20:39:12Z",
+   "type": "data",
+   "kind": "data",
+   "country": "China",
+   "flag": "🇨🇳",
+   "slug": "china",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Wholesale",
+   "variants": [
+    "Whole",
+    "Wholesale"
+   ],
+   "source": "CPCA",
+   "commit": "8b4c999bcc81"
+  },
+  {
+   "date": "2026-11-09",
+   "time": "2026-11-09T20:35:26Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Belgium",
+   "flag": "🇧🇪",
+   "slug": "belgium",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Private, Industry, Vans, Trucks, Buses",
+   "variants": [
+    "Whole",
+    "Private",
+    "Industry",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "DIV",
+   "commit": "d44c7f8f005f"
+  },
+  {
+   "date": "2026-11-09",
+   "time": "2026-11-09T13:29:05Z",
+   "type": "data",
+   "kind": "data",
+   "country": "New Zealand",
+   "flag": "🇳🇿",
+   "slug": "new-zealand",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Used, Vans, Trucks",
+   "variants": [
+    "Whole",
+    "Used",
+    "Vans",
+    "HDV"
+   ],
+   "source": "NZTA Motor Vehicle Register",
+   "commit": "fa9c7f0698bd"
+  },
+  {
+   "date": "2026-11-08",
+   "time": "2026-11-08T13:32:22Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Portugal's petrol, diesel and other counts for January 2018 to July 2022 are now scaled to each month's total instead of repeating a quarterly figure; BEV, PHEV, HEV and the totals are unchanged.",
+   "title": "fix(portugal): scale pasted combustion split onto the monthly residual",
+   "pr": 411
+  },
+  {
+   "date": "2026-11-07",
+   "time": "2026-11-07T19:02:44Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Japan and South Korea report hydrogen fuel-cell cars as their own FCEV category in new months; earlier months keep them inside Other.",
+   "title": "feat: future-only Japan and Korea FCEV activation (step 4)",
+   "pr": 409
+  },
+  {
+   "date": "2026-11-07",
+   "time": "2026-11-07T19:00:04Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Raw Data can show FCEV as its own band where a source confirms it, and its shares now divide by the source's original total.",
+   "title": "feat: optional FCEV schema and strict Raw Data coverage (step 3)",
+   "pr": 408
+  },
+  {
+   "date": "2026-11-07",
+   "time": "2026-11-07T18:59:50Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Raw Data has a fuel selector: choose which fuel bands to show, while shares still divide by the full total.",
+   "title": "feat: add independent fuel selection to Raw Data",
+   "pr": 407
+  },
+  {
+   "date": "2026-11-07",
+   "time": "2026-11-07T14:53:07Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Uruguay",
+   "flag": "🇺🇾",
+   "slug": "uruguay",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans, Trucks, Buses",
+   "variants": [
+    "Whole",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "ACAU",
+   "commit": "655b258fc4da"
+  },
+  {
+   "date": "2026-11-07",
+   "time": "2026-11-07T13:46:35Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Estonia",
+   "flag": "🇪🇪",
+   "slug": "estonia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Used, Vans, Trucks, Buses",
+   "variants": [
+    "Whole",
+    "Used",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "Transpordiamet",
+   "commit": "ac0ce307be6a"
+  },
+  {
+   "date": "2026-11-06",
+   "time": "2026-11-06T10:16:29Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Japan",
+   "flag": "🇯🇵",
+   "slug": "japan",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "JADA",
+   "commit": "07157b32eeaa"
+  },
+  {
+   "date": "2026-11-05",
+   "time": "2026-11-05T16:11:59+01:00",
+   "type": "data",
+   "kind": "data",
+   "country": "UK",
+   "flag": "🇬🇧",
+   "slug": "uk",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 3 earlier periods revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "8be7054c39d5",
+   "pr": 396
+  },
+  {
+   "date": "2026-11-05",
+   "time": "2026-11-05T15:45:20Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Colombia",
+   "flag": "🇨🇴",
+   "slug": "colombia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 1 earlier period revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "ANDI/FENALCO (datos RUNT)",
+   "commit": "71cbbbbb5696"
+  },
+  {
+   "date": "2026-11-05",
+   "time": "2026-11-05T12:44:41Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Finland",
+   "flag": "🇫🇮",
+   "slug": "finland",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Private, Industry, Vans, Trucks, Buses · 2 earlier periods revised",
+   "variants": [
+    "Whole",
+    "Private",
+    "Industry",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "pxdata.stat.fi (StatFin 121d)",
+   "commit": "8ad62060aeca"
+  },
+  {
+   "date": "2026-11-05",
+   "time": "2026-11-05T08:50:52+01:00",
+   "type": "data",
+   "kind": "data",
+   "country": "Australia",
+   "flag": "🇦🇺",
+   "slug": "australia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "682f241171ae",
+   "pr": 394
+  },
+  {
+   "date": "2026-11-04",
+   "time": "2026-11-04T13:24:30Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Germany",
+   "flag": "🇩🇪",
+   "slug": "germany",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "KBA",
+   "commit": "185ec7f2cd56"
+  },
+  {
+   "date": "2026-11-04",
+   "time": "2026-11-04T11:45:13Z",
+   "type": "data",
+   "kind": "data",
+   "country": "France",
+   "flag": "🇫🇷",
+   "slug": "france",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 1 earlier period revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "SDES (motorisations série VP)",
+   "commit": "fa6bc455ba85"
+  },
+  {
+   "date": "2026-11-04",
+   "time": "2026-11-04T10:46:44Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Ecuador",
+   "flag": "🇪🇨",
+   "slug": "ecuador",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans · 17 earlier periods revised",
+   "variants": [
+    "Whole",
+    "Vans"
+   ],
+   "source": "SRI new-vehicle register (open data)",
+   "commit": "6c3ba51e698b"
+  },
+  {
+   "date": "2026-11-03",
+   "time": "2026-11-03T17:31:42Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Switzerland",
+   "flag": "🇨🇭",
+   "slug": "switzerland",
+   "headline": "Oct 2026 data",
+   "detail": "Used",
+   "variants": [
+    "Used"
+   ],
+   "source": "ASTRA",
+   "commit": "aa00343941c4"
+  },
+  {
+   "date": "2026-11-03",
+   "time": "2026-11-03T12:54:39Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Sweden",
+   "flag": "🇸🇪",
+   "slug": "sweden",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "statistikdatabasen.scb.se",
+   "commit": "7e4977a68dc8"
+  },
+  {
+   "date": "2026-11-02",
+   "time": "2026-11-02T23:52:46Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Belgium",
+   "flag": "🇧🇪",
+   "slug": "belgium",
+   "headline": "Sep 2026 data",
+   "detail": "Private, Industry, Vans, Trucks, Buses · 1 earlier period revised",
+   "variants": [
+    "Private",
+    "Industry",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "DIV",
+   "commit": "85ba4a712241"
+  },
+  {
+   "date": "2026-11-02",
+   "time": "2026-11-02T23:52:23Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Paraguay",
+   "flag": "🇵🇾",
+   "slug": "paraguay",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Used",
+   "variants": [
+    "Whole",
+    "Used"
+   ],
+   "source": "DNIT customs import declarations",
+   "commit": "e3e611ccefbc"
+  },
+  {
+   "date": "2026-11-02",
+   "time": "2026-11-02T20:03:24Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Italy",
+   "flag": "🇮🇹",
+   "slug": "italy",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Rental, Non-rental",
+   "variants": [
+    "Whole",
+    "Rental",
+    "NonRental"
+   ],
+   "source": "UNRAE",
+   "commit": "b475eae23b37"
+  },
+  {
+   "date": "2026-11-02",
+   "time": "2026-11-02T19:40:34Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Switzerland",
+   "flag": "🇨🇭",
+   "slug": "switzerland",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans, Trucks, Buses, Two-wheelers",
+   "variants": [
+    "Whole",
+    "Vans",
+    "HDV",
+    "Buses",
+    "2-Wheelers"
+   ],
+   "source": "ASTRA",
+   "commit": "4c9560e08f27"
+  },
+  {
+   "date": "2026-11-02",
+   "time": "2026-11-02T17:31:29Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Israel",
+   "flag": "🇮🇱",
+   "slug": "israel",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans · 4 earlier periods revised",
+   "variants": [
+    "Whole",
+    "Vans"
+   ],
+   "source": "data.gov.il",
+   "commit": "64bb91536475"
+  },
+  {
+   "date": "2026-11-02",
+   "time": "2026-11-02T17:06:51Z",
+   "type": "data",
+   "kind": "revised",
+   "country": "Spain",
+   "flag": "🇪🇸",
+   "slug": "spain",
+   "headline": "Figures revised",
+   "detail": "8 periods",
+   "variants": [],
+   "source": "DGT",
+   "commit": "b9943a340f92"
+  },
+  {
+   "date": "2026-11-02",
+   "time": "2026-11-02T11:15:05Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Norway",
+   "flag": "🇳🇴",
+   "slug": "norway",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "OFV",
+   "commit": "405ba82dfa4b"
+  },
+  {
+   "date": "2026-11-01",
+   "time": "2026-11-01T20:10:38Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Fits that claim a near-instant transition without the data to back it are now marked as an unreliable fit instead of carrying Done, Fast or Late starter tags (11 series change).",
+   "title": "fix(tags): degenerate fits no longer carry Done/Fast/Late tags (Malta Buses, Greece HDV, Croatia Buses)",
+   "pr": 389
+  },
+  {
+   "date": "2026-11-01",
+   "time": "2026-11-01T09:18:13Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Portugal",
+   "flag": "🇵🇹",
+   "slug": "portugal",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Vans, Trucks, Buses",
+   "variants": [
+    "Whole",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "ACAP (motordata.pt)",
+   "commit": "237adaff96f3"
+  },
+  {
+   "date": "2026-11-01",
+   "time": "2026-11-01T08:04:06Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Spain",
+   "flag": "🇪🇸",
+   "slug": "spain",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Used, Rental, Non-rental, Vans, Trucks, Buses, Two-wheelers",
+   "variants": [
+    "Whole",
+    "Used",
+    "Rental",
+    "NonRental",
+    "Vans",
+    "HDV",
+    "Buses",
+    "2-Wheelers"
+   ],
+   "source": "DGT",
+   "commit": "982c8b429c10"
+  },
+  {
+   "date": "2026-10-31",
+   "time": "2026-10-31T06:08:54Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Thailand",
+   "flag": "🇹🇭",
+   "slug": "thailand",
+   "headline": "Sep 2026 data",
+   "detail": "Cars, Trucks, Buses, 3-Wheelers",
+   "variants": [
+    "Whole",
+    "HDV",
+    "Buses",
+    "3-Wheelers"
+   ],
+   "source": "aiu.thaiauto.or.th (veh_reg_fuel)",
+   "commit": "cb41ee13b700"
+  },
+  {
+   "date": "2026-10-30",
+   "time": "2026-10-30T17:03:13Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Hong Kong",
+   "flag": "🇭🇰",
+   "slug": "hong_kong",
+   "headline": "Sep 2026 data",
+   "detail": "Cars, Used, Vans",
+   "variants": [
+    "Whole",
+    "Used",
+    "Vans"
+   ],
+   "source": "TD first registrations (data.gov.hk)",
+   "commit": "dfd1b83dddd3"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T14:33:20Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Nepal",
+   "flag": "🇳🇵",
+   "slug": "nepal",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, 3-Wheelers",
+   "variants": [
+    "Whole",
+    "3-Wheelers"
+   ],
+   "source": "customs.gov.np (FTS)",
+   "commit": "fe72da1b3c6d"
+  }
+ ]
+}

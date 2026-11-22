@@ -128,7 +128,7 @@ sequenceDiagram
     Pages->>Pages: serve updated assets
 ```
 
-After this, Flow E (manifest rebuild) is explicitly dispatched by the Render-country workflow. Direct maintainer pushes to `images/**` still trigger Flow E through the path filter. The manifest commit then pushes to `master`, which GitHub Pages auto-deploys (Pages-from-branch; no separate Pages workflow exists or is needed). Flow E ends with an explicit dispatch of `build-source-pages.yml` (master only), so the source pages and country briefs show the new month once it has finished.
+After this, Flow E (manifest rebuild) is explicitly dispatched by the Render-country workflow. Direct maintainer pushes to `images/**` still trigger Flow E through the path filter. The manifest commit then pushes to `master`, which GitHub Pages auto-deploys (Pages-from-branch; no separate Pages workflow exists or is needed). Flow E ends with an explicit dispatch of `build-source-pages.yml` (master only), so the source pages and country briefs show the new month once it has finished. The same run rebuilds `sources/updates.json` from the data commits, so the new month also appears under **Latest updates** on the home page ([66](66-latest-updates.md)).
 
 **Performance notes:**
 - Cold runner: ~2 min including R-package install
