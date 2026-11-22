@@ -4,6 +4,15 @@
  "entries": [
   {
    "date": "2026-11-22",
+   "time": "2026-11-22T12:34:51Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Denmark's charts now split petrol and diesel from 2014 instead of 2018, filled in from Statistics Denmark's table BIL51.",
+   "title": "feat(denmark): petrol/diesel 2014–2017 from StatBank BIL51, footnote on the hybrid seam",
+   "pr": 471
+  },
+  {
+   "date": "2026-11-22",
    "time": "2026-11-22T08:47:22Z",
    "type": "site",
    "kind": "site",
@@ -1201,24 +1210,6 @@
    "slug": "norway",
    "headline": "Q3 2026 data",
    "detail": "Vans, Trucks, Buses · 3 earlier periods revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Romania",
-   "flag": "🇷🇴",
-   "slug": "romania",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 1 earlier period revised",
    "variants": [
     "Vans",
     "HDV",
