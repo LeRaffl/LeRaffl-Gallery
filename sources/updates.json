@@ -4,6 +4,15 @@
  "entries": [
   {
    "date": "2026-11-22",
+   "time": "2026-11-22T12:54:12Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Denmark's charts now show hybrids (HEV, full and mild hybrids as ACEA counts them) separately from petrol and diesel from 2022, split out of Statistics Denmark's figures by ACEA's monthly shares (quarterly for 2022), and the EU and Northern Europe briefs now count hybrids from national data.",
+   "title": "feat(denmark): HEV for Whole from 2022-01 (Statbank petrol+diesel split by ACEA's shares)",
+   "pr": 477
+  },
+  {
+   "date": "2026-11-22",
    "time": "2026-11-22T12:34:51Z",
    "type": "site",
    "kind": "site",
@@ -1190,24 +1199,6 @@
    "country": "Malta",
    "flag": "🇲🇹",
    "slug": "malta",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 3 earlier periods revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Norway",
-   "flag": "🇳🇴",
-   "slug": "norway",
    "headline": "Q3 2026 data",
    "detail": "Vans, Trucks, Buses · 3 earlier periods revised",
    "variants": [
