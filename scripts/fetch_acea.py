@@ -1153,12 +1153,30 @@ def build_row(period: str, parsed: dict[str, tuple[int, int]], use_prev: bool,
     row["notes"] = source_url
     for fuel in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"):
         if fuel in fields:
-            row[fuel] = val.get(fuel, 0.0)
+            # A fuel parsed_country_table() actually reports is always in
+            # `val`; `parsed` only omits one when the whole country row was
+            # dropped (parse_monthly_table() marks it `incomplete` and never
+            # hands it to build_row — see _parse_via_text / the legacy
+            # extract_tables() fallback). So this branch should be
+            # unreachable today, but if a future PDF layout ever yields a
+            # partial country row, leave the missing category empty rather
+            # than writing a fabricated 0.0 — a 0 claims "ACEA reported zero
+            # fuel-cell cars this month", an empty cell says "not known",
+            # and those are not the same fact. (See issue #435 / the mixed
+            # 0/empty OTHERS cells inherited from the pre-fetcher 2017-2018
+            # bulk import, which this guards the live writer against
+            # repeating.)
+            row[fuel] = val[fuel] if fuel in val else ""
     # Any extra columns (e.g. FLEXFUEL for Sweden) default to 0.0 — ACEA
-    # doesn't break those out.
+    # doesn't break those out. The standard fuel columns are excluded here:
+    # they were already set above, deliberately as "" when unreported, and
+    # must not be coerced back to 0.0 by this generic fallback.
+    standard_fuels = ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL")
     for f in fields:
         if f not in row or row[f] == "":
             if f in ("period", "time_interval", "variant", "source", "notes"):
+                continue
+            if f in standard_fuels:
                 continue
             row[f] = 0.0
     return row
