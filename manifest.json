@@ -2,6 +2,46 @@
   "updated": "2026-11-22",
   "images": [
     {
+      "country": "Denmark",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-22",
+      "filename": "denmark_ICE_BEV_20261122.png",
+      "url": "images/2026-10/denmark_ICE_BEV_20261122.png",
+      "alt": "Denmark ICE-BEV-Hybrid trajectory",
+      "country_slug": "denmark"
+    },
+    {
+      "country": "Denmark",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-22",
+      "filename": "denmark_20261122.png",
+      "url": "images/2026-10/denmark_20261122.png",
+      "alt": "Denmark BEV trajectory",
+      "country_slug": "denmark"
+    },
+    {
+      "country": "Denmark",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-22",
+      "filename": "denmark_time_20261122.png",
+      "url": "images/2026-10/denmark_time_20261122.png",
+      "alt": "Denmark Transition time curve",
+      "country_slug": "denmark"
+    },
+    {
+      "country": "Denmark",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-22",
+      "filename": "denmark_ttm_shares_20261122.png",
+      "url": "images/2026-10/denmark_ttm_shares_20261122.png",
+      "alt": "Denmark TTM market split graph",
+      "country_slug": "denmark"
+    },
+    {
       "country": "Czechia",
       "type": "ICE_BEV",
       "period": "2026-09",
