@@ -3,6 +3,24 @@
  "window_days": 60,
  "entries": [
   {
+   "date": "2026-11-22",
+   "time": "2026-11-22T08:47:22Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "The Charts tab now puts each country's one-page brief, social card and data source right above its charts, with previews and one-click downloads, and every chart card links its brief.",
+   "title": "feat(gallery): country briefs, social cards and sources up front on the Charts tab",
+   "pr": 470
+  },
+  {
+   "date": "2026-11-22",
+   "time": "2026-11-22T08:47:17Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "The home page shows the latest content updates (new months of data, new countries and series, revised figures, and site changes), built automatically from the data history and the release notes.",
+   "title": "feat(home): Latest updates on the home page (data and site changes, never renders)",
+   "pr": 469
+  },
+  {
    "date": "2026-11-21",
    "time": "2026-11-21T19:27:54Z",
    "type": "data",
@@ -992,6 +1010,222 @@
    ],
    "source": "customs.gov.np (FTS)",
    "commit": "fe72da1b3c6d"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Bulgaria",
+   "flag": "🇧🇬",
+   "slug": "bulgaria",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses · 7 earlier periods revised",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Croatia",
+   "flag": "🇭🇷",
+   "slug": "croatia",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses · 1 earlier period revised",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Cyprus",
+   "flag": "🇨🇾",
+   "slug": "cyprus",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses · 2 earlier periods revised",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "France",
+   "flag": "🇫🇷",
+   "slug": "france",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses · 1 earlier period revised",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Germany",
+   "flag": "🇩🇪",
+   "slug": "germany",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Greece",
+   "flag": "🇬🇷",
+   "slug": "greece",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Hungary",
+   "flag": "🇭🇺",
+   "slug": "hungary",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses · 2 earlier periods revised",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Iceland",
+   "flag": "🇮🇸",
+   "slug": "iceland",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses · 1 earlier period revised",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Lithuania",
+   "flag": "🇱🇹",
+   "slug": "lithuania",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Malta",
+   "flag": "🇲🇹",
+   "slug": "malta",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses · 3 earlier periods revised",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Norway",
+   "flag": "🇳🇴",
+   "slug": "norway",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses · 3 earlier periods revised",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
+  },
+  {
+   "date": "2026-10-28",
+   "time": "2026-10-28T06:26:27Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Romania",
+   "flag": "🇷🇴",
+   "slug": "romania",
+   "headline": "Q3 2026 data",
+   "detail": "Vans, Trucks, Buses · 1 earlier period revised",
+   "variants": [
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "",
+   "commit": "a6b93bfa98bc"
   }
  ]
 }

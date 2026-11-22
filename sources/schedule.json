@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-21T21:55:06Z",
- "today": "2026-11-21",
+ "generated": "2026-11-22T08:49:51Z",
+ "today": "2026-11-22",
  "countries": [
   {
    "country": "Albania",
@@ -1093,7 +1093,8 @@
      12
     ],
     "times": [
-     "05:15"
+     "05:15",
+     "07:20"
     ],
     "workflow": ".github/workflows/fetch-denmark.yml"
    },
