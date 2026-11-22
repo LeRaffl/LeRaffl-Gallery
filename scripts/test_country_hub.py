@@ -36,6 +36,16 @@ def test_panel_links_brief_card_source_and_csv():
     assert "replace(/\\s*\\(.*\\)\\s*$/, '')" in body
 
 
+def test_variant_switch_updates_note_and_offers_variant_csv():
+    # the panel keeps its previews per country, so a switch Germany ->
+    # Germany (Vans) must still repaint the variant line in place
+    body = H.split("function renderCountryHub(")[1].split("\n}\n")[0]
+    assert body.count("renderCountryHubVariant(hub, picked, base)") == 2
+    var = H.split("function renderCountryHubVariant(")[1].split("\n}\n")[0]
+    assert "b.data_file.replace(/\\.csv$/, '_' + variant + '.csv')" in var
+    assert "method: 'HEAD'" in var          # offered only if the file exists
+
+
 def test_every_card_links_its_brief():
     assert 'class="btn btn--brief" href="sources/flyer/${srcSlug}.html"' in H
     assert "${srcLink}${briefLink}" in H

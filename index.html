@@ -8076,7 +8076,10 @@ function renderCountryHub(hasCharts){
   const base = picked.replace(/\s*\(.*\)\s*$/, '').trim();
   const slug = base ? SOURCE_PAGES[base] : '';
   const key = slug ? 'c:' + slug : 'strip:' + nPages;
-  if (hub.dataset.key === key && !hub.hidden) return;   // keep the previews loaded
+  if (hub.dataset.key === key && !hub.hidden){          // keep the previews loaded
+    if (slug) renderCountryHubVariant(hub, picked, base); // but follow a variant switch
+    return;
+  }
   hub.dataset.key = key;
   hub.hidden = false;
   if (!slug){
@@ -8099,8 +8102,7 @@ function renderCountryHub(hasCharts){
   const srcLine = b.source ? `<div class="ghub-src">Data: ${b.source_url
       ? `<a href="${esc(b.source_url)}" target="_blank" rel="noopener">${esc(b.source)} ↗</a>` : esc(b.source)}</div>` : '';
   const csv = b.data_file ? `<a class="ghub-act" href="${esc(b.data_file)}" download><span class="ghub-i" aria-hidden="true">↓</span>Raw data (CSV)</a>` : '';
-  const variantNote = picked && picked !== base
-    ? `<p class="ghub-note">Brief and card cover ${esc(base)}'s new cars; the charts below show ${esc(picked)}.</p>` : '';
+  const variantNote = `<p class="ghub-note" data-ghub-variant hidden></p>`;
   hub.className = 'ghub ghub--full';
   hub.innerHTML = `<div class="ghub-thumbs">`
       + `<a class="ghub-thumb" href="${brief}" target="_blank" rel="noopener" aria-label="Open the ${esc(base)} country brief (one A4 page, saves as PDF)">`
@@ -8125,6 +8127,30 @@ function renderCountryHub(hasCharts){
     +   `</div>`
     +   variantNote
     + `</div>`;
+  renderCountryHubVariant(hub, picked, base);
+}
+
+// The variant line under the country panel: what the brief covers vs what
+// the charts show, plus the variant's own CSV. Updated in place on a
+// variant switch so the previews stay loaded. The variant file is offered
+// only once it answers (a legacy label like India (4-Wheelers) has none).
+function renderCountryHubVariant(hub, picked, base){
+  const el = hub.querySelector('[data-ghub-variant]'); if (!el) return;
+  if (el.dataset.for === picked) return;
+  el.dataset.for = picked;
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+  const m = picked && picked !== base ? picked.match(/\(([^()]+)\)\s*$/) : null;
+  if (!m){ el.hidden = true; el.textContent = ''; return; }
+  const variant = m[1];
+  el.innerHTML = `Brief and card cover ${esc(base)}'s new cars; the charts below show ${esc(picked)}.`;
+  el.hidden = false;
+  const b = COUNTRY_BRIEFS[base] || {};
+  if (!b.data_file) return;
+  const file = b.data_file.replace(/\.csv$/, '_' + variant + '.csv');
+  fetch(file, { method: 'HEAD', cache: 'no-store' }).then(r => {
+    if (!r.ok || el.dataset.for !== picked) return;
+    el.insertAdjacentHTML('beforeend', ` <a href="${esc(file)}" download>${esc(variant)} raw data (CSV) ↓</a>`);
+  }).catch(() => {});
 }
 
 // debug warning system
