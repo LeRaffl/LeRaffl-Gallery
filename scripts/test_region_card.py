@@ -768,6 +768,40 @@ def test_region_briefs_carry_weighted_ytd():
         assert flyer._brief_ytd(fig, info["rows"]) == fig["ytd"], slug
 
 
+def test_eu_backtest_members_now_carry_real_refit_swing_and_a_band():
+    # Regression for the two structural gaps PR #463 documented as the reason
+    # group_band() never fired (docs/architecture/44-uncertainty-bands.md,
+    # "Region briefs and social cards"): (1) R/build_backtest.R used to
+    # hardcode refit_swing = NA for every archived row, which the reliability
+    # gate reads as "unsettled"; (2) bands/<slug>.json only ever held the
+    # latest live render, never a band matching an older backtest frame. Both
+    # are now real for the EU frame this repo snapshot carries. This pins
+    # the fixed state, not a synthetic fixture, precisely because the
+    # original bug could only be seen against the real archive.
+    bt = rc._load_backtest("eu")
+    assert bt is not None, "EU backtest archive missing"
+    import contextlib, io
+    with contextlib.redirect_stderr(io.StringIO()):
+        info = rc.load("eu")
+    frame = rc._pick_frame(bt, info["t"])
+    assert frame is not None
+    fits = rc._frame_fits("eu", frame)
+    assert fits is not None
+    rows, weights = fits
+    with_swing = [r for r in rows if str(r.get("refit_swing") or "").strip()]
+    assert len(with_swing) >= 0.8 * len(rows), (
+        "most EU members' archived fits should carry a real refit_swing now")
+    years = bt.get("years") or []
+    model = (frame.get("all") or {}).get("bev") or []
+    band = rc.group_band(rows, weights, years, model,
+                          band_loader=rc._backtest_band_loader(
+                              frame.get("date") or frame.get("data_per") or ""))
+    assert band["ok"], band.get("excluded")
+    assert band["coverage"] >= rc.BAND_MIN_COVERAGE
+    assert info["band"] is not None and info["band"]["ok"], (
+        "the EU brief itself should now carry a non-empty confidence band")
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

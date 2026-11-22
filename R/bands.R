@@ -138,7 +138,14 @@ BANDS_MAX_PERSIST <- 0.9
 
 # Main entry. df = the data frame render_country.R fits; fit = fit_history(df).
 # Returns NULL when the fit has no usable S-shape (v1 >= 0, v2 <= 0, too few rows).
-compute_bands <- function(df, fit) {
+# `ti = FALSE` skips the block-bootstrap TI (its 200 refits — optim() calls —
+# are the dominant cost of this function, dwarfing the CI/PI math below).
+# Used by R/build_backtest.R, which needs a band per archived (country,
+# frame-month) pair and cannot afford a full TI bootstrap at that volume;
+# group_band() (scripts/region_card.py) only ever reads "ci" and "fit", never
+# "ti", so the backtest archive sets ti = pi (nesting-safe: TI >= PI by
+# definition) and boot_ok = 0 rather than compute it.
+compute_bands <- function(df, fit, ti = TRUE) {
   v1 <- fit$v1; v2 <- fit$v2; t0 <- fit$t0
   if (!is.finite(v1) || !is.finite(v2) || v1 >= 0 || v2 <= 0) return(NULL)
   d <- .bands_rows(df, t0)
@@ -184,6 +191,8 @@ compute_bands <- function(df, fit) {
   # TI: block bootstrap. Each history b gives its own month distribution at t;
   # its (1-P)/2 and (1+P)/2 points are collected, and the band takes the
   # (1-gamma)/2 percentile of the lower points and (1+gamma)/2 of the upper.
+  # Skipped entirely when ti = FALSE (see the function header).
+  if (ti) {
   old_seed <- if (exists(".Random.seed", envir = globalenv())) get(".Random.seed", envir = globalenv()) else NULL
   set.seed(BANDS_SEED)
   on.exit(if (!is.null(old_seed)) assign(".Random.seed", old_seed, envir = globalenv()), add = TRUE)
@@ -209,6 +218,10 @@ compute_bands <- function(df, fit) {
     # Too few histories refitted to trust a 95th percentile: no TI (JSON null),
     # CI and PI are still written.
     ti_lo <- ti_hi <- rep(NA_real_, length(zg))
+  }
+  } else {
+    ok <- logical(0)
+    ti_lo <- pi_lo; ti_hi <- pi_hi   # nesting-safe placeholder; see header.
   }
 
   # Nesting by definition: TI contains PI contains CI.

@@ -786,6 +786,29 @@ def _band_half_widths(b: dict, x: float) -> tuple[float, float] | None:
     return (max(0.0, fit_v - lo), max(0.0, hi - fit_v))
 
 
+def _backtest_band_loader(model_per: str):
+    """band_loader for group_band() when the curve is a backtest frame: prefer
+    the band archived for THIS frame month (backtest/bands/<model_per>/
+    <slug>.json, written by R/build_backtest.R when BACKTEST_BANDS=true) over
+    the member's live bands/<slug>.json, which is only ever the latest render
+    and so would usually fail group_band()'s same-fit (data_per/v2) check for
+    older frames anyway. Falls back to the live file when no frame-specific
+    band was archived (e.g. BACKTEST_BANDS was off for that run), in which
+    case group_band()'s own data_per/v2 match still decides whether it is
+    actually usable."""
+    def _load(country: str) -> dict | None:
+        if model_per:
+            slug = mc.band_slug(country)
+            path = REPO / "backtest" / "bands" / model_per / f"{slug}.json"
+            if path.is_file():
+                try:
+                    return json.loads(path.read_text(encoding="utf-8"))
+                except (OSError, ValueError):
+                    pass
+        return mc.load_bands(country)
+    return _load
+
+
 def group_band(rows: list[dict], weights: dict[str, float],
                years: list[float], curve_pct: list[float],
                band_loader=mc.load_bands, today=None) -> dict:
@@ -1325,7 +1348,8 @@ def load(slug: str) -> dict:
     if frame and years and model:
         fits = _frame_fits(slug, frame)
         if fits:
-            band = group_band(fits[0], fits[1], years, model)
+            band = group_band(fits[0], fits[1], years, model,
+                               band_loader=_backtest_band_loader(model_per))
 
     ttm_line = weighted_ttm_series(contrib, rows)
 

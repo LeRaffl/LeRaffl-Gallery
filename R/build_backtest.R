@@ -66,6 +66,7 @@ suppressPackageStartupMessages({
 
 source("R/data.R")
 source("R/fit.R")
+source("R/bands.R")
 
 BACKTEST_DIR <- "backtest"
 
@@ -214,11 +215,36 @@ ttm_bev_share <- function(df, upto) {
 # NA rather than Inf/NaN/NULL in the CSV. Shared by fit_one and the writer.
 num <- function(x) if (is.null(x) || length(x) == 0 || !is.finite(x)) NA_real_ else x
 
-fit_one <- function(entry, upto) {
+# NA/Inf as a literal string, the same convention upsert.R uses for the live
+# params.csv: Inf means "measured and genuinely unsettled" (>=25% of the
+# trailing refits produced no 80%-crossing, or fewer than 3 did), which must
+# stay distinguishable from NA ("not recorded at all"). num() above collapses
+# both to NA, so refit_swing is kept out of num()'s hands.
+swing_str <- function(x) if (is.null(x) || is.na(x)) NA_real_ else x
+
+fit_one <- function(entry, upto, bands_dir = NULL) {
   d <- entry$df[entry$df$period <= upto, , drop = FALSE]
   if (nrow(d) < MIN_ROWS) return(NULL)
   f <- try(suppressWarnings(fit_history(d)), silent = TRUE)
   if (inherits(f, "try-error")) return(NULL)
+  # A CI-only band for this exact archived fit (frame month `upto`), so
+  # scripts/region_card.py's group_band() can gate a backtest-frame group
+  # curve against member bands that actually match that frame instead of
+  # only ever the latest live render (bands/<slug>.json). Written as a side
+  # effect, immediately, from inside the (possibly forked) worker — NOT
+  # carried back through fit_one's return value, which mclapply has to
+  # serialize across worker processes; `f` alone (extrap grid to year 2200)
+  # is already large enough that doing that for every (series, month) would
+  # multiply this function's IPC cost.
+  if (!is.null(bands_dir)) {
+    b <- try(suppressWarnings(compute_bands(d, f, ti = FALSE)), silent = TRUE)
+    if (!inherits(b, "try-error") && !is.null(b)) {
+      slug <- slug_country(entry$country, entry$variant)
+      path <- file.path(bands_dir, upto, paste0(slug, ".json"))
+      try(write_bands_json(path, b, entry$country, entry$variant, max(d$period)),
+          silent = TRUE)
+    }
+  }
   list(
     country = entry$country, variant = entry$variant,
     v1 = num(f$v1), v2 = num(f$v2), t0 = num(f$t0),
@@ -227,7 +253,15 @@ fit_one <- function(entry, upto) {
     ttm_bev_share = num(ttm_bev_share(entry$df, upto)),
     obs = obs_shares(entry$df, upto),
     weight = ttm_weight(entry$df, upto),
-    n_rows = nrow(d)
+    n_rows = nrow(d),
+    # fit_history(d) already fits every prefix of `d` to produce its own
+    # refit_v1/v2 history (R/fit.R's history-loop, "byte-identical to the
+    # historical Germany R script") and reduces it to refit_swing using the
+    # trailing refit_window of THOSE prefixes — which, because `d` is itself
+    # truncated at `upto`, are exactly the backtest run's own earlier
+    # truncations for this series. So the real refit_swing definition falls
+    # out of the existing fit_history(d) call for free: no extra optim().
+    refit_swing = swing_str(f$refit_swing)
   )
 }
 
@@ -302,7 +336,7 @@ params_frame <- function(res, mo) {
     obs_bev_share = num(r$obs[["bev"]]),
     obs_phev_share = num(r$obs[["phev"]]),
     obs_ice_share = num(r$obs[["ice"]]),
-    refit_swing = NA_real_,
+    refit_swing = r$refit_swing,
     stringsAsFactors = FALSE)))
 }
 
@@ -316,9 +350,19 @@ weights_frame <- function(res, mo) {
 
 build_backtest <- function(from = "2015-01", to = NULL, cores = NULL,
                            out_dir = BACKTEST_DIR,
-                           refit = Sys.getenv("BACKTEST_REFIT")) {
+                           refit = Sys.getenv("BACKTEST_REFIT"),
+                           bands = Sys.getenv("BACKTEST_BANDS", "false")) {
   series <- load_all_series()
   refit <- parse_refit(refit)
+  # Opt-in: a CI-only band per (series, frame month) is still an extra
+  # compute_bands() call (profile-likelihood CI, no TI bootstrap — see
+  # R/bands.R) on top of every fit, so a full from-2015 x all-series run
+  # should not pay it by default. Set BACKTEST_BANDS=true (or pass
+  # bands = TRUE), typically together with a narrow `from`/`to`/series
+  # selection, to backfill backtest/bands/ for a specific region's members.
+  bands_dir <- if (isTRUE(bands) || tolower(as.character(bands)) %in% c("true", "1", "yes")) {
+    d <- file.path(out_dir, "bands"); dir.create(d, recursive = TRUE, showWarnings = FALSE); d
+  } else NULL
   cat(sprintf("[backtest] %d series with >= %d rows\n", length(series), MIN_ROWS))
 
   if (is.null(to)) {
@@ -365,6 +409,7 @@ build_backtest <- function(from = "2015-01", to = NULL, cores = NULL,
                       series[new_keys])                    # ... or backfill new
       if (!length(fresh)) next
       res <- Filter(Negate(is.null), mclapply(fresh, fit_one, upto = mo,
+                                              bands_dir = bands_dir,
                                               mc.cores = cores))
       if (!length(res)) next
       merge_rows(pfile, params_frame(res, mo))
@@ -378,7 +423,7 @@ build_backtest <- function(from = "2015-01", to = NULL, cores = NULL,
     if (length(eligible) == 0) next
 
     t0 <- Sys.time()
-    res <- mclapply(eligible, fit_one, upto = mo, mc.cores = cores)
+    res <- mclapply(eligible, fit_one, upto = mo, bands_dir = bands_dir, mc.cores = cores)
     res <- Filter(Negate(is.null), res)
     if (length(res) == 0) next
 
