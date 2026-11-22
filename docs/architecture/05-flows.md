@@ -25,7 +25,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | N | [Auto-ingest USA from ANL](#flow-n--anl-ingest) | Daily cron (10th–end of month, 10:30 UTC) or manual dispatch (`months=0` = full refresh) | Updated `data/USA.csv` (trailing 3-month window, sanity-checked) → triggers Flow B for USA |
 | O | [Auto-ingest Netherlands from RDW/Swing](#flow-o--rdw-swing-ingest) | Daily cron (1st–15th, 06:30 UTC) or manual dispatch | Updated `data/Netherlands.csv` / `Netherlands_Used.csv` / `Netherlands_HDV.csv` → per-variant Flow B |
 | P | [Auto-ingest China from CPCA](#flow-p--cpca-ingest) | Daily cron (1st–end of month, 11:00 UTC) or manual dispatch | Updated `data/China.csv` (+ `China_Wholesale.csv`) → triggers Flow B for China |
-| Q | [Auto-ingest Denmark from Statbank](#flow-q--statbank-ingest) | Daily cron (1st–15th, 05:15 UTC) or manual dispatch | Updated `data/Denmark.csv` and four variant CSVs → per-variant Flow B |
+| Q | [Auto-ingest Denmark from Statbank](#flow-q--statbank-ingest) | Daily cron (1st–15th, 05:15 and 07:20 UTC) or manual dispatch | Updated `data/Denmark.csv` and four variant CSVs → per-variant Flow B |
 | R | [Auto-ingest Finland from PxWeb](#flow-r--pxweb-ingest) | Daily cron (1st–15th, 04:40 UTC) or manual dispatch | Updated `data/Finland.csv` and five variant CSVs → per-variant Flow B |
 | S | [Auto-ingest Sweden from SCB](#flow-s--scb-ingest) | Daily cron (1st–15th, 05:50 UTC) or manual dispatch | Updated `data/Sweden.csv` → Flow B for Sweden |
 | T | [Auto-ingest Ireland from SIMI](#flow-t--simi-ingest) | Twice-daily cron (1st–5th, 04:00 & 13:00 UTC) or manual dispatch | Updated `data/Ireland.csv` → Flow B for Ireland |
@@ -1213,6 +1213,8 @@ sequenceDiagram
         Job-->>Cron: Exit cleanly (no-op, no commit)
     end
 ```
+
+**HEV (Whole):** Statbank has no code for non-plug-in hybrids. [scripts/denmark_hev.py](../../scripts/denmark_hev.py) splits Statbank's petrol + diesel by ACEA's HEV:petrol:diesel shares (applied from fetch-acea.yml; the newest month carries the previous month's shares, flagged, until ACEA). Forward-only from 2026-11, and it writes nothing while the 2014–2017 rows have no petrol/diesel — see [11-source-denmark.md §3](11-source-denmark.md). Writes are line-level; a restated month keeps its split.
 
 **Where parsing lives:** [scripts/fetch_denmark.py](../../scripts/fetch_denmark.py). API request shape, BILTYPE/BRUG/DRIV code tables, HEV gap, HDV-2021 quirk, Ethanol×2 quirk, backfill, fragility, and maintenance recipes live in [11-source-denmark.md](11-source-denmark.md) — read that before changing `VARIANT_CONFIG` or `DRIV_TO_COL`.
 
