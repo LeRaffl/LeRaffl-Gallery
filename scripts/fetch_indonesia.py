@@ -215,7 +215,12 @@ class ParsedPdf:
         self.sections = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         self.printed = {}        # section key -> printed monthly totals
         self.summary = {}        # PASSENGER CAR / COMMERCIAL VEHICLE / DOMESTIC
-        self.pu_segments = []    # (label_text, {month: {fuel: units}}) for PU_TRUCK
+        self.pu_segments = []    # (label_text, {month: {fuel: units}}, {fuel seen}) for PU_TRUCK
+        # sections[key] -> set of FUEL_KEYS that had an actual model row with that
+        # classification somewhere in the section, independent of the row's value.
+        # A key missing here means the PDF's fuel table never listed that category
+        # for this section (as opposed to listing it with 0 units) — see upsert_csv.
+        self.fuel_categories = defaultdict(set)
         self.coverage = None     # (last covered month, year)
         self.unknown_fuels = defaultdict(int)
         self.warnings = []
@@ -337,6 +342,10 @@ def process_region(rows, key, parsed):
         for mi, v in enumerate(fr["vals"], 1):
             if v:
                 parsed.sections[key][mi][fr["fuel"]] += v
+        # Record the category as "in this table" even when every month's
+        # value for this row is 0 — a model row that exists with 0 units is
+        # a reported zero, not a missing column.
+        parsed.fuel_categories[key].add(fr["fuel"])
 
     if key == "PU_TRUCK":
         segment_pu_truck(rows, fuel_rows, cumulative_tops, parsed)
@@ -362,11 +371,13 @@ def segment_pu_truck(rows, fuel_rows, cumulative_tops, parsed):
         ]
         label = " ".join(label_words)
         months = defaultdict(lambda: defaultdict(int))
+        categories = set()
         for fr in seg_fuel:
             for mi, v in enumerate(fr["vals"], 1):
                 if v:
                     months[mi][fr["fuel"]] += v
-        parsed.pu_segments.append((label, months))
+            categories.add(fr["fuel"])
+        parsed.pu_segments.append((label, months, categories))
 
 
 def parse_pdf(pdf_bytes):
@@ -477,7 +488,7 @@ def validate(parsed):
     if not pu:
         errors.append("no PICK UP subsection found in PU_TRUCK sheet")
     for mi in range(1, last_month + 1):
-        seg_sum = sum(month_total(m[mi]) for _, m in parsed.pu_segments)
+        seg_sum = sum(month_total(m[mi]) for _, m, _ in parsed.pu_segments)
         sec = month_total(parsed.sections["PU_TRUCK"][mi])
         if seg_sum != sec:
             errors.append(f"PU_TRUCK segments {year}-{mi:02d}: {seg_sum} != section {sec}")
@@ -512,7 +523,7 @@ def validate(parsed):
 
 def build_series(parsed):
     """Map sections to the four output series; returns
-    {csv_suffix: (variant, {month: {fuel: units}})}."""
+    {csv_suffix: (variant, {month: {fuel: units}}, {fuel categories present})}."""
     last_month, _ = parsed.coverage
 
     def merge(sources):
@@ -525,22 +536,48 @@ def build_series(parsed):
                     out[mi][f] += v
         return out
 
-    pickups = [m for label, m in parsed.pu_segments if re.search(r"PICK\s*UP", label)]
-    trucks = [m for label, m in parsed.pu_segments if not re.search(r"PICK\s*UP", label)]
+    pickups = [(m, cats) for label, m, cats in parsed.pu_segments
+               if re.search(r"PICK\s*UP", label)]
+    trucks = [(m, cats) for label, m, cats in parsed.pu_segments
+              if not re.search(r"PICK\s*UP", label)]
+
+    def cats_union(*sets):
+        out = set()
+        for s in sets:
+            out |= s
+        return out
+
+    whole_cats = cats_union(*(parsed.fuel_categories[k]
+                              for k in ("SEDAN", "4X2", "4X4", "LCGC")))
+    pickup_cats = cats_union(parsed.fuel_categories["DOUBLE_CABIN"],
+                              *(cats for _, cats in pickups))
+    hdv_cats = cats_union(*(cats for _, cats in trucks))
+    bus_cats = set(parsed.fuel_categories["BUS"])
 
     return {
-        "": ("Whole", merge([parsed.sections[k] for k in ("SEDAN", "4X2", "4X4", "LCGC")])),
-        "_Pickups": ("Pickups", merge(pickups + [parsed.sections["DOUBLE_CABIN"]])),
-        "_HDV": ("HDV", merge(trucks)),
-        "_Buses": ("Buses", merge([parsed.sections["BUS"]])),
+        "": ("Whole", merge([parsed.sections[k] for k in ("SEDAN", "4X2", "4X4", "LCGC")]),
+             whole_cats),
+        "_Pickups": ("Pickups",
+                     merge([m for m, _ in pickups] + [parsed.sections["DOUBLE_CABIN"]]),
+                     pickup_cats),
+        "_HDV": ("HDV", merge([m for m, _ in trucks]), hdv_cats),
+        "_Buses": ("Buses", merge([parsed.sections["BUS"]]), bus_cats),
     }
 
 
 # ---------------------------------------------------------------- CSV upsert
 
 
-def upsert_csv(csv_path, variant, months, year, source, note, force):
-    """Rewrite the covered periods; returns list of (period, action) changes."""
+def upsert_csv(csv_path, variant, months, categories, year, source, note, force):
+    """Rewrite the covered periods; returns list of (period, action) changes.
+
+    `categories` is the set of FUEL_KEYS that this PDF's fuel table actually
+    listed for this variant (OTHERS is always treated as present — it is our
+    own catch-all bucket, not a GAIKINDO taxonomy entry the PDF can omit). A
+    FUEL_KEY missing from `categories` means the PDF never carried that
+    category for any model row, so a cell for it is written empty rather than
+    0 — 0 would silently be indistinguishable from a genuine reported zero.
+    """
     rows = []
     if csv_path.exists():
         with open(csv_path, newline="") as f:
@@ -549,6 +586,7 @@ def upsert_csv(csv_path, variant, months, year, source, note, force):
                 raise SystemExit(f"{csv_path}: unexpected columns {reader.fieldnames}")
             rows = list(reader)
 
+    present = categories | {"OTHERS"}
     existing = {r["period"]: r for r in rows}
     changes = []
     for mi in sorted(months):
@@ -559,7 +597,7 @@ def upsert_csv(csv_path, variant, months, year, source, note, force):
             "source": "GAIKINDO", "notes": note,
         }
         for f in FUEL_KEYS:
-            new[f] = str(fuels.get(f, 0))
+            new[f] = str(fuels.get(f, 0)) if f in present else ""
         new["TOTAL"] = str(sum(fuels.get(f, 0) for f in FUEL_KEYS))
         old = existing.get(period)
         if old is None:
@@ -703,9 +741,10 @@ def main():
     note = f"Wholesales Jan-{MONTH_NAMES[last_month - 1].title()} {year}"
 
     changed_any = False
-    for suffix, (variant, months) in build_series(parsed).items():
+    for suffix, (variant, months, categories) in build_series(parsed).items():
         path = csv_dir / f"Indonesia{suffix}.csv"
-        changes = upsert_csv(path, variant, months, year, "GAIKINDO", note, args.force)
+        changes = upsert_csv(path, variant, months, categories, year, "GAIKINDO", note,
+                              args.force)
         if changes:
             changed_any = True
             summary = ", ".join(f"{p} {a}" for p, a in changes)

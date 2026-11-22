@@ -173,6 +173,19 @@ as a GAIKINDO-sourced row in `Indonesia.csv`, the run stops before the
 download. Only `Whole` is auto-rendered; the three variant CSVs accumulate
 data without a params/render entry until deliberately onboarded.
 
+A fuel cell is written as the literal `0` only when that category had an
+actual model row somewhere in the PDF's fuel table for that section/variant
+(even if every month's value for that row happens to be 0 — a reported zero
+stays a zero). A category that never appears as a model row anywhere in the
+PDF (e.g. no HEV listed at all in a given edition) is written **empty**, not
+`0` — the two are not interchangeable: empty means "this edition's fuel
+table doesn't carry this category", `0` means "GAIKINDO reported zero
+units". `OTHERS` is always written as a number since it is the fetcher's own
+catch-all bucket, not a GAIKINDO taxonomy entry a PDF edition can omit.
+Separately, if a sheet's FUEL column is missing entirely (no section has
+one), `validate()` aborts before any CSV write rather than defaulting
+anything to 0 — see § 4.
+
 ## 6. Series continuity (R. Andrew handoff)
 
 The pre-2026 rows in `data/Indonesia.csv` come from robbieandrew.github.io's
