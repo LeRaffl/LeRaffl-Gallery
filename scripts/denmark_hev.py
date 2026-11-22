@@ -22,7 +22,7 @@ hybrids out of petrol AND diesel:
 
 TOTAL, BEV, PHEV and OTHERS stay Statbank's; HEV + PETROL + DIESEL is
 Statbank's petrol + diesel exactly, so every row still sums to TOTAL.
-A share, not ACEA's count: ACEA's combustion pool runs 0.7-2.9% below
+A share, not ACEA's count: ACEA's combustion pool runs 0.6-6.1% below
 Statbank's (a slightly narrower scope), and a count would push that gap
 into PETROL. HEV means full + mild hybrids, ACEA's definition, as for the
 Netherlands, Finland and Czechia.
