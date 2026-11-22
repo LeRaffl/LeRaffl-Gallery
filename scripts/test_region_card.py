@@ -188,28 +188,26 @@ def test_region_brief_compares_as_box_plots():
     assert "<b>Abbreviations:</b>" in brief
 
 
-def test_eu_and_northern_europe_split_phev_not_hev():
+def test_eu_and_northern_europe_split_phev_and_hev():
+    """Since Denmark carries HEV from 2022 (scripts/backfill_denmark_hev.py)
+    every member of both groups has a national HEV split, so the mix and
+    who-gained use it instead of falling back to ACEA's EU row."""
     for slug in ("eu", "northern_europe"):
         info = rc.load(slug)
         assert info["mix_members"] == info["contributors"]
-        assert "PHEV" in info["mix_bands"] and "HEV" not in info["mix_bands"]
+        assert "Denmark" in info["mix_members"]
+        assert "PHEV" in info["mix_bands"] and "HEV" in info["mix_bands"]
         keys = [r["key"] for r in info["shift"]["rows"]]
-        # National split has no HEV; the EU brief adds ACEA's (its own source).
-        assert keys == (["BEV", "PHEV", "HEV", "REST"] if slug == "eu" else ["BEV", "PHEV", "REST"])
-        assert all(r.get("source") == "ACEA" for r in info["shift"]["rows"] if r["key"] == "HEV")
-        # Headline BEV and the mix stack agree, and empty HEV was not a 0.
+        assert keys == ["BEV", "PHEV", "HEV", "REST"]
+        # National split: no row borrows ACEA's figure any more.
+        assert all(r.get("source") is None for r in info["shift"]["rows"])
         bev = next(r for r in info["shift"]["rows"] if r["key"] == "BEV")
-        phev = next(r for r in info["shift"]["rows"] if r["key"] == "PHEV")
-        rest = next(r for r in info["shift"]["rows"] if r["key"] == "REST")
         assert abs(sum(r["after"] for r in info["shift"]["rows"]) - 100) < 1e-9
-        # The mix stack (three-way) still matches: rest + ACEA HEV = its rest.
-        mix_rest = 100 - bev["after"] - phev["after"]
-        hev = sum(r["after"] for r in info["shift"]["rows"] if r["key"] == "HEV")
-        assert abs(rest["after"] + hev - mix_rest) < 1e-9
         assert abs(bev["after"] - info["share"]) < 1e-9
-        assert info["fm"]["region_mix_points"][-1]["PHEV"] is not None
-        assert info["fm"]["region_mix_points"][-1]["HEV"] is None
-        assert "no HEV series" in (info["mix_note"] or "")
+        last = info["fm"]["region_mix_points"][-1]
+        assert last["PHEV"] is not None and last["HEV"] is not None
+        assert abs(sum(last[k] for k in ("BEV", "PHEV", "HEV", "REST")) - 100) < 1e-9
+        assert "no HEV series" not in (info["mix_note"] or "")
         assert "trailing 12-month share" in rc.region_legend()
 
 
@@ -407,7 +405,10 @@ def test_every_region_split_adds_up():
         now = [float(t.replace("%", "")) for t in re.findall(r'class="fb-now">([^<]*)<', html)]
         tol = 0.05 * len(pp) + 1e-9
         assert abs(sum(pp)) <= tol and abs(sum(now) - 100) <= tol, (slug, pp, now)
-    assert seen_acea, "EU brief lost its ACEA HEV row"
+    # Every EU member has a national HEV split since Denmark's (2026-11-22),
+    # so no real brief borrows ACEA's HEV row now; the fallback itself is
+    # pinned by test_acea_ttm_window_and_delta on synthetic data.
+    assert not seen_acea, "a brief fell back to ACEA's HEV row"
 
 
 def test_repo_acea_figure_is_current():

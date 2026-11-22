@@ -154,6 +154,18 @@ it came from, and each source doc records the seam to the counted months.
   Netherlands 2018-01 – 2023-06 and Finland 2014-01 – 2024-12 are estimated
   from their HEV share of HEV + petrol; the Netherlands 2011–2017, which
   has no petrol split, from the HEV share of all the month's cars.
+- **`acea_denmark_hev.csv`** (`scripts/extract_acea_denmark.py`): Denmark's
+  row of ACEA's monthly releases, 2023-01 – 2026-09, one row per month
+  (`basis` month) or, where a release is missing and only a two-month YTD
+  difference exists, per span (`basis` span: 2023-01/02, 04/05, 08/09).
+  Releases before November 2023 carry their tables as images, so most
+  2023 months come from the 2024 releases' prior-year columns; every row
+  names its derivation. Denmark 2022-01 – 2026-09 is split from it and
+  from `acea_country_quarterly.csv` (2022) by
+  `scripts/backfill_denmark_hev.py`: a month's own shares where ACEA has
+  the month, the span's or quarter's shares as a flagged estimate where
+  not. 2014–2021 stay unsplit: ACEA's Danish HEV counts mild hybrids only
+  from 2022 Q1 ([11](../docs/architecture/11-source-denmark.md) §3).
 
 Nothing keeps these files current: they are the record of a one-off fill.
 New months get HEV from the country's write path.
