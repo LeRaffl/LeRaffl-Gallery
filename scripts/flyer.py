@@ -1028,8 +1028,38 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fl-bar{max-width:794px;margin:0 auto;padding:12px 8px;display:flex;gap:12px;align-items:center;
   font-size:13px}
 .fl-bar a{color:var(--muted)}
+.fl-bar{flex-wrap:wrap;row-gap:8px}
 .fl-bar button{margin-left:auto;font:inherit;padding:6px 14px;border-radius:8px;cursor:pointer;
   border:1px solid var(--text);background:var(--text);color:#fff;font-weight:600}
+/* Previous / next through the briefs, in the directory's order (nav_html()). */
+.fl-nav{margin-left:auto;display:flex;align-items:center;gap:4px}
+.fl-nav+button{margin-left:6px}
+.fl-nav a{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0 10px;border-radius:8px;
+  border:1px solid #c9c5bc;background:#f6f5f1;color:var(--text);text-decoration:none;font-weight:600;white-space:nowrap}
+.fl-nav a:hover,.fl-nav a:focus-visible{border-color:var(--text);background:#fff}
+.fl-nav a:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.fl-nav a span[aria-hidden]{font-size:17px;line-height:1}
+.fl-nav-name{max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.fl-nav-pos{min-width:56px;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+@media (max-width:600px){
+  .fl-bar{padding:10px 8px}
+  .fl-nav{order:3;flex-basis:100%;margin-left:0;justify-content:space-between}
+  .fl-nav+button{margin-left:auto}
+  .fl-nav a{min-height:44px;padding:0 14px}
+  .fl-nav-name{max-width:110px}
+}
+/* Dark system theme: only the desk around the sheet goes dark, like a PDF
+   viewer; the sheet stays paper. Screen only, so print is untouched. */
+@media screen and (prefers-color-scheme:dark){
+  html,body{background:#1b1b19}
+  .fl-bar a{color:#c9c6bd}
+  .fl-bar button{background:#f2f0ea;border-color:#f2f0ea;color:#1a1a18}
+  .fl-nav a{background:#2a2a27;border-color:#4a4943;color:#f2f0ea}
+  .fl-nav a:hover,.fl-nav a:focus-visible{background:#353531;border-color:#f2f0ea}
+  .fl-nav a:focus-visible{outline-color:#f2f0ea}
+  .fl-nav-pos{color:#c9c6bd}
+  .sheet{box-shadow:0 2px 22px rgba(0,0,0,.55)}
+}
 .sheet-box{margin:0 auto 32px}
 .sheet{width:794px;height:1123px;box-sizing:border-box;padding:32px 46px 26px;background:#fdfdfc;
   box-shadow:0 2px 18px rgba(0,0,0,.14);overflow:hidden;
@@ -1184,7 +1214,7 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 @page{size:A4;margin:0}
 @media print{
   html,body{background:#fff}
-  .fl-bar{display:none}
+  .fl-bar,.fl-nav{display:none!important}
   .sheet-box{margin:0;width:auto!important;height:auto!important}
   .sheet{box-shadow:none;transform:none!important}
 }
@@ -1205,6 +1235,7 @@ FLYER_TEMPLATE = """<!doctype html>
 <body>
 <div class="fl-bar"><a href="./">← All country briefs</a>
   <a href="../{slug}.html">{country}: sources and method</a>
+  <!--fl-nav-->
   <button type="button" onclick="window.print()">Save as PDF</button></div>
 <div class="sheet-box"><article class="sheet"><div class="sheet-in">
   <header class="fl-top">{flag}
@@ -1260,12 +1291,56 @@ FLYER_TEMPLATE = """<!doctype html>
 # The directory of all briefs, sources/flyer/index.html
 # --------------------------------------------------------------------------
 
+def index_order(items: list[dict]) -> list[dict]:
+    """The order of the brief directory: highest 12-month BEV share first.
+
+    The previous / next buttons on each brief step through this same order,
+    so reading the briefs one by one matches the directory."""
+    return sorted(items, key=lambda i: -(i["share"] or -1))
+
+
+# Where the previous / next navigation goes in a brief's top bar. Briefs are
+# built one by one, before the order is known; build_source_pages.py fills
+# this in with nav_html() once every brief exists (with_nav()).
+NAV_SLOT = "<!--fl-nav-->"
+
+
+def nav_html(prev: dict, nxt: dict, pos: int, total: int, kind: str = "Country") -> str:
+    """Previous / next links and "pos / total" for a brief's top bar.
+
+    `prev` / `nxt`: {"slug", "country"} of the neighbouring briefs (the order
+    wraps around, so both always exist). Arrow keys step too. The bar is
+    hidden in print, so none of this reaches the PDF."""
+    def link(item, rel, arrow, word):
+        name = esc(item["country"])
+        inner = (f'<span aria-hidden="true">{arrow}</span><span class="fl-nav-name">{name}</span>'
+                 if rel == "prev" else
+                 f'<span class="fl-nav-name">{name}</span><span aria-hidden="true">{arrow}</span>')
+        return (f'<a class="fl-nav-{rel}" rel="{rel}" href="{esc(item["slug"])}.html" '
+                f'title="{word} brief: {name} (← / → keys)" aria-label="{word} brief: {name}">{inner}</a>')
+    return (f'<nav class="fl-nav" aria-label="Step through the {kind.lower()} briefs">'
+            + link(prev, "prev", "‹", "Previous")
+            + f'<span class="fl-nav-pos" title="{esc(kind)} {pos} of {total}, highest BEV share first">'
+              f'{pos} / {total}</span>'
+            + link(nxt, "next", "›", "Next")
+            + '</nav><script>addEventListener("keydown",function(e){'
+              'if(e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;'
+              'var t=e.target;if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))return;'
+              'var a=document.querySelector(e.key==="ArrowLeft"?".fl-nav-prev":e.key==="ArrowRight"?".fl-nav-next":null);'
+              'if(a){e.preventDefault();location.href=a.href;}});</script>')
+
+
+def with_nav(html: str, nav: str) -> str:
+    """A built brief with its navigation filled into NAV_SLOT."""
+    return html.replace(NAV_SLOT, nav, 1)
+
+
 def build_index(items: list[dict], theme_href: str,
                 regions: list[dict] | None = None) -> str:
     """`items`: country, slug, share, delta, head, through. Highest share first.
     `regions`: the same fields for the group briefs, listed below the countries."""
     cards = []
-    for n, item in enumerate(sorted(items, key=lambda i: -(i["share"] or -1)), 1):
+    for n, item in enumerate(index_order(items), 1):
         src = mc.flag_src(item["slug"], item["country"])
         flag = (f'<img src="{esc(src)}" alt="">' if src
                 else '<span class="ix-noflag"></span>')
@@ -1285,7 +1360,7 @@ def build_index(items: list[dict], theme_href: str,
     region_html = ""
     if regions:
         rcards = []
-        for item in sorted(regions, key=lambda i: -(i["share"] or -1)):
+        for item in index_order(regions):
             src = mc.flag_src(item["slug"], item["country"])
             flag = (f'<img src="{esc(src)}" alt="">' if src
                     else '<span class="ix-noflag"></span>')

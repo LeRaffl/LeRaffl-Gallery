@@ -570,7 +570,7 @@ Rules that keep the card honest:
 
 ### The country brief (`scripts/flyer.py` → `sources/flyer/<slug>.html`)
 
-The source page is for checking a series; the brief is for a reader who wants to see at a glance where a country stands, and for passing on. One fixed A4 sheet per country (794 × 1123 px, scaled down on a narrow screen, printed 1:1 by its *Save as PDF* button), built in the same run from the same computed figures as the source page, so the two cannot disagree. `sources/flyer/index.html` lists all briefs, highest BEV share first; the source page and `sources/index.html` link to it.
+The source page is for checking a series; the brief is for a reader who wants to see at a glance where a country stands, and for passing on. One fixed A4 sheet per country (794 × 1123 px, scaled down on a narrow screen, printed 1:1 by its *Save as PDF* button), built in the same run from the same computed figures as the source page, so the two cannot disagree. `sources/flyer/index.html` lists all briefs, highest BEV share first; the source page and `sources/index.html` link to it. Each brief's top bar has *previous / next* links (and the ← / → keys) that step through that same order, wrapping around, with the position ("22 / 61"); region briefs form their own ring. The briefs are built first and the links filled in afterwards (`flyer.NAV_SLOT`, `flyer_nav()` in the generator), because the order needs every brief's share. The bar is hidden in print, so the PDF is unchanged; with a dark system theme only the desk around the sheet and the bar go dark (screen only), the sheet stays paper; the social cards get no navigation, being fixed 1080×1350 canvases for PNG export. `scripts/test_flyer_nav.py` pins it.
 
 On the sheet, top to bottom:
 
