@@ -14,6 +14,9 @@ name: Fetch ACEA data (multi-country)
 #      row's petrol for a month the Traficom register snapshot does not cover
 #      yet (scripts/fetch_finland_register.py apply_acea, an estimate flagged in
 #      notes). StatFin is out in the first week, ACEA weeks later.
+#      Denmark likewise: ACEA's HEV:petrol:diesel shares split the Statbank
+#      row's petrol + diesel (scripts/denmark_hev.py apply_acea; forward-only,
+#      gated until 2014-2017 carry a petrol/diesel split).
 #
 #   2. render job — matrix over the changed countries with max-parallel=1.
 #      Each entry calls render-country.yml as a reusable workflow, so the

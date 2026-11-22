@@ -19,8 +19,9 @@ Output files
 API
 ---
 Statbank exposes BIL53 at https://api.statbank.dk/v1/data via POST JSON.
-The endpoint is public, undocumented-but-stable, and returns JSON-stat v1
-(``format: "JSONSTAT"``).  Dimension codes verified against
+The endpoint is Statistics Denmark's public, documented API
+(https://www.dst.dk/en/Statistik/hjaelp-til-statistikbanken/api), no key,
+and returns JSON-stat v1 (``format: "JSONSTAT"``).  Dimension codes verified against
 /v1/tableinfo/BIL53 (lang=en):
 
     OMRÅDE   region          000 = All Denmark
@@ -37,12 +38,18 @@ The endpoint is public, undocumented-but-stable, and returns JSON-stat v1
 Propellant mapping to the canonical CSV columns:
     BEV     <- 20225 Electricity
     PHEV    <- 20232 Pluginhybrid
-    HEV     <- ""       (Statbank does not split HEV; folded into Petrol/Diesel)
+    HEV     <- ""       (Statbank does not split HEV; folded into Petrol/Diesel.
+                         For Whole, scripts/denmark_hev.py splits it out of
+                         petrol+diesel by ACEA's shares from HEV_FILL_FROM on.)
     PETROL  <- 20205 Petrol
     DIESEL  <- 20210 Diesel
     OTHERS  <- 20215 + 20220 + 20230 + 20231 + 20256 + 20258 + 20235
     TOTAL   <- sum of the above (we do NOT use 20200 "Total propellant"
               because we want a TOTAL that matches the row we actually wrote.)
+
+CSV writes are line-level (AGENTS.md invariant 2): an unchanged month keeps
+its line byte for byte, a restated month keeps its HEV split
+(denmark_hev.carry_split).
 
 The script is invoked by .github/workflows/fetch-denmark.yml daily on the
 1st–15th of each month at 05:15 UTC. Early-exit per variant skips work once
@@ -51,13 +58,16 @@ naturally once Statbank publishes the new month.
 """
 import argparse
 import csv
-import json
+import io
 import os
 import sys
 from datetime import date
 from pathlib import Path
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import denmark_hev  # noqa: E402
 
 API_URL = "https://api.statbank.dk/v1/data"
 SOURCE = "api.statbank.dk (BIL53)"
@@ -198,42 +208,89 @@ def to_csv_rows(parsed: dict[str, dict[str, float]], variant: str) -> dict:
     return rows
 
 
+STATBANK_COLS = ["BEV", "PHEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"]
+
+
+def _cell(v) -> str:
+    """Same text the previous whole-file writer produced for a float."""
+    return "" if v == "" or v is None else str(float(v))
+
+
+def _line(row: dict) -> str:
+    buf = io.StringIO()
+    csv.writer(buf, lineterminator="\n").writerow([_cell(row[c]) if c in STATBANK_COLS
+                                                    or c == "HEV" else row.get(c, "")
+                                                    for c in CSV_COLUMNS])
+    return buf.getvalue()
+
+
+def _statbank_view(row: dict) -> dict:
+    """A CSV row as Statbank publishes it: a split row's own petrol and
+    diesel come back from its notes (denmark_hev.statbank_fuels), so it
+    compares equal to an unchanged Statbank month."""
+    view = {c: float(row.get(c) or 0) for c in STATBANK_COLS}
+    view["PETROL"], view["DIESEL"] = denmark_hev.statbank_fuels(row)
+    return view
+
+
+def merge_row(old: dict | None, new_row: dict) -> dict:
+    """The line to keep for one (period, variant) after a fetch."""
+    if old is None:
+        return new_row
+    merged = dict(new_row)
+    if not merged.get("notes"):
+        merged["notes"] = old.get("notes", "")
+    if new_row["variant"] == "Whole":
+        merged = denmark_hev.carry_split(old, merged)
+    return merged
+
+
 def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
-    """Upsert by (period, variant). Returns (added, updated). Warns on >50% delta."""
-    existing: dict = {}
-    if os.path.exists(csv_path):
-        with open(csv_path, newline="", encoding="utf-8") as f:
-            for row in csv.DictReader(f):
-                existing[(row["period"], row["variant"])] = row
+    """Line-level upsert keyed on (period, variant) (AGENTS.md invariant 2).
+
+    Untouched lines keep their bytes. A month whose Statbank figures did
+    not change keeps its line, HEV split and notes included; a restated
+    month is rewritten with its split re-applied (denmark_hev.carry_split).
+    Returns (added, updated). Warns on a >50% delta.
+    """
+    path = Path(csv_path)
+    lines: list[str] = []
+    if path.exists():
+        lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+    if not lines:
+        lines = [",".join(CSV_COLUMNS) + "\n"]
+    header = next(csv.reader([lines[0]]))
+    if header != CSV_COLUMNS:
+        raise RuntimeError(f"{csv_path}: unexpected header {header}")
+    keyed: dict = {}
+    for line in lines[1:]:
+        rec = dict(zip(header, next(csv.reader([line]))))
+        keyed[(rec["period"], rec["variant"])] = (rec, line)
 
     added = updated = 0
     for key, new_row in sorted(new_rows.items()):
-        if key not in existing:
-            existing[key] = new_row
+        old = keyed.get(key)
+        if old is None:
+            keyed[key] = (new_row, _line(new_row))
             added += 1
             print(f"  + {key[1]} {key[0]}")
-        else:
-            old = existing[key]
-            for col in ["BEV", "PHEV", "PETROL", "DIESEL", "OTHERS"]:
-                old_val = float(old.get(col) or 0)
-                new_val = float(new_row[col] or 0)
-                if old_val > 100 and abs(new_val - old_val) / old_val > 0.5:
-                    print(
-                        f"  WARNING {key[1]} {key[0]} {col}: existing={old_val:.0f}, "
-                        f"new={new_val:.0f} — diff >50%, please verify"
-                    )
-            if not new_row.get("notes"):
-                new_row["notes"] = old.get("notes", "")
-            existing[key] = {**old, **new_row}
-            updated += 1
+            continue
+        rec, line = old
+        sb_old, sb_new = _statbank_view(rec), _statbank_view(new_row)
+        if all(abs(sb_old[c] - sb_new[c]) < 0.5 for c in STATBANK_COLS):
+            continue                      # unchanged: keep the line byte for byte
+        for col in ["BEV", "PHEV", "PETROL", "DIESEL", "OTHERS"]:
+            if sb_old[col] > 100 and abs(sb_new[col] - sb_old[col]) / sb_old[col] > 0.5:
+                print(f"  WARNING {key[1]} {key[0]} {col}: existing={sb_old[col]:.0f}, "
+                      f"new={sb_new[col]:.0f} — diff >50%, please verify")
+        merged = merge_row(rec, new_row)
+        keyed[key] = (merged, _line(merged))
+        updated += 1
+        print(f"  ~ {key[1]} {key[0]} restated by Statbank")
 
-    Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS, lineterminator="\n")
-        writer.writeheader()
-        for key in sorted(existing.keys(), key=lambda k: (k[1], k[0])):
-            writer.writerow(existing[key])
-
+    out = [lines[0]] + [keyed[k][1] for k in sorted(keyed, key=lambda k: (k[1], k[0]))]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("".join(out), encoding="utf-8")
     return added, updated
 
 
@@ -299,6 +356,8 @@ def main() -> None:
         added, updated = upsert_csv(VARIANT_CONFIG[variant]["csv"], keyed)
         print(f"[{variant}] {added} added, {updated} updated "
               f"-> {VARIANT_CONFIG[variant]['csv']}")
+        if variant == "Whole":
+            denmark_hev.estimate_newest(Path(VARIANT_CONFIG[variant]["csv"]))
 
 
 if __name__ == "__main__":

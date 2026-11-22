@@ -11,6 +11,10 @@ name: Fetch Denmark data (Statbank BIL53)
 #
 # See scripts/fetch_denmark.py for the API request shape and DRIV-code mapping,
 # and docs/architecture/11-source-denmark.md for the full pipeline context.
+# Writes are line-level; Whole's HEV split (scripts/denmark_hev.py) is kept
+# on a restatement and the newest month is estimated from the previous
+# month's shares until fetch-acea.yml brings ACEA's month. Both are
+# forward-only and wait until 2014-2017 carry a petrol/diesel split.
 # When the CSV changes, the touched variants render via a serial
 # render-country.yml reusable-workflow matrix.
 
@@ -37,6 +41,11 @@ on:
     # polling for the next month. 05:15 UTC keeps us clear of fetch-acea
     # (08:00), fetch-netherlands (06:30), and the 03:17 ACEA fallback.
     - cron: '15 5 1-15 * *'
+    # Statbank publishes at 08:00 Copenhagen time (07:00 UTC in winter,
+    # 06:00 UTC in summer), so the 05:15 run always comes before it and a
+    # release-day pickup depended on Actions' cron delay. The 07:20 run
+    # catches the release day itself; on every other day it is a no-op.
+    - cron: '20 7 1-15 * *'
 
 jobs:
   fetch:

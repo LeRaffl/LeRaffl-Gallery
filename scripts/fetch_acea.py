@@ -136,6 +136,11 @@ full-hybrid code, so ACEA's HEV share of HEV + petrol splits the StatFin
 row's petrol for a month the Traficom register snapshot does not cover yet
 (scripts/fetch_finland_register.py, apply_acea; an estimate, flagged in
 notes). Never over register counts; the row stays StatFin's otherwise.
+Denmark likewise (HEV_MERGE_COUNTRIES): Statbank BIL53 has no code for
+non-plug-in hybrids, so ACEA's HEV:petrol:diesel shares split the Statbank
+row's petrol + diesel (scripts/denmark_hev.py, apply_acea), only for months
+from denmark_hev.HEV_FILL_FROM and only once the 2014-2017 rows carry a
+petrol/diesel split (denmark_hev.ready). TOTAL/BEV/PHEV/OTHERS stay Statbank's.
 
 Poland is a special case: it is PZPM-primary (scripts/fetch_poland.py, the
 CEP-based upstream behind ACEA's Poland numbers, additionally carrying
@@ -308,7 +313,10 @@ ALL_COUNTRIES = ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES
 # module. Finland: StatFin keeps TOTAL/BEV/PHEV/diesel/others;
 # scripts/fetch_finland_register.py (acea_merge) decides, and never
 # overwrites Traficom-register counts (docs/architecture/12-source-finland.md).
-HEV_MERGE_COUNTRIES = ["Finland"]
+# Denmark: Statbank keeps TOTAL/BEV/PHEV/others; scripts/denmark_hev.py
+# (acea_merge) splits petrol + diesel by ACEA's shares, forward-only
+# (docs/architecture/11-source-denmark.md).
+HEV_MERGE_COUNTRIES = ["Finland", "Denmark"]
 
 ENGLISH_MONTHS = [
     "January", "February", "March", "April", "May", "June",
@@ -1447,6 +1455,12 @@ def main() -> int:
         if fetch_finland_register.apply_acea(target_period, acea_fi,
                                              data_dir / "Finland.csv"):
             changed.append("Finland")
+
+    if "Denmark" in parsed_all:
+        import denmark_hev
+        acea_dk = {k: float(v[0]) for k, v in parsed_all["Denmark"].items()}
+        if denmark_hev.apply_acea(target_period, acea_dk, data_dir / "Denmark.csv"):
+            changed.append("Denmark")
 
     print(f"\nCountries with CSV changes: {changed}")
 
