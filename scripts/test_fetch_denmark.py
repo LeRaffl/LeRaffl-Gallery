@@ -9,8 +9,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import backfill_denmark_bil51 as bf  # noqa: E402
+import backfill_denmark_hev as bfh  # noqa: E402
 import build_series  # noqa: E402
 import denmark_hev as dh  # noqa: E402
+import extract_acea_denmark as ex  # noqa: E402
 import fetch_denmark as fd  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -80,8 +82,11 @@ def test_upsert_keeps_unchanged_lines_byte_for_byte():
         rows = {}
         for r in csv.DictReader(io.StringIO(before.decode())):
             if r["period"] >= "2018-01":
+                # what Statbank serves: its own petrol/diesel, hybrids inside
+                petrol, diesel = dh.statbank_fuels(r)
                 rows[(r["period"], "Whole")] = _row(
-                    r["period"], {k: float(r[k]) for k in fd.STATBANK_COLS})
+                    r["period"], {**{k: float(r[k]) for k in fd.STATBANK_COLS},
+                                  "PETROL": petrol, "DIESEL": diesel})
         added, updated = _quiet(fd.upsert_csv, str(p), rows)
         assert (added, updated) == (0, 0)
         assert p.read_bytes() == before
@@ -115,7 +120,7 @@ def test_pool_split_keeps_statbank_totals_and_takes_hybrids_from_diesel_too():
 
 def test_acea_gates():
     row = _row("2026-11", SB_2026_09)
-    assert dh.acea_merge(_row("2026-10", SB_2026_09), ACEA_2026_09) is None   # no backfill
+    assert dh.acea_merge(_row("2021-12", SB_2026_09), ACEA_2026_09) is None   # before the 2022 seam
     assert dh.acea_merge(row, {**ACEA_2026_09, "TOTAL": 19500}) is None      # not the month
     assert dh.acea_merge(row, {**ACEA_2026_09, "BEV": 17000}) is None
     # PHEV is Statbank's: a few plug-ins apart (2026-04: 113 vs 119) is no refusal.
@@ -210,19 +215,84 @@ def test_upsert_keeps_a_split_month_when_statbank_did_not_change_it():
 
 
 def test_series_keeps_every_month_once_history_is_split():
-    """Why ready() exists: with 2014-2017 petrol/diesel the first HEV month
-    costs the interactive series nothing; without it 48 months vanish."""
-    # The repo CSV carries BIL51's 2014-2017 petrol/diesel since 2026-11-22.
+    """Why ready() exists: with 2014-2017 petrol/diesel the HEV rows (from
+    2022-01) cost the interactive series nothing; without it 48 months
+    vanish. The repo CSV carries both since 2026-11-22."""
     rows = list(csv.DictReader(open(ROOT / "data" / "Denmark.csv", encoding="utf-8")))
+    whole = [r for r in rows if r["variant"] == "Whole" and r["time_interval"] == "monthly"]
+    assert any(r["HEV"] for r in whole)
     n = len(build_series.build_country("Denmark", [dict(r) for r in rows])["m"])
-    hev = [dict(r) for r in rows]
-    hev[-1].update(HEV="1000.0", PETROL=str(float(hev[-1]["PETROL"]) - 1000))
-    assert len(build_series.build_country("Denmark", hev)["m"]) == n
-    # The state before the fill: those 48 rows without petrol/diesel.
-    for r in hev:
+    assert n == len(whole)
+    old = [dict(r) for r in rows]
+    for r in old:
         if r["period"] < "2018-01":
             r.update(PETROL="", DIESEL="")
-    assert len(build_series.build_country("Denmark", hev)["m"]) == n - 48
+    assert len(build_series.build_country("Denmark", old)["m"]) == n - 48
+
+
+def test_the_repo_csv_splits_every_month_from_2022_and_none_before():
+    rows = dh.whole_rows(ROOT / "data" / "Denmark.csv")
+    for p, r in rows.items():
+        if p < dh.HEV_FILL_FROM:
+            assert r["HEV"] == "", p                     # unknown before the ACEA seam
+            continue
+        assert dh.split_kind(r) in ("acea", "history", "previous"), p
+        sb_petrol, sb_diesel = dh.statbank_fuels(r)
+        assert dh.pool(r) == sb_petrol + sb_diesel, p    # Statbank's pool, exactly
+        assert abs(dh.pool(r) + sum(dh._f(r, k) for k in ("BEV", "PHEV", "OTHERS"))
+                   - dh._f(r, "TOTAL")) < 0.5, p
+    assert dh.split_kind(rows["2022-01"]) == "history"   # quarter shares, estimate
+    assert dh.split_kind(rows["2025-10"]) == "acea"
+    assert rows["2025-10"]["HEV"] == "2569.0"            # doc 11 §12.4
+
+
+# ---------------------------------------------------------------- HEV history
+def test_history_note_is_its_own_kind_and_keeps_statbank_fuels():
+    row = _row("2022-02", SB_2026_09)
+    up = dh.split_pool(dh.pool(row), 0.3, 0.1)
+    split = {**row, **{k: str(v) for k, v in up.items()},
+             "notes": dh.note(dh.HISTORY_NOTE.format(span="2022-Q1"), row)}
+    assert dh.split_kind(split) == "history"
+    assert dh.statbank_fuels(split) == (1665.0, 599.0)
+    assert dh.shares(split) is not None
+
+
+def test_history_backfill_gates_and_never_overwrites():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        rows = [_row(p, SB_2026_09) for p in ("2022-01", "2022-02", "2022-03", "2023-03")]
+        rows[1] = {**rows[1], "HEV": "100.0", "PETROL": "1565.0",
+                   "notes": dh.note(dh.ACEA_NOTE, _row("2022-02", SB_2026_09))}
+        p = _csv(tmp, rows)
+        q = tmp / "q.csv"
+        q.write_text("country,quarter,BEV,PHEV,HEV,PETROL,DIESEL,release,column\n"
+                     "Denmark,2022-Q1,53331,69,4281,1545,828,x,quarter\n", encoding="utf-8")
+        m = tmp / "m.csv"
+        m.write_text("from,to,basis,BEV,PHEV,HEV,OTHERS,PETROL,DIESEL,TOTAL,derivation\n"
+                     "2023-03,2023-03,month,17784,23,1427,0,515,276,20025,x\n", encoding="utf-8")
+        todo = _quiet(bfh.plan, p, q, m)
+        assert sorted(todo) == ["2022-01", "2022-03", "2023-03"]   # 2022-02 kept
+        assert todo["2022-01"]["notes"].startswith(dh.HISTORY_PREFIX)
+        assert "2022-Q1" in todo["2022-01"]["notes"]
+        assert todo["2023-03"]["notes"].startswith(dh.ACEA_NOTE)
+        assert todo["2023-03"]["HEV"] == 1457.0                    # 2026-09's real split
+        # ACEA's span is not Statbank's months: nothing merged.
+        m.write_text("from,to,basis,BEV,PHEV,HEV,OTHERS,PETROL,DIESEL,TOTAL,derivation\n"
+                     "2023-03,2023-03,month,17784,23,1427,0,515,276,25000,x\n", encoding="utf-8")
+        assert "2023-03" not in _quiet(bfh.plan, p, q, m)
+
+
+def test_extract_assembles_months_spans_and_prior_year_columns():
+    F = ex.FUELS
+    v = lambda n: {f: n for f in F}                                  # noqa: E731
+    mon = {"2023-07": (v(7), "m")}
+    ytd = {"2023-02": (v(3), "y2"), "2023-03": (v(6), "y3"), "2023-05": (v(15), "y5"),
+           "2023-06": (v(21), "y6"), "2023-07": (v(28), "y7")}
+    rows = ex.assemble(mon, ytd, "2023-01", "2023-07")
+    got = {(r["from"], r["to"]): (r["basis"], r["TOTAL"]) for r in rows}
+    assert got == {("2023-01", "2023-02"): ("span", 3), ("2023-03", "2023-03"): ("month", 3),
+                   ("2023-04", "2023-05"): ("span", 9), ("2023-06", "2023-06"): ("month", 6),
+                   ("2023-07", "2023-07"): ("month", 7)}
 
 
 # ---------------------------------------------------------------- BIL51

@@ -21,9 +21,10 @@ variant_notes:
   Industry: New passenger cars registered in industries (BRUG 1200).
   HDV: New lorries (BILTYPE 4000103000).
   Vans: New vans (BILTYPE 4000102000).
-hev_split: false
+hev_split: true
+hev_note: "Statistics Denmark has no code for non-plug-in hybrids, so Whole's HEV is Statbank's petrol + diesel split by ACEA's HEV:petrol:diesel shares. ACEA's Danish HEV is Mobility Denmark's Hybrid + Mild Hybrid, DBI IT's classification of the same register: full and mild hybrids, as for the Netherlands, Finland and Czechia. From 2022-01 (the quarter ACEA starts counting mild hybrids for Denmark): a month's own ACEA shares where ACEA has the month; 2022 from ACEA's quarterly shares and three two-month spans in 2023 as a flagged estimate; the newest month the previous month's shares until ACEA publishes. 2014-2021 have no HEV: their hybrids are inside petrol/diesel. TOTAL, BEV, PHEV and OTHERS stay Statbank's; in the other variants hybrids are inside petrol/diesel."
 fcev: folded into OTHERS
-backfill: pre-2018 Whole rows already in data/Denmark.csv; their petrol/diesel from BIL51 (filled 2026-11-22)
+backfill: "pre-2018 Whole rows already in data/Denmark.csv; their petrol/diesel from BIL51 (filled 2026-11-22); HEV for Whole 2022-01 to 2026-09 from ACEA (reference/acea_denmark_hev.csv, reference/acea_country_quarterly.csv; scripts/backfill_denmark_hev.py)"
 scope_note: Whole = all new registrations; Private / Industry split by terms of use.
 column_map:
   BEV: BEV
@@ -32,7 +33,7 @@ column_map:
   Diesel: DIESEL
   Other: OTHERS
 caveats:
-- StatBank doesn't split full or mild hybrids; HEV folds into Petrol/Diesel. (BIL51's "Hybrid/petrol" and "Hybrid/diesel" are the plug-in hybrids, the same cars as BIL53's "Pluginhybrid".)
+- StatBank doesn't split full or mild hybrids; they sit in its Petrol/Diesel. (BIL51's "Hybrid/petrol" and "Hybrid/diesel" are the plug-in hybrids, the same cars as BIL53's "Pluginhybrid".) Whole splits HEV out by ACEA's shares from 2022-01; before that, and in the other variants, hybrids stay inside petrol/diesel, so petrol and diesel step down at 2022-01 by definition.
 - 2014-2017 (Whole): TOTAL/BEV/PHEV/OTHERS from the maintainer's sheet, petrol/diesel from StatBank BIL51 (same register, same definitions as BIL53). OTHERS there is up to 28 cars below BIL51's in 22 months, left as is.
 - Private / Industry / HDV / Vans have no pre-2018 backfill; they start at the API range.
 fetcher: scripts/fetch_denmark.py
@@ -59,14 +60,15 @@ Auth:      None required
 API:       POST https://api.statbank.dk/v1/data with JSON body
            (one request per variant; format=JSONSTAT)
 Variants:  Whole, Private, Industry, HDV, Vans (5 separate CSV files)
-HEV:       Not split by Statbank (folded into Petrol/Diesel upstream). A forward-only
-           split of Whole by ACEA's shares is wired up (scripts/denmark_hev.py, §3)
-           from 2026-11 on (the 2014–2017 gate is lifted, §12.5)
+HEV:       Not split by Statbank (folded into Petrol/Diesel upstream). Whole is
+           split by ACEA's shares from 2022-01 (scripts/denmark_hev.py, §3;
+           history 2022-01 – 2026-09 by scripts/backfill_denmark_hev.py)
 Backfill:  Pre-2018 Whole rows already in data/Denmark.csv; petrol/diesel
-           2014–2017 from BIL51 (filled 2026-11-22)
+           2014–2017 from BIL51; HEV 2022-01 – 2026-09 from ACEA (both 2026-11-22)
 Schedule:  Daily cron 1st–15th, 05:15 and 07:20 UTC; early-exit per variant once last month is in
 Scripts:   scripts/fetch_denmark.py, scripts/denmark_hev.py,
-           scripts/backfill_denmark_bil51.py (run once, 2026-11-22)
+           scripts/backfill_denmark_bil51.py, scripts/backfill_denmark_hev.py,
+           scripts/extract_acea_denmark.py (each run once, 2026-11-22)
 Workflow:  .github/workflows/fetch-denmark.yml
 ```
 
@@ -189,7 +191,7 @@ label text. For us both fold into `OTHERS`, so the ambiguity is moot.
 If a future schema change splits them, `DRIV_TO_COL` in the script needs
 no change.
 
-### HEV: why Statbank cannot, and the prepared ACEA split
+### HEV: why Statbank cannot, and the ACEA split
 
 Statbank has **no code for non-plug-in hybrids** anywhere. BIL53 lists
 `Pluginhybrid`; BIL51 lists `Hybrid/petrol` and `Hybrid/diesel`, but
@@ -227,6 +229,7 @@ ACEA's definition, as for the Netherlands, Finland and Czechia.
 |---|---|---|
 | ACEA's month (`fetch_acea.py` → `denmark_hev.apply_acea`) | ACEA's release, about the 22nd of the next month | `TOTAL/BEV/PHEV/OTHERS api.statbank.dk (BIL53); HEV/PETROL/DIESEL = Statbank petrol+diesel split by ACEA's …` |
 | previous month's shares, **estimate** (`estimate_newest`, run by `fetch_denmark.py`) | Statbank's release (about the 10th) until ACEA's | `… HEV/PETROL/DIESEL estimated: Statbank petrol+diesel split by YYYY-MM's shares, until ACEA covers the month` |
+| history, **estimate** (`backfill_denmark_hev.py`, once) | 2022's months (quarter shares) and 2023-01/02, 04/05, 08/09 (two-month shares) | `… HEV/PETROL/DIESEL estimated: Statbank petrol+diesel split by ACEA's 2022-Q1 shares (no ACEA figure for the month alone)` |
 
 ACEA's row must be Statbank's month: TOTAL within 1.5% (Feb 2026: 11,933
 vs 12,059, 1.0%) and BEV within 2%. PHEV is not gated: the two count a few
@@ -234,11 +237,34 @@ dozen plug-ins differently (2026-04: 113 vs 119) and PHEV stays
 Statbank's anyway. When ACEA's month lands, a later month estimated from
 the old shares is re-estimated.
 
-**Two gates keep it forward-only and harmless:**
+**History from 2022-01, nothing before.** ACEA's Danish HEV is not one
+quantity over time. At 2022-Q1 it jumps from 1,875 to 7,741 while HEV +
+petrol + diesel stays at about 22,900 and diesel halves (4,718 → 2,291):
+mild hybrids were moved from petrol/diesel into HEV in ACEA's count, the
+market did not move. From then on the level fits Mobility Denmark's
+Hybrid + Mild Hybrid (§12.4). So the split starts at 2022-01 and
+2014-2021 keep HEV blank; the TTM chart folds their hybrids into petrol
+(the late-start fold, `R/data.R`), and the brief's powertrain table, which
+needs HEV in all 24 months of its two windows, shows HEV at once.
 
-- `HEV_FILL_FROM = "2026-11"`: only months after the CSV's last month when
-  this was written. Nothing at or before 2026-10 is touched; a history
-  estimate is a separate, owner-approved step (§12.5).
+`scripts/backfill_denmark_hev.py` filled 2022-01 – 2026-09 once (and
+`estimate_newest` the newest month):
+
+| Months | ACEA figure | Rows |
+|---|---|---|
+| 2022-01 – 2022-12 | quarterly fuel releases (`reference/acea_country_quarterly.csv`), the quarter's shares | estimate |
+| 2023-01 – 2023-12 | monthly releases; before November 2023 their tables are images and some releases are refused from CI-like IPs, so most months come from the 2024 releases' prior-year columns or YTD differences (`reference/acea_denmark_hev.csv`, `scripts/extract_acea_denmark.py`); 2023-01/02, 04/05 and 08/09 only as two-month spans | month, or span estimate |
+| 2024-01 – 2026-09 | monthly releases (own or prior-year column); 2026-07 (no release) from the August YTD minus June YTD minus August | month |
+
+Every unit passed the same gates as a live month (TOTAL within 1.5%, BEV
+within 2%; quarters BEV and the combustion pool within 3%). Rows that
+already had a split are never touched, and a Statbank re-fetch leaves the
+file byte-identical (checked 2026-11-22).
+
+**Gates:**
+
+- `HEV_FILL_FROM = "2022-01"`: the first month that may carry a split
+  (see above). `apply_acea` and `estimate_newest` never touch older rows.
 - `ready()`: no HEV is written while a Whole row has a TOTAL but neither
   petrol nor diesel — the 48 sheet rows 2014-01 – 2017-12 until their
   petrol/diesel were filled from BIL51 on 2026-11-22, so the gate is open.
@@ -249,10 +275,10 @@ the old shares is re-estimated.
   from BIL51 lifts the gate (§12.5).
 
 Only `data/Denmark.csv` (Whole): ACEA has no Private / Industry split, so
-hybrids stay inside petrol/diesel in the other variants. While HEV is
-blank, the TTM stacked-shares plot has no HEV slice and the post text
-drops the "(of which X%p were HEV)" line; the BEV/PHEV/ICE trajectory is
-unaffected either way (ICE share is `(TOTAL − BEV − PHEV − EREV)/TOTAL`).
+hybrids stay inside petrol/diesel in the other variants. The BEV/PHEV/ICE
+trajectory is unaffected by the split (ICE share is
+`(TOTAL − BEV − PHEV − EREV)/TOTAL`); it changes the TTM stacked shares,
+the post's "(of which X%p were HEV)" line and the brief's powertrain table.
 
 ## 4. History and the HDV-2021 quirk
 
@@ -344,6 +370,7 @@ flowchart LR
     DST -->|"TOTAL, BEV, PHEV, OTHERS,<br/>petrol + diesel (hybrids inside)<br/>fetch_denmark.py"| CSV["data/Denmark.csv"]
     DST -.->|"2014-2017 petrol / diesel<br/>backfill_denmark_bil51.py (once)"| CSV
     ACEA -->|"HEV : petrol : diesel shares<br/>split Statbank petrol + diesel<br/>denmark_hev.py (apply_acea)"| CSV
+    ACEA -.->|"history 2022-01 – 2026-09 (once)<br/>reference/acea_country_quarterly.csv,<br/>reference/acea_denmark_hev.csv<br/>backfill_denmark_hev.py"| CSV
     CSV -.->|"newest month: previous month's<br/>shares until ACEA (estimate)"| CSV
 ```
 
@@ -506,14 +533,15 @@ BIL51 in every month; OTHERS is a few cars below BIL51's in 22 months
    Official figures, not an estimate. This lifts the `ready()` gate. Open
    choice: also correct OTHERS to BIL51's in the 22 months (≤28 cars) so
    the rows sum exactly — that changes existing values, so it was not done.
-2. **HEV history estimate** in the NL/FI/CZ pattern, so the TTM shows
+2. **Done 2026-11-22 from 2022-01 (§3).** HEV history estimate in the NL/FI/CZ pattern, so the TTM shows
    hybrids over the whole span instead of starting late: ACEA's monthly
    shares 2023-11 → (the unmerged `feat/acea-hev-split` branch already
    parses those PDFs), ACEA's quarterly shares 2018–2022
    (`reference/acea_country_quarterly.csv`). Caveat: ACEA's Danish HEV
    jumps from ~2,000 to ~7,700 a quarter at 2022-Q1, which looks like mild
    hybrids entering ACEA's Danish count then; before 2022 it is probably
-   full hybrids only. Needs a decision on that seam before any estimate.
+   full hybrids only. Decision: split from 2022-01 only; 2014-2021 stay
+   unsplit.
 3. **Extend Whole back to 2011-01 from BIL51** (36 more months, full
    propellant split). Changes the fitted curve's start; render check
    needed.
@@ -521,8 +549,6 @@ BIL51 in every month; OTHERS is a few cars below BIL51's in 22 months
    only year-to-date on a page without an allowed monthly view. Stay on
    ACEA's HEV definition (full + mild) like NL/FI/CZ unless a clean source
    appears.
-5. After 1 (and ideally 2): set `hev_split`/`hev_note` once the first
-   HEV month is in the CSV, and dispatch the Denmark render. The Denmark
-   Whole footnote is in (2026-11-22): it says hybrids sit in petrol/diesel
-   and that HEV is split out from Nov 2026, so petrol and diesel step down
-   there by definition, not by market.
+5. **Done 2026-11-22:** `hev_split`/`hev_note` set, the Denmark Whole
+   footnote says HEV is split out from 2022 so petrol and diesel step
+   down there by definition; dispatch the Denmark render after merge.

@@ -33,14 +33,16 @@ Where each split comes from (notes, invariant 6):
       ACEA_NOTE
   newer months before that (Statbank is out about the 10th)
       estimate: the previous month's shares, PREVIOUS_NOTE
+  history months ACEA has no figure for on their own (2022's quarters,
+  three two-month spans in 2023; scripts/backfill_denmark_hev.py)
+      estimate: the span's shares, HISTORY_NOTE
 
-Two gates keep this forward-only and harmless:
+Two gates:
 
-* HEV_FILL_FROM: only months after the CSV's last month when this was
-  written (2026-10). Older rows keep HEV blank (unknown); a history
-  estimate is a separate, owner-approved step.
+* HEV_FILL_FROM (2022-01): the first month ACEA's Danish HEV means full +
+  mild hybrids. Older rows keep HEV blank (unknown).
 * ready(): no HEV is written while a Whole row has a TOTAL but neither
-  PETROL nor DIESEL (2014-01 .. 2017-12 today). build_series.py stage 3
+  PETROL nor DIESEL (2014-01 .. 2017-12 until 2026-11-22). build_series.py stage 3
   only turns a remainder into ICE when every electrified column of the
   file is present, so a single HEV row would drop those 48 months from
   the interactive series (154 -> 106 points). Filling their petrol/diesel
@@ -62,9 +64,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CSV_PATH = ROOT / "data" / "Denmark.csv"
 
-# First month the pipeline may split. The CSV ended at 2026-10 when this
-# was written; nothing at or before that month is touched (no backfill).
-HEV_FILL_FROM = "2026-11"
+# First month that may carry a split. ACEA's Danish HEV counts mild
+# hybrids from 2022-Q1 on (the quarter its HEV jumps ~4x while HEV +
+# petrol + diesel stays flat: a reclassification, not a market move), so
+# from 2022-01 the split means one thing throughout. 2014-2021 keep HEV
+# blank (unknown): ACEA's Danish HEV before 2022 is a different quantity.
+# History 2022-01 .. 2026-09 was filled once by
+# scripts/backfill_denmark_hev.py (reference/acea_denmark_hev.csv).
+HEV_FILL_FROM = "2022-01"
 
 ACEA_NOTE = ("TOTAL/BEV/PHEV/OTHERS api.statbank.dk (BIL53); HEV/PETROL/DIESEL = "
              "Statbank petrol+diesel split by ACEA's HEV:petrol:diesel shares for "
@@ -73,6 +80,12 @@ PREVIOUS_NOTE = ("TOTAL/BEV/PHEV/OTHERS api.statbank.dk (BIL53); HEV/PETROL/DIES
                  "estimated: Statbank petrol+diesel split by {prev}'s shares, until "
                  "ACEA covers the month")
 PREVIOUS_PREFIX = PREVIOUS_NOTE.split("{prev}")[0]
+# History rows with no ACEA month of their own (2022's quarters, a few
+# 2023 two-month spans where a release is missing): the span's shares.
+HISTORY_NOTE = ("TOTAL/BEV/PHEV/OTHERS api.statbank.dk (BIL53); HEV/PETROL/DIESEL "
+                "estimated: Statbank petrol+diesel split by ACEA's {span} shares "
+                "(no ACEA figure for the month alone)")
+HISTORY_PREFIX = HISTORY_NOTE.split("{span}")[0]
 # A split row keeps Statbank's own petrol and diesel in its notes, so the
 # published figures are never lost and a restatement is recognised.
 STATBANK_TAG = " [Statbank petrol {petrol:.0f}, diesel {diesel:.0f}]"
@@ -97,12 +110,14 @@ def _blank(row: dict, k: str) -> bool:
 
 
 def split_kind(row: dict) -> str | None:
-    """Which step put HEV on this row: "acea", "previous" or None."""
+    """Which step put HEV on this row: "acea", "history", "previous" or None."""
     if _blank(row, "HEV"):
         return None
     notes = row.get("notes") or ""
     if notes.startswith(ACEA_NOTE):
         return "acea"
+    if notes.startswith(HISTORY_PREFIX):
+        return "history"
     if notes.startswith(PREVIOUS_PREFIX):
         return "previous"
     return None
