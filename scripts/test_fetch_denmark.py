@@ -159,14 +159,13 @@ def test_ready_blocks_while_history_has_no_combustion_split():
         assert p.read_bytes() == before
 
 
-def test_the_repo_csv_gap_is_only_the_sheet_rows():
-    """Until backfill_denmark_bil51.py --write runs, the 48 sheet rows
-    2014-2017 have no petrol/diesel and the HEV split does not write.
-    Nothing else may be unsplit."""
+def test_the_repo_csv_has_no_unsplit_rows():
+    """backfill_denmark_bil51.py --write gave the 48 sheet rows 2014-2017
+    their petrol/diesel on 2026-11-22: no Whole row may be unsplit now,
+    so the HEV split may write."""
     rows = dh.whole_rows(ROOT / "data" / "Denmark.csv")
-    gap = dh.unsplit_history(rows)
-    assert all("2014-01" <= p <= "2017-12" for p in gap)
-    assert dh.ready(ROOT / "data" / "Denmark.csv", quiet=True) == (not gap)
+    assert dh.unsplit_history(rows) == []
+    assert dh.ready(ROOT / "data" / "Denmark.csv", quiet=True)
 
 
 def test_apply_acea_then_estimate_then_reestimate():
@@ -213,16 +212,17 @@ def test_upsert_keeps_a_split_month_when_statbank_did_not_change_it():
 def test_series_keeps_every_month_once_history_is_split():
     """Why ready() exists: with 2014-2017 petrol/diesel the first HEV month
     costs the interactive series nothing; without it 48 months vanish."""
+    # The repo CSV carries BIL51's 2014-2017 petrol/diesel since 2026-11-22.
     rows = list(csv.DictReader(open(ROOT / "data" / "Denmark.csv", encoding="utf-8")))
     n = len(build_series.build_country("Denmark", [dict(r) for r in rows])["m"])
     hev = [dict(r) for r in rows]
     hev[-1].update(HEV="1000.0", PETROL=str(float(hev[-1]["PETROL"]) - 1000))
-    assert len(build_series.build_country("Denmark", hev)["m"]) == n - 48
+    assert len(build_series.build_country("Denmark", hev)["m"]) == n
+    # The state before the fill: those 48 rows without petrol/diesel.
     for r in hev:
         if r["period"] < "2018-01":
-            rest = float(r["TOTAL"]) - sum(float(r[k]) for k in ("BEV", "PHEV", "OTHERS"))
-            r.update(PETROL=str(round(rest * 0.65)), DIESEL=str(rest - round(rest * 0.65)))
-    assert len(build_series.build_country("Denmark", hev)["m"]) == n
+            r.update(PETROL="", DIESEL="")
+    assert len(build_series.build_country("Denmark", hev)["m"]) == n - 48
 
 
 # ---------------------------------------------------------------- BIL51
