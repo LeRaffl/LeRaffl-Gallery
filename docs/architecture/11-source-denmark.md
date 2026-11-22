@@ -23,7 +23,7 @@ variant_notes:
   Vans: New vans (BILTYPE 4000102000).
 hev_split: false
 fcev: folded into OTHERS
-backfill: pre-2018 Whole rows already in data/Denmark.csv
+backfill: pre-2018 Whole rows already in data/Denmark.csv; their petrol/diesel from BIL51 (filled 2026-11-22)
 scope_note: Whole = all new registrations; Private / Industry split by terms of use.
 column_map:
   BEV: BEV
@@ -33,6 +33,7 @@ column_map:
   Other: OTHERS
 caveats:
 - StatBank doesn't split full or mild hybrids; HEV folds into Petrol/Diesel. (BIL51's "Hybrid/petrol" and "Hybrid/diesel" are the plug-in hybrids, the same cars as BIL53's "Pluginhybrid".)
+- 2014-2017 (Whole): TOTAL/BEV/PHEV/OTHERS from the maintainer's sheet, petrol/diesel from StatBank BIL51 (same register, same definitions as BIL53). OTHERS there is up to 28 cars below BIL51's in 22 months, left as is.
 - Private / Industry / HDV / Vans have no pre-2018 backfill; they start at the API range.
 fetcher: scripts/fetch_denmark.py
 workflow: .github/workflows/fetch-denmark.yml
@@ -60,11 +61,12 @@ API:       POST https://api.statbank.dk/v1/data with JSON body
 Variants:  Whole, Private, Industry, HDV, Vans (5 separate CSV files)
 HEV:       Not split by Statbank (folded into Petrol/Diesel upstream). A forward-only
            split of Whole by ACEA's shares is wired up (scripts/denmark_hev.py, §3)
-           but writes nothing until 2014–2017 carry petrol/diesel (§12.5)
-Backfill:  Pre-2018 Whole rows already in data/Denmark.csv
+           from 2026-11 on (the 2014–2017 gate is lifted, §12.5)
+Backfill:  Pre-2018 Whole rows already in data/Denmark.csv; petrol/diesel
+           2014–2017 from BIL51 (filled 2026-11-22)
 Schedule:  Daily cron 1st–15th, 05:15 and 07:20 UTC; early-exit per variant once last month is in
 Scripts:   scripts/fetch_denmark.py, scripts/denmark_hev.py,
-           scripts/backfill_denmark_bil51.py (proposal, not run)
+           scripts/backfill_denmark_bil51.py (run once, 2026-11-22)
 Workflow:  .github/workflows/fetch-denmark.yml
 ```
 
@@ -238,7 +240,8 @@ the old shares is re-estimated.
   this was written. Nothing at or before 2026-10 is touched; a history
   estimate is a separate, owner-approved step (§12.5).
 - `ready()`: no HEV is written while a Whole row has a TOTAL but neither
-  petrol nor diesel — today the 48 sheet rows 2014-01 – 2017-12.
+  petrol nor diesel — the 48 sheet rows 2014-01 – 2017-12 until their
+  petrol/diesel were filled from BIL51 on 2026-11-22, so the gate is open.
   `build_series.py` stage 3 only turns a remainder into ICE when every
   electrified column of the file is present, so a single HEV row would
   drop those 48 months from the interactive series (154 → 106 points;
@@ -274,8 +277,12 @@ filtered by the `to_csv_rows` skip-when-TOTAL=0 check.
 
 `api.statbank.dk` only goes back to 2018-01 for the passenger-car
 breakdown. The 48 Whole rows 2014-01..2017-12 are already in
-`data/Denmark.csv` (BEV, PHEV, OTHERS, TOTAL; petrol and diesel blank).
-Do not re-import them. Without those rows the Weibull `t0` would be 2018
+`data/Denmark.csv` (BEV, PHEV, OTHERS, TOTAL from the maintainer's sheet;
+petrol and diesel from StatBank BIL51, filled 2026-11-22 by
+`scripts/backfill_denmark_bil51.py`, flagged in notes). Do not re-import them.
+Petrol/diesel mean the same as from 2018: every non-plug petrol / diesel car,
+full and mild hybrids included (BIL51's "Hybrid" codes are the plug-ins:
+82 in all of 2014). Without those rows the Weibull `t0` would be 2018
 instead of 2014. Private and Industry have no pre-2018 history.
 
 ## 6. Schedule and idempotency
@@ -348,7 +355,7 @@ it for now.
 | Statbank restates an older month with >50% delta | Upsert prints `WARNING` to the action log but still commits the new values | Manually verify and revert with a CSV edit if not real |
 | `OMRÅDE` URL/JSON encoding regresses in some HTTP client | API returns 400 / empty dataset | Stick with `requests`; the script passes the body via `json=` so encoding is automatic |
 | ACEA's Danish row isn't Statbank's month (TOTAL off by >1.5% or BEV by >2%) | `Denmark YYYY-MM: ACEA HEV not merged` in the fetch-acea log; the month keeps its estimate | Compare the two by hand; if ACEA changed scope, widen the gate in `denmark_hev.py` with a note |
-| HEV split never appears | `Denmark: HEV split waits — 48 Whole rows …` in both logs | Expected until `backfill_denmark_bil51.py --write` has run (§12.5) |
+| HEV split never appears | `Denmark: HEV split waits — 48 Whole rows …` in both logs | Was expected until the BIL51 fill; since 2026-11-22 a Whole row with TOTAL but no petrol/diesel is new — find where it came from |
 
 ## 10. Maintenance recipes
 
@@ -473,13 +480,13 @@ BIL51 in every month; OTHERS is a few cars below BIL51's in 22 months
 
 ### 12.5 Proposals (not in this pipeline yet; each needs the owner's yes)
 
-1. **Petrol/diesel for 2014-01 – 2017-12 from BIL51**
+1. **Done 2026-11-22.** Petrol/diesel for 2014-01 – 2017-12 from BIL51
    (`python scripts/backfill_denmark_bil51.py --write`; dry run without
    `--write`). Fills only blank cells, only where BIL51's TOTAL/BEV/PHEV
    equal the row, flags each row in notes; TOTAL/BEV/PHEV/OTHERS untouched.
    Official figures, not an estimate. This lifts the `ready()` gate. Open
    choice: also correct OTHERS to BIL51's in the 22 months (≤28 cars) so
-   the rows sum exactly — that changes existing values.
+   the rows sum exactly — that changes existing values, so it was not done.
 2. **HEV history estimate** in the NL/FI/CZ pattern, so the TTM shows
    hybrids over the whole span instead of starting late: ACEA's monthly
    shares 2023-11 → (the unmerged `feat/acea-hev-split` branch already
@@ -495,6 +502,8 @@ BIL51 in every month; OTHERS is a few cars below BIL51's in 22 months
    only year-to-date on a page without an allowed monthly view. Stay on
    ACEA's HEV definition (full + mild) like NL/FI/CZ unless a clean source
    appears.
-5. After 1 (and ideally 2): set `hev_split`/`hev_note`, add a Denmark
-   Whole footnote ("HEV = full + mild hybrids, ACEA's shares on Statbank's
-   petrol + diesel"), and dispatch the Denmark render.
+5. After 1 (and ideally 2): set `hev_split`/`hev_note` once the first
+   HEV month is in the CSV, and dispatch the Denmark render. The Denmark
+   Whole footnote is in (2026-11-22): it says hybrids sit in petrol/diesel
+   and that HEV is split out from Nov 2026, so petrol and diesel step down
+   there by definition, not by market.
