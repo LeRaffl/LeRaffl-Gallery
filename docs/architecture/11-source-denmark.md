@@ -328,6 +328,25 @@ flowchart TD
     Dispatch --> Render["R/render_country.R<br/>(four PNGs + params.csv + weights.csv + post)"]
 ```
 
+Where each figure of `data/Denmark.csv` (Whole) comes from. TOTAL, BEV,
+PHEV and OTHERS are always Statistics Denmark's; the hybrid split only
+borrows **shares**, and those shares are DBI IT's classification of the
+same register (via Mobility Denmark and ACEA), since the register itself
+cannot tell a non-plug hybrid from a petrol or diesel car (§3).
+
+```mermaid
+flowchart LR
+    DMR["Motor Register (DMR)<br/>every first registration"]
+    DMR --> DST["Statistics Denmark<br/>StatBank BIL53 (2018 →)<br/>BIL51 (2011 →)"]
+    DMR --> DBI["DBI IT A/S (bilstatistik.dk)<br/>own vehicle database:<br/>Hybrid / Mild Hybrid"]
+    DBI --> MD["Mobility Denmark<br/>(industry association)"]
+    MD --> ACEA["ACEA release<br/>HEV = Hybrid + Mild Hybrid"]
+    DST -->|"TOTAL, BEV, PHEV, OTHERS,<br/>petrol + diesel (hybrids inside)<br/>fetch_denmark.py"| CSV["data/Denmark.csv"]
+    DST -.->|"2014-2017 petrol / diesel<br/>backfill_denmark_bil51.py (once)"| CSV
+    ACEA -->|"HEV : petrol : diesel shares<br/>split Statbank petrol + diesel<br/>denmark_hev.py (apply_acea)"| CSV
+    CSV -.->|"newest month: previous month's<br/>shares until ACEA (estimate)"| CSV
+```
+
 ## 8. Parallel-render push race (one-time stumble)
 
 The first time `fetch-denmark.yml` ran, it dispatched five
