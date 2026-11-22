@@ -2055,6 +2055,33 @@ def flyer_summary(fm: dict, params: dict) -> dict:
             "through": mc.period_label(rows[-1]["period"]) if rows else ""}
 
 
+def briefs_map(entries, brief_items: list[dict]) -> dict:
+    """country -> what the gallery's country panel shows (sources/briefs.json).
+
+    The headline of the brief, its 12-month BEV share and change, the month
+    the data runs through, and where the data comes from. Keyed by the same
+    country name as sources.json, so the gallery looks both up the same way.
+    """
+    by_slug = {b["slug"]: b for b in brief_items}
+    out = {}
+    for fm, is_stub in entries:
+        fm = apply_group_defaults(fm)
+        b = by_slug.get(fm.get("slug"), {})
+        share, delta = b.get("share"), b.get("delta")
+        out[fm.get("country", "Unknown")] = {
+            "slug": fm.get("slug", ""),
+            "head": b.get("head", ""),
+            "share": round(share, 1) if isinstance(share, (int, float)) else None,
+            "delta": round(delta, 1) if isinstance(delta, (int, float)) else None,
+            "through": b.get("through", ""),
+            "source": fm.get("underlying") or fm.get("source_name") or "",
+            "source_url": fm.get("source_url") or "",
+            "data_file": fm.get("data_file") or "",
+            "is_stub": bool(is_stub),
+        }
+    return out
+
+
 def flyer_peers(entries, params: dict) -> list[tuple[str, float]]:
     """(country, 12-month BEV share in percent) for every country with a page.
 
@@ -2983,9 +3010,15 @@ def main() -> int:
         })
 
     region_items = build_regions(peers, peer_years, peer_years_80)
+    brief_items = [flyer_summary(fm, params) for fm, _ in entries]
     (OUT_DIR / "flyer" / "index.html").write_text(
-        flyer.build_index([flyer_summary(fm, params) for fm, _ in entries],
-                          "../../assets/theme.css", regions=region_items),
+        flyer.build_index(brief_items, "../../assets/theme.css", regions=region_items),
+        encoding="utf-8")
+    # The gallery's country panel (index.html, #galCountryHub) reads this to
+    # put each country's brief and source up front, without loading the pages.
+    (OUT_DIR / "briefs.json").write_text(
+        json.dumps(briefs_map(entries, brief_items), ensure_ascii=False,
+                   indent=1, sort_keys=True),
         encoding="utf-8")
 
     for c in candidates:
@@ -3014,7 +3047,7 @@ def main() -> int:
           f"+ {len(region_items)} region briefs "
           f"+ {len(built) + len(region_items)} social cards "
           f"+ {len(candidates)} candidate pages "
-          f"+ sources/index.html + sources/sources.json")
+          f"+ sources/index.html + sources/sources.json + sources/briefs.json")
     return 0
 
 

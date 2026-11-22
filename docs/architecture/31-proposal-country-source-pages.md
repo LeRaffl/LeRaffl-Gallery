@@ -30,6 +30,9 @@
     (country → slug); `index.html` loads it and adds an "ⓘ Source" link to
     each country card, keyed on the base country (variant suffix stripped) and
     shown only when a page exists.
+    Since 2026-11 it also emits `sources/briefs.json` (verdict, 12-month
+    share, data-through month, source per country) for the Gallery's country
+    panel; see [02-components.md](02-components.md), "In the Gallery".
 
 - **Refinement (2026-07).** The headline chip is now the **acquisition
   method**, not a live/planned status — one of `api` / `scrape` / `pdf` /

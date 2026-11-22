@@ -95,8 +95,8 @@ check("Fleet data keys stay uppercase (DIESEL/PETROL/HYBRID/OTHERS)",
 
 # --- 17. Card footer height ---
 foot = H.split(".card.g .footer{")[1][:400]
-check("Gallery card footer uses a 3-column grid for actions",
-      "grid-template-columns:auto auto auto" in foot)
+check("Gallery card footer uses a 4-column grid for actions",
+      "grid-template-columns:auto auto auto auto" in foot)
 check("filename spans the full footer row",
       "grid-column:1 / -1" in H.split(".card.g .footer .filename{")[1][:120])
 

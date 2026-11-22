@@ -591,6 +591,16 @@ No pipeline detail belongs on it.
 - In the mix, plug-ins and hybrids are their own band only where the 12-month window fills that column; before that they are inside the combustion band.
 - The QR code is drawn by `segno` (pinned in `build-source-pages.yml`, the only dependency besides `pyyaml`) as one SVG path, error level L so the modules stay large enough to scan from print.
 
+#### In the Gallery (`#galCountryHub`, `sources/briefs.json`)
+
+The briefs and source pages are also put where people look, the Charts tab, so nobody has to go card → *ⓘ Source* → source page → *Country brief* to find them:
+
+- **No country picked:** one slim strip above the charts points to all briefs (`sources/flyer/`) and all data sources (`sources/`).
+- **One country picked** (a variant such as *Austria (Vans)* counts as its base country): a panel above its charts with live previews of the brief and the social card (the generated pages themselves in scaled, non-interactive iframes, so the preview is always what opens), the brief's verdict line, the 12-month BEV share and its change, the "data through" month, the data source, and one-click links to the brief (PDF), the social card, the source page and the raw CSV.
+- **Every chart card** has a quiet *Brief* action next to *ⓘ Source*.
+
+The panel reads `sources/briefs.json`, written by `build_source_pages.py` (`briefs_map()`) from the same `flyer_summary()` figures as the brief directory, keyed by country like `sources.json`. If it is missing, the panel still links the brief, card and source page, just without the numbers. `scripts/test_country_hub.py` pins both halves.
+
 ## 2.12 Theme Extractor (`scripts/build_theme.py`)
 
 ### What it is
