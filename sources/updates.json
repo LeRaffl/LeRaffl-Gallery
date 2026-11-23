@@ -4,6 +4,20 @@
  "entries": [
   {
    "date": "2026-11-23",
+   "time": "2026-11-23T18:42:30Z",
+   "type": "data",
+   "kind": "revised",
+   "country": "Lithuania",
+   "flag": "🇱🇹",
+   "slug": "lithuania",
+   "headline": "Figures revised",
+   "detail": "1 period",
+   "variants": [],
+   "source": "Regitra",
+   "commit": "25be6f40798f"
+  },
+  {
+   "date": "2026-11-23",
    "time": "2026-11-23T17:56:40Z",
    "type": "data",
    "kind": "data",
@@ -218,20 +232,6 @@
    "country": "Greece",
    "flag": "🇬🇷",
    "slug": "greece",
-   "headline": "Figures revised",
-   "detail": "1 period",
-   "variants": [],
-   "source": "",
-   "commit": "174f82362cff"
-  },
-  {
-   "date": "2026-11-23",
-   "time": "2026-11-23T17:56:40Z",
-   "type": "data",
-   "kind": "revised",
-   "country": "Lithuania",
-   "flag": "🇱🇹",
-   "slug": "lithuania",
    "headline": "Figures revised",
    "detail": "1 period",
    "variants": [],
