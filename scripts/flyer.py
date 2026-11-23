@@ -631,8 +631,8 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
     strips = [{
         "title": "BEV share, last 12 months",
         "own_line": f"{esc(country)} {pct(own)} · {place(s_rank, len(peers))}",
-        "mid_line": f"Median: {pct(s_stats['median'])}",
-        "q_line": f"25%: {pct(s_stats['q1'])}  ·  75%: {pct(s_stats['q3'])}",
+        "mid_line": f"Typical share: {pct(s_stats['median'])}",
+        "q_line": "",
         "values": peers, "stats": s_stats, "axis": (0.0, 100.0),
         "ticks": [(t, f"{t:.0f}%") for t in (0, 25, 50, 75, 100)],
         "own": {"name": country, "slug": subject_slug, "value": own},
@@ -659,9 +659,8 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
             "title": title,
             "own_line": (f"{esc(country)} {mc.year_text(y)} · "
                          f"{place(y_rank, len(years))}"),
-            "mid_line": f"Median: {mc.year_text(y_stats['median'])}",
-            "q_line": (f"25%: {mc.year_text(y_stats['q1'])}  ·  "
-                       f"75%: {mc.year_text(y_stats['q3'])}"),
+            "mid_line": f"Typical {level_label} year: {mc.year_text(y_stats['median'])}",
+            "q_line": "",
             "values": years, "stats": y_stats, "axis": (float(lo), float(hi)),
             "ticks": [(float(t), str(t)) for t in range(lo, hi + 1, 5)
                       if t % 10 == 0 or t in (lo, hi)],
