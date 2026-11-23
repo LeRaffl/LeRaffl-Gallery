@@ -118,6 +118,9 @@ def rank_facts(ctx: dict, role: str) -> dict | None:
     for key in ("own", "median", "q1", "q3"):
         out[f"{key}_text"] = fmt(out[key])
     out["rank_text"] = f"{flyer.ordinal(out['rank'])} of {s['n']}"
+    if m.get("kind") == "year" and m.get("ci"):
+        out["ci"] = list(m["ci"])
+        out["ci_text"] = mc._ci_text(m["ci"])
     return out
 
 

@@ -66,7 +66,9 @@ def _strip(ctx: dict, role: str) -> dict | None:
         peer_years=ctx["peer_years"] if y50 else None,
         own_year=flyer.year_at_50(ctx["state"]) if y50 else None,
         peer_years_80=ctx["peer_years_80"] if y80 else None,
-        own_year_80=flyer.year_at_80(ctx["state"]) if y80 else None)
+        own_year_80=flyer.year_at_80(ctx["state"]) if y80 else None,
+        own_ci=flyer.year_ci(ctx["state"], 0.5) if y50 else None,
+        own_ci_80=flyer.year_ci(ctx["state"], 0.8) if y80 else None)
     # A year strip alone keeps its own year axis (the shared axis only
     # exists when both year strips are drawn together).
     return next((s for s in strips if s.get("kind") == want), None)

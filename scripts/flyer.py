@@ -386,6 +386,19 @@ def year_at(state: dict | None, level: float = 0.5) -> float | None:
     return None
 
 
+def year_ci(state: dict | None, level: float = 0.5):
+    """The 95 % band of the year the curve reaches `level`, as (lo, hi) where
+    an open end is None, or None when the brief prints no band (no usable
+    band file, or no quotable fit). Same gate as the brief's own table."""
+    if not state or not state.get("quotable") or not state.get("band_ok"):
+        return None
+    target = round(level, 3)
+    for c in state.get("crossings") or []:
+        if round(c.get("level", 0), 3) == target and c.get("ci"):
+            return tuple(c["ci"])
+    return None
+
+
 def year_at_50(state: dict | None) -> float | None:
     return year_at(state, 0.5)
 
@@ -415,7 +428,10 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
     # Tick labels need a line under the rug; year strips that share a
     # scale below keep only a tight follow, so the boxes stay in line.
     tick_space = 13 * k if metric.get("ticks") else 3 * k
-    height = round(rug_bot + tick_space)
+    ci = metric.get("ci")
+    ci_y = rug_bot + 6 * k
+    ci_space = 9 * k if ci else 0
+    height = round(rug_bot + ci_space + tick_space)
 
     def x_of(v: float) -> float:
         v = max(lo, min(hi, v))
@@ -440,6 +456,20 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
              f'height="{box_h:.1f}" fill="#ebe8e1" {grey}/>')
     p.append(f'<line x1="{md:.1f}" y1="{box_top:.1f}" x2="{md:.1f}" '
              f'y2="{box_top + box_h:.1f}" stroke="#3b3a36" stroke-width="{2 * k:.2f}"/>')
+    # The subject's own 95 % band: a green span under the rug, capped where
+    # the band ends and open (no cap, runs to the axis edge) where it does not.
+    if ci:
+        c_lo, c_hi = ci
+        gx0 = x_of(c_lo) if c_lo is not None else x_of(lo)
+        gx1 = x_of(c_hi) if c_hi is not None else x_of(hi)
+        gsw = 3.2 * k
+        p.append(f'<line x1="{gx0:.1f}" y1="{ci_y:.1f}" x2="{gx1:.1f}" y2="{ci_y:.1f}" '
+                 f'stroke="#2c7a50" stroke-opacity=".45" stroke-width="{gsw:.2f}">'
+                 f'<title>95% band</title></line>')
+        for cx, cv in ((gx0, c_lo), (gx1, c_hi)):
+            if cv is not None:
+                p.append(f'<line x1="{cx:.1f}" y1="{ci_y - 3.5 * k:.1f}" x2="{cx:.1f}" '
+                         f'y2="{ci_y + 3.5 * k:.1f}" stroke="#2c7a50" stroke-width="{1.6 * k:.2f}"/>')
     # Decade guides on a shared year scale (labels live on the axis row).
     for tick, _text in metric.get("guides") or []:
         x = x_of(tick)
@@ -476,6 +506,8 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
            f'aria-label="{esc(metric["aria"])}">{_x_to_pct("".join(p), width)}</svg>')
     q = metric.get("q_line") or ""
     q_html = f'<span>{q}</span>' if q else ""
+    if metric.get("ci_line"):
+        q_html += f'<span class="{cls}-bx-ci">{metric["ci_line"]}</span>'
     tight = "" if metric.get("ticks") else f" {cls}-bx-l-tight"
     return (f'<div class="{cls}-bx"><div class="{cls}-bx-l{tight}"><b>{metric["title"]}</b>'
             f'<span class="{cls}-bx-own">{metric["own_line"]}</span>'
@@ -497,6 +529,7 @@ def _unify_year_axes(strips: list[dict]) -> None:
         vals.extend(v for _, v in s["values"])
         vals.append(s["own"]["value"])
         vals.extend(m["value"] for m in s["marks"])
+        vals.extend(e for e in (s.get("ci") or ()) if e is not None and math.isfinite(e))
     lo = 5 * math.floor(min(vals) / 5)
     hi = max(5 * math.ceil(max(vals) / 5), lo + 20)
     ticks = [(float(t), str(t)) for t in range(lo, hi + 1, 5)
@@ -549,7 +582,9 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
                    peer_years: list[tuple[str, float]] | None = None,
                    own_year: float | None = None,
                    peer_years_80: list[tuple[str, float]] | None = None,
-                   own_year_80: float | None = None) -> tuple[list[dict], list[str], int]:
+                   own_year_80: float | None = None,
+                   own_ci: tuple | None = None,
+                   own_ci_80: tuple | None = None) -> tuple[list[dict], list[str], int]:
     """The Gallery's rankings as slim box plots across every ranked country:
     BEV share of new cars over the last 12 months, and the years the fitted
     S-curve reaches 50 % and 80 % (the Thresholds ranking). The subject is
@@ -606,7 +641,8 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
                  f"{'would be ' if is_region else ''}{ordinal(s_rank)} of {len(peers)} countries."),
     }]
 
-    def add_year_strip(title: str, mark_key: str, peer_list, own_y, level_label: str) -> int:
+    def add_year_strip(title: str, mark_key: str, peer_list, own_y, level_label: str,
+                       ci=None) -> int:
         years = [(n, y) for n, y in (peer_list or []) if y is not None and math.isfinite(y)]
         y = own_y
         if y is None and not is_region:
@@ -614,8 +650,9 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
         y_stats = box_stats([v for _, v in years]) if len(years) >= 10 else None
         if y is None or not math.isfinite(y) or not y_stats:
             return len(years)
-        lo = 5 * math.floor(min(y_stats["min"], y) / 5)
-        hi = max(5 * math.ceil(max(y_stats["max"], y) / 5), lo + 20)
+        ends = [e for e in (ci or ()) if e is not None and math.isfinite(e)]
+        lo = 5 * math.floor(min([y_stats["min"], y] + ends) / 5)
+        hi = max(5 * math.ceil(max([y_stats["max"], y] + ends) / 5), lo + 20)
         y_rank = _rank_of(y, [v for _, v in years], higher_first=False)
         strips.append({
             "title": title,
@@ -628,6 +665,8 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
             "ticks": [(float(t), str(t)) for t in range(lo, hi + 1, 5)
                       if t % 10 == 0 or t in (lo, hi)],
             "kind": "year",
+            "ci": tuple(ci) if ci else None,
+            "ci_line": (f"95% CI: {mc._ci_text(ci)}" if ci else ""),
             "own": {"name": country, "slug": subject_slug, "value": y},
             "marks": marks_for(mark_key),
             "aria": (f"{country}: fitted curve reaches {level_label} in "
@@ -638,9 +677,9 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
         return len(years)
 
     n_years = add_year_strip("Fitted curve reaches 50%", "year50",
-                             peer_years, own_year, "50%")
+                             peer_years, own_year, "50%", own_ci)
     add_year_strip("Fitted curve reaches 80%", "year80",
-                   peer_years_80, own_year_80, "80%")
+                   peer_years_80, own_year_80, "80%", own_ci_80)
     _unify_year_axes(strips)
     return strips, named, n_years
 
