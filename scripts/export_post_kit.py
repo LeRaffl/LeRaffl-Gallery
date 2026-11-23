@@ -147,6 +147,8 @@ def main() -> int:
     ap.add_argument("--roles", help="comma list; default: every role the data supports")
     ap.add_argument("--scale", type=int, default=SCALE)
     ap.add_argument("--chrome", default=None)
+    ap.add_argument("--weak-curve", action="store_true",
+                    help="draw the dashed preliminary fit on the social card when the fit is not stable")
     args = ap.parse_args()
 
     fm, shared = build_ctx(args.slug)
@@ -185,7 +187,8 @@ def main() -> int:
         if not wanted or "social" in wanted:
             html = FLYER_DIR / f".kit_{slug}_social.html"
             temps.append(html)
-            html.write_text(bsp.build_social_page(fm, shared["params"], shared["peers"]),
+            html.write_text(bsp.build_social_page(fm, shared["params"], shared["peers"],
+                                                  weak_curve=args.weak_curve),
                             encoding="utf-8")
             png = out / f"{slug}_social.png"
             screenshot(chrome, html, png, 1080, 1350, args.scale)

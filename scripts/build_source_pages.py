@@ -2024,7 +2024,8 @@ def build_flyer_page(fm: dict, params: dict, peers: list | None = None,
                              peer_years=peer_years, peer_years_80=peer_years_80)
 
 
-def build_social_page(fm: dict, params: dict, peers: list | None = None) -> str:
+def build_social_page(fm: dict, params: dict, peers: list | None = None,
+                      weak_curve: bool = False) -> str:
     """The 1080x1350 social card, from the same figures as the brief."""
     fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
@@ -2037,7 +2038,7 @@ def build_social_page(fm: dict, params: dict, peers: list | None = None) -> str:
     return social_card.build_social(fm, rows, figures, mc.model_state(whole, bands),
                                     bands, market_structure.load(fm, rows), "logos",
                                     "../../assets/theme.css", "../../assets/brands",
-                                    peers=peers or [])
+                                    peers=peers or [], weak_curve=weak_curve)
 
 
 def snippet_context(fm: dict, params: dict, peers: list | None = None,
