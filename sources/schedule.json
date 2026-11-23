@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-23T18:05:27Z",
+ "generated": "2026-11-23T18:12:43Z",
  "today": "2026-11-23",
  "countries": [
   {
@@ -1849,7 +1849,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇭🇺",
    "variants": [
     {
@@ -1915,7 +1915,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇮🇸",
    "variants": [
     {
@@ -2803,7 +2803,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇲🇹",
    "variants": [
     {

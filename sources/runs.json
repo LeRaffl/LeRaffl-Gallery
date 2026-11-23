@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-23T18:05:27Z",
+ "generated": "2026-11-23T18:12:43Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8264,6 +8264,30 @@
    "slug": "czechia_vans",
    "period": "2026-10",
    "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Hungary",
+   "base": "Hungary",
+   "slug": "hungary",
+   "period": "2026-10",
+   "flag": "🇭🇺"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Iceland",
+   "base": "Iceland",
+   "slug": "iceland",
+   "period": "2026-10",
+   "flag": "🇮🇸"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Malta",
+   "base": "Malta",
+   "slug": "malta",
+   "period": "2026-10",
+   "flag": "🇲🇹"
   }
  ]
 }
