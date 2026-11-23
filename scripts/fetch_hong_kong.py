@@ -113,6 +113,7 @@ import sys
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
@@ -457,7 +458,7 @@ def period_of(text: str) -> str | None:
 
 
 def make_session() -> requests.Session:
-    s = requests.Session()
+    s = http_retry.mount(requests.Session())
     s.headers.update(HTTP_HEADERS)
     return s
 

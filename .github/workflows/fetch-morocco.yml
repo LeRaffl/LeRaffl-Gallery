@@ -7,9 +7,17 @@ name: Fetch Morocco data (AIVAM) — probe
 on:
   workflow_dispatch:
 
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-morocco
+  cancel-in-progress: false
+
 jobs:
   probe:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6

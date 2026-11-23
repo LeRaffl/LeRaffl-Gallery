@@ -279,6 +279,20 @@ def test_incomplete_month_guard():
     assert not fa.looks_incomplete("2027-01", 5000, {"2026-12": {"TOTAL": "30000.0"}})
 
 
+def test_month_listed_reads_portal_metadata_only():
+    base = "https://datos.jus.gob.ar/dataset/x/resource/y/download/dnrpa-inscripciones-iniciales-autos-"
+    res = [{"url": base + "202609.csv", "last_modified": "2026-10-07T11:37:51"},
+           {"url": base + "2026.zip", "last_modified": "2026-10-07T11:39:01"},
+           {"url": base + "2025.zip", "last_modified": "2026-10-07T11:38:40"}]
+    assert fa.month_listed(res, "2026-09")            # its own monthly CSV
+    assert not fa.month_listed(res, "2026-10")        # zip not refreshed since Nov 1
+    res[1]["last_modified"] = "2026-11-06T09:00:00"
+    assert fa.month_listed(res, "2026-10")            # refreshed zip may carry it
+    dec = [{"url": base + "2026.zip", "last_modified": "2027-01-08T10:00:00"}]
+    assert fa.month_listed(dec, "2026-12")            # December rolls the year
+    assert not fa.month_listed([], "2026-10")
+
+
 def main() -> None:
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:

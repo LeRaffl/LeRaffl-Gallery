@@ -59,6 +59,7 @@ from datetime import date
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 API_URL = (
     "https://api.scb.se/OV0104/v1/doris/en/ssd/START/TK/TK1001/TK1001A/PersBilarDrivMedel"
@@ -256,7 +257,7 @@ def main() -> None:
               f"(use --force to re-fetch).")
         return
 
-    session = requests.Session()
+    session = http_retry.mount(requests.Session())
     dataset = fetch_dataset(session)
     parsed = parse_dataset(dataset)
     rows = to_csv_rows(parsed)

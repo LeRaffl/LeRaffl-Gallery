@@ -82,6 +82,7 @@ from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
@@ -237,7 +238,7 @@ def check_response(response, context: str, statuses=(200,)) -> None:
 
 class SimiClient:
     def __init__(self):
-        self.s = requests.Session()
+        self.s = http_retry.mount(requests.Session())
         self.s.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
         self.version = None
 

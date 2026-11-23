@@ -51,6 +51,7 @@ from datetime import date
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -246,7 +247,7 @@ def main() -> None:
         print(f"CSV already has {previous_month_period()}; nothing to do (use --force to refresh).")
         return
 
-    session = requests.Session()
+    session = http_retry.mount(requests.Session())
     session.headers.update({"User-Agent": "Mozilla/5.0 (compatible; LeRaffl-Gallery/1.0)"})
 
     today = date.today()

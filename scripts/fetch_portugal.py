@@ -84,6 +84,7 @@ from datetime import date
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
@@ -217,7 +218,7 @@ def refresh_top(session: requests.Session | None = None) -> None:
 
 
 def make_session() -> requests.Session:
-    session = requests.Session()
+    session = http_retry.mount(requests.Session())
     session.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
     return session
 

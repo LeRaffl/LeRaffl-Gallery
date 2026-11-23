@@ -42,9 +42,17 @@ on:
   schedule:
     - cron: '0 6 4-9 * *'   # 4th–9th of each month, 06:00 UTC
 
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-germany
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: write
       actions: write
@@ -72,6 +80,11 @@ jobs:
           KBA_FETCH_RELAY: ${{ secrets.KBA_FETCH_RELAY }}
           KBA_RELAY_TOKEN: ${{ secrets.KBA_RELAY_TOKEN }}
           KBA_PROXY: ${{ secrets.KBA_PROXY }}
+
+      # Shared last line of defence (scripts/check_fetch_diff.py): no empty,
+      # header-only or shrinking data CSV and no all-blank new row gets committed.
+      - name: Guard fetch output
+        run: python scripts/check_fetch_diff.py
 
       - name: Commit if changed
         id: commit

@@ -26,6 +26,7 @@ import argparse
 import json
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
       "Accept-Language": "en-US,en;q=0.9"}
@@ -55,7 +56,7 @@ TARGETS = [
 
 def probe() -> None:
     print("=== PROBE: India source reachability from this runner ===", flush=True)
-    s = requests.Session()
+    s = http_retry.mount(requests.Session())
     s.headers.update(UA)
     for name, url in TARGETS:
         try:

@@ -68,12 +68,20 @@ on:
     # The LCV struttura PDF is published around the 10th of each month.
     - cron: '0 10,14,18 8-16 * *'
 
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-italy
+  cancel-in-progress: false
+
 jobs:
   fetch:
     outputs:
       committed: ${{ steps.commit.outputs.committed }}
       variants_json: ${{ steps.changed.outputs.variants_json }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     permissions:
       contents: write
       actions: write
@@ -150,6 +158,12 @@ jobs:
           echo "variants_json=$json" >> "$GITHUB_OUTPUT"
           echo "Touched variants: ${variants:-<none>}"
 
+      # Shared last line of defence (scripts/check_fetch_diff.py): no empty,
+      # header-only or shrinking data CSV and no all-blank new row gets committed.
+      - name: Guard fetch output
+        if: success() || steps.fetch.outputs.vans_failed == 'true'
+        run: python scripts/check_fetch_diff.py
+
       - name: Commit if changed
         id: commit
         if: success() || steps.fetch.outputs.vans_failed == 'true'
@@ -182,6 +196,7 @@ jobs:
     # !cancelled(): still render committed PKW rows when the job failed on Vans.
     if: "!cancelled() && needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.variants_json != '[]'"
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       actions: write
     steps:

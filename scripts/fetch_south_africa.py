@@ -356,10 +356,12 @@ def completeness(rows: dict, newest: str, log: list[str], force: bool) -> None:
 
 def list_reviews() -> list[str]:
     import requests
+    import http_retry
+    http = http_retry.mount(requests.Session())
     urls: set[str] = set()
     for term in ("Review of Business Conditions", "Quarterly Review"):
         for page in range(1, 4):
-            r = requests.get(MEDIA_API, params={"search": term, "per_page": 100, "page": page},
+            r = http.get(MEDIA_API, params={"search": term, "per_page": 100, "page": page},
                              headers=UA, timeout=60)
             if r.status_code != 200:
                 break
@@ -472,11 +474,13 @@ def load_reviews(args, log: list[str]) -> list[dict]:
         blobs = [(p.name, p.read_bytes()) for p in files]
     else:
         import requests
+        import http_retry
+        http = http_retry.mount(requests.Session())
         urls = list_reviews()
         if not urls:
             raise SystemExit("naamsa media library lists no quarterly review — layout change?")
         def fetch_blob(u: str) -> tuple[str, bytes]:
-            r = requests.get(u, headers=UA, timeout=120)
+            r = http.get(u, headers=UA, timeout=120)
             r.raise_for_status()
             name, data = u.rsplit("/", 1)[-1], r.content
             if args.dump_dir:

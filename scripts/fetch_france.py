@@ -86,6 +86,7 @@ from html import unescape
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 from openpyxl import load_workbook
 
 REPO = Path(__file__).resolve().parent.parent
@@ -572,7 +573,7 @@ def main(argv=None) -> int:
                          "and report each file's filename + sheets (debug); no write")
     args = ap.parse_args(argv)
 
-    session = requests.Session()
+    session = http_retry.mount(requests.Session())
     session.headers.update({"User-Agent": "Mozilla/5.0 (LeRaffl-Gallery fetch_france)"})
     if args.diagnose:
         try:

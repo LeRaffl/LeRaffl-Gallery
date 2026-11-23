@@ -314,7 +314,7 @@ def snapshot_is_new(last_modified: str | None, csv_path: Path = CSV_PATH,
                     newer_days: int = SNAPSHOT_NEWER_DAYS) -> bool:
     """Is the published snapshot newer than the one already in the CSV?
 
-    `last_modified` is the HTTP Last-Modified header. The CSV records the
+    `last_modified` is the http Last-Modified header. The CSV records the
     snapshot's data date; a file published more than `newer_days` after
     that date is the next quarter's.
     """
@@ -331,7 +331,9 @@ def fetch_snapshot(dest: Path, url: str = SNAPSHOT_URL, force: bool = False,
                    csv_path: Path = CSV_PATH) -> Path | None:
     """Download the snapshot when it is new (or `force`). None = nothing new."""
     import requests
-    head = requests.head(url, timeout=60, allow_redirects=True)
+    import http_retry
+    http = http_retry.mount(requests.Session())
+    head = http.head(url, timeout=60, allow_redirects=True)
     head.raise_for_status()
     lm = head.headers.get("Last-Modified")
     if not force and not snapshot_is_new(lm, csv_path):
@@ -339,7 +341,7 @@ def fetch_snapshot(dest: Path, url: str = SNAPSHOT_URL, force: bool = False,
               f"(newest in CSV: {newest_snapshot_date(csv_path)}); skipping")
         return None
     print(f"Downloading Traficom snapshot ({lm}) ...")
-    with requests.get(url, timeout=600, stream=True) as r:
+    with http.get(url, timeout=600, stream=True) as r:
         r.raise_for_status()
         with open(dest, "wb") as f:
             for chunk in r.iter_content(1 << 20):

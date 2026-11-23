@@ -96,6 +96,7 @@ import unicodedata
 from datetime import date, timedelta
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 from bs4 import BeautifulSoup
 
 DASHBOARD_PAGE = "https://anfavea.com.br/site/central-de-dados/"
@@ -321,7 +322,7 @@ def main() -> None:
         if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", v):
             parser.error(f"expected YYYY-MM, got {v!r}")
 
-    session = requests.Session()
+    session = http_retry.mount(requests.Session())
     session.headers.update(HTTP_HEADERS)
     html = fetch_table_html(session, get_nonce(session), start, end)
 

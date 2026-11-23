@@ -62,6 +62,7 @@ from pathlib import Path
 import sys
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
@@ -323,7 +324,7 @@ def main() -> None:
                     help="Accepted for parity with other fetchers (commit-gated downstream).")
     args = ap.parse_args()
 
-    session = requests.Session()
+    session = http_retry.mount(requests.Session())
     r = session.get(args.url, headers=HEADERS, timeout=120)
     print(f"[m03] GET {args.url} -> HTTP {r.status_code} ({len(r.content)} bytes)")
     r.raise_for_status()

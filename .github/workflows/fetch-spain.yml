@@ -91,9 +91,17 @@ on:
     # ending on a Friday needs an afternoon run to be complete on the 1st.
     - cron: '15 14 1-3 * *'
 
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-spain
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     permissions:
       contents: write
     outputs:
@@ -136,6 +144,11 @@ jobs:
           BACKFILL_FROM: ${{ inputs.backfill_from }}
           FORCE:         ${{ inputs.force == true && '1' || '' }}
 
+      # Shared last line of defence (scripts/check_fetch_diff.py): no empty,
+      # header-only or shrinking data CSV and no all-blank new row gets committed.
+      - name: Guard fetch output
+        run: python scripts/check_fetch_diff.py
+
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v10
@@ -171,6 +184,7 @@ jobs:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       actions: write
     steps:
