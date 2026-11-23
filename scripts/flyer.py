@@ -506,11 +506,11 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
            f'aria-label="{esc(metric["aria"])}">{_x_to_pct("".join(p), width)}</svg>')
     q = metric.get("q_line") or ""
     q_html = f'<span>{q}</span>' if q else ""
-    if metric.get("ci_line"):
-        q_html += f'<span class="{cls}-bx-ci">{metric["ci_line"]}</span>'
+    ci_html = (f'<span class="{cls}-bx-ci">{metric["ci_line"]}</span>'
+               if metric.get("ci_line") else "")
     tight = "" if metric.get("ticks") else f" {cls}-bx-l-tight"
     return (f'<div class="{cls}-bx"><div class="{cls}-bx-l{tight}"><b>{metric["title"]}</b>'
-            f'<span class="{cls}-bx-own">{metric["own_line"]}</span>'
+            f'<span class="{cls}-bx-own">{metric["own_line"]}</span>{ci_html}'
             f'<span>{metric["mid_line"]}</span>{q_html}</div>{svg}</div>')
 
 
@@ -666,7 +666,7 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
                       if t % 10 == 0 or t in (lo, hi)],
             "kind": "year",
             "ci": tuple(ci) if ci else None,
-            "ci_line": (f"95% CI: {mc._ci_text(ci)}" if ci else ""),
+            "ci_line": (f"Range: {mc._ci_text(ci)}" if ci else ""),
             "own": {"name": country, "slug": subject_slug, "value": y},
             "marks": marks_for(mark_key),
             "aria": (f"{country}: fitted curve reaches {level_label} in "
