@@ -144,14 +144,14 @@
  },
  "Czechia": {
   "data_file": "data/Czechia.csv",
-  "delta": 1.2,
-  "head": "About 1 in 15 new cars is battery electric.",
+  "delta": 1.6,
+  "head": "About 1 in 14 new cars is battery electric.",
   "is_stub": false,
-  "share": 6.9,
+  "share": 7.2,
   "slug": "czechia",
   "source": "RSV (Registr silničních vozidel) — the national road-vehicle register kept by the Ministry of Transport (Ministerstvo dopravy ČR)",
   "source_url": "https://download.dataovozidlech.cz/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Denmark": {
   "data_file": "data/Denmark.csv",

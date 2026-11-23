@@ -4,6 +4,26 @@
  "entries": [
   {
    "date": "2026-11-23",
+   "time": "2026-11-23T15:45:18Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Czechia",
+   "flag": "🇨🇿",
+   "slug": "czechia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Used, Vans, Trucks, Buses",
+   "variants": [
+    "Whole",
+    "Used",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "RSV (dataovozidlech.cz)",
+   "commit": "1037121f01c6"
+  },
+  {
+   "date": "2026-11-23",
    "time": "2026-11-23T10:20:46+01:00",
    "type": "data",
    "kind": "revised",
@@ -1177,24 +1197,6 @@
    "slug": "hungary",
    "headline": "Q3 2026 data",
    "detail": "Vans, Trucks, Buses · 2 earlier periods revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Iceland",
-   "flag": "🇮🇸",
-   "slug": "iceland",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 1 earlier period revised",
    "variants": [
     "Vans",
     "HDV",

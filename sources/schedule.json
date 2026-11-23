@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-23T15:18:38Z",
+ "generated": "2026-11-23T15:51:43Z",
  "today": "2026-11-23",
  "countries": [
   {
@@ -962,11 +962,11 @@
    "source_url": "https://download.dataovozidlech.cz/",
    "cadence_text": "twice daily on the 1st–8th — the extract is regenerated on the 1st; one real run a month streams the whole file (one to two hours), every other run reads only the response headers",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1000,46 +1000,46 @@
     ],
     "workflow": ".github/workflows/fetch-czechia.yml"
    },
-   "last_render": "2026-11-21",
+   "last_render": "2026-11-23",
    "flag": "🇨🇿",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2011-01",
-     "rows": 189,
+     "rows": 190,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     }
