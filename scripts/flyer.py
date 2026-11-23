@@ -506,12 +506,13 @@ def _box_strip(metric: dict, width: float, k: float = 1.0, cls: str = "fl") -> s
            f'aria-label="{esc(metric["aria"])}">{_x_to_pct("".join(p), width)}</svg>')
     q = metric.get("q_line") or ""
     q_html = f'<span>{q}</span>' if q else ""
+    mid_html = f'<span>{metric["mid_line"]}</span>' if metric.get("mid_line") else ""
     ci_html = (f'<span class="{cls}-bx-ci">{metric["ci_line"]}</span>'
                if metric.get("ci_line") else "")
     tight = "" if metric.get("ticks") else f" {cls}-bx-l-tight"
     return (f'<div class="{cls}-bx"><div class="{cls}-bx-l{tight}"><b>{metric["title"]}</b>'
             f'<span class="{cls}-bx-own">{metric["own_line"]}</span>{ci_html}'
-            f'<span>{metric["mid_line"]}</span>{q_html}</div>{svg}</div>')
+            f'{mid_html}{q_html}</div>{svg}</div>')
 
 
 def _unify_year_axes(strips: list[dict]) -> None:

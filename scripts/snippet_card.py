@@ -71,7 +71,11 @@ def _strip(ctx: dict, role: str) -> dict | None:
         own_ci_80=flyer.year_ci(ctx["state"], 0.8) if y80 else None)
     # A year strip alone keeps its own year axis (the shared axis only
     # exists when both year strips are drawn together).
-    return next((s for s in strips if s.get("kind") == want), None)
+    m = next((s for s in strips if s.get("kind") == want), None)
+    if m:
+        # The post text names the median; the image keeps the country's own line.
+        m = {**m, "mid_line": "", "q_line": ""}
+    return m
 
 
 def _rank_section(ctx: dict, role: str) -> str:
