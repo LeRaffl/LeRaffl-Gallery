@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-22T12:59:01Z",
- "today": "2026-11-22",
+ "generated": "2026-11-23T18:47:35Z",
+ "today": "2026-11-23",
  "countries": [
   {
    "country": "Albania",
@@ -414,11 +414,11 @@
    "source_url": "https://anfavea.com.br/site/central-de-dados/",
    "cadence_text": "monthly cron on the 10th, 08:50 UTC",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -444,14 +444,14 @@
     ],
     "workflow": ".github/workflows/fetch-brazil.yml"
    },
-   "last_render": "2026-10-08",
+   "last_render": "2026-11-23",
    "flag": "🇧🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2012-01",
-     "rows": 177,
+     "rows": 178,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -465,11 +465,11 @@
    "source_url": "https://www.acea.auto/",
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -510,14 +510,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇧🇬",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -830,11 +830,11 @@
    "source_url": "https://www.acea.auto/",
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -875,14 +875,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇭🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2019-10",
-     "rows": 84,
+     "rows": 85,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -896,11 +896,11 @@
    "source_url": "https://www.acea.auto/",
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -941,14 +941,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇨🇾",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2020-01",
-     "rows": 81,
+     "rows": 82,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -962,11 +962,11 @@
    "source_url": "https://download.dataovozidlech.cz/",
    "cadence_text": "twice daily on the 1st–8th — the extract is regenerated on the 1st; one real run a month streams the whole file (one to two hours), every other run reads only the response headers",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1000,46 +1000,46 @@
     ],
     "workflow": ".github/workflows/fetch-czechia.yml"
    },
-   "last_render": "2026-11-21",
+   "last_render": "2026-11-23",
    "flag": "🇨🇿",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2011-01",
-     "rows": 189,
+     "rows": 190,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2016-01",
-     "rows": 129,
+     "rows": 130,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1382,7 +1382,7 @@
     ],
     "workflow": ".github/workflows/fetch-finland.yml"
    },
-   "last_render": "2026-11-21",
+   "last_render": "2026-11-23",
    "flag": "🇫🇮",
    "variants": [
     {
@@ -1685,7 +1685,7 @@
     ],
     "workflow": ".github/workflows/fetch-greece.yml"
    },
-   "last_render": "2026-11-16",
+   "last_render": "2026-11-23",
    "flag": "🇬🇷",
    "variants": [
     {
@@ -1804,11 +1804,11 @@
    "source_url": "https://www.acea.auto/",
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1849,14 +1849,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇭🇺",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1870,11 +1870,11 @@
    "source_url": "https://www.acea.auto/",
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1915,14 +1915,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇮🇸",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2379,11 +2379,11 @@
    "source_url": "https://www.csdd.lv/transportlidzekli/transportlidzeklu-ikmenesa-dati",
    "cadence_text": "twice daily (06:20 and 12:20 UTC) on the 8th–25th; CSDD replaces the files about ten working days after month end",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2427,14 +2427,14 @@
     ],
     "workflow": ".github/workflows/fetch-latvia.yml"
    },
-   "last_render": "2026-10-16",
+   "last_render": "2026-11-23",
    "flag": "🇱🇻",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     },
@@ -2557,7 +2557,7 @@
     ],
     "workflow": ".github/workflows/fetch-lithuania.yml"
    },
-   "last_render": "2026-11-13",
+   "last_render": "2026-11-23",
    "flag": "🇱🇹",
    "variants": [
     {
@@ -2758,11 +2758,11 @@
    "source_url": "https://www.acea.auto/",
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2803,14 +2803,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇲🇹",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2022-01",
-     "rows": 56,
+     "rows": 57,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3481,11 +3481,11 @@
    "source_url": "https://www.acea.auto/",
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3526,14 +3526,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇷🇴",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2010-06",
-     "rows": 113,
+     "rows": 114,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3614,11 +3614,11 @@
    "source_url": "https://www.acea.auto/",
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3659,14 +3659,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇸🇰",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3680,11 +3680,11 @@
    "source_url": "https://www.acea.auto/",
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3725,14 +3725,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-23",
    "flag": "🇸🇮",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-06",
-     "rows": 108,
+     "rows": 109,
      "cadence": "monthly",
      "in_repo": true
     }

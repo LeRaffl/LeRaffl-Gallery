@@ -1,7 +1,273 @@
 {
- "generated": "2026-11-22",
+ "generated": "2026-11-23",
  "window_days": 60,
  "entries": [
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T18:42:30Z",
+   "type": "data",
+   "kind": "revised",
+   "country": "Lithuania",
+   "flag": "🇱🇹",
+   "slug": "lithuania",
+   "headline": "Figures revised",
+   "detail": "1 period",
+   "variants": [],
+   "source": "Regitra",
+   "commit": "25be6f40798f"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Bulgaria",
+   "flag": "🇧🇬",
+   "slug": "bulgaria",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 1 earlier period revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Croatia",
+   "flag": "🇭🇷",
+   "slug": "croatia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Cyprus",
+   "flag": "🇨🇾",
+   "slug": "cyprus",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Czechia",
+   "flag": "🇨🇿",
+   "slug": "czechia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Used, Vans, Trucks, Buses · 1 earlier period revised",
+   "variants": [
+    "Whole",
+    "Used",
+    "Vans",
+    "HDV",
+    "Buses"
+   ],
+   "source": "RSV (dataovozidlech.cz)",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Hungary",
+   "flag": "🇭🇺",
+   "slug": "hungary",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Iceland",
+   "flag": "🇮🇸",
+   "slug": "iceland",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 1 earlier period revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Latvia",
+   "flag": "🇱🇻",
+   "slug": "latvia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Malta",
+   "flag": "🇲🇹",
+   "slug": "malta",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 1 earlier period revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Romania",
+   "flag": "🇷🇴",
+   "slug": "romania",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Slovakia",
+   "flag": "🇸🇰",
+   "slug": "slovakia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Slovenia",
+   "flag": "🇸🇮",
+   "slug": "slovenia",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 1 earlier period revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "revised",
+   "country": "Denmark",
+   "flag": "🇩🇰",
+   "slug": "denmark",
+   "headline": "Figures revised",
+   "detail": "1 period",
+   "variants": [],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "revised",
+   "country": "Finland",
+   "flag": "🇫🇮",
+   "slug": "finland",
+   "headline": "Figures revised",
+   "detail": "1 period",
+   "variants": [],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T17:56:40Z",
+   "type": "data",
+   "kind": "revised",
+   "country": "Greece",
+   "flag": "🇬🇷",
+   "slug": "greece",
+   "headline": "Figures revised",
+   "detail": "1 period",
+   "variants": [],
+   "source": "",
+   "commit": "174f82362cff"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T10:20:46+01:00",
+   "type": "data",
+   "kind": "revised",
+   "country": "Australia",
+   "flag": "🇦🇺",
+   "slug": "australia",
+   "headline": "Figures revised",
+   "detail": "2 periods",
+   "variants": [],
+   "source": "",
+   "commit": "07ceff1911f5"
+  },
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T07:44:16Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Brazil",
+   "flag": "🇧🇷",
+   "slug": "brazil",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 9 earlier periods revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "ANFAVEA",
+   "commit": "b28b5930569f"
+  },
   {
    "date": "2026-11-22",
    "time": "2026-11-22T12:54:12Z",
@@ -907,307 +1173,6 @@
    "variants": [],
    "source": "DGT",
    "commit": "b9943a340f92"
-  },
-  {
-   "date": "2026-11-02",
-   "time": "2026-11-02T11:15:05Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Norway",
-   "flag": "🇳🇴",
-   "slug": "norway",
-   "headline": "Oct 2026 data",
-   "detail": "Cars",
-   "variants": [
-    "Whole"
-   ],
-   "source": "OFV",
-   "commit": "405ba82dfa4b"
-  },
-  {
-   "date": "2026-11-01",
-   "time": "2026-11-01T20:10:38Z",
-   "type": "site",
-   "kind": "site",
-   "headline": "Fits that claim a near-instant transition without the data to back it are now marked as an unreliable fit instead of carrying Done, Fast or Late starter tags (11 series change).",
-   "title": "fix(tags): degenerate fits no longer carry Done/Fast/Late tags (Malta Buses, Greece HDV, Croatia Buses)",
-   "pr": 389
-  },
-  {
-   "date": "2026-11-01",
-   "time": "2026-11-01T09:18:13Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Portugal",
-   "flag": "🇵🇹",
-   "slug": "portugal",
-   "headline": "Oct 2026 data",
-   "detail": "Cars, Vans, Trucks, Buses",
-   "variants": [
-    "Whole",
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "ACAP (motordata.pt)",
-   "commit": "237adaff96f3"
-  },
-  {
-   "date": "2026-11-01",
-   "time": "2026-11-01T08:04:06Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Spain",
-   "flag": "🇪🇸",
-   "slug": "spain",
-   "headline": "Oct 2026 data",
-   "detail": "Cars, Used, Rental, Non-rental, Vans, Trucks, Buses, Two-wheelers",
-   "variants": [
-    "Whole",
-    "Used",
-    "Rental",
-    "NonRental",
-    "Vans",
-    "HDV",
-    "Buses",
-    "2-Wheelers"
-   ],
-   "source": "DGT",
-   "commit": "982c8b429c10"
-  },
-  {
-   "date": "2026-10-31",
-   "time": "2026-10-31T06:08:54Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Thailand",
-   "flag": "🇹🇭",
-   "slug": "thailand",
-   "headline": "Sep 2026 data",
-   "detail": "Cars, Trucks, Buses, 3-Wheelers",
-   "variants": [
-    "Whole",
-    "HDV",
-    "Buses",
-    "3-Wheelers"
-   ],
-   "source": "aiu.thaiauto.or.th (veh_reg_fuel)",
-   "commit": "cb41ee13b700"
-  },
-  {
-   "date": "2026-10-30",
-   "time": "2026-10-30T17:03:13Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Hong Kong",
-   "flag": "🇭🇰",
-   "slug": "hong_kong",
-   "headline": "Sep 2026 data",
-   "detail": "Cars, Used, Vans",
-   "variants": [
-    "Whole",
-    "Used",
-    "Vans"
-   ],
-   "source": "TD first registrations (data.gov.hk)",
-   "commit": "dfd1b83dddd3"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T14:33:20Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Nepal",
-   "flag": "🇳🇵",
-   "slug": "nepal",
-   "headline": "Oct 2026 data",
-   "detail": "Cars, 3-Wheelers",
-   "variants": [
-    "Whole",
-    "3-Wheelers"
-   ],
-   "source": "customs.gov.np (FTS)",
-   "commit": "fe72da1b3c6d"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Bulgaria",
-   "flag": "🇧🇬",
-   "slug": "bulgaria",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 7 earlier periods revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Croatia",
-   "flag": "🇭🇷",
-   "slug": "croatia",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 1 earlier period revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Cyprus",
-   "flag": "🇨🇾",
-   "slug": "cyprus",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 2 earlier periods revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "France",
-   "flag": "🇫🇷",
-   "slug": "france",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 1 earlier period revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Germany",
-   "flag": "🇩🇪",
-   "slug": "germany",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Greece",
-   "flag": "🇬🇷",
-   "slug": "greece",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Hungary",
-   "flag": "🇭🇺",
-   "slug": "hungary",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 2 earlier periods revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Iceland",
-   "flag": "🇮🇸",
-   "slug": "iceland",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 1 earlier period revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Lithuania",
-   "flag": "🇱🇹",
-   "slug": "lithuania",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Malta",
-   "flag": "🇲🇹",
-   "slug": "malta",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 3 earlier periods revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
   }
  ]
 }

@@ -113,4 +113,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-07,monthly,Whole,SEAA / ACEA,996.0,1025.0,8478.0,2310.0,113.0,330.0,13252.0,TOTAL/BEV/PHEV SEAA statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
 2026-08,monthly,Whole,SEAA / ACEA,544.0,279.0,3086.0,965.0,68.0,211.0,5153.0,TOTAL/BEV/PHEV SEAA statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
 2026-09,monthly,Whole,SEAA / ACEA,1356.0,1155.0,7779.0,1787.0,143.0,582.0,12802.0,TOTAL/BEV/PHEV SEAA statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest
-2026-10,monthly,Whole,SEAA,2045.0,1265.0,8222.0,1642.0,140.0,717.0,14031.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2026-10,monthly,Whole,SEAA / ACEA,2045.0,1265.0,8224.0,1633.0,140.0,724.0,14031.0,TOTAL/BEV/PHEV SEAA statistics; HEV/PETROL/DIESEL ACEA (counted); OTHERS = TOTAL minus the rest

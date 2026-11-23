@@ -7,17 +7,17 @@ Australia,Whole,2026-10,BEV,false,false,,true,true
 Austria,Vans,2026-10,BEV,false,false,,false,false
 Austria,Whole,2026-10,BEV,false,false,,true,true
 Belgium,Whole,2026-10,BEV,false,false,,true,true
-Brazil,Whole,2026-09,BEV,false,false,,true,true
-Bulgaria,Whole,2026-09,BEV,false,false,,true,true
+Brazil,Whole,2026-10,BEV,false,false,,true,true
+Bulgaria,Whole,2026-10,BEV,false,false,,true,true
 Canada,Pickups,2026-06,BEV,false,false,,true,true
 Canada,Vans,2026-06,BEV,false,false,,true,true
 Canada,Whole,2026-06,BEV,false,false,,true,true
 Chile,Whole,2026-09,BEV,false,false,,true,true
 China,Whole,2026-10,BEV,false,false,,true,true
 Colombia,Whole,2026-10,BEV,false,false,,false,false
-Croatia,Whole,2026-09,BEV,false,false,,true,true
-Cyprus,Whole,2026-09,BEV,false,false,,true,true
-Czechia,Whole,2026-09,BEV,false,false,,true,true
+Croatia,Whole,2026-10,BEV,false,false,,true,true
+Cyprus,Whole,2026-10,BEV,false,false,,true,true
+Czechia,Whole,2026-10,BEV,false,false,,true,true
 Denmark,HDV,2026-10,BEV,false,false,,true,true
 Denmark,Industry,2026-10,BEV,false,false,,true,true
 Denmark,Private,2026-10,BEV,false,false,,true,true
@@ -34,8 +34,8 @@ France,Whole,2026-10,BEV,false,false,,true,true
 Georgia,Whole,2026-09,BEV,false,false,,false,false
 Germany,Whole,2026-10,BEV,false,false,,true,true
 Greece,Whole,2026-10,BEV,false,false,,true,true
-Hungary,Whole,2026-09,BEV,false,false,,true,true
-Iceland,Whole,2026-09,BEV,false,false,,true,true
+Hungary,Whole,2026-10,BEV,false,false,,true,true
+Iceland,Whole,2026-10,BEV,false,false,,true,true
 India,Whole,2026-09,BEV,false,false,,true,true
 Indonesia,Whole,2026-09,BEV,false,false,,true,true
 Ireland,Buses,2026-09,BEV,false,false,,true,true
@@ -49,13 +49,13 @@ Italy,Rental,2026-10,BEV,false,false,,true,true
 Italy,Whole,2026-10,BEV,false,false,,true,true
 Japan,Whole,2026-10,BEV,false,false,,true,true
 Latvia,Used,2026-09,BEV,false,false,,true,true
-Latvia,Whole,2026-09,BEV,false,false,,true,true
+Latvia,Whole,2026-10,BEV,false,false,,true,true
 Lithuania,Whole,2026-10,BEV,false,false,,true,true
 Luxembourg,HDV,2026-10,BEV,false,false,,true,true
 Luxembourg,Vans,2026-10,BEV,false,false,,true,true
 Luxembourg,Whole,2026-10,BEV,false,false,,true,true
 Malaysia,Whole,2026-10,BEV,false,false,,false,false
-Malta,Whole,2026-09,BEV,false,false,,true,true
+Malta,Whole,2026-10,BEV,false,false,,true,true
 Nepal,3-Wheelers,2026-10,BEV,false,false,,false,false
 Nepal,Whole,2026-10,BEV,false,false,,false,false
 Netherlands,HDV,2026-10,BEV,false,false,,true,true
@@ -65,10 +65,10 @@ New Zealand,Whole,2026-10,BEV,false,false,,true,true
 Norway,Whole,2026-10,BEV,false,false,,true,true
 Poland,Whole,2026-10,BEV,false,false,,true,true
 Portugal,Whole,2026-10,BEV,false,false,,true,true
-Romania,Whole,2026-09,BEV,false,false,,true,true
+Romania,Whole,2026-10,BEV,false,false,,true,true
 Singapore,Whole,2026-10,BEV,false,false,,true,true
-Slovakia,Whole,2026-09,BEV,false,false,,true,true
-Slovenia,Whole,2026-09,BEV,false,false,,true,true
+Slovakia,Whole,2026-10,BEV,false,false,,true,true
+Slovenia,Whole,2026-10,BEV,false,false,,true,true
 South Korea,Whole,2026-10,BEV,false,false,,true,true
 Spain,2-Wheelers,2026-10,BEV,false,false,,true,true
 Spain,Buses,2026-10,BEV,false,false,,true,true
@@ -116,12 +116,12 @@ Norway,HDV,2026-09,EV,true,true,,false,false
 Portugal,HDV,2026-08,BEV,false,false,,true,true
 Poland,HDV,2026-10,BEV,false,true,2026-04,false,false
 Latvia,HDV,2026-09,BEV,false,false,,true,true
-Czechia,HDV,2026-09,BEV,false,false,,true,true
+Czechia,HDV,2026-10,BEV,false,false,,true,true
 Greece,HDV,2026-09,EV,true,true,,false,false
 Hungary,HDV,2026-09,EV,true,true,,false,false
 Slovenia,HDV,2026-09,EV,true,true,,false,false
 Germany,Buses,2026-09,EV,true,true,,false,false
-Czechia,Buses,2026-09,BEV,false,false,,true,true
+Czechia,Buses,2026-10,BEV,false,false,,true,true
 Estonia,Buses,2026-10,BEV,false,false,,true,true
 Romania,Buses,2026-09,EV,true,true,,false,false
 Slovakia,Buses,2026-09,EV,true,true,,false,false
@@ -151,8 +151,8 @@ Taiwan,HDV,2026-10,BEV,false,false,,true,true
 Taiwan,Buses,2026-10,BEV,false,false,,true,true
 Hong Kong,Used,2026-08,BEV,false,false,,true,true
 Hong Kong,Vans,2026-08,BEV,false,false,,true,true
-Czechia,Used,2026-09,BEV,false,false,,true,true
-Czechia,Vans,2026-09,BEV,false,false,,true,true
+Czechia,Used,2026-10,BEV,false,false,,true,true
+Czechia,Vans,2026-10,BEV,false,false,,true,true
 New Zealand,Vans,2026-10,BEV,false,false,,true,true
 New Zealand,HDV,2026-10,BEV,false,false,,true,true
 New Zealand,Used,2026-10,BEV,false,false,,true,true

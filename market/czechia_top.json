@@ -1,243 +1,244 @@
 {
+ "schema": 3,
  "country": "Czechia",
  "variant": "Whole",
  "source": "RSV (dataovozidlech.cz)",
- "as_of": "2026-09",
+ "as_of": "2026-10",
  "window": {
-  "from": "2025-10",
-  "to": "2026-09",
+  "from": "2025-11",
+  "to": "2026-10",
   "months": 12
  },
- "total_registrations": 252320,
+ "total_registrations": 248368,
  "unit": "registrations (brand = RSV make, 'Tovární značka'; model = trade name, 'Obchodní označení')",
  "classes": {
   "BEV": {
-   "units": 17411,
-   "share_of_market": 0.069,
+   "units": 17975,
+   "share_of_market": 0.07237,
    "brands": [
     {
      "brand": "ŠKODA",
-     "units": 6224,
-     "share_of_class": 0.3575
+     "units": 6155,
+     "share_of_class": 0.3424
     },
     {
      "brand": "TESLA",
-     "units": 2386,
-     "share_of_class": 0.137
+     "units": 2400,
+     "share_of_class": 0.1335
     },
     {
      "brand": "MERCEDES-BENZ",
-     "units": 935,
-     "share_of_class": 0.0537
+     "units": 1006,
+     "share_of_class": 0.056
     },
     {
      "brand": "VOLKSWAGEN",
-     "units": 834,
-     "share_of_class": 0.0479
+     "units": 902,
+     "share_of_class": 0.0502
     },
     {
      "brand": "FORD",
-     "units": 803,
-     "share_of_class": 0.0461
-    },
-    {
-     "brand": "HYUNDAI",
-     "units": 638,
-     "share_of_class": 0.0366
+     "units": 847,
+     "share_of_class": 0.0471
     },
     {
      "brand": "TOYOTA",
-     "units": 622,
-     "share_of_class": 0.0357
+     "units": 691,
+     "share_of_class": 0.0384
     },
     {
      "brand": "BMW",
-     "units": 580,
+     "units": 651,
+     "share_of_class": 0.0362
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 598,
      "share_of_class": 0.0333
     },
     {
-     "brand": "VOLVO",
-     "units": 502,
-     "share_of_class": 0.0288
+     "brand": "RENAULT",
+     "units": 528,
+     "share_of_class": 0.0294
     },
     {
-     "brand": "RENAULT",
-     "units": 487,
-     "share_of_class": 0.028
+     "brand": "BYD",
+     "units": 523,
+     "share_of_class": 0.0291
     }
    ],
    "models": [
     {
      "brand": "TESLA",
      "model": "MODEL Y",
-     "units": 1735,
-     "share_of_class": 0.0996
+     "units": 1739,
+     "share_of_class": 0.0967
     },
     {
      "brand": "ŠKODA",
      "model": "ELROQ 85",
-     "units": 1282,
-     "share_of_class": 0.0736
+     "units": 1235,
+     "share_of_class": 0.0687
     },
     {
      "brand": "ŠKODA",
      "model": "ENYAQ 85",
-     "units": 1041,
-     "share_of_class": 0.0598
-    },
-    {
-     "brand": "ŠKODA",
-     "model": "ENYAQ RS",
-     "units": 928,
-     "share_of_class": 0.0533
+     "units": 1024,
+     "share_of_class": 0.057
     },
     {
      "brand": "ŠKODA",
      "model": "ENYAQ 85X",
-     "units": 918,
-     "share_of_class": 0.0527
+     "units": 899,
+     "share_of_class": 0.05
+    },
+    {
+     "brand": "ŠKODA",
+     "model": "ENYAQ RS",
+     "units": 874,
+     "share_of_class": 0.0486
     },
     {
      "brand": "TESLA",
      "model": "MODEL 3",
-     "units": 620,
-     "share_of_class": 0.0356
-    },
-    {
-     "brand": "ŠKODA",
-     "model": "ELROQ RS",
-     "units": 488,
-     "share_of_class": 0.028
+     "units": 630,
+     "share_of_class": 0.035
     },
     {
      "brand": "ŠKODA",
      "model": "ELROQ 85X",
-     "units": 466,
-     "share_of_class": 0.0268
+     "units": 490,
+     "share_of_class": 0.0273
+    },
+    {
+     "brand": "ŠKODA",
+     "model": "ELROQ RS",
+     "units": 428,
+     "share_of_class": 0.0238
     },
     {
      "brand": "ŠKODA",
      "model": "ELROQ 60",
-     "units": 427,
-     "share_of_class": 0.0245
+     "units": 384,
+     "share_of_class": 0.0214
     },
     {
      "brand": "ŠKODA",
      "model": "EPIQ 155KW",
-     "units": 291,
-     "share_of_class": 0.0167
+     "units": 382,
+     "share_of_class": 0.0213
     },
     {
      "brand": "FORD",
      "model": "PUMA",
-     "units": 282,
-     "share_of_class": 0.0162
+     "units": 295,
+     "share_of_class": 0.0164
     },
     {
-     "brand": "HYUNDAI",
-     "model": "KONA",
-     "units": 248,
+     "brand": "BYD",
+     "model": "SEALION 7",
+     "units": 255,
      "share_of_class": 0.0142
     },
     {
      "brand": "VOLVO",
      "model": "EX30",
-     "units": 246,
+     "units": 254,
      "share_of_class": 0.0141
     },
     {
-     "brand": "BYD",
-     "model": "SEALION 7",
-     "units": 237,
-     "share_of_class": 0.0136
+     "brand": "TOYOTA",
+     "model": "C-HR",
+     "units": 252,
+     "share_of_class": 0.014
     },
     {
-     "brand": "HYUNDAI",
-     "model": "INSTER",
-     "units": 232,
-     "share_of_class": 0.0133
+     "brand": "LEAPMOTOR",
+     "model": "B10",
+     "units": 250,
+     "share_of_class": 0.0139
     }
    ]
   },
   "PHEV": {
-   "units": 12360,
-   "share_of_market": 0.04899,
+   "units": 12367,
+   "share_of_market": 0.04979,
    "brands": [
     {
      "brand": "ŠKODA",
-     "units": 1358,
-     "share_of_class": 0.1099
-    },
-    {
-     "brand": "VOLKSWAGEN",
-     "units": 1152,
-     "share_of_class": 0.0932
+     "units": 1254,
+     "share_of_class": 0.1014
     },
     {
      "brand": "OMODA",
-     "units": 1111,
-     "share_of_class": 0.0899
+     "units": 1155,
+     "share_of_class": 0.0934
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 1132,
+     "share_of_class": 0.0915
     },
     {
      "brand": "FORD",
-     "units": 1026,
-     "share_of_class": 0.083
+     "units": 1035,
+     "share_of_class": 0.0837
     },
     {
      "brand": "VOLVO",
-     "units": 995,
-     "share_of_class": 0.0805
+     "units": 976,
+     "share_of_class": 0.0789
     },
     {
      "brand": "TOYOTA",
-     "units": 901,
-     "share_of_class": 0.0729
+     "units": 967,
+     "share_of_class": 0.0782
     },
     {
      "brand": "JAECOO",
-     "units": 796,
-     "share_of_class": 0.0644
-    },
-    {
-     "brand": "MERCEDES-BENZ",
-     "units": 634,
-     "share_of_class": 0.0513
-    },
-    {
-     "brand": "HYUNDAI",
-     "units": 626,
-     "share_of_class": 0.0506
+     "units": 848,
+     "share_of_class": 0.0686
     },
     {
      "brand": "BYD",
-     "units": 545,
-     "share_of_class": 0.0441
+     "units": 600,
+     "share_of_class": 0.0485
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 593,
+     "share_of_class": 0.048
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 544,
+     "share_of_class": 0.044
     }
    ],
    "models": [
     {
      "brand": "ŠKODA",
      "model": "SUPERB",
-     "units": 737,
-     "share_of_class": 0.0596
+     "units": 683,
+     "share_of_class": 0.0552
     },
     {
      "brand": "JAECOO",
      "model": "JAECOO7 PHEV",
-     "units": 659,
-     "share_of_class": 0.0533
-    },
-    {
-     "brand": "ŠKODA",
-     "model": "KODIAQ",
-     "units": 621,
-     "share_of_class": 0.0502
+     "units": 671,
+     "share_of_class": 0.0543
     },
     {
      "brand": "FORD",
      "model": "KUGA",
-     "units": 611,
-     "share_of_class": 0.0494
+     "units": 610,
+     "share_of_class": 0.0493
+    },
+    {
+     "brand": "ŠKODA",
+     "model": "KODIAQ",
+     "units": 571,
+     "share_of_class": 0.0462
     },
     {
      "brand": "VOLVO",
@@ -248,74 +249,316 @@
     {
      "brand": "OMODA",
      "model": "OMODA9",
-     "units": 523,
-     "share_of_class": 0.0423
-    },
-    {
-     "brand": "HYUNDAI",
-     "model": "TUCSON",
-     "units": 475,
-     "share_of_class": 0.0384
+     "units": 524,
+     "share_of_class": 0.0424
     },
     {
      "brand": "OMODA",
      "model": "9",
-     "units": 456,
-     "share_of_class": 0.0369
-    },
-    {
-     "brand": "TOYOTA",
-     "model": "C-HR",
-     "units": 453,
-     "share_of_class": 0.0367
+     "units": 488,
+     "share_of_class": 0.0395
     },
     {
      "brand": "TOYOTA",
      "model": "RAV4",
-     "units": 392,
-     "share_of_class": 0.0317
+     "units": 460,
+     "share_of_class": 0.0372
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "C-HR",
+     "units": 455,
+     "share_of_class": 0.0368
+    },
+    {
+     "brand": "HYUNDAI",
+     "model": "TUCSON",
+     "units": 415,
+     "share_of_class": 0.0336
     },
     {
      "brand": "FORD",
      "model": "TOURNEO CUSTOM",
-     "units": 350,
-     "share_of_class": 0.0283
+     "units": 354,
+     "share_of_class": 0.0286
     },
     {
      "brand": "VOLVO",
      "model": "XC60",
-     "units": 341,
-     "share_of_class": 0.0276
+     "units": 332,
+     "share_of_class": 0.0268
     },
     {
      "brand": "VOLKSWAGEN",
      "model": "MULTIVAN",
-     "units": 340,
-     "share_of_class": 0.0275
+     "units": 330,
+     "share_of_class": 0.0267
     },
     {
      "brand": "VOLKSWAGEN",
      "model": "TAYRON",
-     "units": 309,
-     "share_of_class": 0.025
+     "units": 316,
+     "share_of_class": 0.0256
     },
     {
      "brand": "BYD",
      "model": "SEAL U DM-I",
-     "units": 276,
-     "share_of_class": 0.0223
+     "units": 282,
+     "share_of_class": 0.0228
     }
    ]
   }
  },
  "months": [
   {
+   "period": "2026-10",
+   "total_registrations": 19324,
+   "classes": {
+    "BEV": {
+     "units": 1825,
+     "share_of_market": 0.09444,
+     "brands": [
+      {
+       "brand": "ŠKODA",
+       "units": 525,
+       "share_of_class": 0.2877
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 125,
+       "share_of_class": 0.0685
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 122,
+       "share_of_class": 0.0668
+      },
+      {
+       "brand": "TESLA",
+       "units": 111,
+       "share_of_class": 0.0608
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "units": 101,
+       "share_of_class": 0.0553
+      },
+      {
+       "brand": "BMW",
+       "units": 100,
+       "share_of_class": 0.0548
+      },
+      {
+       "brand": "FORD",
+       "units": 100,
+       "share_of_class": 0.0548
+      },
+      {
+       "brand": "RENAULT",
+       "units": 97,
+       "share_of_class": 0.0532
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 92,
+       "share_of_class": 0.0504
+      },
+      {
+       "brand": "VOLVO",
+       "units": 67,
+       "share_of_class": 0.0367
+      }
+     ],
+     "models": [
+      {
+       "brand": "ŠKODA",
+       "model": "ENYAQ 85",
+       "units": 110,
+       "share_of_class": 0.0603
+      },
+      {
+       "brand": "ŠKODA",
+       "model": "ELROQ 85",
+       "units": 93,
+       "share_of_class": 0.051
+      },
+      {
+       "brand": "ŠKODA",
+       "model": "EPIQ 155KW",
+       "units": 91,
+       "share_of_class": 0.0499
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 85,
+       "share_of_class": 0.0466
+      },
+      {
+       "brand": "RENAULT",
+       "model": "SCENIC E-TECH ELECTRIC",
+       "units": 73,
+       "share_of_class": 0.04
+      },
+      {
+       "brand": "ŠKODA",
+       "model": "ENYAQ 85X",
+       "units": 49,
+       "share_of_class": 0.0268
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "model": "B10",
+       "units": 48,
+       "share_of_class": 0.0263
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "GLC 400 4MATIC WITH EQ TE",
+       "units": 48,
+       "share_of_class": 0.0263
+      },
+      {
+       "brand": "ŠKODA",
+       "model": "PEAQ 90X",
+       "units": 46,
+       "share_of_class": 0.0252
+      },
+      {
+       "brand": "ŠKODA",
+       "model": "PEAQ 90",
+       "units": 33,
+       "share_of_class": 0.0181
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 980,
+     "share_of_market": 0.05071,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 156,
+       "share_of_class": 0.1592
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 103,
+       "share_of_class": 0.1051
+      },
+      {
+       "brand": "VOLVO",
+       "units": 95,
+       "share_of_class": 0.0969
+      },
+      {
+       "brand": "ŠKODA",
+       "units": 73,
+       "share_of_class": 0.0745
+      },
+      {
+       "brand": "BYD",
+       "units": 69,
+       "share_of_class": 0.0704
+      },
+      {
+       "brand": "JAECOO",
+       "units": 68,
+       "share_of_class": 0.0694
+      },
+      {
+       "brand": "FORD",
+       "units": 67,
+       "share_of_class": 0.0684
+      },
+      {
+       "brand": "CHERY",
+       "units": 55,
+       "share_of_class": 0.0561
+      },
+      {
+       "brand": "OMODA",
+       "units": 52,
+       "share_of_class": 0.0531
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 40,
+       "share_of_class": 0.0408
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "RAV4",
+       "units": 115,
+       "share_of_class": 0.1173
+      },
+      {
+       "brand": "JAECOO",
+       "model": "JAECOO8 PHEV",
+       "units": 52,
+       "share_of_class": 0.0531
+      },
+      {
+       "brand": "VOLVO",
+       "model": "XC90",
+       "units": 45,
+       "share_of_class": 0.0459
+      },
+      {
+       "brand": "VOLVO",
+       "model": "XC60",
+       "units": 42,
+       "share_of_class": 0.0429
+      },
+      {
+       "brand": "OMODA",
+       "model": "9",
+       "units": 40,
+       "share_of_class": 0.0408
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "C-HR",
+       "units": 40,
+       "share_of_class": 0.0408
+      },
+      {
+       "brand": "FORD",
+       "model": "KUGA",
+       "units": 37,
+       "share_of_class": 0.0378
+      },
+      {
+       "brand": "ŠKODA",
+       "model": "SUPERB",
+       "units": 37,
+       "share_of_class": 0.0378
+      },
+      {
+       "brand": "ŠKODA",
+       "model": "KODIAQ",
+       "units": 36,
+       "share_of_class": 0.0367
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TAYRON",
+       "units": 28,
+       "share_of_class": 0.0286
+      }
+     ]
+    }
+   }
+  },
+  {
    "period": "2026-09",
-   "total_registrations": 19078,
+   "total_registrations": 19077,
    "classes": {
     "BEV": {
      "units": 2141,
-     "share_of_market": 0.11222,
+     "share_of_market": 0.11223,
      "brands": [
       {
        "brand": "ŠKODA",
@@ -432,53 +675,53 @@
      ]
     },
     "PHEV": {
-     "units": 877,
-     "share_of_market": 0.04597,
+     "units": 879,
+     "share_of_market": 0.04608,
      "brands": [
       {
        "brand": "TOYOTA",
        "units": 151,
-       "share_of_class": 0.1722
+       "share_of_class": 0.1718
       },
       {
        "brand": "FORD",
        "units": 86,
-       "share_of_class": 0.0981
+       "share_of_class": 0.0978
       },
       {
        "brand": "ŠKODA",
        "units": 83,
-       "share_of_class": 0.0946
+       "share_of_class": 0.0944
       },
       {
        "brand": "VOLKSWAGEN",
        "units": 82,
-       "share_of_class": 0.0935
+       "share_of_class": 0.0933
       },
       {
        "brand": "VOLVO",
        "units": 80,
-       "share_of_class": 0.0912
+       "share_of_class": 0.091
       },
       {
        "brand": "BYD",
        "units": 61,
-       "share_of_class": 0.0696
+       "share_of_class": 0.0694
       },
       {
        "brand": "CHERY",
        "units": 37,
-       "share_of_class": 0.0422
+       "share_of_class": 0.0421
       },
       {
        "brand": "LEXUS",
        "units": 37,
-       "share_of_class": 0.0422
+       "share_of_class": 0.0421
       },
       {
        "brand": "OMODA",
        "units": 34,
-       "share_of_class": 0.0388
+       "share_of_class": 0.0387
       },
       {
        "brand": "MERCEDES-BENZ",
@@ -491,49 +734,49 @@
        "brand": "TOYOTA",
        "model": "RAV4",
        "units": 89,
-       "share_of_class": 0.1015
+       "share_of_class": 0.1013
       },
       {
        "brand": "TOYOTA",
        "model": "C-HR",
        "units": 60,
-       "share_of_class": 0.0684
+       "share_of_class": 0.0683
       },
       {
        "brand": "FORD",
        "model": "TOURNEO CUSTOM",
        "units": 46,
-       "share_of_class": 0.0525
+       "share_of_class": 0.0523
       },
       {
        "brand": "VOLVO",
        "model": "XC90",
        "units": 46,
-       "share_of_class": 0.0525
+       "share_of_class": 0.0523
       },
       {
        "brand": "ŠKODA",
        "model": "SUPERB",
        "units": 42,
-       "share_of_class": 0.0479
+       "share_of_class": 0.0478
       },
       {
        "brand": "ŠKODA",
        "model": "KODIAQ",
        "units": 41,
-       "share_of_class": 0.0468
+       "share_of_class": 0.0466
       },
       {
        "brand": "FORD",
        "model": "KUGA",
        "units": 35,
-       "share_of_class": 0.0399
+       "share_of_class": 0.0398
       },
       {
        "brand": "VOLKSWAGEN",
        "model": "CADDY",
        "units": 32,
-       "share_of_class": 0.0365
+       "share_of_class": 0.0364
       },
       {
        "brand": "VOLVO",
@@ -545,7 +788,7 @@
        "brand": "MG",
        "model": "S9 PHEV",
        "units": 22,
-       "share_of_class": 0.0251
+       "share_of_class": 0.025
       }
      ]
     }
@@ -553,11 +796,11 @@
   },
   {
    "period": "2026-08",
-   "total_registrations": 17714,
+   "total_registrations": 17715,
    "classes": {
     "BEV": {
      "units": 1498,
-     "share_of_market": 0.08457,
+     "share_of_market": 0.08456,
      "brands": [
       {
        "brand": "ŠKODA",
@@ -795,11 +1038,11 @@
   },
   {
    "period": "2026-07",
-   "total_registrations": 20156,
+   "total_registrations": 20157,
    "classes": {
     "BEV": {
      "units": 1530,
-     "share_of_market": 0.07591,
+     "share_of_market": 0.0759,
      "brands": [
       {
        "brand": "ŠKODA",
@@ -1158,23 +1401,23 @@
      ]
     },
     "PHEV": {
-     "units": 1506,
-     "share_of_market": 0.05707,
+     "units": 1505,
+     "share_of_market": 0.05704,
      "brands": [
       {
        "brand": "OMODA",
        "units": 315,
-       "share_of_class": 0.2092
+       "share_of_class": 0.2093
       },
       {
        "brand": "ŠKODA",
        "units": 195,
-       "share_of_class": 0.1295
+       "share_of_class": 0.1296
       },
       {
        "brand": "VOLKSWAGEN",
-       "units": 132,
-       "share_of_class": 0.0876
+       "units": 131,
+       "share_of_class": 0.087
       },
       {
        "brand": "FORD",
@@ -1204,12 +1447,12 @@
       {
        "brand": "BMW",
        "units": 52,
-       "share_of_class": 0.0345
+       "share_of_class": 0.0346
       },
       {
        "brand": "MERCEDES-BENZ",
        "units": 52,
-       "share_of_class": 0.0345
+       "share_of_class": 0.0346
       }
      ],
      "models": [
@@ -1217,19 +1460,19 @@
        "brand": "OMODA",
        "model": "OMODA9",
        "units": 233,
-       "share_of_class": 0.1547
+       "share_of_class": 0.1548
       },
       {
        "brand": "ŠKODA",
        "model": "SUPERB",
        "units": 116,
-       "share_of_class": 0.077
+       "share_of_class": 0.0771
       },
       {
        "brand": "HYUNDAI",
        "model": "TUCSON",
        "units": 94,
-       "share_of_class": 0.0624
+       "share_of_class": 0.0625
       },
       {
        "brand": "ŠKODA",
@@ -1271,7 +1514,7 @@
        "brand": "JAECOO",
        "model": "JAECOO7 PHEV",
        "units": 46,
-       "share_of_class": 0.0305
+       "share_of_class": 0.0306
       }
      ]
     }
@@ -1521,7 +1764,7 @@
   },
   {
    "period": "2026-04",
-   "total_registrations": 22270,
+   "total_registrations": 22271,
    "classes": {
     "BEV": {
      "units": 1683,
@@ -1642,58 +1885,58 @@
      ]
     },
     "PHEV": {
-     "units": 1067,
-     "share_of_market": 0.04791,
+     "units": 1069,
+     "share_of_market": 0.048,
      "brands": [
       {
        "brand": "JAECOO",
        "units": 115,
-       "share_of_class": 0.1078
+       "share_of_class": 0.1076
       },
       {
        "brand": "VOLKSWAGEN",
        "units": 108,
-       "share_of_class": 0.1012
+       "share_of_class": 0.101
       },
       {
        "brand": "FORD",
-       "units": 90,
-       "share_of_class": 0.0843
+       "units": 91,
+       "share_of_class": 0.0851
       },
       {
        "brand": "VOLVO",
        "units": 90,
-       "share_of_class": 0.0843
+       "share_of_class": 0.0842
       },
       {
        "brand": "OMODA",
        "units": 89,
-       "share_of_class": 0.0834
+       "share_of_class": 0.0833
       },
       {
        "brand": "MERCEDES-BENZ",
        "units": 62,
-       "share_of_class": 0.0581
+       "share_of_class": 0.058
       },
       {
        "brand": "BYD",
        "units": 61,
-       "share_of_class": 0.0572
+       "share_of_class": 0.0571
       },
       {
        "brand": "BMW",
        "units": 58,
-       "share_of_class": 0.0544
+       "share_of_class": 0.0543
       },
       {
        "brand": "HYUNDAI",
        "units": 58,
-       "share_of_class": 0.0544
+       "share_of_class": 0.0543
       },
       {
        "brand": "ŠKODA",
        "units": 46,
-       "share_of_class": 0.0431
+       "share_of_class": 0.043
       }
      ],
      "models": [
@@ -1701,25 +1944,25 @@
        "brand": "JAECOO",
        "model": "JAECOO7 PHEV",
        "units": 114,
-       "share_of_class": 0.1068
+       "share_of_class": 0.1066
       },
       {
        "brand": "OMODA",
        "model": "9",
        "units": 67,
-       "share_of_class": 0.0628
+       "share_of_class": 0.0627
       },
       {
        "brand": "FORD",
        "model": "KUGA",
        "units": 59,
-       "share_of_class": 0.0553
+       "share_of_class": 0.0552
       },
       {
        "brand": "VOLVO",
        "model": "XC90",
        "units": 49,
-       "share_of_class": 0.0459
+       "share_of_class": 0.0458
       },
       {
        "brand": "HYUNDAI",
@@ -1731,19 +1974,19 @@
        "brand": "VOLKSWAGEN",
        "model": "MULTIVAN",
        "units": 39,
-       "share_of_class": 0.0366
+       "share_of_class": 0.0365
       },
       {
        "brand": "VOLKSWAGEN",
        "model": "TAYRON",
        "units": 29,
-       "share_of_class": 0.0272
+       "share_of_class": 0.0271
       },
       {
        "brand": "ŠKODA",
        "model": "KODIAQ",
        "units": 29,
-       "share_of_class": 0.0272
+       "share_of_class": 0.0271
       },
       {
        "brand": "VOLVO",
@@ -1754,8 +1997,8 @@
       {
        "brand": "FORD",
        "model": "TOURNEO CUSTOM",
-       "units": 26,
-       "share_of_class": 0.0244
+       "units": 27,
+       "share_of_class": 0.0253
       }
      ]
     }
@@ -1884,38 +2127,38 @@
      ]
     },
     "PHEV": {
-     "units": 958,
-     "share_of_market": 0.04042,
+     "units": 959,
+     "share_of_market": 0.04046,
      "brands": [
       {
        "brand": "VOLKSWAGEN",
        "units": 119,
-       "share_of_class": 0.1242
+       "share_of_class": 0.1241
       },
       {
        "brand": "FORD",
        "units": 93,
-       "share_of_class": 0.0971
+       "share_of_class": 0.097
       },
       {
        "brand": "OMODA",
        "units": 91,
-       "share_of_class": 0.095
+       "share_of_class": 0.0949
       },
       {
        "brand": "JAECOO",
        "units": 86,
-       "share_of_class": 0.0898
+       "share_of_class": 0.0897
       },
       {
        "brand": "VOLVO",
        "units": 80,
-       "share_of_class": 0.0835
+       "share_of_class": 0.0834
       },
       {
        "brand": "ŠKODA",
        "units": 63,
-       "share_of_class": 0.0658
+       "share_of_class": 0.0657
       },
       {
        "brand": "BMW",
@@ -1925,12 +2168,12 @@
       {
        "brand": "BYD",
        "units": 47,
-       "share_of_class": 0.0491
+       "share_of_class": 0.049
       },
       {
        "brand": "MERCEDES-BENZ",
        "units": 43,
-       "share_of_class": 0.0449
+       "share_of_class": 0.0448
       },
       {
        "brand": "HYUNDAI",
@@ -1942,8 +2185,8 @@
       {
        "brand": "JAECOO",
        "model": "JAECOO7 PHEV",
-       "units": 77,
-       "share_of_class": 0.0804
+       "units": 75,
+       "share_of_class": 0.0782
       },
       {
        "brand": "OMODA",
@@ -1961,13 +2204,13 @@
        "brand": "VOLVO",
        "model": "XC90",
        "units": 45,
-       "share_of_class": 0.047
+       "share_of_class": 0.0469
       },
       {
        "brand": "VOLKSWAGEN",
        "model": "MULTIVAN",
        "units": 43,
-       "share_of_class": 0.0449
+       "share_of_class": 0.0448
       },
       {
        "brand": "ŠKODA",
@@ -1979,13 +2222,13 @@
        "brand": "OMODA",
        "model": "OMODA9",
        "units": 31,
-       "share_of_class": 0.0324
+       "share_of_class": 0.0323
       },
       {
        "brand": "VOLVO",
        "model": "XC60",
        "units": 29,
-       "share_of_class": 0.0303
+       "share_of_class": 0.0302
       },
       {
        "brand": "FORD",
@@ -2005,7 +2248,7 @@
   },
   {
    "period": "2026-02",
-   "total_registrations": 18544,
+   "total_registrations": 18543,
    "classes": {
     "BEV": {
      "units": 958,
@@ -2126,38 +2369,38 @@
      ]
     },
     "PHEV": {
-     "units": 896,
-     "share_of_market": 0.04832,
+     "units": 897,
+     "share_of_market": 0.04837,
      "brands": [
       {
        "brand": "JAECOO",
        "units": 199,
-       "share_of_class": 0.2221
+       "share_of_class": 0.2219
       },
       {
        "brand": "VOLKSWAGEN",
        "units": 89,
-       "share_of_class": 0.0993
+       "share_of_class": 0.0992
       },
       {
        "brand": "FORD",
        "units": 74,
-       "share_of_class": 0.0826
+       "share_of_class": 0.0825
       },
       {
        "brand": "VOLVO",
        "units": 70,
-       "share_of_class": 0.0781
+       "share_of_class": 0.078
       },
       {
        "brand": "ŠKODA",
        "units": 56,
-       "share_of_class": 0.0625
+       "share_of_class": 0.0624
       },
       {
        "brand": "OMODA",
        "units": 54,
-       "share_of_class": 0.0603
+       "share_of_class": 0.0602
       },
       {
        "brand": "BMW",
@@ -2167,17 +2410,17 @@
       {
        "brand": "CHERY",
        "units": 36,
-       "share_of_class": 0.0402
+       "share_of_class": 0.0401
       },
       {
        "brand": "HYUNDAI",
        "units": 35,
-       "share_of_class": 0.0391
+       "share_of_class": 0.039
       },
       {
        "brand": "LEXUS",
        "units": 30,
-       "share_of_class": 0.0335
+       "share_of_class": 0.0334
       }
      ],
      "models": [
@@ -2185,13 +2428,13 @@
        "brand": "JAECOO",
        "model": "JAECOO7 PHEV",
        "units": 187,
-       "share_of_class": 0.2087
+       "share_of_class": 0.2085
       },
       {
        "brand": "OMODA",
        "model": "9",
        "units": 54,
-       "share_of_class": 0.0603
+       "share_of_class": 0.0602
       },
       {
        "brand": "FORD",
@@ -2203,13 +2446,13 @@
        "brand": "VOLKSWAGEN",
        "model": "TAYRON",
        "units": 36,
-       "share_of_class": 0.0402
+       "share_of_class": 0.0401
       },
       {
        "brand": "VOLVO",
        "model": "XC90",
        "units": 35,
-       "share_of_class": 0.0391
+       "share_of_class": 0.039
       },
       {
        "brand": "VOLVO",
@@ -2862,8 +3105,8 @@
       },
       {
        "brand": "VOLVO",
-       "units": 118,
-       "share_of_class": 0.1172
+       "units": 117,
+       "share_of_class": 0.1162
       },
       {
        "brand": "VOLKSWAGEN",
@@ -2946,8 +3189,8 @@
       {
        "brand": "VOLVO",
        "model": "XC60",
-       "units": 39,
-       "share_of_class": 0.0387
+       "units": 38,
+       "share_of_class": 0.0377
       },
       {
        "brand": "HYUNDAI",
@@ -2966,248 +3209,6 @@
        "model": "C-HR",
        "units": 23,
        "share_of_class": 0.0228
-      }
-     ]
-    }
-   }
-  },
-  {
-   "period": "2025-10",
-   "total_registrations": 23277,
-   "classes": {
-    "BEV": {
-     "units": 1261,
-     "share_of_market": 0.05417,
-     "brands": [
-      {
-       "brand": "ŠKODA",
-       "units": 594,
-       "share_of_class": 0.4711
-      },
-      {
-       "brand": "TESLA",
-       "units": 97,
-       "share_of_class": 0.0769
-      },
-      {
-       "brand": "HYUNDAI",
-       "units": 81,
-       "share_of_class": 0.0642
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 57,
-       "share_of_class": 0.0452
-      },
-      {
-       "brand": "FORD",
-       "units": 56,
-       "share_of_class": 0.0444
-      },
-      {
-       "brand": "RENAULT",
-       "units": 56,
-       "share_of_class": 0.0444
-      },
-      {
-       "brand": "VOLVO",
-       "units": 55,
-       "share_of_class": 0.0436
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 51,
-       "share_of_class": 0.0404
-      },
-      {
-       "brand": "DACIA",
-       "units": 30,
-       "share_of_class": 0.0238
-      },
-      {
-       "brand": "BMW",
-       "units": 29,
-       "share_of_class": 0.023
-      }
-     ],
-     "models": [
-      {
-       "brand": "ŠKODA",
-       "model": "ELROQ 85",
-       "units": 140,
-       "share_of_class": 0.111
-      },
-      {
-       "brand": "ŠKODA",
-       "model": "ENYAQ 85",
-       "units": 127,
-       "share_of_class": 0.1007
-      },
-      {
-       "brand": "TESLA",
-       "model": "MODEL Y",
-       "units": 81,
-       "share_of_class": 0.0642
-      },
-      {
-       "brand": "ŠKODA",
-       "model": "ENYAQ RS",
-       "units": 77,
-       "share_of_class": 0.0611
-      },
-      {
-       "brand": "ŠKODA",
-       "model": "ELROQ 60",
-       "units": 74,
-       "share_of_class": 0.0587
-      },
-      {
-       "brand": "ŠKODA",
-       "model": "ELROQ RS",
-       "units": 73,
-       "share_of_class": 0.0579
-      },
-      {
-       "brand": "ŠKODA",
-       "model": "ENYAQ 85X",
-       "units": 68,
-       "share_of_class": 0.0539
-      },
-      {
-       "brand": "HYUNDAI",
-       "model": "KONA",
-       "units": 34,
-       "share_of_class": 0.027
-      },
-      {
-       "brand": "DACIA",
-       "model": "SPRING",
-       "units": 30,
-       "share_of_class": 0.0238
-      },
-      {
-       "brand": "MAZDA",
-       "model": "6E",
-       "units": 26,
-       "share_of_class": 0.0206
-      }
-     ]
-    },
-    "PHEV": {
-     "units": 978,
-     "share_of_market": 0.04202,
-     "brands": [
-      {
-       "brand": "ŠKODA",
-       "units": 177,
-       "share_of_class": 0.181
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 122,
-       "share_of_class": 0.1247
-      },
-      {
-       "brand": "VOLVO",
-       "units": 113,
-       "share_of_class": 0.1155
-      },
-      {
-       "brand": "HYUNDAI",
-       "units": 96,
-       "share_of_class": 0.0982
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 90,
-       "share_of_class": 0.092
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 81,
-       "share_of_class": 0.0828
-      },
-      {
-       "brand": "FORD",
-       "units": 59,
-       "share_of_class": 0.0603
-      },
-      {
-       "brand": "BMW",
-       "units": 42,
-       "share_of_class": 0.0429
-      },
-      {
-       "brand": "AUDI",
-       "units": 33,
-       "share_of_class": 0.0337
-      },
-      {
-       "brand": "LEXUS",
-       "units": 22,
-       "share_of_class": 0.0225
-      }
-     ],
-     "models": [
-      {
-       "brand": "ŠKODA",
-       "model": "SUPERB",
-       "units": 91,
-       "share_of_class": 0.093
-      },
-      {
-       "brand": "ŠKODA",
-       "model": "KODIAQ",
-       "units": 86,
-       "share_of_class": 0.0879
-      },
-      {
-       "brand": "HYUNDAI",
-       "model": "TUCSON",
-       "units": 72,
-       "share_of_class": 0.0736
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC60",
-       "units": 50,
-       "share_of_class": 0.0511
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "RAV4",
-       "units": 47,
-       "share_of_class": 0.0481
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC90",
-       "units": 45,
-       "share_of_class": 0.046
-      },
-      {
-       "brand": "FORD",
-       "model": "KUGA",
-       "units": 38,
-       "share_of_class": 0.0389
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "C-HR",
-       "units": 38,
-       "share_of_class": 0.0389
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "MULTIVAN",
-       "units": 32,
-       "share_of_class": 0.0327
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "TIGUAN",
-       "units": 31,
-       "share_of_class": 0.0317
       }
      ]
     }

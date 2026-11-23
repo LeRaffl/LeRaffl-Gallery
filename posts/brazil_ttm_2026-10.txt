@@ -1,0 +1,9 @@
+🇧🇷 Brazil - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++4.3pp  BEV   (2.8% → 7.1%)
++2.8pp  PHEV  (3.5% → 6.2%)
++2.1pp  HEV   (3.9% → 6.0%)
+−9.2pp  ICE   (89.8% → 80.7%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2030-10.
