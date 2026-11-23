@@ -118,6 +118,9 @@ def rank_facts(ctx: dict, role: str) -> dict | None:
     for key in ("own", "median", "q1", "q3"):
         out[f"{key}_text"] = fmt(out[key])
     out["rank_text"] = f"{flyer.ordinal(out['rank'])} of {s['n']}"
+    if m.get("kind") == "year" and m.get("ci"):
+        out["ci"] = list(m["ci"])
+        out["ci_text"] = mc._ci_text(m["ci"])
     return out
 
 
@@ -144,6 +147,8 @@ def main() -> int:
     ap.add_argument("--roles", help="comma list; default: every role the data supports")
     ap.add_argument("--scale", type=int, default=SCALE)
     ap.add_argument("--chrome", default=None)
+    ap.add_argument("--weak-curve", action="store_true",
+                    help="draw the dashed preliminary fit on the social card and brief when the fit is not stable")
     args = ap.parse_args()
 
     fm, shared = build_ctx(args.slug)
@@ -182,7 +187,8 @@ def main() -> int:
         if not wanted or "social" in wanted:
             html = FLYER_DIR / f".kit_{slug}_social.html"
             temps.append(html)
-            html.write_text(bsp.build_social_page(fm, shared["params"], shared["peers"]),
+            html.write_text(bsp.build_social_page(fm, shared["params"], shared["peers"],
+                                                  weak_curve=args.weak_curve),
                             encoding="utf-8")
             png = out / f"{slug}_social.png"
             screenshot(chrome, html, png, 1080, 1350, args.scale)
@@ -194,7 +200,8 @@ def main() -> int:
             temps.append(html)
             html.write_text(bsp.build_flyer_page(
                 fm, shared["params"], shared["peers"], peer_years=shared["peer_years"],
-                peer_years_80=shared["peer_years_80"]), encoding="utf-8")
+                peer_years_80=shared["peer_years_80"],
+                weak_curve=args.weak_curve), encoding="utf-8")
             pdf = out / f"{slug}_brief.pdf"
             print_pdf(chrome, html, pdf)
             png = out / f"{slug}_brief_a4.png"

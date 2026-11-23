@@ -1045,7 +1045,7 @@ def step_legend(state: dict | None = None) -> str:
     return text + "."
 
 
-def chart_legend(state: dict | None, model_note: bool = True) -> str:
+def chart_legend(state: dict | None, model_note: bool = True, weak: bool = False) -> str:
     """Compact visual key for the step line, the months and the fit."""
     def step(color: str, width: float, opacity: float = 1.0) -> str:
         return (f'<svg class="cv-g" width="28" height="10" viewBox="0 0 28 10" aria-hidden="true">'
@@ -1073,6 +1073,9 @@ def chart_legend(state: dict | None, model_note: bool = True) -> str:
             if (state.get("rel") or {}).get("status") == "provisional":
                 note = "provisional · " + note
             items.append(f'<span class="cv-leg-note">{note}</span>')
+    elif weak:
+        items.append(f'{step("#8d897c", 1.8)} preliminary fit')
+        items.append('<span class="cv-leg-note">not stable</span>')
     else:
         items.append('<span class="cv-leg-note">No projection: no stable fit yet</span>')
     return ('<div class="cv-leg">' +
@@ -1163,7 +1166,7 @@ def first_year_over(rows: list[dict], level: float = 1.0) -> int | None:
 def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
                     width: int = 720, height: int = 300, weak_fit: bool = True,
                     x_range: tuple[float, float] | None = None,
-                    left: int = 42) -> str:
+                    left: int = 42, zoom_weak: bool = False) -> str:
     """Observed shares and the fitted curve. `weak_fit=False` leaves the line
     of a fit that carries no dates off the chart instead of dashing it.
     `x_range` (start year, end year) overrides the default span."""
@@ -1197,8 +1200,11 @@ def build_curve_svg(rows: list[dict], state: dict, bands: dict | None,
     # Without a curve to show, zoom in on the observed shares.
     draw_fit = state["quotable"] or weak_fit
     ymax = 100.0
-    if not draw_fit:
-        peak = max(value for t, value, _ in observed if t >= start) * 1.15
+    if not draw_fit or (zoom_weak and not state["quotable"]):
+        peak = max(value for t, value, _ in observed if t >= start)
+        if draw_fit:   # a preliminary fit on show: the axis must hold its end too
+            peak = max(peak, 100 * fit_share(end, v1, v2, t0))
+        peak *= 1.15
         ymax = next((float(m) for m in (2, 4, 10, 20, 40, 100) if m >= peak), 100.0)
 
     def y_of(pct: float) -> float:
