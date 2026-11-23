@@ -1075,7 +1075,7 @@ def chart_legend(state: dict | None, model_note: bool = True, weak: bool = False
             items.append(f'<span class="cv-leg-note">{note}</span>')
     elif weak:
         items.append(f'{step("#8d897c", 1.8)} preliminary fit')
-        items.append('<span class="cv-leg-note">not stable, not a forecast</span>')
+        items.append('<span class="cv-leg-note">not stable</span>')
     else:
         items.append('<span class="cv-leg-note">No projection: no stable fit yet</span>')
     return ('<div class="cv-leg">' +

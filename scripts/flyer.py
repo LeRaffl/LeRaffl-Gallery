@@ -935,7 +935,8 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 market: dict | None = None, brand_mode: str = "logos",
                 logo_href: str = "../../assets/brands",
                 peer_years: list[tuple[str, float]] | None = None,
-                peer_years_80: list[tuple[str, float]] | None = None) -> str:
+                peer_years_80: list[tuple[str, float]] | None = None,
+                weak_curve: bool = False) -> str:
     country = fm.get("country", "")
     slug = fm.get("slug", "")
     hev_full = fm.get("hev_split") is True
@@ -992,7 +993,9 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 f'<div class="fl-curve"><div>{svg}{legend or ""}</div>'
                 f'{side}</div></section>')
     elif state:
-        svg = mc.build_curve_svg(rows, state, bands, width=CURVE_W, height=curve_h, weak_fit=False)
+        svg = mc.build_curve_svg(rows, state, bands, width=CURVE_W, height=curve_h,
+                                 weak_fit=weak_curve and not state["quotable"],
+                                 zoom_weak=True)
         if svg and state["quotable"]:
             shown_ci = state["band_ok"] and '"fm-ci">passed' not in build_miles(state).replace(
                 '<span class="fm-ci">passed</span>', "", 3) and "–" in build_miles(state)
@@ -1016,7 +1019,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 '<section class="fl-sec"><h2>The BEV share so far</h2>'
                 '<p class="fl-sub">Battery-electric share of new registrations in each period, '
                 'in percent.</p>'
-                f'<div class="fl-curve"><div>{svg}{mc.chart_legend(state)}</div>'
+                f'<div class="fl-curve"><div>{svg}{mc.chart_legend(state, weak=weak_curve)}</div>'
                 f'<div class="fm-side"><div class="fm-head">No projection</div>'
                 f'<p class="fm-none">{why}</p></div></div></section>')
 

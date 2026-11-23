@@ -2008,7 +2008,8 @@ def build_header(fm: dict, asof: str = "") -> str:
 
 def build_flyer_page(fm: dict, params: dict, peers: list | None = None,
                      brand_mode: str = "logos", peer_years: list | None = None,
-                     peer_years_80: list | None = None) -> str:
+                     peer_years_80: list | None = None,
+                     weak_curve: bool = False) -> str:
     """The one-page reader flyer, from the same figures as the source page."""
     fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
@@ -2021,7 +2022,8 @@ def build_flyer_page(fm: dict, params: dict, peers: list | None = None,
     return flyer.build_flyer(fm, rows, shift, figures, mc.model_state(whole, bands),
                              bands, "../../assets/theme.css", peers,
                              market=market_structure.load(fm, rows), brand_mode=brand_mode,
-                             peer_years=peer_years, peer_years_80=peer_years_80)
+                             peer_years=peer_years, peer_years_80=peer_years_80,
+                             weak_curve=weak_curve)
 
 
 def build_social_page(fm: dict, params: dict, peers: list | None = None,
