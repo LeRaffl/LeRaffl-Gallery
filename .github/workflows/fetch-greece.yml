@@ -47,8 +47,10 @@ on:
         default: false
         type: boolean
   schedule:
-    # 11:55 and 17:55 UTC on the 8th–31st (14:55 / 20:55 Athens).
-    - cron: '55 11,17 8-31 * *'
+    # 11:55 UTC (14:55 Athens) on the 8th–31st. One slot: the 17:55 one only
+    # duplicated it once GitHub's hours-long cron delay is counted
+    # (docs/architecture/08-deploy-ops.md § 8.12).
+    - cron: '55 11 8-31 * *'
 
 concurrency:
   group: fetch-greece

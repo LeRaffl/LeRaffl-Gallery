@@ -62,8 +62,11 @@ on:
         default: false
         type: boolean
   schedule:
-    # Twice daily, 06:35 and 12:35 UTC (Vilnius 09:35 / 15:35, office hours).
-    - cron: '35 6,12 * * *'
+    # Once daily, 06:35 UTC (Vilnius 09:35). Regitra revises the provisional
+    # month every week or so, so a daily poll stays; the 12:35 slot is gone:
+    # GitHub dropped about half of the two-a-day slots anyway and started the
+    # rest hours late (docs/architecture/08-deploy-ops.md § 8.12).
+    - cron: '35 6 * * *'
 
 concurrency:
   group: fetch-lithuania

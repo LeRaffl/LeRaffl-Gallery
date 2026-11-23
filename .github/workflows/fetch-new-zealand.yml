@@ -54,8 +54,10 @@ on:
         default: false
         type: boolean
   schedule:
-    # 04:55 and 18:55 UTC on the 3rd-20th (NZTA reloads around the 5th).
-    - cron: '55 4,18 3-20 * *'
+    # 18:55 UTC (07:55 NZ next morning) on the 3rd-20th; NZTA reloads around
+    # the 5th (September 2026 on Oct 6). One slot: GitHub's cron runs hours
+    # late, so the second one only duplicated it (08-deploy-ops.md § 8.12).
+    - cron: '55 18 3-20 * *'
 
 # One run per fetcher at a time: a manual dispatch or a late cron tick
 # queues behind a running fetch instead of racing it to the same CSVs.

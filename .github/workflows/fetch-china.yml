@@ -37,7 +37,9 @@ on:
         default: 'false'
         type: boolean
   schedule:
-    - cron: '0 11 1-31 * *'   # daily at 11:00 UTC, from the 1st onward
+    # CPCA's monthly analysis comes out around the 8th-12th (Sep 2026 on
+    # Oct 12, Oct 2026 on Nov 9); the 21st-31st were always no-ops.
+    - cron: '0 11 1-20 * *'   # daily at 11:00 UTC, 1st-20th
 
 # One run per fetcher at a time: a manual dispatch or a late cron tick
 # queues behind a running fetch instead of racing it to the same CSVs.

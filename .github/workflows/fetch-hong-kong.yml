@@ -58,9 +58,12 @@ on:
         default: false
         type: boolean
   schedule:
-    # Twice daily, 03:20 and 11:20 UTC (HK 11:20 and 19:20 — TD uploads in
-    # Hong Kong office hours).
-    - cron: '20 3,11 * * *'
+    # Once daily from the 10th, 03:20 UTC (HK 11:20). TD uploads month M
+    # between the 13th and the end of M+1 (September 2026 on Oct 30), so the
+    # 1st-9th never had anything new, and the second daily slot (11:20) only
+    # duplicated the first: GitHub starts scheduled runs hours late anyway
+    # (median 5.6 h in 2026-10/11, docs/architecture/08-deploy-ops.md § 8.12).
+    - cron: '20 3 10-31 * *'
 
 # One run per fetcher at a time: a manual dispatch or a late cron tick
 # queues behind a running fetch instead of racing it to the same CSVs.
