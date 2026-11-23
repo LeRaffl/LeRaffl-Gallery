@@ -4,6 +4,20 @@
  "entries": [
   {
    "date": "2026-11-23",
+   "time": "2026-11-23T10:20:46+01:00",
+   "type": "data",
+   "kind": "revised",
+   "country": "Australia",
+   "flag": "🇦🇺",
+   "slug": "australia",
+   "headline": "Figures revised",
+   "detail": "2 periods",
+   "variants": [],
+   "source": "",
+   "commit": "07ceff1911f5"
+  },
+  {
+   "date": "2026-11-23",
    "time": "2026-11-23T07:44:16Z",
    "type": "data",
    "kind": "data",
@@ -1181,24 +1195,6 @@
    "slug": "iceland",
    "headline": "Q3 2026 data",
    "detail": "Vans, Trucks, Buses · 1 earlier period revised",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Lithuania",
-   "flag": "🇱🇹",
-   "slug": "lithuania",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses",
    "variants": [
     "Vans",
     "HDV",
