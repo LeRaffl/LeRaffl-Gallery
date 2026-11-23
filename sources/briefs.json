@@ -67,14 +67,14 @@
  },
  "Bulgaria": {
   "data_file": "data/Bulgaria.csv",
-  "delta": 3.2,
-  "head": "About 1 in 12 new cars is battery electric.",
+  "delta": 4.1,
+  "head": "About 1 in 11 new cars is battery electric.",
   "is_stub": true,
-  "share": 8.0,
+  "share": 9.1,
   "slug": "bulgaria",
   "source": "National registrations, aggregated by ACEA",
   "source_url": "https://www.acea.auto/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Canada": {
   "data_file": "data/Canada.csv",
@@ -122,25 +122,25 @@
  },
  "Croatia": {
   "data_file": "data/Croatia.csv",
-  "delta": 2.7,
+  "delta": 2.5,
   "head": "About 1 in 24 new cars is battery electric.",
   "is_stub": true,
-  "share": 4.2,
+  "share": 4.1,
   "slug": "croatia",
   "source": "National registrations, aggregated by ACEA",
   "source_url": "https://www.acea.auto/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Cyprus": {
   "data_file": "data/Cyprus.csv",
-  "delta": 0.4,
+  "delta": 0.5,
   "head": "About 1 in 9 new cars is battery electric.",
   "is_stub": true,
   "share": 10.7,
   "slug": "cyprus",
   "source": "National registrations, aggregated by ACEA",
   "source_url": "https://www.acea.auto/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Czechia": {
   "data_file": "data/Czechia.csv",
@@ -254,25 +254,25 @@
  },
  "Hungary": {
   "data_file": "data/Hungary.csv",
-  "delta": 1.6,
-  "head": "About 1 in 11 new cars is battery electric.",
+  "delta": 1.5,
+  "head": "About 1 in 10 new cars is battery electric.",
   "is_stub": true,
-  "share": 9.5,
+  "share": 9.6,
   "slug": "hungary",
   "source": "National registrations, aggregated by ACEA",
   "source_url": "https://www.acea.auto/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Iceland": {
   "data_file": "data/Iceland.csv",
-  "delta": 14.7,
-  "head": "About half of new cars are battery electric.",
+  "delta": 18.7,
+  "head": "Most new cars are battery electric: 55 in 100.",
   "is_stub": true,
-  "share": 51.9,
+  "share": 55.5,
   "slug": "iceland",
   "source": "National registrations, aggregated by ACEA",
   "source_url": "https://www.acea.auto/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "India": {
   "data_file": "data/India.csv",
@@ -342,14 +342,14 @@
  },
  "Latvia": {
   "data_file": "data/Latvia.csv",
-  "delta": 2.5,
-  "head": "About 1 in 10 new cars is battery electric.",
+  "delta": 3.8,
+  "head": "About 1 in 9 new cars is battery electric.",
   "is_stub": false,
-  "share": 9.7,
+  "share": 11.0,
   "slug": "latvia",
   "source": "Latvian vehicle register (Transportlīdzekļu un to vadītāju valsts reģistrs), kept by CSDD (Ceļu satiksmes drošības direkcija)",
   "source_url": "https://www.csdd.lv/transportlidzekli/transportlidzeklu-ikmenesa-dati",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Lithuania": {
   "data_file": "data/Lithuania.csv",
@@ -393,7 +393,7 @@
   "slug": "malta",
   "source": "National registrations, aggregated by ACEA",
   "source_url": "https://www.acea.auto/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Nepal": {
   "data_file": "data/Nepal.csv",
@@ -485,14 +485,14 @@
  },
  "Romania": {
   "data_file": "data/Romania.csv",
-  "delta": 2.4,
-  "head": "About 1 in 13 new cars is battery electric.",
+  "delta": 2.5,
+  "head": "About 1 in 12 new cars is battery electric.",
   "is_stub": true,
-  "share": 7.8,
+  "share": 8.2,
   "slug": "romania",
   "source": "National registrations, aggregated by ACEA",
   "source_url": "https://www.acea.auto/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Singapore": {
   "data_file": "data/Singapore.csv",
@@ -507,25 +507,25 @@
  },
  "Slovakia": {
   "data_file": "data/Slovakia.csv",
-  "delta": 2.8,
-  "head": "About 1 in 15 new cars is battery electric.",
+  "delta": 3.1,
+  "head": "About 1 in 14 new cars is battery electric.",
   "is_stub": true,
-  "share": 6.6,
+  "share": 7.1,
   "slug": "slovakia",
   "source": "National registrations, aggregated by ACEA",
   "source_url": "https://www.acea.auto/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Slovenia": {
   "data_file": "data/Slovenia.csv",
-  "delta": 9.6,
+  "delta": 9.5,
   "head": "About 1 in 5 new cars is battery electric.",
   "is_stub": true,
-  "share": 18.9,
+  "share": 19.5,
   "slug": "slovenia",
   "source": "National registrations, aggregated by ACEA",
   "source_url": "https://www.acea.auto/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "South Africa": {
   "data_file": "data/South Africa.csv",
