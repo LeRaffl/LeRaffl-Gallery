@@ -148,7 +148,9 @@ def test_carriers_rank_by_weight_times_share():
 
 def test_northern_europe_has_no_rest_row():
     info = rc.load("northern_europe")
-    assert len(info["carriers"]) == 4
+    # One row per contributing member, never a lumped rest row. The count moves
+    # with the data (Iceland joins once it has a full 12-month window).
+    assert len(info["carriers"]) == len(info["contributors"]) >= 4
     assert info["carriers"][0]["country"] == "Norway"
     html, _ = rc.build_carriers_html(info)
     assert "other members" not in html
@@ -189,26 +191,41 @@ def test_region_brief_compares_as_box_plots():
 
 
 def test_eu_and_northern_europe_split_phev_and_hev():
-    """Since Denmark carries HEV from 2022 (scripts/backfill_denmark_hev.py)
-    every member of both groups has a national HEV split, so the mix and
-    who-gained use it instead of falling back to ACEA's EU row."""
+    """Northern Europe: every member has a national HEV split, so the mix and
+    who-gained use it. The EU does not any more: since the CSDD update of
+    15 Oct 2026 Latvia's HEV cells are empty (the register has no hybrid
+    class; the old ACEA rows carried a 0 that was not a measurement). Empty is
+    unknown, never 0, so the EU keeps PHEV, folds full hybrids into
+    "Combustion + hybrids" and says why."""
     for slug in ("eu", "northern_europe"):
         info = rc.load(slug)
         assert info["mix_members"] == info["contributors"]
         assert "Denmark" in info["mix_members"]
-        assert "PHEV" in info["mix_bands"] and "HEV" in info["mix_bands"]
+        assert "PHEV" in info["mix_bands"]
         keys = [r["key"] for r in info["shift"]["rows"]]
-        assert keys == ["BEV", "PHEV", "HEV", "REST"]
-        # National split: no row borrows ACEA's figure any more.
-        assert all(r.get("source") is None for r in info["shift"]["rows"])
         bev = next(r for r in info["shift"]["rows"] if r["key"] == "BEV")
         assert abs(sum(r["after"] for r in info["shift"]["rows"]) - 100) < 1e-9
         assert abs(bev["after"] - info["share"]) < 1e-9
         last = info["fm"]["region_mix_points"][-1]
-        assert last["PHEV"] is not None and last["HEV"] is not None
-        assert abs(sum(last[k] for k in ("BEV", "PHEV", "HEV", "REST")) - 100) < 1e-9
-        assert "no HEV series" not in (info["mix_note"] or "")
+        assert last["PHEV"] is not None
         assert "trailing 12-month share" in rc.region_legend()
+        if slug == "northern_europe":
+            assert "HEV" in info["mix_bands"]
+            assert keys == ["BEV", "PHEV", "HEV", "REST"]
+            # National split: no row borrows ACEA's figure.
+            assert all(r.get("source") is None for r in info["shift"]["rows"])
+            assert last["HEV"] is not None
+            assert abs(sum(last[k] for k in ("BEV", "PHEV", "HEV", "REST")) - 100) < 1e-9
+            assert "no HEV series" not in (info["mix_note"] or "")
+        else:
+            assert "HEV" not in info["mix_bands"]
+            # The table still shows HEV, from ACEA's EU row, labelled as such.
+            assert keys == ["BEV", "PHEV", "HEV", "REST"]
+            hev_row = next(r for r in info["shift"]["rows"] if r["key"] == "HEV")
+            assert hev_row.get("source") == "ACEA"
+            assert last["HEV"] is None
+            assert "Latvia has no HEV series" in (info["mix_note"] or "")
+            assert abs(sum(last[k] for k in ("BEV", "PHEV", "REST")) - 100) < 1e-9
 
 
 def _pt_member(name, w, bev, phev=None, hev=None):
@@ -277,7 +294,12 @@ def test_south_america_splits_hev_not_phev():
     assert info["fm"]["region_mix_points"][-1]["HEV"] is not None
     assert info["fm"]["region_mix_points"][-1]["PHEV"] is None
     assert "Colombia" in (info["mix_note"] or "")
-    assert "6.9%" in info["mix_note"] and "6.3%" in info["mix_note"]
+    # The note quotes the printed headline and what leaving Colombia out would
+    # print instead; the figures move with the data, so tie them to it.
+    import re as _re
+    assert f"from {info['share']:.1f}%" in info["mix_note"]
+    moved = _re.search(r"to (\d+\.\d)%", info["mix_note"])
+    assert moved and moved.group(1) != f"{info['share']:.1f}"
 
 
 def test_empty_hev_is_unknown_in_window_powertrains():
@@ -405,10 +427,12 @@ def test_every_region_split_adds_up():
         now = [float(t.replace("%", "")) for t in re.findall(r'class="fb-now">([^<]*)<', html)]
         tol = 0.05 * len(pp) + 1e-9
         assert abs(sum(pp)) <= tol and abs(sum(now) - 100) <= tol, (slug, pp, now)
-    # Every EU member has a national HEV split since Denmark's (2026-11-22),
-    # so no real brief borrows ACEA's HEV row now; the fallback itself is
-    # pinned by test_acea_ttm_window_and_delta on synthetic data.
-    assert not seen_acea, "a brief fell back to ACEA's HEV row"
+    # Only the EU may borrow ACEA's HEV row (checked in the loop), and only
+    # while a member has no HEV series: Latvia since the CSDD update of
+    # 15 Oct 2026. Once every member has one, this flips back to "never";
+    # the fallback itself is pinned by test_acea_ttm_window_and_delta.
+    eu = rc.load("eu")
+    assert seen_acea == ("HEV" not in eu["mix_bands"]), "ACEA fallback and mix bands disagree"
 
 
 def test_repo_acea_figure_is_current():
