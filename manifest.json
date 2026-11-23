@@ -482,6 +482,86 @@
       "country_slug": "malta"
     },
     {
+      "country": "Romania",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-23",
+      "filename": "romania_ICE_BEV_20261123.png",
+      "url": "images/2026-10/romania_ICE_BEV_20261123.png",
+      "alt": "Romania ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-23",
+      "filename": "romania_20261123.png",
+      "url": "images/2026-10/romania_20261123.png",
+      "alt": "Romania BEV trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-23",
+      "filename": "romania_time_20261123.png",
+      "url": "images/2026-10/romania_time_20261123.png",
+      "alt": "Romania Transition time curve",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-23",
+      "filename": "romania_ttm_shares_20261123.png",
+      "url": "images/2026-10/romania_ttm_shares_20261123.png",
+      "alt": "Romania TTM market split graph",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Slovakia",
+      "type": "ICE_BEV",
+      "period": "2026-10",
+      "date": "2026-11-23",
+      "filename": "slovakia_ICE_BEV_20261123.png",
+      "url": "images/2026-10/slovakia_ICE_BEV_20261123.png",
+      "alt": "Slovakia ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "share",
+      "period": "2026-10",
+      "date": "2026-11-23",
+      "filename": "slovakia_20261123.png",
+      "url": "images/2026-10/slovakia_20261123.png",
+      "alt": "Slovakia BEV trajectory",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "time",
+      "period": "2026-10",
+      "date": "2026-11-23",
+      "filename": "slovakia_time_20261123.png",
+      "url": "images/2026-10/slovakia_time_20261123.png",
+      "alt": "Slovakia Transition time curve",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "ttm_shares",
+      "period": "2026-10",
+      "date": "2026-11-23",
+      "filename": "slovakia_ttm_shares_20261123.png",
+      "url": "images/2026-10/slovakia_ttm_shares_20261123.png",
+      "alt": "Slovakia TTM market split graph",
+      "country_slug": "slovakia"
+    },
+    {
       "country": "Denmark",
       "type": "ICE_BEV",
       "period": "2026-10",
