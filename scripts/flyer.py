@@ -793,30 +793,10 @@ def hero_chart_heights(figures: dict, rows: list[dict], spare: int = 0,
     return mix, curve
 
 
-def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
-                state: dict | None, bands: dict | None, theme_href: str,
-                peers: list[tuple[str, float]] | None = None,
-                market: dict | None = None, brand_mode: str = "logos",
-                logo_href: str = "../../assets/brands",
-                peer_years: list[tuple[str, float]] | None = None,
-                peer_years_80: list[tuple[str, float]] | None = None) -> str:
-    country = fm.get("country", "")
-    slug = fm.get("slug", "")
-    hev_full = fm.get("hev_split") is True
-    head, follow = verdict(country, figures, shift)
-    through = mc.period_label(rows[-1]["period"], long=True) if rows else ""
-
-    flag = mc.flag_img(slug, country, cls="fl-flag") or fm.get("mark_html") or ""
-    # Locator lives in the title row, like the social card: room enough
-    # for a readable Europe / Asia / world map without squeezing the mix.
-    MAP_H = 92
-    where = locator_map.build(fm.get("map_countries") or [country], MAP_H,
-                              label=f"Where {country} is" if not fm.get("region")
-                              else f"{country}: member countries")
-
-    # Hero: the one number, and the mix over time.
+def hero_number(figures: dict, rows: list[dict]) -> str:
+    """The brief's hero column: the 12-month BEV share and what sits under it."""
     hero_num = ""
-    ttm, latest = figures.get("ttm"), figures.get("latest")
+    ttm = figures.get("ttm")
     if ttm:
         delta = ""
         if ttm["delta"] is not None:
@@ -839,6 +819,100 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
             f'<div class="fh-big">{esc(big)}<span>%</span></div>'
             f'<div class="fh-what">12 months to {esc(mc.period_label(ttm["end"], long=True))}</div>'
             f'{delta}{month}</div>')
+    return hero_num
+
+
+def bars_section(shift: dict | None, fm: dict) -> str:
+    """The 'Who gained, who lost' section: change in points per powertrain."""
+    bars = ""
+    if shift:
+        (b0, b1), (a0, a1) = shift["span"]
+        # EU brief: HEV from ACEA replaces the "full hybrid is kept in …" note.
+        mix_note = fm.get("bars_note") or fm.get("mix_note") or ""
+        note = (f'<p class="fl-sub fl-mixnote">{esc(mix_note)}</p>'
+                if mix_note else "")
+        # EU brief: ACEA's HEV row (its own window, labelled under the bars).
+
+        bars = (
+            '<section><h2>Who gained, who lost</h2>'
+            f'<p class="fl-sub">Change in percentage points, '
+            f'{esc(mc.vs_prior_phrase(a1))}.</p>{note}'
+            f'<div class="fb">{build_bars(shift)}</div></section>')
+    return bars
+
+
+def facts_section(fm: dict, figures: dict, shift: dict | None) -> str:
+    """The 'In numbers' section: up to four plain facts."""
+    facts = []
+    volume, record = figures.get("volume"), figures.get("record")
+    # Region totals are weights, not a count of registrations; omit count facts.
+    if fm.get("region"):
+        volume = None
+    if volume:
+        sub = "last 12 months"
+        if volume["growth"] is not None:
+            sub += f', {mc.growth_phrase(volume["growth"])} vs the 12 months before'
+        facts.append(_fact(mc.units(volume["total"]), "new registrations", sub))
+        if volume["bev"] is not None:
+            facts.append(_fact(mc.units(volume["bev"]), "of them battery electric", "last 12 months"))
+    if shift and shift.get("bev_before") and not fm.get("region"):
+        # Battery-electric volume, 12 months against the 12 before: both
+        # windows complete, so no single month can swing it.
+        growth = 100 * (shift["bev_after"] / shift["bev_before"] - 1)
+        facts.append(_fact(mc.growth_phrase(growth), "battery-electric registrations",
+                           "vs the 12 months before"))
+    # Regions have no comparable registration count, and a "with a plug"
+    # tile would steal width from the who-gained labels.
+    if shift and not fm.get("region"):
+        plug = next((r for r in shift["rows"] if r["key"] == "PHEV"), None)
+        bev = next(r for r in shift["rows"] if r["key"] == "BEV")
+        if plug and plug["after"] >= 0.05:
+            facts.append(_fact(mc.share(bev["after"] + plug["after"]), "with a plug",
+                               "BEV + plug-in hybrid, 12 months"))
+    facts_html = (f'<section><h2>In numbers</h2><div class="fl-facts">{"".join(facts[:4])}'
+                  '</div></section>') if facts else ""
+    return facts_html
+
+
+def two_block(fm: dict, bars: str, facts_html: str, market_html: str) -> tuple[str, str]:
+    """Who-gained beside In-numbers (or beside a region's 'Who carries it').
+    Returns (the two-column block, the market block still to place below)."""
+    # Region "Who carries it" sits beside who-gained. Country brand lists
+    # stay full width: in a narrow column the 0–100 % bars collapse to slivers.
+    two = ""
+    if bars and market_html and fm.get("region"):
+        two = f'<div class="fl-sec fl-two fl-two-wide">{bars}{market_html}</div>'
+        market_html = ""
+    elif bars and facts_html:
+        two = f'<div class="fl-sec fl-two">{bars}{facts_html}</div>'
+    elif bars or facts_html:
+        two = f'<div class="fl-sec fl-one">{bars}{facts_html}</div>'
+    return two, market_html
+
+
+def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
+                state: dict | None, bands: dict | None, theme_href: str,
+                peers: list[tuple[str, float]] | None = None,
+                market: dict | None = None, brand_mode: str = "logos",
+                logo_href: str = "../../assets/brands",
+                peer_years: list[tuple[str, float]] | None = None,
+                peer_years_80: list[tuple[str, float]] | None = None) -> str:
+    country = fm.get("country", "")
+    slug = fm.get("slug", "")
+    hev_full = fm.get("hev_split") is True
+    head, follow = verdict(country, figures, shift)
+    through = mc.period_label(rows[-1]["period"], long=True) if rows else ""
+
+    flag = mc.flag_img(slug, country, cls="fl-flag") or fm.get("mark_html") or ""
+    # Locator lives in the title row, like the social card: room enough
+    # for a readable Europe / Asia / world map without squeezing the mix.
+    MAP_H = 92
+    where = locator_map.build(fm.get("map_countries") or [country], MAP_H,
+                              label=f"Where {country} is" if not fm.get("region")
+                              else f"{country}: member countries")
+
+    # Hero: the one number, and the mix over time.
+    hero_num = hero_number(figures, rows)
     # Unused named-row slots (the fullest list is 5 + others) go to the charts
     # so a one- or two-brand market does not leave a hole on the sheet.
     # Region briefs have no brand block; give the charts a modest lift.
@@ -859,20 +933,7 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
             f'<div class="fh-mix">{mix}</div></div>{range_line}'
             if (hero_num or mix or range_line) else "")
 
-    bars = ""
-    if shift:
-        (b0, b1), (a0, a1) = shift["span"]
-        # EU brief: HEV from ACEA replaces the "full hybrid is kept in …" note.
-        mix_note = fm.get("bars_note") or fm.get("mix_note") or ""
-        note = (f'<p class="fl-sub fl-mixnote">{esc(mix_note)}</p>'
-                if mix_note else "")
-        # EU brief: ACEA's HEV row (its own window, labelled under the bars).
-
-        bars = (
-            '<section><h2>Who gained, who lost</h2>'
-            f'<p class="fl-sub">Change in percentage points, '
-            f'{esc(mc.vs_prior_phrase(a1))}.</p>{note}'
-            f'<div class="fb">{build_bars(shift)}</div></section>')
+    bars = bars_section(shift, fm)
 
     curve = ""
     if fm.get("region_curve"):
@@ -920,45 +981,9 @@ def build_flyer(fm: dict, rows: list[dict], shift: dict | None, figures: dict,
                 f'<div class="fm-side"><div class="fm-head">No projection</div>'
                 f'<p class="fm-none">{why}</p></div></div></section>')
 
-    facts = []
-    volume, record = figures.get("volume"), figures.get("record")
-    # Region totals are weights, not a count of registrations; omit count facts.
-    if fm.get("region"):
-        volume = None
-    if volume:
-        sub = "last 12 months"
-        if volume["growth"] is not None:
-            sub += f', {mc.growth_phrase(volume["growth"])} vs the 12 months before'
-        facts.append(_fact(mc.units(volume["total"]), "new registrations", sub))
-        if volume["bev"] is not None:
-            facts.append(_fact(mc.units(volume["bev"]), "of them battery electric", "last 12 months"))
-    if shift and shift.get("bev_before") and not fm.get("region"):
-        # Battery-electric volume, 12 months against the 12 before: both
-        # windows complete, so no single month can swing it.
-        growth = 100 * (shift["bev_after"] / shift["bev_before"] - 1)
-        facts.append(_fact(mc.growth_phrase(growth), "battery-electric registrations",
-                           "vs the 12 months before"))
-    # Regions have no comparable registration count, and a "with a plug"
-    # tile would steal width from the who-gained labels.
-    if shift and not fm.get("region"):
-        plug = next((r for r in shift["rows"] if r["key"] == "PHEV"), None)
-        bev = next(r for r in shift["rows"] if r["key"] == "BEV")
-        if plug and plug["after"] >= 0.05:
-            facts.append(_fact(mc.share(bev["after"] + plug["after"]), "with a plug",
-                               "BEV + plug-in hybrid, 12 months"))
-    facts_html = (f'<section><h2>In numbers</h2><div class="fl-facts">{"".join(facts[:4])}'
-                  '</div></section>') if facts else ""
-    # Region "Who carries it" sits beside who-gained. Country brand lists
-    # stay full width: in a narrow column the 0–100 % bars collapse to slivers.
+    facts_html = facts_section(fm, figures, shift)
     market_html = fm.get("carriers_html") or mstr.build_block(market, brand_mode, logo_href)
-    two = ""
-    if bars and market_html and fm.get("region"):
-        two = f'<div class="fl-sec fl-two fl-two-wide">{bars}{market_html}</div>'
-        market_html = ""
-    elif bars and facts_html:
-        two = f'<div class="fl-sec fl-two">{bars}{facts_html}</div>'
-    elif bars or facts_html:
-        two = f'<div class="fl-sec fl-one">{bars}{facts_html}</div>'
+    two, market_html = two_block(fm, bars, facts_html, market_html)
 
     source = (fm.get("source_name") or "").split("—")[0].strip()
     brand_src = mstr.brand_source(fm, market)

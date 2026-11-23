@@ -46,6 +46,7 @@ import flyer
 import market_structure
 import model_card as mc
 import region_card
+import snippet_card
 import social_card
 
 REPO = Path(__file__).resolve().parent.parent
@@ -2037,6 +2038,33 @@ def build_social_page(fm: dict, params: dict, peers: list | None = None) -> str:
                                     bands, market_structure.load(fm, rows), "logos",
                                     "../../assets/theme.css", "../../assets/brands",
                                     peers=peers or [])
+
+
+def snippet_context(fm: dict, params: dict, peers: list | None = None,
+                    peer_years: list | None = None, peer_years_80: list | None = None,
+                    brand_mode: str = "logos") -> dict:
+    """Everything snippet_card needs for one country, from the same figures
+    as the brief and the social card."""
+    fm = apply_group_defaults(fm)
+    country = fm.get("country", "Unknown")
+    whole = params.get((country, "Whole")) or {}
+    rows = mc.whole_rows(fm.get("data_file"))
+    bands = mc.load_bands(country)
+    shift = mc.powertrain_shift(rows, fm.get("hev_split") is True)
+    figures = mc.key_figures(rows, shift, whole,
+                             mc.read_keyed("weights.csv").get((country, "Whole")))
+    highlights = fm.get("compare_highlights")
+    if highlights is None:
+        try:
+            highlights = region_card.reference_points()
+        except Exception:
+            highlights = []
+    return {"fm": fm, "country": country, "slug": fm.get("slug", ""), "rows": rows,
+            "shift": shift, "figures": figures, "state": mc.model_state(whole, bands),
+            "bands": bands, "market": market_structure.load(fm, rows),
+            "peers": peers or [], "peer_years": peer_years, "peer_years_80": peer_years_80,
+            "highlights": highlights, "brand_mode": brand_mode,
+            "logo_href": "../../assets/brands"}
 
 
 def flyer_summary(fm: dict, params: dict) -> dict:
