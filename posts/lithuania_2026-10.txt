@@ -1,9 +1,9 @@
 🇱🇹 Lithuania - October 26 - BEV Trajectory
 13.5% BEV
 16.9% PHEV
-69.6% ICE (of which 43.5%p were HEV)
+69.6% ICE (of which 43.4%p were HEV)
 
 Trailing 12 months are:
 9.2% BEV
 13.7% PHEV
-77.1% ICE (of which 49.4%p were HEV)
+77.2% ICE (of which 49.4%p were HEV)
