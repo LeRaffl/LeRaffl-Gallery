@@ -56,14 +56,14 @@
  },
  "Brazil": {
   "data_file": "data/Brazil.csv",
-  "delta": 3.9,
-  "head": "About 1 in 15 new cars is battery electric.",
+  "delta": 4.3,
+  "head": "About 1 in 14 new cars is battery electric.",
   "is_stub": true,
-  "share": 6.7,
+  "share": 7.1,
   "slug": "brazil",
   "source": "Renavam / Senatran registrations, compiled by ANFAVEA — Associação Nacional dos Fabricantes de Veículos Automotores",
   "source_url": "https://anfavea.com.br/site/central-de-dados/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Bulgaria": {
   "data_file": "data/Bulgaria.csv",

@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-22T12:59:01Z",
- "today": "2026-11-22",
+ "generated": "2026-11-23T07:49:11Z",
+ "today": "2026-11-23",
  "countries": [
   {
    "country": "Albania",
@@ -414,11 +414,11 @@
    "source_url": "https://anfavea.com.br/site/central-de-dados/",
    "cadence_text": "monthly cron on the 10th, 08:50 UTC",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -444,14 +444,14 @@
     ],
     "workflow": ".github/workflows/fetch-brazil.yml"
    },
-   "last_render": "2026-10-08",
+   "last_render": "2026-11-23",
    "flag": "🇧🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2012-01",
-     "rows": 177,
+     "rows": 178,
      "cadence": "monthly",
      "in_repo": true
     }

@@ -1,7 +1,23 @@
 {
- "generated": "2026-11-22",
+ "generated": "2026-11-23",
  "window_days": 60,
  "entries": [
+  {
+   "date": "2026-11-23",
+   "time": "2026-11-23T07:44:16Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Brazil",
+   "flag": "🇧🇷",
+   "slug": "brazil",
+   "headline": "Oct 2026 data",
+   "detail": "Cars · 9 earlier periods revised",
+   "variants": [
+    "Whole"
+   ],
+   "source": "ANFAVEA",
+   "commit": "b28b5930569f"
+  },
   {
    "date": "2026-11-22",
    "time": "2026-11-22T12:54:12Z",
@@ -1183,24 +1199,6 @@
    "slug": "lithuania",
    "headline": "Q3 2026 data",
    "detail": "Vans, Trucks, Buses",
-   "variants": [
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "",
-   "commit": "a6b93bfa98bc"
-  },
-  {
-   "date": "2026-10-28",
-   "time": "2026-10-28T06:26:27Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Malta",
-   "flag": "🇲🇹",
-   "slug": "malta",
-   "headline": "Q3 2026 data",
-   "detail": "Vans, Trucks, Buses · 3 earlier periods revised",
    "variants": [
     "Vans",
     "HDV",
