@@ -3,815 +3,1449 @@
  "country": "Argentina",
  "variant": "Whole",
  "source": "DNRPA",
- "as_of": "2026-09",
+ "as_of": "2026-10",
  "window": {
-  "from": "2025-10",
-  "to": "2026-09",
+  "from": "2025-11",
+  "to": "2026-10",
   "months": 12
  },
- "total_registrations": 366432,
+ "total_registrations": 361023,
  "unit": "registrations (designation = exact DNRPA model string)",
  "classes": {
   "BEV": {
-   "units": 6372,
-   "share_of_market": 0.01739,
+   "units": 6865,
+   "share_of_market": 0.01902,
    "brands": [
     {
      "brand": "BYD",
-     "units": 4646,
-     "share_of_class": 0.7291
+     "units": 5035,
+     "share_of_class": 0.7334
     },
     {
      "brand": "CHEVROLET",
-     "units": 474,
-     "share_of_class": 0.0744
-    },
-    {
-     "brand": "BAIC",
-     "units": 323,
-     "share_of_class": 0.0507
+     "units": 495,
+     "share_of_class": 0.0721
     },
     {
      "brand": "JMEV",
-     "units": 276,
-     "share_of_class": 0.0433
+     "units": 328,
+     "share_of_class": 0.0478
+    },
+    {
+     "brand": "BAIC",
+     "units": 315,
+     "share_of_class": 0.0459
     },
     {
      "brand": "ARCFOX",
-     "units": 254,
-     "share_of_class": 0.0399
-    },
-    {
-     "brand": "VOLVO",
-     "units": 115,
-     "share_of_class": 0.018
+     "units": 295,
+     "share_of_class": 0.043
     },
     {
      "brand": "GEELY",
-     "units": 90,
+     "units": 97,
+     "share_of_class": 0.0141
+    },
+    {
+     "brand": "VOLVO",
+     "units": 97,
      "share_of_class": 0.0141
     },
     {
      "brand": "GREAT WALL",
-     "units": 66,
-     "share_of_class": 0.0104
+     "units": 63,
+     "share_of_class": 0.0092
     },
     {
      "brand": "DONGFENG",
-     "units": 21,
-     "share_of_class": 0.0033
+     "units": 30,
+     "share_of_class": 0.0044
     },
     {
-     "brand": "JAC",
-     "units": 15,
-     "share_of_class": 0.0024
+     "brand": "BMW",
+     "units": 17,
+     "share_of_class": 0.0025
     }
    ],
    "models": [
     {
      "brand": "BYD",
      "model": "DOLPHIN MINI EV GS",
-     "units": 3312,
-     "share_of_class": 0.5198
+     "units": 3623,
+     "share_of_class": 0.5277
     },
     {
      "brand": "BYD",
      "model": "YUAN PRO EV GS",
-     "units": 1136,
-     "share_of_class": 0.1783
+     "units": 1196,
+     "share_of_class": 0.1742
     },
     {
      "brand": "CHEVROLET",
      "model": "SPARK EUV ACTIV",
-     "units": 470,
-     "share_of_class": 0.0738
-    },
-    {
-     "brand": "BAIC",
-     "model": "EU5",
-     "units": 323,
-     "share_of_class": 0.0507
+     "units": 491,
+     "share_of_class": 0.0715
     },
     {
      "brand": "JMEV",
      "model": "EVEASY 3",
-     "units": 276,
-     "share_of_class": 0.0433
+     "units": 328,
+     "share_of_class": 0.0478
+    },
+    {
+     "brand": "BAIC",
+     "model": "EU5",
+     "units": 315,
+     "share_of_class": 0.0459
     },
     {
      "brand": "BYD",
      "model": "DOLPHIN MINI EV GL",
-     "units": 198,
-     "share_of_class": 0.0311
+     "units": 216,
+     "share_of_class": 0.0315
     },
     {
      "brand": "ARCFOX",
      "model": "T1",
-     "units": 109,
-     "share_of_class": 0.0171
+     "units": 122,
+     "share_of_class": 0.0178
     },
     {
      "brand": "GEELY",
      "model": "EX5",
-     "units": 90,
+     "units": 97,
      "share_of_class": 0.0141
     },
     {
      "brand": "ARCFOX",
      "model": "S5",
-     "units": 73,
-     "share_of_class": 0.0115
+     "units": 85,
+     "share_of_class": 0.0124
     },
     {
      "brand": "ARCFOX",
      "model": "T5",
-     "units": 62,
-     "share_of_class": 0.0097
+     "units": 73,
+     "share_of_class": 0.0106
     },
     {
      "brand": "GREAT WALL",
      "model": "ORA 03",
-     "units": 57,
-     "share_of_class": 0.0089
+     "units": 51,
+     "share_of_class": 0.0074
     },
     {
-     "brand": "VOLVO",
-     "model": "EX30",
-     "units": 37,
-     "share_of_class": 0.0058
+     "brand": "DONGFENG",
+     "model": "BOX",
+     "units": 30,
+     "share_of_class": 0.0044
     },
     {
      "brand": "VOLVO",
      "model": "EX30 PLUS E60",
-     "units": 23,
+     "units": 25,
      "share_of_class": 0.0036
     },
     {
      "brand": "VOLVO",
      "model": "EX30 CORE E40",
-     "units": 22,
-     "share_of_class": 0.0035
+     "units": 23,
+     "share_of_class": 0.0034
     },
     {
-     "brand": "DONGFENG",
-     "model": "BOX",
-     "units": 21,
-     "share_of_class": 0.0033
+     "brand": "VOLVO",
+     "model": "EX30",
+     "units": 22,
+     "share_of_class": 0.0032
     }
    ]
   },
   "PHEV": {
-   "units": 14410,
-   "share_of_market": 0.03933,
+   "units": 16151,
+   "share_of_market": 0.04474,
    "brands": [
     {
      "brand": "BYD",
-     "units": 7716,
-     "share_of_class": 0.5355
+     "units": 8525,
+     "share_of_class": 0.5278
     },
     {
      "brand": "CHEVROLET",
-     "units": 3108,
-     "share_of_class": 0.2157
+     "units": 3499,
+     "share_of_class": 0.2166
     },
     {
      "brand": "CHANGAN",
-     "units": 1467,
-     "share_of_class": 0.1018
+     "units": 1619,
+     "share_of_class": 0.1002
     },
     {
      "brand": "JETOUR",
-     "units": 677,
-     "share_of_class": 0.047
+     "units": 806,
+     "share_of_class": 0.0499
     },
     {
      "brand": "CHERY",
-     "units": 596,
-     "share_of_class": 0.0414
+     "units": 717,
+     "share_of_class": 0.0444
     },
     {
      "brand": "JAC",
-     "units": 250,
-     "share_of_class": 0.0173
+     "units": 278,
+     "share_of_class": 0.0172
     },
     {
      "brand": "DFSK",
-     "units": 187,
-     "share_of_class": 0.013
+     "units": 212,
+     "share_of_class": 0.0131
     },
     {
      "brand": "VOLVO",
-     "units": 124,
-     "share_of_class": 0.0086
+     "units": 137,
+     "share_of_class": 0.0085
     },
     {
      "brand": "BMW",
-     "units": 88,
-     "share_of_class": 0.0061
+     "units": 91,
+     "share_of_class": 0.0056
     },
     {
      "brand": "KAIYI",
-     "units": 58,
-     "share_of_class": 0.004
+     "units": 90,
+     "share_of_class": 0.0056
     }
    ],
    "models": [
     {
      "brand": "BYD",
      "model": "ATTO 2 DM-I GS",
-     "units": 3528,
-     "share_of_class": 0.2448
-    },
-    {
-     "brand": "BYD",
-     "model": "SONG PRO DM-I GS",
-     "units": 3295,
-     "share_of_class": 0.2287
+     "units": 3890,
+     "share_of_class": 0.2409
     },
     {
      "brand": "CHEVROLET",
      "model": "CAPTIVA PHEV PREMIER",
-     "units": 3108,
-     "share_of_class": 0.2157
+     "units": 3499,
+     "share_of_class": 0.2166
+    },
+    {
+     "brand": "BYD",
+     "model": "SONG PRO DM-I GS",
+     "units": 3475,
+     "share_of_class": 0.2152
     },
     {
      "brand": "CHANGAN",
      "model": "CS55 PLUS",
-     "units": 1449,
-     "share_of_class": 0.1006
+     "units": 1582,
+     "share_of_class": 0.098
     },
     {
      "brand": "JETOUR",
      "model": "T1 I-DM",
-     "units": 673,
-     "share_of_class": 0.0467
+     "units": 802,
+     "share_of_class": 0.0497
     },
     {
      "brand": "BYD",
      "model": "SEAL U DM-I GS",
-     "units": 524,
-     "share_of_class": 0.0364
-    },
-    {
-     "brand": "BYD",
-     "model": "SONG PRO DM-I GL",
-     "units": 338,
-     "share_of_class": 0.0235
+     "units": 667,
+     "share_of_class": 0.0413
     },
     {
      "brand": "CHERY",
      "model": "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM",
-     "units": 315,
+     "units": 411,
+     "share_of_class": 0.0254
+    },
+    {
+     "brand": "BYD",
+     "model": "SONG PRO DM-I GL",
+     "units": 353,
      "share_of_class": 0.0219
     },
     {
      "brand": "CHERY",
      "model": "ARRIZO 8 HYBRID 1.5T PHEV COMFORT",
-     "units": 274,
-     "share_of_class": 0.019
+     "units": 286,
+     "share_of_class": 0.0177
     },
     {
      "brand": "JAC",
      "model": "JS6 PHEV",
-     "units": 250,
-     "share_of_class": 0.0173
+     "units": 278,
+     "share_of_class": 0.0172
     },
     {
      "brand": "DFSK",
      "model": "E5 PLUS PHEV",
-     "units": 116,
-     "share_of_class": 0.008
+     "units": 144,
+     "share_of_class": 0.0089
+    },
+    {
+     "brand": "BYD",
+     "model": "SEAL 5 DM-I",
+     "units": 78,
+     "share_of_class": 0.0048
     },
     {
      "brand": "DFSK",
      "model": "E5",
-     "units": 71,
-     "share_of_class": 0.0049
+     "units": 68,
+     "share_of_class": 0.0042
     },
     {
-     "brand": "VOLVO",
-     "model": "XC60 T8 AWD RECHARGE",
-     "units": 56,
-     "share_of_class": 0.0039
+     "brand": "TOYOTA",
+     "model": "NUEVA RAV4 PHEV 2.5 AWD XSE",
+     "units": 64,
+     "share_of_class": 0.004
     },
     {
-     "brand": "BMW",
-     "model": "X1 XDRIVE25E",
-     "units": 51,
-     "share_of_class": 0.0035
-    },
-    {
-     "brand": "VOLVO",
-     "model": "XC60 T8 CORE",
-     "units": 44,
-     "share_of_class": 0.0031
+     "brand": "BYD",
+     "model": "TI 7 DM-P GS",
+     "units": 60,
+     "share_of_class": 0.0037
     }
    ],
    "incl_erev": {
-    "units": 14758,
-    "share_of_market": 0.04027,
+    "units": 16753,
+    "share_of_market": 0.0464,
     "brands": [
      {
       "brand": "BYD",
-      "units": 7716,
-      "share_of_class": 0.5228
+      "units": 8525,
+      "share_of_class": 0.5089
      },
      {
       "brand": "CHEVROLET",
-      "units": 3108,
-      "share_of_class": 0.2106
+      "units": 3499,
+      "share_of_class": 0.2089
      },
      {
       "brand": "CHANGAN",
-      "units": 1468,
-      "share_of_class": 0.0995
+      "units": 1620,
+      "share_of_class": 0.0967
      },
      {
       "brand": "JETOUR",
-      "units": 677,
-      "share_of_class": 0.0459
+      "units": 806,
+      "share_of_class": 0.0481
      },
      {
       "brand": "CHERY",
-      "units": 596,
-      "share_of_class": 0.0404
+      "units": 717,
+      "share_of_class": 0.0428
      },
      {
       "brand": "LEAPMOTOR",
-      "units": 312,
-      "share_of_class": 0.0211
+      "units": 561,
+      "share_of_class": 0.0335
      },
      {
       "brand": "JAC",
-      "units": 250,
-      "share_of_class": 0.0169
+      "units": 278,
+      "share_of_class": 0.0166
      },
      {
       "brand": "DFSK",
-      "units": 187,
+      "units": 212,
       "share_of_class": 0.0127
      },
      {
       "brand": "VOLVO",
-      "units": 124,
-      "share_of_class": 0.0084
+      "units": 137,
+      "share_of_class": 0.0082
      },
      {
       "brand": "BMW",
-      "units": 88,
-      "share_of_class": 0.006
+      "units": 91,
+      "share_of_class": 0.0054
      }
     ],
     "models": [
      {
       "brand": "BYD",
       "model": "ATTO 2 DM-I GS",
-      "units": 3528,
-      "share_of_class": 0.2391
-     },
-     {
-      "brand": "BYD",
-      "model": "SONG PRO DM-I GS",
-      "units": 3295,
-      "share_of_class": 0.2233
+      "units": 3890,
+      "share_of_class": 0.2322
      },
      {
       "brand": "CHEVROLET",
       "model": "CAPTIVA PHEV PREMIER",
-      "units": 3108,
-      "share_of_class": 0.2106
+      "units": 3499,
+      "share_of_class": 0.2089
+     },
+     {
+      "brand": "BYD",
+      "model": "SONG PRO DM-I GS",
+      "units": 3475,
+      "share_of_class": 0.2074
      },
      {
       "brand": "CHANGAN",
       "model": "CS55 PLUS",
-      "units": 1449,
-      "share_of_class": 0.0982
+      "units": 1582,
+      "share_of_class": 0.0944
      },
      {
       "brand": "JETOUR",
       "model": "T1 I-DM",
-      "units": 673,
-      "share_of_class": 0.0456
+      "units": 802,
+      "share_of_class": 0.0479
      },
      {
       "brand": "BYD",
       "model": "SEAL U DM-I GS",
-      "units": 524,
-      "share_of_class": 0.0355
-     },
-     {
-      "brand": "BYD",
-      "model": "SONG PRO DM-I GL",
-      "units": 338,
-      "share_of_class": 0.0229
+      "units": 667,
+      "share_of_class": 0.0398
      },
      {
       "brand": "CHERY",
       "model": "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM",
-      "units": 315,
-      "share_of_class": 0.0213
-     },
-     {
-      "brand": "CHERY",
-      "model": "ARRIZO 8 HYBRID 1.5T PHEV COMFORT",
-      "units": 274,
-      "share_of_class": 0.0186
-     },
-     {
-      "brand": "JAC",
-      "model": "JS6 PHEV",
-      "units": 250,
-      "share_of_class": 0.0169
+      "units": 411,
+      "share_of_class": 0.0245
      },
      {
       "brand": "LEAPMOTOR",
       "model": "B10 REEV DESIGN",
-      "units": 203,
-      "share_of_class": 0.0138,
+      "units": 368,
+      "share_of_class": 0.022,
+      "erev": true
+     },
+     {
+      "brand": "BYD",
+      "model": "SONG PRO DM-I GL",
+      "units": 353,
+      "share_of_class": 0.0211
+     },
+     {
+      "brand": "CHERY",
+      "model": "ARRIZO 8 HYBRID 1.5T PHEV COMFORT",
+      "units": 286,
+      "share_of_class": 0.0171
+     },
+     {
+      "brand": "JAC",
+      "model": "JS6 PHEV",
+      "units": 278,
+      "share_of_class": 0.0166
+     },
+     {
+      "brand": "LEAPMOTOR",
+      "model": "C10 REEV DESIGN",
+      "units": 193,
+      "share_of_class": 0.0115,
       "erev": true
      },
      {
       "brand": "DFSK",
       "model": "E5 PLUS PHEV",
-      "units": 116,
-      "share_of_class": 0.0079
+      "units": 144,
+      "share_of_class": 0.0086
      },
      {
-      "brand": "LEAPMOTOR",
-      "model": "C10 REEV DESIGN",
-      "units": 109,
-      "share_of_class": 0.0074,
-      "erev": true
+      "brand": "BYD",
+      "model": "SEAL 5 DM-I",
+      "units": 78,
+      "share_of_class": 0.0047
      },
      {
       "brand": "DFSK",
       "model": "E5",
-      "units": 71,
-      "share_of_class": 0.0048
-     },
-     {
-      "brand": "VOLVO",
-      "model": "XC60 T8 AWD RECHARGE",
-      "units": 56,
-      "share_of_class": 0.0038
+      "units": 68,
+      "share_of_class": 0.0041
      }
     ]
    }
   },
   "EREV": {
-   "units": 348,
-   "share_of_market": 0.00095,
+   "units": 602,
+   "share_of_market": 0.00167,
    "brands": [
     {
      "brand": "LEAPMOTOR",
-     "units": 312,
-     "share_of_class": 0.8966
+     "units": 561,
+     "share_of_class": 0.9319
     },
     {
      "brand": "FORTHING",
-     "units": 35,
-     "share_of_class": 0.1006
+     "units": 40,
+     "share_of_class": 0.0664
     },
     {
      "brand": "CHANGAN",
      "units": 1,
-     "share_of_class": 0.0029
+     "share_of_class": 0.0017
     }
    ],
    "models": [
     {
      "brand": "LEAPMOTOR",
      "model": "B10 REEV DESIGN",
-     "units": 203,
-     "share_of_class": 0.5833
+     "units": 368,
+     "share_of_class": 0.6113
     },
     {
      "brand": "LEAPMOTOR",
      "model": "C10 REEV DESIGN",
-     "units": 109,
-     "share_of_class": 0.3132
+     "units": 193,
+     "share_of_class": 0.3206
     },
     {
      "brand": "FORTHING",
      "model": "FRIDAY REEV",
-     "units": 34,
-     "share_of_class": 0.0977
+     "units": 39,
+     "share_of_class": 0.0648
     },
     {
      "brand": "CHANGAN",
      "model": "DEEPAL S07 REEV",
      "units": 1,
-     "share_of_class": 0.0029
+     "share_of_class": 0.0017
     },
     {
      "brand": "FORTHING",
      "model": "S7 REEV",
      "units": 1,
-     "share_of_class": 0.0029
+     "share_of_class": 0.0017
     }
    ]
   },
   "HEV": {
-   "units": 40852,
-   "share_of_market": 0.11149,
+   "units": 42125,
+   "share_of_market": 0.11668,
    "brands": [
     {
      "brand": "TOYOTA",
-     "units": 15594,
-     "share_of_class": 0.3817
+     "units": 15828,
+     "share_of_class": 0.3757
     },
     {
      "brand": "FORD",
-     "units": 8014,
-     "share_of_class": 0.1962
+     "units": 9088,
+     "share_of_class": 0.2157
     },
     {
      "brand": "BAIC",
-     "units": 6947,
-     "share_of_class": 0.1701
+     "units": 6742,
+     "share_of_class": 0.16
     },
     {
      "brand": "HAVAL",
-     "units": 4476,
-     "share_of_class": 0.1096
+     "units": 4346,
+     "share_of_class": 0.1032
     },
     {
      "brand": "MG",
-     "units": 3114,
-     "share_of_class": 0.0762
+     "units": 3231,
+     "share_of_class": 0.0767
     },
     {
      "brand": "CHERY",
-     "units": 1277,
-     "share_of_class": 0.0313
+     "units": 1354,
+     "share_of_class": 0.0321
     },
     {
      "brand": "NISSAN",
-     "units": 282,
-     "share_of_class": 0.0069
+     "units": 324,
+     "share_of_class": 0.0077
     },
     {
      "brand": "GAC",
-     "units": 236,
-     "share_of_class": 0.0058
+     "units": 259,
+     "share_of_class": 0.0061
     },
     {
      "brand": "LEXUS",
-     "units": 219,
-     "share_of_class": 0.0054
+     "units": 206,
+     "share_of_class": 0.0049
     },
     {
-     "brand": "RENAULT",
-     "units": 183,
-     "share_of_class": 0.0045
+     "brand": "HONDA",
+     "units": 157,
+     "share_of_class": 0.0037
     }
    ],
    "models": [
     {
      "brand": "FORD",
      "model": "TERRITORY TREND 1.5L HIBRIDA AT",
-     "units": 7915,
-     "share_of_class": 0.1937
+     "units": 8988,
+     "share_of_class": 0.2134
     },
     {
      "brand": "BAIC",
      "model": "BJ30E",
-     "units": 6920,
-     "share_of_class": 0.1694
+     "units": 6720,
+     "share_of_class": 0.1595
     },
     {
      "brand": "TOYOTA",
      "model": "COROLLA CROSS SEG HEV 1.8 ECVT",
-     "units": 4437,
-     "share_of_class": 0.1086
+     "units": 4303,
+     "share_of_class": 0.1021
     },
     {
      "brand": "TOYOTA",
      "model": "COROLLA CROSS XEI HEV 1.8 ECVT",
-     "units": 2943,
-     "share_of_class": 0.072
+     "units": 2993,
+     "share_of_class": 0.0711
     },
     {
      "brand": "TOYOTA",
      "model": "YARIS CROSS SEG HEV 1.5 ECVT",
-     "units": 2624,
-     "share_of_class": 0.0642
+     "units": 2848,
+     "share_of_class": 0.0676
     },
     {
      "brand": "TOYOTA",
      "model": "YARIS CROSS XEI HEV 1.5 ECVT",
-     "units": 1685,
-     "share_of_class": 0.0412
-    },
-    {
-     "brand": "HAVAL",
-     "model": "H6 HEV SUPREME",
-     "units": 1654,
-     "share_of_class": 0.0405
+     "units": 1970,
+     "share_of_class": 0.0468
     },
     {
      "brand": "TOYOTA",
      "model": "COROLLA HEV 1.8 XEI ECVT",
-     "units": 1546,
-     "share_of_class": 0.0378
+     "units": 1497,
+     "share_of_class": 0.0355
     },
     {
-     "brand": "TOYOTA",
-     "model": "COROLLA HEV 1.8 SEG ECVT",
-     "units": 1423,
-     "share_of_class": 0.0348
+     "brand": "HAVAL",
+     "model": "H6 HEV SUPREME",
+     "units": 1448,
+     "share_of_class": 0.0344
     },
     {
      "brand": "CHERY",
      "model": "TIGGO 4 HYBRID 1.5L HEV PREMIUM",
-     "units": 1277,
-     "share_of_class": 0.0313
+     "units": 1354,
+     "share_of_class": 0.0321
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "COROLLA HEV 1.8 SEG ECVT",
+     "units": 1344,
+     "share_of_class": 0.0319
     },
     {
      "brand": "HAVAL",
      "model": "JOLION HEV SUPREME",
-     "units": 986,
-     "share_of_class": 0.0241
+     "units": 1060,
+     "share_of_class": 0.0252
     },
     {
      "brand": "MG",
      "model": "ZS HYBRID + LUXURY",
-     "units": 944,
-     "share_of_class": 0.0231
-    },
-    {
-     "brand": "HAVAL",
-     "model": "JOLION PRO HEV SUPREME",
-     "units": 803,
-     "share_of_class": 0.0197
+     "units": 1039,
+     "share_of_class": 0.0247
     },
     {
      "brand": "HAVAL",
      "model": "H6 PRO HEV",
-     "units": 734,
-     "share_of_class": 0.018
+     "units": 881,
+     "share_of_class": 0.0209
     },
     {
      "brand": "MG",
      "model": "MG3 HYBRID + LUXURY",
-     "units": 727,
-     "share_of_class": 0.0178
+     "units": 812,
+     "share_of_class": 0.0193
+    },
+    {
+     "brand": "HAVAL",
+     "model": "JOLION PRO HEV SUPREME",
+     "units": 689,
+     "share_of_class": 0.0164
     }
    ]
   },
   "MHEV": {
-   "units": 11141,
-   "share_of_market": 0.0304,
+   "units": 11920,
+   "share_of_market": 0.03302,
    "brands": [
     {
      "brand": "CHERY",
-     "units": 2979,
-     "share_of_class": 0.2674
+     "units": 3255,
+     "share_of_class": 0.2731
     },
     {
      "brand": "MERCEDES BENZ",
-     "units": 2356,
-     "share_of_class": 0.2115
+     "units": 2396,
+     "share_of_class": 0.201
     },
     {
      "brand": "RENAULT",
      "units": 1987,
-     "share_of_class": 0.1784
+     "share_of_class": 0.1667
     },
     {
      "brand": "FIAT",
-     "units": 1078,
-     "share_of_class": 0.0968
-    },
-    {
-     "brand": "BMW",
-     "units": 833,
-     "share_of_class": 0.0748
+     "units": 1209,
+     "share_of_class": 0.1014
     },
     {
      "brand": "AUDI",
-     "units": 829,
-     "share_of_class": 0.0744
+     "units": 899,
+     "share_of_class": 0.0754
+    },
+    {
+     "brand": "BMW",
+     "units": 822,
+     "share_of_class": 0.069
     },
     {
      "brand": "SUZUKI",
-     "units": 470,
-     "share_of_class": 0.0422
+     "units": 577,
+     "share_of_class": 0.0484
     },
     {
      "brand": "CITROEN",
-     "units": 399,
-     "share_of_class": 0.0358
-    },
-    {
-     "brand": "DS",
-     "units": 104,
-     "share_of_class": 0.0093
+     "units": 449,
+     "share_of_class": 0.0377
     },
     {
      "brand": "MINI",
-     "units": 103,
+     "units": 110,
      "share_of_class": 0.0092
+    },
+    {
+     "brand": "JEEP",
+     "units": 103,
+     "share_of_class": 0.0086
     }
    ],
    "models": [
     {
      "brand": "CHERY",
      "model": "TIGGO 7 PRO HYBRID 1.5T MHEV PREMIUM",
-     "units": 2979,
-     "share_of_class": 0.2674
+     "units": 3255,
+     "share_of_class": 0.2731
     },
     {
      "brand": "RENAULT",
      "model": "ARKANA E-TECH HYBRID ESPRIT ALPINE",
      "units": 1987,
-     "share_of_class": 0.1784
+     "share_of_class": 0.1667
     },
     {
      "brand": "FIAT",
      "model": "600 HYBRID 1.2 EDCT",
-     "units": 1078,
-     "share_of_class": 0.0968
-    },
-    {
-     "brand": "MERCEDES BENZ",
-     "model": "GLA 250 4MATIC (MHEV)",
-     "units": 342,
-     "share_of_class": 0.0307
-    },
-    {
-     "brand": "MERCEDES BENZ",
-     "model": "GLC 300 4MATIC COUPE (MHEV)",
-     "units": 331,
-     "share_of_class": 0.0297
+     "units": 1209,
+     "share_of_class": 0.1014
     },
     {
      "brand": "CITROEN",
      "model": "C4 HYBRID PLUS",
-     "units": 322,
-     "share_of_class": 0.0289
+     "units": 371,
+     "share_of_class": 0.0311
     },
     {
      "brand": "SUZUKI",
      "model": "SWIFT HYBRID GLX CVT",
-     "units": 297,
-     "share_of_class": 0.0267
+     "units": 362,
+     "share_of_class": 0.0304
+    },
+    {
+     "brand": "MERCEDES BENZ",
+     "model": "GLC 300 4MATIC COUPE (MHEV)",
+     "units": 349,
+     "share_of_class": 0.0293
+    },
+    {
+     "brand": "MERCEDES BENZ",
+     "model": "GLA 250 4MATIC (MHEV)",
+     "units": 343,
+     "share_of_class": 0.0288
     },
     {
      "brand": "BMW",
      "model": "X3 20 XDRIVE MHEV",
-     "units": 288,
-     "share_of_class": 0.0259
+     "units": 256,
+     "share_of_class": 0.0215
     },
     {
      "brand": "MERCEDES BENZ",
      "model": "C300 AVANTGARDE (MHEV)",
-     "units": 254,
-     "share_of_class": 0.0228
+     "units": 255,
+     "share_of_class": 0.0214
     },
     {
      "brand": "MERCEDES BENZ",
      "model": "GLC 300 4MATIC (MHEV)",
-     "units": 235,
-     "share_of_class": 0.0211
-    },
-    {
-     "brand": "MERCEDES BENZ",
-     "model": "MERCEDES AMG GLC 43 4MATIC COUPE (MHEV)",
-     "units": 219,
-     "share_of_class": 0.0197
-    },
-    {
-     "brand": "MERCEDES BENZ",
-     "model": "MERCEDES-BENZ A250 4MATIC (MHEV)",
-     "units": 210,
-     "share_of_class": 0.0188
+     "units": 239,
+     "share_of_class": 0.0201
     },
     {
      "brand": "AUDI",
      "model": "Q5 SPORTBACK S LINE",
-     "units": 202,
-     "share_of_class": 0.0181
+     "units": 220,
+     "share_of_class": 0.0185
+    },
+    {
+     "brand": "MERCEDES BENZ",
+     "model": "MERCEDES-BENZ A250 4MATIC (MHEV)",
+     "units": 219,
+     "share_of_class": 0.0184
     },
     {
      "brand": "AUDI",
      "model": "Q5 ADVANCED PLUS",
-     "units": 196,
-     "share_of_class": 0.0176
+     "units": 214,
+     "share_of_class": 0.018
     },
     {
      "brand": "MERCEDES BENZ",
-     "model": "GLB 250 4MATIC (MHEV)",
-     "units": 176,
-     "share_of_class": 0.0158
+     "model": "MERCEDES AMG GLC 43 4MATIC COUPE (MHEV)",
+     "units": 208,
+     "share_of_class": 0.0174
+    },
+    {
+     "brand": "BMW",
+     "model": "X3 30 XDRIVE MHEV",
+     "units": 175,
+     "share_of_class": 0.0147
     }
    ]
   }
  },
  "months": [
   {
+   "period": "2026-10",
+   "total_registrations": 29819,
+   "classes": {
+    "BEV": {
+     "units": 676,
+     "share_of_market": 0.02267,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 470,
+       "share_of_class": 0.6953
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 68,
+       "share_of_class": 0.1006
+      },
+      {
+       "brand": "JMEV",
+       "units": 52,
+       "share_of_class": 0.0769
+      },
+      {
+       "brand": "ARCFOX",
+       "units": 41,
+       "share_of_class": 0.0607
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 9,
+       "share_of_class": 0.0133
+      },
+      {
+       "brand": "BMW",
+       "units": 7,
+       "share_of_class": 0.0104
+      },
+      {
+       "brand": "GEELY",
+       "units": 7,
+       "share_of_class": 0.0104
+      },
+      {
+       "brand": "BAIC",
+       "units": 5,
+       "share_of_class": 0.0074
+      },
+      {
+       "brand": "GREAT WALL",
+       "units": 4,
+       "share_of_class": 0.0059
+      },
+      {
+       "brand": "VOLVO",
+       "units": 4,
+       "share_of_class": 0.0059
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "DOLPHIN MINI EV GS",
+       "units": 356,
+       "share_of_class": 0.5266
+      },
+      {
+       "brand": "BYD",
+       "model": "YUAN PRO EV GS",
+       "units": 94,
+       "share_of_class": 0.1391
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "SPARK EUV ACTIV",
+       "units": 68,
+       "share_of_class": 0.1006
+      },
+      {
+       "brand": "JMEV",
+       "model": "EVEASY 3",
+       "units": 52,
+       "share_of_class": 0.0769
+      },
+      {
+       "brand": "BYD",
+       "model": "DOLPHIN MINI EV GL",
+       "units": 20,
+       "share_of_class": 0.0296
+      },
+      {
+       "brand": "ARCFOX",
+       "model": "T1",
+       "units": 13,
+       "share_of_class": 0.0192
+      },
+      {
+       "brand": "ARCFOX",
+       "model": "S5",
+       "units": 12,
+       "share_of_class": 0.0178
+      },
+      {
+       "brand": "ARCFOX",
+       "model": "T5",
+       "units": 11,
+       "share_of_class": 0.0163
+      },
+      {
+       "brand": "DONGFENG",
+       "model": "BOX",
+       "units": 9,
+       "share_of_class": 0.0133
+      },
+      {
+       "brand": "GEELY",
+       "model": "EX5",
+       "units": 7,
+       "share_of_class": 0.0104
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 1796,
+     "share_of_market": 0.06023,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 852,
+       "share_of_class": 0.4744
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 391,
+       "share_of_class": 0.2177
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 152,
+       "share_of_class": 0.0846
+      },
+      {
+       "brand": "JETOUR",
+       "units": 129,
+       "share_of_class": 0.0718
+      },
+      {
+       "brand": "CHERY",
+       "units": 120,
+       "share_of_class": 0.0668
+      },
+      {
+       "brand": "KAIYI",
+       "units": 32,
+       "share_of_class": 0.0178
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 31,
+       "share_of_class": 0.0173
+      },
+      {
+       "brand": "DFSK",
+       "units": 29,
+       "share_of_class": 0.0161
+      },
+      {
+       "brand": "JAC",
+       "units": 29,
+       "share_of_class": 0.0161
+      },
+      {
+       "brand": "VOLVO",
+       "units": 17,
+       "share_of_class": 0.0095
+      }
+     ],
+     "models": [
+      {
+       "brand": "CHEVROLET",
+       "model": "CAPTIVA PHEV PREMIER",
+       "units": 391,
+       "share_of_class": 0.2177
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 2 DM-I GS",
+       "units": 362,
+       "share_of_class": 0.2016
+      },
+      {
+       "brand": "BYD",
+       "model": "SONG PRO DM-I GS",
+       "units": 220,
+       "share_of_class": 0.1225
+      },
+      {
+       "brand": "BYD",
+       "model": "SEAL U DM-I GS",
+       "units": 143,
+       "share_of_class": 0.0796
+      },
+      {
+       "brand": "CHANGAN",
+       "model": "CS55 PLUS",
+       "units": 133,
+       "share_of_class": 0.0741
+      },
+      {
+       "brand": "JETOUR",
+       "model": "T1 I-DM",
+       "units": 129,
+       "share_of_class": 0.0718
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM",
+       "units": 95,
+       "share_of_class": 0.0529
+      },
+      {
+       "brand": "BYD",
+       "model": "TI 7 DM-P GS",
+       "units": 60,
+       "share_of_class": 0.0334
+      },
+      {
+       "brand": "BYD",
+       "model": "SEAL 5 DM-I",
+       "units": 49,
+       "share_of_class": 0.0273
+      },
+      {
+       "brand": "KAIYI",
+       "model": "KYX7 PHEV HYBRID",
+       "units": 32,
+       "share_of_class": 0.0178
+      }
+     ],
+     "incl_erev": {
+      "units": 2050,
+      "share_of_market": 0.06875,
+      "brands": [
+       {
+        "brand": "BYD",
+        "units": 852,
+        "share_of_class": 0.4156
+       },
+       {
+        "brand": "CHEVROLET",
+        "units": 391,
+        "share_of_class": 0.1907
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "units": 249,
+        "share_of_class": 0.1215
+       },
+       {
+        "brand": "CHANGAN",
+        "units": 152,
+        "share_of_class": 0.0741
+       },
+       {
+        "brand": "JETOUR",
+        "units": 129,
+        "share_of_class": 0.0629
+       },
+       {
+        "brand": "CHERY",
+        "units": 120,
+        "share_of_class": 0.0585
+       },
+       {
+        "brand": "KAIYI",
+        "units": 32,
+        "share_of_class": 0.0156
+       },
+       {
+        "brand": "TOYOTA",
+        "units": 31,
+        "share_of_class": 0.0151
+       },
+       {
+        "brand": "DFSK",
+        "units": 29,
+        "share_of_class": 0.0141
+       },
+       {
+        "brand": "JAC",
+        "units": 29,
+        "share_of_class": 0.0141
+       }
+      ],
+      "models": [
+       {
+        "brand": "CHEVROLET",
+        "model": "CAPTIVA PHEV PREMIER",
+        "units": 391,
+        "share_of_class": 0.1907
+       },
+       {
+        "brand": "BYD",
+        "model": "ATTO 2 DM-I GS",
+        "units": 362,
+        "share_of_class": 0.1766
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GS",
+        "units": 220,
+        "share_of_class": 0.1073
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "model": "B10 REEV DESIGN",
+        "units": 165,
+        "share_of_class": 0.0805,
+        "erev": true
+       },
+       {
+        "brand": "BYD",
+        "model": "SEAL U DM-I GS",
+        "units": 143,
+        "share_of_class": 0.0698
+       },
+       {
+        "brand": "CHANGAN",
+        "model": "CS55 PLUS",
+        "units": 133,
+        "share_of_class": 0.0649
+       },
+       {
+        "brand": "JETOUR",
+        "model": "T1 I-DM",
+        "units": 129,
+        "share_of_class": 0.0629
+       },
+       {
+        "brand": "CHERY",
+        "model": "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM",
+        "units": 95,
+        "share_of_class": 0.0463
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "model": "C10 REEV DESIGN",
+        "units": 84,
+        "share_of_class": 0.041,
+        "erev": true
+       },
+       {
+        "brand": "BYD",
+        "model": "TI 7 DM-P GS",
+        "units": 60,
+        "share_of_class": 0.0293
+       }
+      ]
+     }
+    },
+    "EREV": {
+     "units": 254,
+     "share_of_market": 0.00852,
+     "brands": [
+      {
+       "brand": "LEAPMOTOR",
+       "units": 249,
+       "share_of_class": 0.9803
+      },
+      {
+       "brand": "FORTHING",
+       "units": 5,
+       "share_of_class": 0.0197
+      }
+     ],
+     "models": [
+      {
+       "brand": "LEAPMOTOR",
+       "model": "B10 REEV DESIGN",
+       "units": 165,
+       "share_of_class": 0.6496
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "model": "C10 REEV DESIGN",
+       "units": 84,
+       "share_of_class": 0.3307
+      },
+      {
+       "brand": "FORTHING",
+       "model": "FRIDAY REEV",
+       "units": 5,
+       "share_of_class": 0.0197
+      }
+     ]
+    },
+    "HEV": {
+     "units": 3931,
+     "share_of_market": 0.13183,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1450,
+       "share_of_class": 0.3689
+      },
+      {
+       "brand": "FORD",
+       "units": 1074,
+       "share_of_class": 0.2732
+      },
+      {
+       "brand": "BAIC",
+       "units": 574,
+       "share_of_class": 0.146
+      },
+      {
+       "brand": "HAVAL",
+       "units": 287,
+       "share_of_class": 0.073
+      },
+      {
+       "brand": "MG",
+       "units": 213,
+       "share_of_class": 0.0542
+      },
+      {
+       "brand": "CHERY",
+       "units": 96,
+       "share_of_class": 0.0244
+      },
+      {
+       "brand": "NISSAN",
+       "units": 73,
+       "share_of_class": 0.0186
+      },
+      {
+       "brand": "GREAT WALL",
+       "units": 65,
+       "share_of_class": 0.0165
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 30,
+       "share_of_class": 0.0076
+      },
+      {
+       "brand": "GAC",
+       "units": 23,
+       "share_of_class": 0.0059
+      }
+     ],
+     "models": [
+      {
+       "brand": "FORD",
+       "model": "TERRITORY TREND 1.5L HIBRIDA AT",
+       "units": 1073,
+       "share_of_class": 0.273
+      },
+      {
+       "brand": "BAIC",
+       "model": "BJ30E",
+       "units": 573,
+       "share_of_class": 0.1458
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS SEG HEV 1.8 ECVT",
+       "units": 341,
+       "share_of_class": 0.0867
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS XEI HEV 1.8 ECVT",
+       "units": 328,
+       "share_of_class": 0.0834
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS XEI HEV 1.5 ECVT",
+       "units": 285,
+       "share_of_class": 0.0725
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS SEG HEV 1.5 ECVT",
+       "units": 224,
+       "share_of_class": 0.057
+      },
+      {
+       "brand": "HAVAL",
+       "model": "H6 PRO HEV",
+       "units": 147,
+       "share_of_class": 0.0374
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA HEV 1.8 XEI ECVT",
+       "units": 133,
+       "share_of_class": 0.0338
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO 4 HYBRID 1.5L HEV PREMIUM",
+       "units": 96,
+       "share_of_class": 0.0244
+      },
+      {
+       "brand": "MG",
+       "model": "ZS HYBRID + LUXURY",
+       "units": 95,
+       "share_of_class": 0.0242
+      }
+     ]
+    },
+    "MHEV": {
+     "units": 1313,
+     "share_of_market": 0.04403,
+     "brands": [
+      {
+       "brand": "CHERY",
+       "units": 312,
+       "share_of_class": 0.2376
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 202,
+       "share_of_class": 0.1538
+      },
+      {
+       "brand": "FIAT",
+       "units": 193,
+       "share_of_class": 0.147
+      },
+      {
+       "brand": "RENAULT",
+       "units": 184,
+       "share_of_class": 0.1401
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 107,
+       "share_of_class": 0.0815
+      },
+      {
+       "brand": "JEEP",
+       "units": 103,
+       "share_of_class": 0.0784
+      },
+      {
+       "brand": "AUDI",
+       "units": 70,
+       "share_of_class": 0.0533
+      },
+      {
+       "brand": "BMW",
+       "units": 65,
+       "share_of_class": 0.0495
+      },
+      {
+       "brand": "CITROEN",
+       "units": 50,
+       "share_of_class": 0.0381
+      },
+      {
+       "brand": "VOLVO",
+       "units": 16,
+       "share_of_class": 0.0122
+      }
+     ],
+     "models": [
+      {
+       "brand": "CHERY",
+       "model": "TIGGO 7 PRO HYBRID 1.5T MHEV PREMIUM",
+       "units": 312,
+       "share_of_class": 0.2376
+      },
+      {
+       "brand": "FIAT",
+       "model": "600 HYBRID 1.2 EDCT",
+       "units": 193,
+       "share_of_class": 0.147
+      },
+      {
+       "brand": "RENAULT",
+       "model": "ARKANA E-TECH HYBRID ESPRIT ALPINE",
+       "units": 184,
+       "share_of_class": 0.1401
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "SWIFT HYBRID GLX CVT",
+       "units": 65,
+       "share_of_class": 0.0495
+      },
+      {
+       "brand": "CITROEN",
+       "model": "C4 HYBRID PLUS",
+       "units": 49,
+       "share_of_class": 0.0373
+      },
+      {
+       "brand": "JEEP",
+       "model": "AVENGER LONGITUDE T200 MHEV",
+       "units": 47,
+       "share_of_class": 0.0358
+      },
+      {
+       "brand": "JEEP",
+       "model": "AVENGER LIMITED T200 MHEV",
+       "units": 31,
+       "share_of_class": 0.0236
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "model": "C300 AVANTGARDE (MHEV)",
+       "units": 31,
+       "share_of_class": 0.0236
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "model": "GLC 300 4MATIC COUPE (MHEV)",
+       "units": 31,
+       "share_of_class": 0.0236
+      },
+      {
+       "brand": "JEEP",
+       "model": "AVENGER ALTITUDE T200 MHEV",
+       "units": 25,
+       "share_of_class": 0.019
+      }
+     ]
+    }
+   }
+  },
+  {
    "period": "2026-09",
-   "total_registrations": 33015,
+   "total_registrations": 33027,
    "classes": {
     "BEV": {
      "units": 846,
@@ -932,33 +1566,33 @@
      ]
     },
     "PHEV": {
-     "units": 2032,
-     "share_of_market": 0.06155,
+     "units": 2033,
+     "share_of_market": 0.06156,
      "brands": [
       {
        "brand": "BYD",
        "units": 941,
-       "share_of_class": 0.4631
+       "share_of_class": 0.4629
       },
       {
        "brand": "CHEVROLET",
        "units": 440,
-       "share_of_class": 0.2165
+       "share_of_class": 0.2164
       },
       {
        "brand": "CHERY",
-       "units": 201,
-       "share_of_class": 0.0989
+       "units": 202,
+       "share_of_class": 0.0994
       },
       {
        "brand": "JETOUR",
        "units": 184,
-       "share_of_class": 0.0906
+       "share_of_class": 0.0905
       },
       {
        "brand": "CHANGAN",
        "units": 155,
-       "share_of_class": 0.0763
+       "share_of_class": 0.0762
       },
       {
        "brand": "DFSK",
@@ -973,7 +1607,7 @@
       {
        "brand": "JAC",
        "units": 19,
-       "share_of_class": 0.0094
+       "share_of_class": 0.0093
       },
       {
        "brand": "TOYOTA",
@@ -991,25 +1625,25 @@
        "brand": "CHEVROLET",
        "model": "CAPTIVA PHEV PREMIER",
        "units": 440,
-       "share_of_class": 0.2165
+       "share_of_class": 0.2164
       },
       {
        "brand": "BYD",
        "model": "ATTO 2 DM-I GS",
        "units": 431,
-       "share_of_class": 0.2121
+       "share_of_class": 0.212
       },
       {
        "brand": "BYD",
        "model": "SONG PRO DM-I GS",
        "units": 279,
-       "share_of_class": 0.1373
+       "share_of_class": 0.1372
       },
       {
        "brand": "JETOUR",
        "model": "T1 I-DM",
        "units": 182,
-       "share_of_class": 0.0896
+       "share_of_class": 0.0895
       },
       {
        "brand": "BYD",
@@ -1020,8 +1654,8 @@
       {
        "brand": "CHERY",
        "model": "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM",
-       "units": 160,
-       "share_of_class": 0.0787
+       "units": 161,
+       "share_of_class": 0.0792
       },
       {
        "brand": "CHANGAN",
@@ -1033,7 +1667,7 @@
        "brand": "BYD",
        "model": "SONG PRO DM-I GL",
        "units": 44,
-       "share_of_class": 0.0217
+       "share_of_class": 0.0216
       },
       {
        "brand": "DFSK",
@@ -1049,23 +1683,23 @@
       }
      ],
      "incl_erev": {
-      "units": 2187,
-      "share_of_market": 0.06624,
+      "units": 2188,
+      "share_of_market": 0.06625,
       "brands": [
        {
         "brand": "BYD",
         "units": 941,
-        "share_of_class": 0.4303
+        "share_of_class": 0.4301
        },
        {
         "brand": "CHEVROLET",
         "units": 440,
-        "share_of_class": 0.2012
+        "share_of_class": 0.2011
        },
        {
         "brand": "CHERY",
-        "units": 201,
-        "share_of_class": 0.0919
+        "units": 202,
+        "share_of_class": 0.0923
        },
        {
         "brand": "JETOUR",
@@ -1075,12 +1709,12 @@
        {
         "brand": "CHANGAN",
         "units": 155,
-        "share_of_class": 0.0709
+        "share_of_class": 0.0708
        },
        {
         "brand": "LEAPMOTOR",
         "units": 148,
-        "share_of_class": 0.0677
+        "share_of_class": 0.0676
        },
        {
         "brand": "DFSK",
@@ -1108,19 +1742,19 @@
         "brand": "CHEVROLET",
         "model": "CAPTIVA PHEV PREMIER",
         "units": 440,
-        "share_of_class": 0.2012
+        "share_of_class": 0.2011
        },
        {
         "brand": "BYD",
         "model": "ATTO 2 DM-I GS",
         "units": 431,
-        "share_of_class": 0.1971
+        "share_of_class": 0.197
        },
        {
         "brand": "BYD",
         "model": "SONG PRO DM-I GS",
         "units": 279,
-        "share_of_class": 0.1276
+        "share_of_class": 0.1275
        },
        {
         "brand": "JETOUR",
@@ -1137,8 +1771,8 @@
        {
         "brand": "CHERY",
         "model": "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM",
-        "units": 160,
-        "share_of_class": 0.0732
+        "units": 161,
+        "share_of_class": 0.0736
        },
        {
         "brand": "CHANGAN",
@@ -1206,23 +1840,23 @@
      ]
     },
     "HEV": {
-     "units": 4512,
-     "share_of_market": 0.13667,
+     "units": 4513,
+     "share_of_market": 0.13665,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 1692,
-       "share_of_class": 0.375
+       "units": 1693,
+       "share_of_class": 0.3751
       },
       {
        "brand": "FORD",
        "units": 1081,
-       "share_of_class": 0.2396
+       "share_of_class": 0.2395
       },
       {
        "brand": "BAIC",
        "units": 599,
-       "share_of_class": 0.1328
+       "share_of_class": 0.1327
       },
       {
        "brand": "MG",
@@ -1232,7 +1866,7 @@
       {
        "brand": "HAVAL",
        "units": 326,
-       "share_of_class": 0.0723
+       "share_of_class": 0.0722
       },
       {
        "brand": "CHERY",
@@ -1265,7 +1899,7 @@
        "brand": "FORD",
        "model": "TERRITORY TREND 1.5L HIBRIDA AT",
        "units": 1080,
-       "share_of_class": 0.2394
+       "share_of_class": 0.2393
       },
       {
        "brand": "BAIC",
@@ -1277,19 +1911,19 @@
        "brand": "TOYOTA",
        "model": "COROLLA CROSS SEG HEV 1.8 ECVT",
        "units": 382,
-       "share_of_class": 0.0847
+       "share_of_class": 0.0846
       },
       {
        "brand": "TOYOTA",
        "model": "YARIS CROSS XEI HEV 1.5 ECVT",
        "units": 377,
-       "share_of_class": 0.0836
+       "share_of_class": 0.0835
       },
       {
        "brand": "TOYOTA",
        "model": "COROLLA CROSS XEI HEV 1.8 ECVT",
-       "units": 354,
-       "share_of_class": 0.0785
+       "units": 355,
+       "share_of_class": 0.0787
       },
       {
        "brand": "TOYOTA",
@@ -1324,23 +1958,23 @@
      ]
     },
     "MHEV": {
-     "units": 1348,
-     "share_of_market": 0.04083,
+     "units": 1349,
+     "share_of_market": 0.04085,
      "brands": [
       {
        "brand": "CHERY",
        "units": 488,
-       "share_of_class": 0.362
+       "share_of_class": 0.3617
       },
       {
        "brand": "MERCEDES BENZ",
        "units": 220,
-       "share_of_class": 0.1632
+       "share_of_class": 0.1631
       },
       {
        "brand": "RENAULT",
        "units": 196,
-       "share_of_class": 0.1454
+       "share_of_class": 0.1453
       },
       {
        "brand": "FIAT",
@@ -1350,12 +1984,12 @@
       {
        "brand": "SUZUKI",
        "units": 109,
-       "share_of_class": 0.0809
+       "share_of_class": 0.0808
       },
       {
        "brand": "BMW",
-       "units": 67,
-       "share_of_class": 0.0497
+       "units": 68,
+       "share_of_class": 0.0504
       },
       {
        "brand": "CITROEN",
@@ -1383,13 +2017,13 @@
        "brand": "CHERY",
        "model": "TIGGO 7 PRO HYBRID 1.5T MHEV PREMIUM",
        "units": 488,
-       "share_of_class": 0.362
+       "share_of_class": 0.3617
       },
       {
        "brand": "RENAULT",
        "model": "ARKANA E-TECH HYBRID ESPRIT ALPINE",
        "units": 196,
-       "share_of_class": 0.1454
+       "share_of_class": 0.1453
       },
       {
        "brand": "FIAT",
@@ -1431,13 +2065,13 @@
        "brand": "MERCEDES BENZ",
        "model": "MERCEDES AMG GLC 43 4MATIC COUPE (MHEV)",
        "units": 23,
-       "share_of_class": 0.0171
+       "share_of_class": 0.017
       },
       {
        "brand": "SUZUKI",
        "model": "SWIFT HYBRID GLX MT",
        "units": 23,
-       "share_of_class": 0.0171
+       "share_of_class": 0.017
       }
      ]
     }
@@ -7019,438 +7653,6 @@
        "model": "GLC 300 4MATIC (MHEV)",
        "units": 10,
        "share_of_class": 0.0206
-      }
-     ]
-    }
-   }
-  },
-  {
-   "period": "2025-10",
-   "total_registrations": 35240,
-   "classes": {
-    "BEV": {
-     "units": 183,
-     "share_of_market": 0.00519,
-     "brands": [
-      {
-       "brand": "BYD",
-       "units": 81,
-       "share_of_class": 0.4426
-      },
-      {
-       "brand": "CHEVROLET",
-       "units": 47,
-       "share_of_class": 0.2568
-      },
-      {
-       "brand": "VOLVO",
-       "units": 22,
-       "share_of_class": 0.1202
-      },
-      {
-       "brand": "BAIC",
-       "units": 13,
-       "share_of_class": 0.071
-      },
-      {
-       "brand": "GREAT WALL",
-       "units": 7,
-       "share_of_class": 0.0383
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "units": 4,
-       "share_of_class": 0.0219
-      },
-      {
-       "brand": "AUDI",
-       "units": 3,
-       "share_of_class": 0.0164
-      },
-      {
-       "brand": "NISSAN",
-       "units": 3,
-       "share_of_class": 0.0164
-      },
-      {
-       "brand": "RENAULT",
-       "units": 2,
-       "share_of_class": 0.0109
-      },
-      {
-       "brand": "BMW",
-       "units": 1,
-       "share_of_class": 0.0055
-      }
-     ],
-     "models": [
-      {
-       "brand": "CHEVROLET",
-       "model": "SPARK EUV ACTIV",
-       "units": 47,
-       "share_of_class": 0.2568
-      },
-      {
-       "brand": "BYD",
-       "model": "DOLPHIN MINI EV GS",
-       "units": 45,
-       "share_of_class": 0.2459
-      },
-      {
-       "brand": "BYD",
-       "model": "YUAN PRO EV GS",
-       "units": 34,
-       "share_of_class": 0.1858
-      },
-      {
-       "brand": "VOLVO",
-       "model": "EX30",
-       "units": 15,
-       "share_of_class": 0.082
-      },
-      {
-       "brand": "BAIC",
-       "model": "EU5",
-       "units": 13,
-       "share_of_class": 0.071
-      },
-      {
-       "brand": "GREAT WALL",
-       "model": "ORA 03",
-       "units": 7,
-       "share_of_class": 0.0383
-      },
-      {
-       "brand": "VOLVO",
-       "model": "C40 P8 RECHARGE TWIN",
-       "units": 5,
-       "share_of_class": 0.0273
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "model": "MERCEDES-BENZ EQE 500 SUV (BEV)",
-       "units": 4,
-       "share_of_class": 0.0219
-      },
-      {
-       "brand": "NISSAN",
-       "model": "LEAF TEKNA",
-       "units": 3,
-       "share_of_class": 0.0164
-      },
-      {
-       "brand": "BYD",
-       "model": "DOLPHIN MINI EV GL",
-       "units": 2,
-       "share_of_class": 0.0109
-      }
-     ]
-    },
-    "PHEV": {
-     "units": 56,
-     "share_of_market": 0.00159,
-     "brands": [
-      {
-       "brand": "BYD",
-       "units": 43,
-       "share_of_class": 0.7679
-      },
-      {
-       "brand": "DFSK",
-       "units": 4,
-       "share_of_class": 0.0714
-      },
-      {
-       "brand": "VOLVO",
-       "units": 4,
-       "share_of_class": 0.0714
-      },
-      {
-       "brand": "BMW",
-       "units": 2,
-       "share_of_class": 0.0357
-      },
-      {
-       "brand": "LAND ROVER",
-       "units": 2,
-       "share_of_class": 0.0357
-      },
-      {
-       "brand": "JAC",
-       "units": 1,
-       "share_of_class": 0.0179
-      }
-     ],
-     "models": [
-      {
-       "brand": "BYD",
-       "model": "SONG PRO DM-I GS",
-       "units": 40,
-       "share_of_class": 0.7143
-      },
-      {
-       "brand": "DFSK",
-       "model": "E5",
-       "units": 4,
-       "share_of_class": 0.0714
-      },
-      {
-       "brand": "BYD",
-       "model": "SONG PRO DM-I GL",
-       "units": 3,
-       "share_of_class": 0.0536
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC90 T8 AWD RECHARGE",
-       "units": 3,
-       "share_of_class": 0.0536
-      },
-      {
-       "brand": "LAND ROVER",
-       "model": "DEFENDER P400E X-DYNAMIC",
-       "units": 2,
-       "share_of_class": 0.0357
-      },
-      {
-       "brand": "BMW",
-       "model": "M5 PHEV",
-       "units": 1,
-       "share_of_class": 0.0179
-      },
-      {
-       "brand": "BMW",
-       "model": "X1 XDRIVE25E",
-       "units": 1,
-       "share_of_class": 0.0179
-      },
-      {
-       "brand": "JAC",
-       "model": "JS6 PHEV",
-       "units": 1,
-       "share_of_class": 0.0179
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC60 T8 AWD RECHARGE",
-       "units": 1,
-       "share_of_class": 0.0179
-      }
-     ]
-    },
-    "HEV": {
-     "units": 2659,
-     "share_of_market": 0.07545,
-     "brands": [
-      {
-       "brand": "TOYOTA",
-       "units": 1217,
-       "share_of_class": 0.4577
-      },
-      {
-       "brand": "BAIC",
-       "units": 779,
-       "share_of_class": 0.293
-      },
-      {
-       "brand": "HAVAL",
-       "units": 417,
-       "share_of_class": 0.1568
-      },
-      {
-       "brand": "MG",
-       "units": 96,
-       "share_of_class": 0.0361
-      },
-      {
-       "brand": "RENAULT",
-       "units": 46,
-       "share_of_class": 0.0173
-      },
-      {
-       "brand": "NISSAN",
-       "units": 31,
-       "share_of_class": 0.0117
-      },
-      {
-       "brand": "LEXUS",
-       "units": 28,
-       "share_of_class": 0.0105
-      },
-      {
-       "brand": "CHERY",
-       "units": 19,
-       "share_of_class": 0.0071
-      },
-      {
-       "brand": "HONDA",
-       "units": 13,
-       "share_of_class": 0.0049
-      },
-      {
-       "brand": "HYUNDAI",
-       "units": 7,
-       "share_of_class": 0.0026
-      }
-     ],
-     "models": [
-      {
-       "brand": "BAIC",
-       "model": "BJ30E",
-       "units": 773,
-       "share_of_class": 0.2907
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA CROSS SEG HEV 1.8 ECVT",
-       "units": 475,
-       "share_of_class": 0.1786
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA CROSS XEI HEV 1.8 ECVT",
-       "units": 279,
-       "share_of_class": 0.1049
-      },
-      {
-       "brand": "HAVAL",
-       "model": "H6 HEV SUPREME",
-       "units": 207,
-       "share_of_class": 0.0778
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA HEV 1.8 XEI ECVT",
-       "units": 182,
-       "share_of_class": 0.0684
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA HEV 1.8 SEG ECVT",
-       "units": 172,
-       "share_of_class": 0.0647
-      },
-      {
-       "brand": "HAVAL",
-       "model": "JOLION PRO HEV SUPREME",
-       "units": 136,
-       "share_of_class": 0.0511
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "RAV4 HEV 2.5 AWD LIMITED CVT",
-       "units": 92,
-       "share_of_class": 0.0346
-      },
-      {
-       "brand": "MG",
-       "model": "ZS HYBRID+",
-       "units": 50,
-       "share_of_class": 0.0188
-      },
-      {
-       "brand": "MG",
-       "model": "MG3 HYBRID+",
-       "units": 46,
-       "share_of_class": 0.0173
-      }
-     ]
-    },
-    "MHEV": {
-     "units": 535,
-     "share_of_market": 0.01518,
-     "brands": [
-      {
-       "brand": "RENAULT",
-       "units": 184,
-       "share_of_class": 0.3439
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "units": 162,
-       "share_of_class": 0.3028
-      },
-      {
-       "brand": "BMW",
-       "units": 77,
-       "share_of_class": 0.1439
-      },
-      {
-       "brand": "FIAT",
-       "units": 62,
-       "share_of_class": 0.1159
-      },
-      {
-       "brand": "CHERY",
-       "units": 36,
-       "share_of_class": 0.0673
-      },
-      {
-       "brand": "DS",
-       "units": 14,
-       "share_of_class": 0.0262
-      }
-     ],
-     "models": [
-      {
-       "brand": "RENAULT",
-       "model": "ARKANA E-TECH HYBRID ESPRIT ALPINE",
-       "units": 184,
-       "share_of_class": 0.3439
-      },
-      {
-       "brand": "FIAT",
-       "model": "600 HYBRID 1.2 EDCT",
-       "units": 62,
-       "share_of_class": 0.1159
-      },
-      {
-       "brand": "BMW",
-       "model": "X3 20 XDRIVE MHEV",
-       "units": 52,
-       "share_of_class": 0.0972
-      },
-      {
-       "brand": "CHERY",
-       "model": "TIGGO 7 PRO HYBRID 1.5T MHEV PREMIUM",
-       "units": 36,
-       "share_of_class": 0.0673
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "model": "C300 AVANTGARDE (MHEV)",
-       "units": 30,
-       "share_of_class": 0.0561
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "model": "MERCEDES AMG GLC 43 4MATIC COUPE (MHEV)",
-       "units": 26,
-       "share_of_class": 0.0486
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "model": "GLA 250 4MATIC (MHEV)",
-       "units": 20,
-       "share_of_class": 0.0374
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "model": "GLC 300 4MATIC (MHEV)",
-       "units": 20,
-       "share_of_class": 0.0374
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "model": "GLC 200 4MATIC (MHEV)",
-       "units": 16,
-       "share_of_class": 0.0299
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "model": "GLC 300 4MATIC COUPE (MHEV)",
-       "units": 13,
-       "share_of_class": 0.0243
       }
      ]
     }
