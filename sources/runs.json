@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T15:14:35Z",
+ "generated": "2026-11-24T20:17:19Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8344,6 +8344,30 @@
    "slug": "slovenia",
    "period": "2026-10",
    "flag": "🇸🇮"
+  },
+  {
+   "date": "2026-11-24",
+   "label": "Argentina",
+   "base": "Argentina",
+   "slug": "argentina",
+   "period": "2026-10",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-11-24",
+   "label": "Argentina (Industry)",
+   "base": "Argentina",
+   "slug": "argentina_industry",
+   "period": "2026-10",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-11-24",
+   "label": "Argentina (Private)",
+   "base": "Argentina",
+   "slug": "argentina_private",
+   "period": "2026-10",
+   "flag": "🇦🇷"
   }
  ]
 }

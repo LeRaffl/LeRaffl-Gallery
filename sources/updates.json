@@ -3,6 +3,25 @@
  "window_days": 60,
  "entries": [
   {
+   "date": "2026-11-24",
+   "time": "2026-11-24T20:11:36Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Argentina",
+   "flag": "🇦🇷",
+   "slug": "argentina",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Private, Industry, Pickups · 5 earlier periods revised",
+   "variants": [
+    "Whole",
+    "Private",
+    "Industry",
+    "Pickups"
+   ],
+   "source": "DNRPA",
+   "commit": "7a661b53ff68"
+  },
+  {
    "date": "2026-11-23",
    "time": "2026-11-23T18:42:30Z",
    "type": "data",
@@ -1159,20 +1178,6 @@
    ],
    "source": "data.gov.il",
    "commit": "64bb91536475"
-  },
-  {
-   "date": "2026-11-02",
-   "time": "2026-11-02T17:06:51Z",
-   "type": "data",
-   "kind": "revised",
-   "country": "Spain",
-   "flag": "🇪🇸",
-   "slug": "spain",
-   "headline": "Figures revised",
-   "detail": "8 periods",
-   "variants": [],
-   "source": "DGT",
-   "commit": "b9943a340f92"
   }
  ]
 }

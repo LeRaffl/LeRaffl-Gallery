@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T15:14:35Z",
+ "generated": "2026-11-24T20:17:19Z",
  "today": "2026-11-24",
  "countries": [
   {
@@ -103,11 +103,11 @@
    "source_url": "https://datos.jus.gob.ar/dataset/inscripciones-iniciales-de-autos",
    "cadence_text": "twice daily on the 8th–25th, 09:15 and 21:15 UTC — DNRPA uploads month M around the 11th of M+1",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -151,30 +151,30 @@
     ],
     "workflow": ".github/workflows/fetch-argentina.yml"
    },
-   "last_render": "2026-10-12",
+   "last_render": "2026-11-24",
    "flag": "🇦🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2018-01",
-     "rows": 105,
+     "rows": 106,
      "cadence": "monthly",
      "in_repo": true
     }
