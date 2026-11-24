@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import json
 import math
+import sys
 from pathlib import Path
 
 import model_card as mc
@@ -173,6 +174,137 @@ def acea_for_brief(t: str, path: Path = ACEA_EU_MONTHLY) -> dict | None:
               f"EU data ({t}); limit {ACEA_MAX_LAG}. Check fetch-acea.yml.",
               file=sys.stderr)
     return acea
+
+
+# --- EU: ACEA's own total as the observed series ------------------------------
+#
+# The EU brief quotes ACEA's EU27 total, the figure a reader finds in ACEA's
+# own monthly release, rather than a sum or weighting of our member series
+# (those drift a few tenths of a point from it: a member late with a month,
+# national revisions). reference/acea_eu_monthly.csv carries ACEA's total
+# month by month from Oct 2024. Earlier months, back to the first month every
+# member reports, are the plain sum of the members' national rows. The seam
+# is under 0.1 pt for BEV and PHEV; hybrids are not summed (a member without
+# an HEV series would count as 0), so HEV is unknown before ACEA's months and
+# the mix shows it as its own band only from the first full ACEA window.
+ACEA_SERIES_REGIONS = {"eu"}
+ACEA_SERIES_COLS = ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL")
+
+
+def acea_monthly_rows(path: Path = ACEA_EU_MONTHLY) -> list[dict]:
+    """ACEA's EU27 months as CSV-like rows (period, time_interval, counts)."""
+    import csv
+    try:
+        with path.open(encoding="utf-8", newline="") as fh:
+            raw = [r for r in csv.DictReader(fh) if (r.get("scope") or "") == "EU"]
+    except OSError:
+        return []
+    out = []
+    for r in sorted(raw, key=lambda r: r.get("period") or ""):
+        row = {"period": r["period"], "time_interval": "monthly", "variant": "Whole",
+               "source": "ACEA"}
+        for col in ACEA_SERIES_COLS:
+            row[col] = mc.num(r, f"{col}_units")
+        if row["TOTAL"]:
+            out.append(row)
+    return out
+
+
+def acea_series(members: list[dict], path: Path = ACEA_EU_MONTHLY) -> list[dict] | None:
+    """The EU's observed monthly series: members' sum where every member
+    reports a month, then ACEA's own total from its first month on. None when
+    ACEA has no month or its latest month is stale (ACEA_MAX_LAG)."""
+    acea = acea_monthly_rows(path)
+    if not acea:
+        return None
+    first = acea[0]["period"]
+    maps = [_month_map(m["rows"]) for m in members]
+    summed: list[dict] = []
+    idx0 = min((i for by in maps for i in by), default=None)
+    first_idx = mc.month_index(first)
+    if idx0 is not None and first_idx is not None:
+        for i in range(idx0, first_idx):
+            cells = [by.get(i) for by in maps]
+            if any(c is None for c in cells):
+                continue
+            bev = [mc.num(c, "BEV") for c in cells]
+            phev = [mc.num(c, "PHEV") for c in cells]
+            tot = [mc.num(c, "TOTAL") for c in cells]
+            if any(v is None for v in bev + tot):
+                continue
+            summed.append({
+                "period": cells[0]["period"], "time_interval": "monthly",
+                "variant": "Whole", "source": "members",
+                "BEV": sum(bev),
+                "PHEV": sum(phev) if all(v is not None for v in phev) else None,
+                "HEV": None, "PETROL": None, "DIESEL": None, "OTHERS": None,
+                "TOTAL": sum(tot),
+            })
+    # Only the run of consecutive months that joins ACEA's first month.
+    run: list[dict] = []
+    want = first_idx
+    for row in reversed(summed):
+        if mc.month_index(row["period"]) != (want or 0) - 1:
+            break
+        run.append(row)
+        want = mc.month_index(row["period"])
+    return list(reversed(run)) + acea
+
+
+def pooled_ttm_series(rows: list[dict]) -> list[tuple[str, float]]:
+    """Trailing-12-month BEV share of a counted series (sum over sum)."""
+    out = []
+    for i in range(11, len(rows)):
+        win = rows[i - 11:i + 1]
+        idx = [mc.month_index(r["period"]) for r in win]
+        if None in idx or any(b - a != 1 for a, b in zip(idx, idx[1:])):
+            continue
+        tot = sum(mc.num(r, "TOTAL") or 0.0 for r in win)
+        if tot:
+            out.append((win[-1]["period"],
+                        100.0 * sum(mc.num(r, "BEV") or 0.0 for r in win) / tot))
+    return out
+
+
+# --- live group curve (what the Builder tab draws) -----------------------------
+
+def live_group_curve(slug: str) -> dict | None:
+    """The group S-curve from the live params.csv/weights.csv, i.e. the curve
+    the Builder tab draws for this group (snapshot_builder.compute_group_curve:
+    the weight-averaged sum of the members' own fitted curves), with its 95%
+    band from the members' own live bands (group_band) and the years it
+    reaches 20/50/80 %. None when the group has no member fit."""
+    params = sb.load_params(REPO / "params.csv")
+    weights = sb.load_weights(REPO / "weights.csv")
+    countries = sb.resolve_groups(params, weights).get(slug)
+    if not countries:
+        return None
+    keep = set(countries)
+    fits = [r for r in params if r.get("country") in keep
+            and sb.normalize_base(r.get("variant") or "") == sb.DEFAULT_VARIANT]
+    if not fits:
+        return None
+    xs, bev, _, _, meta = sb.compute_group_curve(countries, params, weights)
+    band = group_band(fits, weights, xs, bev)
+    ok = bool(band and band.get("ok"))
+
+    def first(series, level):
+        return next((x for x, y in zip(xs, series)
+                     if y is not None and math.isfinite(y) and y >= level), None)
+
+    crossings = []
+    for level in (0.2, 0.5, 0.8):
+        fit = first(bev, 100 * level)
+        if fit is None:
+            continue
+        ci = [first(band["hi"], 100 * level), first(band["lo"], 100 * level)] if ok else None
+        crossings.append({"level": level, "fit": fit, "ci": ci})
+    data_per = meta.get("latest_data_per") or ""
+    state = {"quotable": bool(crossings), "flat": False, "band_ok": ok,
+             "rel": {"status": "ok", "reasons": [], "swing": 0},
+             "crossings": crossings, "data_per": data_per}
+    return {"years": xs, "model": bev, "band": band, "state": state,
+            "data_per": data_per, "countries": countries}
 
 
 REST_WITHOUT_HEV = "Petrol, diesel & other"
@@ -1314,20 +1446,61 @@ def load(slug: str) -> dict:
                 "bev_before": 0, "bev_after": 0,
             }
 
-    backtest = _load_backtest(slug)
-    frame = _pick_frame(backtest, t) if backtest else None
-    years = (backtest or {}).get("years") or []
-    model = (frame or {}).get("all", {}).get("bev") or []
-    state = _crossings_state(frame) if frame else None
-    model_per = (frame or {}).get("data_per") or ""
-    # Group CI (#454): only around the fits the drawn curve actually used.
-    band = None
-    if frame and years and model:
-        fits = _frame_fits(slug, frame)
-        if fits:
-            band = group_band(fits[0], fits[1], years, model)
+    # EU: ACEA's own total replaces the weighted member figures (see
+    # acea_series). Carriers ("who carries it") and coverage stay on the
+    # members; they answer a member question.
+    obs = None
+    if slug in ACEA_SERIES_REGIONS:
+        obs = acea_series(contrib)
+        lag = (mc.month_index(t) or 0) - (mc.month_index(obs[-1]["period"]) or 0) if obs else None
+        if obs and lag is not None and lag > ACEA_MAX_LAG:
+            print(f"  ! region {slug}: ACEA is {lag} months behind, members' figures used",
+                  file=sys.stderr)
+            obs = None
+    t_members = t
+    if obs:
+        rows = obs
+        t = rows[-1]["period"]
+        shift = mc.powertrain_shift(rows, hev_full=False)
+        figures = mc.key_figures(rows, shift, None, None)
+        figures["ytd"] = mc.ytd_window(rows)
+        rng = mc.share_range(rows)
+        share = (figures.get("ttm") or {}).get("share")
+        delta = (figures.get("ttm") or {}).get("delta")
+        latest = (figures.get("latest") or {}).get("share")
+        mix_members = contrib
+        mix_bands = ["BEV", "PHEV", "HEV"]
+        mix_note = mix_note_long = ""
+        acea_rows_from = next((r["period"] for r in rows if r.get("source") == "ACEA"), t)
+        short_note = "EU27 total, from ACEA's monthly release."
+        long_note = (f"New passenger cars, EU27: ACEA's own EU total from "
+                     f"{mc.period_label(acea_rows_from)}; earlier months are the sum of "
+                     "the 27 members' national data. Hybrids are full and mild hybrids, "
+                     "as ACEA counts them.")
 
-    ttm_line = weighted_ttm_series(contrib, rows)
+    # The curve is the live group curve, the one the Builder tab draws
+    # (live_group_curve). The time-lapse frame (backtest/series/<slug>.json)
+    # is the fallback when no live fit exists.
+    live = live_group_curve(slug)
+    if live:
+        years, model, band, state = live["years"], live["model"], live["band"], live["state"]
+        model_per = live["data_per"]
+        frame = True
+    else:
+        backtest = _load_backtest(slug)
+        frame = _pick_frame(backtest, t) if backtest else None
+        years = (backtest or {}).get("years") or []
+        model = (frame or {}).get("all", {}).get("bev") or []
+        state = _crossings_state(frame) if frame else None
+        model_per = (frame or {}).get("data_per") or ""
+        # Group CI (#454): only around the fits the drawn curve actually used.
+        band = None
+        if frame and years and model:
+            fits = _frame_fits(slug, frame)
+            if fits:
+                band = group_band(fits[0], fits[1], years, model)
+
+    ttm_line = pooled_ttm_series(rows) if obs else weighted_ttm_series(contrib, rows)
 
     def curve_builder(width, height, left, model_note=True):
         svg = build_region_curve_svg(rows, years, model, width, height, left,
@@ -1354,11 +1527,17 @@ def load(slug: str) -> dict:
                "model, not an actual forecast; it does not include policy changes "
                "and is based only on historical data.")
 
-    mix = mix_points_for(mix_members, t, mix_bands)
+    mix = flyer.mix_points(rows) if obs else mix_points_for(mix_members, t, mix_bands)
+    if obs:
+        # Hybrids are only known in ACEA's months: start the chart where every
+        # band is filled rather than let the hybrid band appear mid-chart.
+        full = [p for p in mix if p.get("HEV") is not None]
+        mix = full if len(full) >= 12 else [{**p, "HEV": None} for p in mix]
 
-    carriers, carrier_total = carrier_rows(contrib, t)
+    carriers, carrier_total = carrier_rows(contrib, t_members)
 
-    acea = acea_for_brief(t) if slug == "eu" else None
+    # With ACEA's own total as the series there is nothing to borrow.
+    acea = acea_for_brief(t) if slug == "eu" and not obs else None
     scope_note = (long_note + (" " + mix_note_long if mix_note_long else "")).strip()
     if acea:
         shift = with_acea_hev(shift, acea)
@@ -1372,13 +1551,15 @@ def load(slug: str) -> dict:
         "slug": slug,
         "region": True,
         "region_mix_points": mix,
-        "source_name": "BEV Trajectory Gallery, weighted from member sources",
+        "source_name": ("ACEA (EU27 total); earlier months: members' national data"
+                        if obs else "BEV Trajectory Gallery, weighted from member sources"),
         "scope_note": scope_note.strip(),
         "coverage_note": short_note,
         "region_curve": curve_builder,
         "region_curve_side": side,
         "region_curve_sub": sub,
-        "hev_split": "HEV" in mix_bands,
+        # ACEA's hybrids include mild hybrids: not a full-hybrid split.
+        "hev_split": not obs and "HEV" in mix_bands,
         # ACEA's own EU HEV share, printed beside (never inside) our split.
         "acea_hev": acea,
         "bars_note": (acea_bars_note(acea)

@@ -44,7 +44,8 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
                  bands: dict | None, market: dict | None, mode: str,
                  theme_href: str, logo_href: str,
                  peers: list[tuple[str, float]] | None = None,
-                 highlights: list[dict] | None = None) -> str:
+                 highlights: list[dict] | None = None,
+                 weak_curve: bool = False) -> str:
     country = fm.get("country", "")
     slug = fm.get("slug", "")
     through = mc.period_label(rows[-1]["period"], long=True) if rows else ""
@@ -136,9 +137,10 @@ def build_social(fm: dict, rows: list[dict], figures: dict, state: dict | None,
     elif state:
         rng = x_range(rows, state)
         svg = mc.build_curve_svg(rows, state, bands, width=INNER, height=chart_h,
-                                 weak_fit=False, x_range=rng, left=58)
+                                 weak_fit=weak_curve and not state["quotable"], x_range=rng, left=58,
+                                 zoom_weak=True)
         if svg:
-            curve = f'<div class="sc-curve">{svg}{mc.chart_legend(state)}</div>'
+            curve = f'<div class="sc-curve">{svg}{mc.chart_legend(state, weak=weak_curve)}</div>'
 
     source = (fm.get("source_name") or "").split("—")[0].strip()
     brand_src = mstr.brand_source(fm, market)
@@ -226,7 +228,7 @@ html,body{margin:0;background:#fdfdfc}
 .sc-curve .curve{width:960px;display:block;height:auto}
 .sc-curve .curve text{font-size:16px;fill:#77746c;font-family:var(--font-ui),sans-serif}
 .cv-grid{stroke:#e4e2dd;stroke-width:1}.cv-ci{fill:#3d9a68;fill-opacity:.2}
-.cv-fit{fill:none;stroke:#2c7a50;stroke-width:3.2}.cv-pt{fill:#55534c;fill-opacity:.55}
+.cv-fit{fill:none;stroke:#2c7a50;stroke-width:3.2}.cv-weak{stroke-dasharray:9 7;stroke:#8d897c}.cv-pt{fill:#55534c;fill-opacity:.55}
 .cv-est{fill:none;stroke:#55534c}.cv-now{stroke:#8d897c;stroke-width:1;stroke-dasharray:2 3}
 .cv-step{fill:none;stroke:#3a3935;stroke-width:2.4}.cv-rise{fill:none;stroke:#3a3935;stroke-width:1}
 .cv-step-est{stroke-dasharray:4 3}

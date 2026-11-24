@@ -1,0 +1,8 @@
+🇨🇿 Czechia (Vans) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++3.0pp  BEV   (6.3% → 9.4%)
++0.9pp  PHEV  (0.9% → 1.8%)
+−3.9pp  ICE   (92.8% → 88.9%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2034-02.

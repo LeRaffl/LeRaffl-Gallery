@@ -1,0 +1,9 @@
+🇨🇿 Czechia - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++1.6pp  BEV   (5.6% → 7.2%)
++1.2pp  PHEV  (3.9% → 5.1%)
++1.9pp  HEV   (22.9% → 24.8%)
+−4.7pp  ICE   (67.6% → 62.9%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2032-10.

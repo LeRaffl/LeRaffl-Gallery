@@ -1,0 +1,5 @@
+🇨🇿 Czechia (Buses) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++2.7pp  BEV  (4.5% → 7.1%)
+−2.7pp  ICE  (95.5% → 92.9%)

@@ -601,6 +601,24 @@ The briefs and source pages are also put where people look, the Charts tab, so n
 
 The panel reads `sources/briefs.json`, written by `build_source_pages.py` (`briefs_map()`) from the same `flyer_summary()` figures as the brief directory, keyed by country like `sources.json`. If it is missing, the panel still links the brief, card and source page, just without the numbers. `scripts/test_country_hub.py` pins both halves.
 
+#### The post kit (`scripts/snippet_card.py`, `scripts/export_post_kit.py`)
+
+A thread about a country needs more than the card and the sheet: it needs the sections of the sheet as images of their own. The post kit lays out one section per image, 1080 px wide, with the flag, the country, the data month and a QR code on top and the source, scope note, address and licence below. Nothing is cropped from a finished page. `snippet_card.py` takes the same builder functions the brief calls (`hero_number()`, `bars_section()`, `facts_section()`, `two_block()`, `compare_strips()`) and sets the result larger, so a changed brief changes its snippets and every figure is the brief's figure.
+
+| Role | Shows | Offered when |
+|---|---|---|
+| `mix` | Verdict, the 12-month BEV share, the mix over time | A full 12-month window exists |
+| `shift` | Who gained, who lost; in numbers | The same window |
+| `brands` | Top brands | `market/<slug>_top.json` passes the brief's gates |
+| `share` | Box plot: 12-month BEV share against all countries | At least 10 countries rank |
+| `year50`, `year80` | Box plot: year the fitted curve reaches 50 % / 80 % | The brief draws a fit with dates, and at least 10 countries do |
+
+A role the data cannot support is absent, never half drawn: a country without a full 12-month window gets no snippet that needs one, a country without a dated fit gets no year strip. The fitted curve itself is not a role yet; it joins when the Gallery has a version of it that stands alone.
+
+`export_post_kit.py <slug> --out DIR` builds the pages from the repo data (not from the committed `sources/` files), draws each in headless Chrome and writes `<slug>_<role>.png`, `<slug>_social.png`, `<slug>_brief_a4.png` (and the PDF) plus `<slug>_kit.json`: the data month, the source and the rank figures behind the box plots, so the text of a post can quote what the images print. It needs Chrome, and `pdftoppm` or macOS `sips` for the A4 PNG. Like the social cards it is run on demand and writes nothing into the repo: the images belong to the post that uses them, and the data behind them is in git history. A region has no kit yet.
+
+Tests: `scripts/test_snippet_card.py` (HTML only; runs on pull requests in `build-source-pages.yml`).
+
 ## 2.12 Theme Extractor (`scripts/build_theme.py`)
 
 ### What it is

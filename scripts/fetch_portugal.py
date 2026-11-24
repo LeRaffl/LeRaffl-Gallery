@@ -243,6 +243,11 @@ def fetch_motordata(cat: str) -> dict:
     for i, total in enumerate(total_series):
         cols = by_month.get(i, {})
         core = sum(cols.values())
+        # OTHERS is computed exactly once, here, as the residual against the
+        # all-fuels TOTAL. to_rows() below only reads it back via cols.get() —
+        # do not add a second OTHERS fallback anywhere else, or a fuel this
+        # residual already accounts for could get double-counted/duplicated.
+        # See docs/architecture/16-source-portugal.md §3b (issue #436).
         cols["OTHERS"] = max(0.0, total - core)
         cols["TOTAL"] = total
         out[f"{year}-{i + 1:02d}"] = cols

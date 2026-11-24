@@ -127,6 +127,37 @@ HEV 17+18 = 5510 + 221 = 5731.
 So each run issues 8 POSTs for the passenger category: one all-fuels (TOTAL) plus
 BEV, PHEV×2, HEV×2, PETROL, DIESEL.
 
+## 3b. OTHERS history: the 2010–2017 empties and the three 2021 zeros (issue #436)
+
+- **2010-01 … 2017-12 (96 months): OTHERS stays empty.** This predates the residual
+  logic entirely (the 2017 sheet rows have no fuel mix to scale either, §4) — it is
+  not a gap to backfill, it's "not computed for this period", correct as-is.
+- **2018-01 … 2021-06 and 2021-10 … 2026-10: real values**, either the motordata
+  residual (current year, §3) or the #411-scaled pasted quarterly mix (older
+  months, §4).
+- **2021-07, 2021-08, 2021-09: OTHERS = 0.0.** These three rows come from the
+  pre-#411 sheet import's pasted Q3-2021 petrol/diesel/others mix. #411 scales
+  that mix to `TOTAL − BEV − PHEV − HEV`, but scaling 0 by any factor is still 0 —
+  so these were already 0.0 before #411 and are unchanged by it; #411 did not
+  invent the zero.
+  Source check (2026-11-22, for issue #436): no ACAP monthly bulletin PDF with a
+  GPL/GNC/H2 breakdown for Jul–Sep 2021 specifically was located. The only public
+  figures found are annual: razaoautomovel.com (citing ACAP) reports **3 524**
+  Gasolina/GPL and **31** GNC registrations for *all of 2021* — both nonzero for
+  the year, but small enough (under ~300/month combined, concentrated in whichever
+  months GPL conversions landed) that a genuine zero in one specific quarter is
+  plausible. This does **not** confirm the three months were truly zero rather
+  than "the pasted sheet simply had no OTHERS line item for that quarter" — it's
+  inconclusive either way.
+  **Decision: left as-is.** If an ACAP quarterly/monthly bulletin for Q3 2021 with
+  a GPL/GNC/hydrogen line turns up later, revisit these three cells specifically.
+- Confirmed while auditing this: `fetch_portugal.py`'s residual (`fetch_motordata`,
+  §3) computes `OTHERS` exactly once per month and `to_rows` only reads it back
+  (`cols.get("OTHERS", 0.0)`) — there is no second code path that could default a
+  fuel the residual already accounts for back to 0.0 and double-count/duplicate
+  it. Future contributors: keep `OTHERS` as a single residual computation; don't
+  add a second fallback for it in `to_rows` or the CSV upsert.
+
 ## 4. Spreadsheet retired
 
 A Google Sheet was a one-time import. `data/Portugal.csv` is the record.
