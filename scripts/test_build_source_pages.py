@@ -418,8 +418,8 @@ def test_flyer_qr_compare_and_fractions():
     assert qr == flyer.build_qr("https://example.org/x")           # byte-stable
     peers = [(f"C{i}", float(i)) for i in range(1, 21)]
     html = flyer.build_compare("C18", peers, 700)
-    assert "<b>3rd of 20</b>" in html and "Median: 10.5%" in html
-    assert "25%: 5.8%" in html and "75%: 15.2%" in html
+    assert "<b>3rd of 20</b>" in html and "Typical share: 10.5%" in html
+    assert "25%:" not in html and "75%:" not in html
     assert "Box = middle half of the 20 countries in the Gallery" in html
     assert "the lines reach" not in html   # whisker/lines explanation dropped
     assert "BEV share, last 12 months" in html and "Fitted curve reaches 50%" not in html
@@ -439,7 +439,7 @@ def test_flyer_qr_compare_and_fractions():
     html = flyer.build_compare("C18", peers, 700, peer_years=years)
     assert "Fitted curve reaches 50%" in html and "C18 2038 · <b>18th of 20</b>" in html
     assert "Years:" not in html   # years explanation dropped
-    assert "Median: 2030" in html
+    assert "Typical 50% year: 2030" in html
     no_year = [(n, y) for n, y in years if n != "C18"]
     assert "Fitted curve reaches 50%" not in flyer.build_compare("C18", peers, 700,
                                                                  peer_years=no_year)

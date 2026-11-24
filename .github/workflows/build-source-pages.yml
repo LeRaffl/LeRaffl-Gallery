@@ -50,6 +50,8 @@ on:
       - 'scripts/flyer.py'
       - 'scripts/market_structure.py'  # brand block on the brief
       - 'scripts/social_card.py'       # social cards (sources/flyer/<slug>_social.html)
+      - 'scripts/snippet_card.py'      # post-kit snippets of the brief (exported on demand)
+      - 'scripts/export_post_kit.py'
       - 'scripts/region_card.py'       # region briefs (sources/flyer/<slug>.html)
       - 'scripts/locator_map.py'       # locator map on briefs and cards
       - 'assets/maps/**'
@@ -59,6 +61,7 @@ on:
       - 'scripts/test_market_structure.py'
       - 'scripts/test_region_card.py'
       - 'scripts/test_locator_map.py'
+      - 'scripts/test_snippet_card.py'
       - 'scripts/build_schedule.py'
       - 'scripts/build_updates.py'
       - 'scripts/test_build_updates.py'
@@ -112,6 +115,13 @@ jobs:
       - name: Locator map tests
         if: github.event_name == 'pull_request'
         run: cd scripts && python3 test_locator_map.py
+
+      # The post-kit snippets reuse the brief's section builders; this fails
+      # the PR when a brief change leaves a country without a snippet role
+      # it should have, or breaks a shared figure.
+      - name: Post-kit snippet tests
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/test_snippet_card.py
 
       # Includes the ACEA guard: reference/acea_eu_shares.csv (written by
       # fetch-acea.yml each month) may lag the EU data by at most

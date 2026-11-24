@@ -1,6 +1,6 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-2015-06,yearly,Whole,VFACTS & Prof. Ray Willis,760.0,1000.0,12622.0,,,0.0,1155408.0,
-2016-06,yearly,Whole,VFACTS & Prof. Ray Willis,1262.0,700.0,8835.0,,,0.0,1178133.0,
+2015-06,yearly,Whole,VFACTS & Prof. Ray Willis,760.0,1000.0,12622.0,,,,1155408.0,
+2016-06,yearly,Whole,VFACTS & Prof. Ray Willis,1262.0,700.0,8835.0,,,,1178133.0,
 2017-06,yearly,Whole,VFACTS & Prof. Ray Willis,1605.0,1100.0,13884.0,,,,1189116.0,
 2018-06,yearly,Whole,VFACTS & Prof. Ray Willis,5932.0,1800.0,22719.0,,,,915658.0,
 2019-06,yearly,Whole,VFACTS & Prof. Ray Willis,10111.0,2900.0,36604.0,,,,1062867.0,

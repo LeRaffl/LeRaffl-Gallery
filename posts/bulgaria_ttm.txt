@@ -1,9 +1,9 @@
 🇧🇬 Bulgaria - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+3.2pp  BEV   (4.8% → 8.0%)
-+1.3pp  PHEV  (1.2% → 2.5%)
-+3.2pp  HEV   (3.3% → 6.4%)
-−7.7pp  ICE   (90.7% → 83.0%)
+Nov24–Oct25  vs  Nov25–Oct26
++4.1pp  BEV   (5.0% → 9.1%)
++2.0pp  PHEV  (1.2% → 3.2%)
++2.8pp  HEV   (3.6% → 6.4%)
+−8.9pp  ICE   (90.2% → 81.3%)
 
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2031-07.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2030-07.

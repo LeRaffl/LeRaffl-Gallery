@@ -1,0 +1,9 @@
+🇨🇿 Czechia (Vans) - October 26 - BEV Trajectory
+11.4% BEV
+3.3% PHEV
+85.4% ICE
+
+Trailing 12 months are:
+9.4% BEV
+1.8% PHEV
+88.9% ICE

@@ -315,6 +315,21 @@ registrations of private cars, table 4.1(c), count used imports too:
 (2025). Counting used imports too (Whole + Used, close to the scope of TD's own
 headline figure) the 2024 BEV share is 71%.
 
+**DIESEL and OTHERS are a sourced zero, not an unused column.** `Whole`
+(new private cars) has DIESEL = OTHERS = 0.0 in all 83 months 2019-11 →
+2026-09 (issue #440). Checked directly against TD's own aggregate, table
+4.1(e), for private cars status A/B/C1, four months spanning the series
+(2019-11, 2020-01, 2026-06, 2026-08): DIESEL and OTHERS are 0 in every one,
+and PETROL reconciles exactly to `CSV PETROL + PHEV + EREV` each time (e.g.
+2026-08: TD PETROL 605 = CSV PETROL 487 + PHEV 115 + EREV 3). The `Vans`
+CSV has non-zero DIESEL in every one of the same 83 months (new light goods
+vehicles are commonly diesel) and `Used` has it in one month (2021-09, 2
+cars) — so the fetcher and the fuel mapping do carry DIESEL through when TD
+reports it; new *private* cars in Hong Kong simply are not diesel. OTHERS
+(LPG/hydrogen) is 0 in all three variants for the whole series — TD has
+recorded no LPG or hydrogen first registration in any of the three classes
+since Nov 2019. No CSV change.
+
 ## 6a. Reading the fit
 
 Two policy steps dominate the recent months:

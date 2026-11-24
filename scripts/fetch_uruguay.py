@@ -281,13 +281,19 @@ def load_bytes(url_or_path: str) -> bytes:
         return f.read()
 
 
-def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
+def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None, set[str]]:
     """Walk one sheet (AUTOS or SUV) and return per-month fuel counts.
 
-    Returns ``({csv_column: [12 monthly floats]}, total_per_month_or_None)``,
-    where ``total_per_month`` is the 12 values pulled from the sheet's
-    bottom "TOTAL" row (in calendar-month order Enero..Diciembre) when one
-    is present, used by the caller as a sanity check.
+    Returns ``({csv_column: [12 monthly floats]}, total_per_month_or_None,
+    present_cols)``, where ``total_per_month`` is the 12 values pulled from
+    the sheet's bottom "TOTAL" row (in calendar-month order Enero..Diciembre)
+    when one is present, used by the caller as a sanity check, and
+    ``present_cols`` is the set of CSV fuel columns that had at least one
+    Combustible-code row in this sheet (as opposed to being merely
+    pre-initialised to 0.0 below) — some Compilado years simply don't break
+    out a given code (e.g. 2024/2025 have no "MHEV" rows at all), and the
+    caller needs to tell "reported as zero" apart from "not reported" to
+    avoid writing a fake 0.
 
     Layout assumption (2026; exact row numbers vary between revisions —
     the July 2026 revision moved the title to row 4/5 and renamed it):
@@ -339,6 +345,7 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
     # warnings but their counts are still folded into OTHERS so the per-month
     # sanity check still balances against the file's own TOTAL row.
     fuel_totals: dict[str, list[float]] = {col: [0.0] * 12 for col in set(FUEL_MAP.values())}
+    present_cols: set[str] = set()
     total_row = None
     unknown_codes: set[str] = set()
 
@@ -367,6 +374,7 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
         if csv_col is None:
             unknown_codes.add(code)
             csv_col = "OTHERS"
+        present_cols.add(csv_col)
 
         for j in range(12):
             col = month_cols[j]
@@ -387,7 +395,7 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
             v = total_row[col] if col < len(total_row) else None
             total_per_month.append(float(v) if isinstance(v, (int, float)) else 0.0)
 
-    return fuel_totals, total_per_month
+    return fuel_totals, total_per_month, present_cols
 
 
 def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[str, dict]:
@@ -437,12 +445,14 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
 
     # Sum all sheets for this variant (Whole sums AUTOS + SUV; others have one sheet each).
     combined: dict[str, list[float]] = {col: [0.0] * 12 for col in set(FUEL_MAP.values())}
+    combined_present: set[str] = set()
     for sheet_name in target_sheets:
         resolved = _resolve_sheet(wb, sheet_name)
         if resolved != sheet_name:
             print(f"  NOTE: sheet '{sheet_name}' resolved to '{resolved}'")
         ws = wb[resolved]
-        per_fuel, sheet_total = parse_sheet(ws)
+        per_fuel, sheet_total, present_cols = parse_sheet(ws)
+        combined_present |= present_cols
 
         # Cross-check this sheet's per-fuel sum against its own TOTAL row.
         if sheet_total is not None:
@@ -462,6 +472,15 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
             for j in range(12):
                 combined[f][j] += vals[j]
 
+    # Fuel columns with zero Combustible rows across every sheet of this
+    # workbook (e.g. 2024/2025 Compilados have no "MHEV" code at all) are
+    # left out of the CSV row entirely (empty cell) rather than written as
+    # 0.0 — "not reported this year" and "reported, value zero" are different
+    # facts and the CSV must not conflate them. A column that has at least
+    # one row anywhere (even if that row's value for a given month is 0) is
+    # still a reported 0.0 for that month.
+    missing_cols = set(FUEL_MAP.values()) - combined_present
+
     # Build per-month CSV rows; skip months where all fuel values are zero
     # (future months — ACAU pre-fills the year with zeros).
     rows: dict[str, dict] = {}
@@ -476,14 +495,16 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
             "time_interval": "monthly",
             "variant": variant,
             "source": "ACAU",
-            "BEV":    values.get("BEV",    0.0),
-            "PHEV":   values.get("PHEV",   0.0),
-            "HEV":    values.get("HEV",    0.0),
-            "PETROL": values.get("PETROL", 0.0),
-            "DIESEL": values.get("DIESEL", 0.0),
-            "OTHERS": values.get("OTHERS", 0.0),
+            "BEV":    "" if "BEV"    in missing_cols else values.get("BEV",    0.0),
+            "PHEV":   "" if "PHEV"   in missing_cols else values.get("PHEV",   0.0),
+            "HEV":    "" if "HEV"    in missing_cols else values.get("HEV",    0.0),
+            "PETROL": "" if "PETROL" in missing_cols else values.get("PETROL", 0.0),
+            "DIESEL": "" if "DIESEL" in missing_cols else values.get("DIESEL", 0.0),
+            "OTHERS": "" if "OTHERS" in missing_cols else values.get("OTHERS", 0.0),
         }
-        row["TOTAL"] = sum(row[c] for c in ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"])
+        row["TOTAL"] = sum(v for c, v in row.items()
+                            if c in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")
+                            and v != "")
         rows[period] = row
 
     return rows
