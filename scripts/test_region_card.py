@@ -192,11 +192,8 @@ def test_region_brief_compares_as_box_plots():
 
 def test_eu_and_northern_europe_split_phev_and_hev():
     """Northern Europe: every member has a national HEV split, so the mix and
-    who-gained use it. The EU does not any more: since the CSDD update of
-    15 Oct 2026 Latvia's HEV cells are empty (the register has no hybrid
-    class; the old ACEA rows carried a 0 that was not a measurement). Empty is
-    unknown, never 0, so the EU keeps PHEV, folds full hybrids into
-    "Combustion + hybrids" and says why."""
+    who-gained use it. The EU's series is ACEA's own EU27 total (from Oct
+    2024; members' sum before), so its split is ACEA's, hybrids included."""
     for slug in ("eu", "northern_europe"):
         info = rc.load(slug)
         assert info["mix_members"] == info["contributors"]
@@ -218,14 +215,16 @@ def test_eu_and_northern_europe_split_phev_and_hev():
             assert abs(sum(last[k] for k in ("BEV", "PHEV", "HEV", "REST")) - 100) < 1e-9
             assert "no HEV series" not in (info["mix_note"] or "")
         else:
-            assert "HEV" not in info["mix_bands"]
-            # The table still shows HEV, from ACEA's EU row, labelled as such.
-            assert keys == ["BEV", "PHEV", "HEV", "REST"]
-            hev_row = next(r for r in info["shift"]["rows"] if r["key"] == "HEV")
-            assert hev_row.get("source") == "ACEA"
-            assert last["HEV"] is None
-            assert "Latvia has no HEV series" in (info["mix_note"] or "")
-            assert abs(sum(last[k] for k in ("BEV", "PHEV", "REST")) - 100) < 1e-9
+            # EU: ACEA's own EU27 total is the series (rc.acea_series), so the
+            # whole split is ACEA's: hybrids (full + mild) as their own row,
+            # petrol and diesel named, nothing borrowed from a second source.
+            assert "HEV" in info["mix_bands"]
+            assert keys[:3] == ["BEV", "PHEV", "HEV"] and keys[-1] == "REST"
+            assert all(r.get("source") is None for r in info["shift"]["rows"])
+            assert info["rows"][-1]["source"] == "ACEA"
+            assert last["HEV"] is not None
+            assert abs(sum(last[k] for k in ("BEV", "PHEV", "HEV", "REST")) - 100) < 1e-9
+            assert not info["fm"]["bars_note"] and not info["fm"]["acea_social"]
 
 
 def _pt_member(name, w, bev, phev=None, hev=None):
@@ -784,12 +783,72 @@ def test_region_briefs_carry_weighted_ytd():
         info = rc.load(slug)
         fig = info["figures"]
         assert "ytd" in fig, slug
-        members, _, _ = rc.load_members(slug)
-        t, contrib, _ = rc.pick_common_end(members)
-        assert t and contrib, slug
-        assert fig["ytd"] == rc.weighted_ytd(contrib, t), slug
+        if info["rows"][-1].get("source") == "ACEA":
+            # The EU on ACEA's own total: YTD is that series' own count.
+            assert fig["ytd"] == mc.ytd_window(info["rows"]), slug
+        else:
+            members, _, _ = rc.load_members(slug)
+            t, contrib, _ = rc.pick_common_end(members)
+            assert t and contrib, slug
+            assert fig["ytd"] == rc.weighted_ytd(contrib, t), slug
         # The flyer resolves to the weighted figure, never the synthetic mean.
         assert flyer._brief_ytd(fig, info["rows"]) == fig["ytd"], slug
+
+
+def test_eu_series_is_acea_total_and_curve_is_the_builder_curve():
+    """The EU brief quotes ACEA's EU27 total (the number in ACEA's release)
+    and draws the live group curve, the one the Builder tab shows, with the
+    95% band combined from the members' live bands."""
+    import snapshot_builder as sb
+    info = rc.load("eu")
+    rows = info["rows"]
+    acea = {r["period"]: r for r in rc.acea_monthly_rows()}
+    last = rows[-1]
+    assert last["source"] == "ACEA" and last["period"] == max(acea)
+    # Headline month = ACEA's own BEV / TOTAL for that month.
+    assert abs(info["latest"] - 100 * acea[last["period"]]["BEV"]
+               / acea[last["period"]]["TOTAL"]) < 1e-9
+    # Months before ACEA's first month are the members' sum, consecutive,
+    # with HEV unknown (not 0).
+    first_acea = min(acea)
+    early = [r for r in rows if r["period"] < first_acea]
+    assert all(r["source"] == "members" and r["HEV"] is None for r in early)
+    idx = [mc.month_index(r["period"]) for r in rows]
+    assert all(b - a == 1 for a, b in zip(idx, idx[1:]))
+    # Curve: the Builder's group curve from live params/weights.
+    params = sb.load_params(rc.REPO / "params.csv")
+    weights = sb.load_weights(rc.REPO / "weights.csv")
+    countries = sb.resolve_groups(params, weights)["eu"]
+    _, bev, _, _, _ = sb.compute_group_curve(countries, params, weights)
+    live = rc.live_group_curve("eu")
+    assert live["model"] == bev
+    state = info["fm"]["curve_state"]
+    assert state is live["state"] or state == live["state"]
+    if live["band"] and live["band"]["ok"]:
+        for c in state["crossings"]:
+            lo, hi = c["ci"]
+            assert lo is None or lo <= c["fit"]
+            assert hi is None or hi >= c["fit"]
+
+
+def test_acea_series_joins_members_only_on_consecutive_full_months():
+    def member(name, months):
+        return {"country": name, "weight": 1, "rows": [
+            {"period": p, "time_interval": "monthly", "TOTAL": "100", "BEV": "10",
+             "PHEV": "5"} for p in months]}
+    months = ["2024-06", "2024-07", "2024-08", "2024-09"]
+    a = member("A", months)
+    b = member("B", ["2024-06", "2024-08", "2024-09"])   # gap in July
+    import tempfile
+    from pathlib import Path
+    with tempfile.TemporaryDirectory() as d:
+        ref = _acea_monthly(d, ["2024-10", "2024-11"])
+        rows = rc.acea_series([a, b], ref)
+    periods = [r["period"] for r in rows]
+    # July missing for B: the members' run starts after the gap.
+    assert periods == ["2024-08", "2024-09", "2024-10", "2024-11"]
+    assert rows[0]["BEV"] == 20 and rows[0]["TOTAL"] == 200 and rows[0]["HEV"] is None
+    assert rows[-1]["source"] == "ACEA"
 
 
 if __name__ == "__main__":
