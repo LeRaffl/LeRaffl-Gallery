@@ -126,9 +126,9 @@ Estonia,Buses,2026-10,BEV,false,false,,true,true
 Romania,Buses,2026-09,EV,true,true,,false,false
 Slovakia,Buses,2026-09,EV,true,true,,false,false
 Slovenia,Buses,2026-09,EV,true,true,,false,false
-Argentina,Whole,2026-09,BEV,false,false,,true,true
-Argentina,Private,2026-09,BEV,false,false,,true,true
-Argentina,Industry,2026-09,BEV,false,false,,true,true
+Argentina,Whole,2026-10,BEV,false,false,,true,true
+Argentina,Private,2026-10,BEV,false,false,,true,true
+Argentina,Industry,2026-10,BEV,false,false,,true,true
 Ukraine,Whole,2026-08,BEV,false,false,,false,false
 Ukraine,Private,2026-08,BEV,false,false,,false,false
 Ukraine,Industry,2026-08,BEV,false,false,,false,false
