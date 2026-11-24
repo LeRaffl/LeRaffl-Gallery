@@ -627,12 +627,17 @@ def compare_strips(country: str, peers: list[tuple[str, float]],
     pct = lambda v: mc.share(v).replace(" %", "%")  # noqa: E731
     shares = [v for _, v in peers]
     s_stats = box_stats(shares)
+    if s_stats is None:
+        return [], [], 0
     s_rank = _rank_of(own, shares, higher_first=True)
     strips = [{
         "title": "BEV share, last 12 months",
         "own_line": f"{esc(country)} {pct(own)} · {place(s_rank, len(peers))}",
         "mid_line": f"Typical share: {pct(s_stats['median'])}",
-        "q_line": "",
+        # Axis ticks already say 25% and 75%. A second "25%: 8%" reads as
+        # another share. Name the box in words instead.
+        "q_line": (f"Middle half of countries: between {round(s_stats['q1'])}% "
+                   f"and {round(s_stats['q3'])}%."),
         "values": peers, "stats": s_stats, "axis": (0.0, 100.0),
         "ticks": [(t, f"{t:.0f}%") for t in (0, 25, 50, 75, 100)],
         "own": {"name": country, "slug": subject_slug, "value": own},
