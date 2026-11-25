@@ -140,4 +140,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-07,monthly,Whole,CSDD,357.0,384.0,,1440.0,195.0,68.0,2444.0,"CSDD 2026-07: new passenger cars by the register's fuel field; replaces ACEA (TOTAL 2443, +1; ACEA had BEV 356 / TOTAL 2443)"
 2026-08,monthly,Whole,CSDD,307.0,322.0,,964.0,194.0,65.0,1852.0,"CSDD 2026-08: new passenger cars by the register's fuel field; replaces ACEA (TOTAL 1852, +0; ACEA had BEV 308 / PETROL 963)"
 2026-09,monthly,Whole,CSDD,329.0,398.0,,921.0,197.0,45.0,1890.0,CSDD 2026-09: new passenger cars by the register's fuel field
-2026-10,monthly,Whole,ACEA,423.0,382.0,0.0,840.0,139.0,79.0,1863.0,https://www.acea.auto/files/Press_release_car_registrations_October_2026.pdf
+2026-10,monthly,Whole,CSDD,424.0,382.0,,840.0,139.0,79.0,1864.0,"CSDD 2026-10: new passenger cars by the register's fuel field; replaces ACEA (TOTAL 1863, +1; ACEA had BEV 423 / TOTAL 1863)"

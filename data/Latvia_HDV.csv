@@ -140,3 +140,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-07,monthly,HDV,CSDD,2.0,0.0,,0.0,57.0,1.0,60.0,CSDD 2026-07: new N2 + N3 (incl. G) by energy source
 2026-08,monthly,HDV,CSDD,0.0,0.0,,0.0,54.0,2.0,56.0,CSDD 2026-08: new N2 + N3 (incl. G) by energy source
 2026-09,monthly,HDV,CSDD,0.0,0.0,,0.0,172.0,19.0,191.0,CSDD 2026-09: new N2 + N3 (incl. G) by energy source
+2026-10,monthly,HDV,CSDD,0.0,0.0,,0.0,183.0,39.0,222.0,CSDD 2026-10: new N2 + N3 (incl. G) by energy source
