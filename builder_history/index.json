@@ -1836,7 +1836,119 @@
           "latest_data_per": "2026-09"
         }
       }
+    },
+    {
+      "date": "2026-11-25",
+      "file": "2026-11-25.csv",
+      "basis": "calendar_year",
+      "groups": {
+        "world": {
+          "n_countries": 61,
+          "total_weight": 71743217,
+          "latest_data_per": "2026-11"
+        },
+        "western_europe": {
+          "n_countries": 9,
+          "total_weight": 8397529,
+          "latest_data_per": "2026-10"
+        },
+        "northern_europe": {
+          "n_countries": 5,
+          "total_weight": 773839,
+          "latest_data_per": "2026-10"
+        },
+        "southern_europe": {
+          "n_countries": 7,
+          "total_weight": 4267393,
+          "latest_data_per": "2026-10"
+        },
+        "eastern_europe": {
+          "n_countries": 14,
+          "total_weight": 1863580,
+          "latest_data_per": "2026-10"
+        },
+        "eu": {
+          "n_countries": 27,
+          "total_weight": 11386291,
+          "latest_data_per": "2026-10"
+        },
+        "g7": {
+          "n_countries": 7,
+          "total_weight": 28578116,
+          "latest_data_per": "2026-10"
+        },
+        "north_america": {
+          "n_countries": 2,
+          "total_weight": 17456646,
+          "latest_data_per": "2026-10"
+        },
+        "south_america": {
+          "n_countries": 8,
+          "total_weight": 4314172,
+          "latest_data_per": "2026-10"
+        },
+        "americas": {
+          "n_countries": 10,
+          "total_weight": 21770818,
+          "latest_data_per": "2026-10"
+        },
+        "asia": {
+          "n_countries": 13,
+          "total_weight": 32698560,
+          "latest_data_per": "2026-11"
+        },
+        "oceania": {
+          "n_countries": 2,
+          "total_weight": 1338391,
+          "latest_data_per": "2026-10"
+        },
+        "small_markets": {
+          "n_countries": 9,
+          "total_weight": 235423,
+          "latest_data_per": "2026-11"
+        },
+        "medium_markets": {
+          "n_countries": 39,
+          "total_weight": 11086589,
+          "latest_data_per": "2026-10"
+        },
+        "big_markets": {
+          "n_countries": 13,
+          "total_weight": 60421205,
+          "latest_data_per": "2026-10"
+        },
+        "country_germany": {
+          "n_countries": 1,
+          "total_weight": 2973400,
+          "latest_data_per": "2026-10"
+        },
+        "country_china": {
+          "n_countries": 1,
+          "total_weight": 19471000,
+          "latest_data_per": "2026-10"
+        },
+        "country_norway": {
+          "n_countries": 1,
+          "total_weight": 186008,
+          "latest_data_per": "2026-10"
+        },
+        "country_usa": {
+          "n_countries": 1,
+          "total_weight": 16056595,
+          "latest_data_per": "2026-10"
+        },
+        "country_japan": {
+          "n_countries": 1,
+          "total_weight": 2587752,
+          "latest_data_per": "2026-10"
+        },
+        "country_france": {
+          "n_countries": 1,
+          "total_weight": 1720750,
+          "latest_data_per": "2026-10"
+        }
+      }
     }
   ],
-  "updated": "2026-10-25"
+  "updated": "2026-11-25"
 }
