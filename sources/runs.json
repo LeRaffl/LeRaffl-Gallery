@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-22T12:59:01Z",
+ "generated": "2026-11-25T14:54:42Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8192,6 +8192,238 @@
    "slug": "denmark",
    "period": "2026-10",
    "flag": "🇩🇰"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Brazil",
+   "base": "Brazil",
+   "slug": "brazil",
+   "period": "2026-10",
+   "flag": "🇧🇷"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Bulgaria",
+   "base": "Bulgaria",
+   "slug": "bulgaria",
+   "period": "2026-10",
+   "flag": "🇧🇬"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Croatia",
+   "base": "Croatia",
+   "slug": "croatia",
+   "period": "2026-10",
+   "flag": "🇭🇷"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Cyprus",
+   "base": "Cyprus",
+   "slug": "cyprus",
+   "period": "2026-10",
+   "flag": "🇨🇾"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Czechia",
+   "base": "Czechia",
+   "slug": "czechia",
+   "period": "2026-10",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Czechia (Buses)",
+   "base": "Czechia",
+   "slug": "czechia_buses",
+   "period": "2026-10",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Czechia (HDV)",
+   "base": "Czechia",
+   "slug": "czechia_hdv",
+   "period": "2026-10",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Czechia (Used)",
+   "base": "Czechia",
+   "slug": "czechia_used",
+   "period": "2026-10",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Czechia (Vans)",
+   "base": "Czechia",
+   "slug": "czechia_vans",
+   "period": "2026-10",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Finland",
+   "base": "Finland",
+   "slug": "finland",
+   "period": "2026-10",
+   "flag": "🇫🇮"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Greece",
+   "base": "Greece",
+   "slug": "greece",
+   "period": "2026-10",
+   "flag": "🇬🇷"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Hungary",
+   "base": "Hungary",
+   "slug": "hungary",
+   "period": "2026-10",
+   "flag": "🇭🇺"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Iceland",
+   "base": "Iceland",
+   "slug": "iceland",
+   "period": "2026-10",
+   "flag": "🇮🇸"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Latvia",
+   "base": "Latvia",
+   "slug": "latvia",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Lithuania",
+   "base": "Lithuania",
+   "slug": "lithuania",
+   "period": "2026-10",
+   "flag": "🇱🇹"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Malta",
+   "base": "Malta",
+   "slug": "malta",
+   "period": "2026-10",
+   "flag": "🇲🇹"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Romania",
+   "base": "Romania",
+   "slug": "romania",
+   "period": "2026-10",
+   "flag": "🇷🇴"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Slovakia",
+   "base": "Slovakia",
+   "slug": "slovakia",
+   "period": "2026-10",
+   "flag": "🇸🇰"
+  },
+  {
+   "date": "2026-11-23",
+   "label": "Slovenia",
+   "base": "Slovenia",
+   "slug": "slovenia",
+   "period": "2026-10",
+   "flag": "🇸🇮"
+  },
+  {
+   "date": "2026-11-24",
+   "label": "Argentina",
+   "base": "Argentina",
+   "slug": "argentina",
+   "period": "2026-10",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-11-24",
+   "label": "Argentina (Industry)",
+   "base": "Argentina",
+   "slug": "argentina_industry",
+   "period": "2026-10",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-11-24",
+   "label": "Argentina (Private)",
+   "base": "Argentina",
+   "slug": "argentina_private",
+   "period": "2026-10",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia",
+   "base": "Latvia",
+   "slug": "latvia",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Buses)",
+   "base": "Latvia",
+   "slug": "latvia_buses",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (HDV)",
+   "base": "Latvia",
+   "slug": "latvia_hdv",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Industry)",
+   "base": "Latvia",
+   "slug": "latvia_industry",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Private)",
+   "base": "Latvia",
+   "slug": "latvia_private",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Used)",
+   "base": "Latvia",
+   "slug": "latvia_used",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Vans)",
+   "base": "Latvia",
+   "slug": "latvia_vans",
+   "period": "2026-10",
+   "flag": "🇱🇻"
   }
  ]
 }

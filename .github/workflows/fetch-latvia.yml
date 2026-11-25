@@ -14,7 +14,8 @@ name: Fetch Latvia data (CSDD register)
 #
 # Three XLSX files from the statistics page: the headline table (~50 KB; read
 # first — says whether the month is out, and is the cross-check), the
-# passenger-car records (~70 MB) and the lorry/bus records (~25 MB), each with
+# passenger-car records (~70 MB; since 2026-11 a Pydio public link on
+# datnes.csdd.lv, not a direct XLSX) and the lorry/bus records (~25 MB), each with
 # the full history since 2000 and replaced by CSDD about ten working days after
 # month end. Also writes market/latvia_top.json and latvia_used_top.json (+ the
 # month stores latvia_months.json / latvia_used_months.json).

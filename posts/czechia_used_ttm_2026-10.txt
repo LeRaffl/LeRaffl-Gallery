@@ -1,0 +1,6 @@
+🇨🇿 Czechia (Used) - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++2.7pp  BEV   (5.4% → 8.1%)
++0.2pp  PHEV  (1.7% → 1.9%)
+−2.9pp  ICE   (92.9% → 90.0%)

@@ -7,3 +7,6 @@ images/2025-10/germany_ttm_shares_20251129.png
 .DS_Store
 .claude/worktrees/
 __pycache__/
+
+# Post-kit export: temporary pages beside the briefs, deleted after the screenshot
+sources/flyer/.kit_*

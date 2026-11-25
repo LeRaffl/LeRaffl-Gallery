@@ -1,0 +1,9 @@
+🇨🇿 Czechia (Used) - October 26 - BEV Trajectory
+8.7% BEV
+1.9% PHEV
+89.4% ICE
+
+Trailing 12 months are:
+8.1% BEV
+1.9% PHEV
+90.0% ICE

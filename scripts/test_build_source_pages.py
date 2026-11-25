@@ -412,14 +412,39 @@ def test_flyer_page_builds_without_data():
     assert "The curve is a model, not a forecast." not in html
 
 
+def test_flyer_offers_pdf_and_png_export():
+    """The A4 brief can be saved as a PDF (print dialog) or as a PNG of the
+    same white sheet. The toolbar is hidden in print; the PNG script lives
+    next to theme.css and is not on the social card."""
+    html = flyer.build_flyer({"country": "Nowhere", "slug": "nowhere"}, [], None, {}, None, None, "t.css")
+    assert 'onclick="window.print()"' in html and "Save as PDF" in html
+    assert "Download PNG" in html and 'class="fl-png"' in html
+    assert 'class="fl-exports"' in html
+    assert 'src="../../assets/flyer-png.js"' in html
+    # print hides the whole bar (both buttons, the links, later also nav)
+    assert "@media print{" in html
+    assert ".fl-bar{display:none}" in html.split("@media print{")[1].split("</style>")[0]
+    js = (bsp.REPO / "assets" / "flyer-png.js").read_text(encoding="utf-8")
+    assert "modern-screenshot 4.7.0" in js
+    assert "domToPng" in js
+    assert "#fdfdfc" in js and "SCALE = 2" in js
+    assert "pinTransformOrigins" in js
+    # social cards are exported as images; a button would be baked in
+    entries, _ = bsp.collect_entries()
+    fm = next(fm for fm, _ in entries if fm.get("country") == "Ireland")
+    social = bsp.build_social_page(fm, bsp.load_params(), bsp.flyer_peers(entries, bsp.load_params()))
+    assert "Download PNG" not in social and "flyer-png.js" not in social
+    assert "Save as PDF" not in social
+
+
 def test_flyer_qr_compare_and_fractions():
     qr = flyer.build_qr("https://example.org/x")
     assert qr.startswith("<svg") and "QR code: https://example.org/x" in qr
     assert qr == flyer.build_qr("https://example.org/x")           # byte-stable
     peers = [(f"C{i}", float(i)) for i in range(1, 21)]
     html = flyer.build_compare("C18", peers, 700)
-    assert "<b>3rd of 20</b>" in html and "Median: 10.5%" in html
-    assert "25%: 5.8%" in html and "75%: 15.2%" in html
+    assert "<b>3rd of 20</b>" in html and "Typical share: 10.5%" in html
+    assert "25%:" not in html and "75%:" not in html
     assert "Box = middle half of the 20 countries in the Gallery" in html
     assert "the lines reach" not in html   # whisker/lines explanation dropped
     assert "BEV share, last 12 months" in html and "Fitted curve reaches 50%" not in html
@@ -439,7 +464,7 @@ def test_flyer_qr_compare_and_fractions():
     html = flyer.build_compare("C18", peers, 700, peer_years=years)
     assert "Fitted curve reaches 50%" in html and "C18 2038 · <b>18th of 20</b>" in html
     assert "Years:" not in html   # years explanation dropped
-    assert "Median: 2030" in html
+    assert "Typical 50% year: 2030" in html
     no_year = [(n, y) for n, y in years if n != "C18"]
     assert "Fitted curve reaches 50%" not in flyer.build_compare("C18", peers, 700,
                                                                  peer_years=no_year)

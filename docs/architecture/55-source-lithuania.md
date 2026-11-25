@@ -274,6 +274,36 @@ For **Whole**, `split_hybrids()` evaluates on every run, best first:
 If none applies (no earlier month either), the month is not written (`NoSplit`). The `notes`
 column of every row names its tier and the counts behind it.
 
+## 5a. Known ambiguity: 2017-2018 OTHERS (issue #435)
+
+`data/Lithuania.csv` rows from the original bulk import (commit `7d09be15`,
+pre-dating both fetchers in this repo) mix `0.0` and empty for `OTHERS` from
+the ACEA-quarterly era: 2017-01 is `0.0`, 2017-02..12 are empty, 2018-01 is
+`0.0`, 2018-02..03 are empty, then the pattern of 0s and values continues
+into the monthly era from 2018-04. These rows are all `source=ACEA`,
+`time_interval=quarterly` or early `monthly` — they predate Regitra entirely
+(Regitra starts 2024-01, §1), so the "never overwrite a final Regitra row"
+rule does not apply to any of them; the question is purely whether a
+specific cell's value is known.
+
+ACEA's quarterly alternative-fuel-type releases of the period (e.g.
+`20180201_AFV_Q4_2017_FINAL.pdf`) do publish Lithuania's electrically-
+chargeable vehicle counts, but do not reliably break out a separate
+fuel-cell/"other" row for a market this small every quarter — for several
+months no published Lithuania OTHERS figure could be found (checked against
+`acea.auto` and mirrored copies of the Q4 2017 and Q4 2018 alternative-fuel
+and fuel-type releases). Rather than guess, or bulk-convert the ambiguous
+cells to one of 0 or empty, they are left as imported: a mix of 0 (where a
+dash or an explicit 0 line in the source was carried through) and empty
+(where no figure was found). Treat this stretch as low-confidence until
+someone finds the specific missing-month PDFs; do not `--force` it to
+either value without a per-month citation.
+
+The live writer (`fetch_acea.py`'s `build_row()`) no longer defaults a
+category parsed_country_table() doesn't report to `0.0` — it leaves it
+empty — so this ambiguity cannot be reintroduced by current runs; the
+2017-2018 rows are the one place it is inherited rather than produced.
+
 ## 6. Interplay with fetch-acea
 
 | Row in `data/Lithuania.csv` | Written by |

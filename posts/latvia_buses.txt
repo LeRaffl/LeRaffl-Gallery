@@ -1,11 +1,9 @@
-🇱🇻 Latvia (Buses) - September 26 - BEV Trajectory
-16.7% BEV
+🇱🇻 Latvia (Buses) - October 26 - BEV Trajectory
+100.0% BEV
 0.0% PHEV
-83.3% ICE
+0.0% ICE
 
 Trailing 12 months are:
-24.4% BEV
+22.2% BEV
 0.0% PHEV
-75.6% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+77.8% ICE

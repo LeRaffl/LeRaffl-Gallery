@@ -1,11 +1,9 @@
-🇧🇷 Brazil - September 26 - BEV Trajectory
-8.3% BEV
-7.5% PHEV
-84.2% ICE (of which 7.3%p were HEV)
+🇧🇷 Brazil - October 26 - BEV Trajectory
+8.6% BEV
+8.3% PHEV
+83.2% ICE (of which 7.5%p were HEV)
 
 Trailing 12 months are:
-6.7% BEV
-5.8% PHEV
-87.5% ICE (of which 5.7%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+7.1% BEV
+6.2% PHEV
+86.7% ICE (of which 6.0%p were HEV)

@@ -162,6 +162,29 @@ def test_find_files():
     check("headline url", got["headline"].endswith("xi=0"), True)
 
 
+def test_pydio_link():
+    page = ('<a href="https://datnes.csdd.lv/public/799e257d5c70">'
+            'Pirmoreiz reģistrēto vieglo automobiļu skaits</a>'
+            '<a href="/images/Statistika/Pirma_registracija_skaiti.xlsx">'
+            'Pirmoreiz reģistrēto TL skaits</a>'
+            '<a href="/images/Statistika/Autobusi_kravas.xlsx">'
+            'Pirmoreiz reģistrēto autobusu un kravas automobiļu skaits</a>')
+    got = F.find_files(page)
+    check("pydio cars url kept", got["cars"], "https://datnes.csdd.lv/public/799e257d5c70")
+    check("pydio host", F.is_pydio_public(got["cars"]), True)
+    check("direct host is not pydio", F.is_pydio_public(got["headline"]), False)
+    check("hash", F.pydio_hash(got["cars"]), "799e257d5c70")
+    user, workspace = F.parse_prelog(
+        '{"PRELOG_USER":"abc123","START_REPOSITORY":"ws-1"}')
+    check("prelog user", user, "abc123")
+    check("prelog workspace", workspace, "ws-1")
+    signed = F.presign_pydio_get("slug/file.xlsx", "jwt+/=", 1700000000)
+    check("presign path", signed.startswith(
+        "https://datnes.csdd.lv/io/slug/file.xlsx?AWSAccessKeyId=gateway&Expires=1700000000&Signature="), True)
+    check("presign signature", "Signature=9kMWwyfLsYkGyOVXyExlAPow8kk%3D" in signed, True)
+    check("presign jwt", "pydio_jwt=jwt%2B%2F%3D" in signed, True)
+
+
 def test_relayed():
     url = "https://www.csdd.lv/cck?id=4473&xi=7"
     check("direct", F.relayed(url, ""), url)

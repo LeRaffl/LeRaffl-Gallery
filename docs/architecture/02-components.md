@@ -570,7 +570,7 @@ Rules that keep the card honest:
 
 ### The country brief (`scripts/flyer.py` → `sources/flyer/<slug>.html`)
 
-The source page is for checking a series; the brief is for a reader who wants to see at a glance where a country stands, and for passing on. One fixed A4 sheet per country (794 × 1123 px, scaled down on a narrow screen, printed 1:1 by its *Save as PDF* button), built in the same run from the same computed figures as the source page, so the two cannot disagree. `sources/flyer/index.html` lists all briefs, highest BEV share first; the source page and `sources/index.html` link to it. Each brief's top bar has *previous / next* links (and the ← / → keys) that step through that same order, wrapping around, with the position ("22 / 61"); region briefs form their own ring. The briefs are built first and the links filled in afterwards (`flyer.NAV_SLOT`, `flyer_nav()` in the generator), because the order needs every brief's share. The bar is hidden in print, so the PDF is unchanged; with a dark system theme only the desk around the sheet and the bar go dark (screen only), the sheet stays paper; the social cards get no navigation, being fixed 1080×1350 canvases for PNG export. `scripts/test_flyer_nav.py` pins it.
+The source page is for checking a series; the brief is for a reader who wants to see at a glance where a country stands, and for passing on. One fixed A4 sheet per country (794 × 1123 px, scaled down on a narrow screen). *Save as PDF* opens the browser print dialog and prints the sheet 1:1, with the toolbar hidden; *Download PNG* saves the same white sheet as a 2× image (1588 × 2246, no nav, no desk, no shadow), always the paper page even if the visitor's system theme is dark. The PNG is drawn in the browser from the live page, not stored in the repo: committing ~70 A4 images would rewrite a large binary on every source-page rebuild. For a 200 dpi PNG plus PDF of one country, `export_post_kit.py` still renders in headless Chrome on demand. The brief is built in the same run from the same computed figures as the source page, so the two cannot disagree. `sources/flyer/index.html` lists all briefs, highest BEV share first; the source page and `sources/index.html` link to it. Each brief's top bar has *previous / next* links (and the ← / → keys) that step through that same order, wrapping around, with the position ("22 / 61"); region briefs form their own ring. The briefs are built first and the links filled in afterwards (`flyer.NAV_SLOT`, `flyer_nav()` in the generator), because the order needs every brief's share. The bar is hidden in print and left out of the PNG, so neither export changes; with a dark system theme only the desk around the sheet and the bar go dark (screen only), the sheet stays paper; the social cards get no navigation, being fixed 1080×1350 canvases for PNG export. `scripts/test_flyer_nav.py` pins it.
 
 On the sheet, top to bottom:
 
@@ -600,6 +600,24 @@ The briefs and source pages are also put where people look, the Charts tab, so n
 - **Every chart card** has a quiet *Brief* action next to *ⓘ Source*.
 
 The panel reads `sources/briefs.json`, written by `build_source_pages.py` (`briefs_map()`) from the same `flyer_summary()` figures as the brief directory, keyed by country like `sources.json`. If it is missing, the panel still links the brief, card and source page, just without the numbers. `scripts/test_country_hub.py` pins both halves.
+
+#### The post kit (`scripts/snippet_card.py`, `scripts/export_post_kit.py`)
+
+A thread about a country needs more than the card and the sheet: it needs the sections of the sheet as images of their own. The post kit lays out one section per image, 1080 px wide, with the flag, the country, the data month and a QR code on top and the source, scope note, address and licence below. Nothing is cropped from a finished page. `snippet_card.py` takes the same builder functions the brief calls (`hero_number()`, `bars_section()`, `facts_section()`, `two_block()`, `compare_strips()`) and sets the result larger, so a changed brief changes its snippets and every figure is the brief's figure.
+
+| Role | Shows | Offered when |
+|---|---|---|
+| `mix` | Verdict, the 12-month BEV share, the mix over time | A full 12-month window exists |
+| `shift` | Who gained, who lost; in numbers | The same window |
+| `brands` | Top brands | `market/<slug>_top.json` passes the brief's gates |
+| `share` | Box plot: 12-month BEV share against all countries | At least 10 countries rank |
+| `year50`, `year80` | Box plot: year the fitted curve reaches 50 % / 80 % | The brief draws a fit with dates, and at least 10 countries do |
+
+A role the data cannot support is absent, never half drawn: a country without a full 12-month window gets no snippet that needs one, a country without a dated fit gets no year strip. The fitted curve itself is not a role yet; it joins when the Gallery has a version of it that stands alone.
+
+`export_post_kit.py <slug> --out DIR` builds the pages from the repo data (not from the committed `sources/` files), draws each in headless Chrome and writes `<slug>_<role>.png`, `<slug>_social.png`, `<slug>_brief_a4.png` (and the PDF) plus `<slug>_kit.json`: the data month, the source and the rank figures behind the box plots, so the text of a post can quote what the images print. It needs Chrome, and `pdftoppm` or macOS `sips` for the A4 PNG. Like the social cards it is run on demand and writes nothing into the repo: the images belong to the post that uses them, and the data behind them is in git history. A region has no kit yet.
+
+Tests: `scripts/test_snippet_card.py` (HTML only; runs on pull requests in `build-source-pages.yml`).
 
 ## 2.12 Theme Extractor (`scripts/build_theme.py`)
 

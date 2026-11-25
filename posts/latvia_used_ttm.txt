@@ -1,9 +1,8 @@
 🇱🇻 Latvia (Used) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+1.5pp  BEV   (7.7% → 9.2%)
-+1.3pp  PHEV  (3.0% → 4.3%)
-+0.0pp  HEV   (0.0% → 0.0%)
-−2.8pp  ICE   (89.3% → 86.5%)
+Nov24–Oct25  vs  Nov25–Oct26
++2.1pp  BEV   (7.8% → 9.9%)
++1.3pp  PHEV  (3.1% → 4.4%)
+−3.3pp  ICE   (89.0% → 85.7%)
 
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2034-11.

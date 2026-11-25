@@ -1,4 +1,4 @@
-🇨🇿 Czechia (Buses) - September 26 - BEV Trajectory
+🇨🇿 Czechia (Buses) - October 26 - BEV Trajectory
 1.4% BEV
 0.0% PHEV
 98.6% ICE
@@ -7,5 +7,3 @@ Trailing 12 months are:
 7.1% BEV
 0.0% PHEV
 92.9% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
