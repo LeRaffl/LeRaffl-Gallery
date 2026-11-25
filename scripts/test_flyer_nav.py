@@ -52,6 +52,9 @@ def test_template_has_one_slot_in_the_bar_and_print_hides_it():
     assert flyer.FLYER_TEMPLATE.count(flyer.NAV_SLOT) == 1
     prn = flyer.FLYER_CSS.split("@media print{")[1].split("\n}")[0]
     assert ".fl-nav" in prn and "display:none" in prn
+    # print locks the page to a single A4 sheet (mm, not the screen px box)
+    assert "size:A4" in flyer.FLYER_CSS and "@page{" in flyer.FLYER_CSS
+    assert "width:210mm" in prn and "height:297mm" in prn and "overflow:hidden" in prn
     # the A4 sheet itself is untouched by the navigation styles
     assert ".sheet{width:794px;height:1123px" in flyer.FLYER_CSS
     assert flyer.with_nav("a" + flyer.NAV_SLOT + "b", "N") == "aNb"

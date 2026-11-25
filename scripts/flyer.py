@@ -1142,6 +1142,7 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
   transform-origin:top left;color-scheme:light;
   --text:#1a1a18;--muted:#55534c;--line:#dcd9d2}
 .sheet-in{width:100%;min-height:100%;display:flex;flex-direction:column;transform-origin:top left}
+.sheet.is-capturing{box-shadow:none!important;transform:none!important;filter:none!important;overflow:hidden!important}
 .sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .fl-top{display:flex;align-items:center;gap:14px;padding-bottom:10px;border-bottom:2px solid var(--text)}
 .fl-flag,.fl-mark{width:54px;height:37px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px var(--line);display:block}
@@ -1287,12 +1288,12 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fl-brand span{color:var(--muted)}
 .fl-brand .fl-b1{color:var(--text)}
 .fl-gen{flex-basis:100%;margin:2px 0 0!important;font-size:9.5px;color:var(--muted);letter-spacing:.01em}
-@page{size:A4;margin:0}
+@page{size:A4 portrait;margin:0}
 @media print{
-  html,body{background:#fff}
+  html,body{background:#fff!important;margin:0!important;padding:0!important;width:210mm!important;height:297mm!important;overflow:hidden!important}
   .fl-bar,.fl-nav{display:none!important}
-  .sheet-box{margin:0;width:auto!important;height:auto!important}
-  .sheet{box-shadow:none;transform:none!important}
+  .sheet-box{margin:0!important;padding:0!important;width:210mm!important;height:297mm!important;overflow:hidden!important}
+  .sheet{box-shadow:none!important;filter:none!important;transform:none!important;width:210mm!important;height:297mm!important;margin:0!important;overflow:hidden!important;border-radius:0!important;break-inside:avoid;page-break-inside:avoid}
 }
 """
 
@@ -1334,12 +1335,17 @@ FLYER_TEMPLATE = """<!doctype html>
   var box=document.querySelector('.sheet-box'),sheet=box.firstElementChild,inn=sheet.firstElementChild;
   // Fonts differ between machines. If the content is taller than the sheet,
   // shrink it as a whole so the page never loses its footer.
+  // CSS transform does not shrink layout, so after scaling we pull the
+  // leftover back with a negative margin. Otherwise the sheet's scroll box
+  // is taller and wider than A4, and some browsers print a second page or
+  // letterbox the PNG around the already-scaled content.
   function fitIn(){{
     // The largest scale at which the whole page fits. Laid out wider (100/z %)
     // the text wraps less, so the first guess have/height leaves a gap above
     // the footer; a short bisection closes it.
     var cs=getComputedStyle(sheet),have=sheet.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),z=1;
     inn.style.transform='';inn.style.width='';inn.style.minHeight='0';
+    inn.style.marginBottom='';inn.style.marginRight='';
     function fits(k){{inn.style.width=(100/k)+'%';return inn.scrollHeight*k<=have+0.5;}}
     if(!fits(1)){{
       var lo=Math.min(1,have/inn.scrollHeight)*0.9,hi=1;
@@ -1347,7 +1353,12 @@ FLYER_TEMPLATE = """<!doctype html>
       for(var j=0;j<10;j++){{var m=(lo+hi)/2;if(fits(m))lo=m;else hi=m;}}
       z=lo;
     }}
-    if(z<1){{inn.style.width=(100/z)+'%';inn.style.minHeight=(100/z)+'%';inn.style.transform='scale('+z+')';}}
+    if(z<1){{
+      inn.style.width=(100/z)+'%';inn.style.minHeight=(100/z)+'%';
+      inn.style.transform='scale('+z+')';inn.style.transformOrigin='top left';
+      inn.style.marginBottom=((z-1)*inn.offsetHeight)+'px';
+      inn.style.marginRight=((z-1)*inn.offsetWidth)+'px';
+    }}
     else{{inn.style.width='';inn.style.minHeight='';}}
     sheet.dataset.fit=z.toFixed(3);
   }}
