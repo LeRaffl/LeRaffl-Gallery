@@ -4,6 +4,24 @@
  "entries": [
   {
    "date": "2026-11-25",
+   "time": "2026-11-25T17:40:24Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Every country and region brief now has previous and next buttons (and arrow keys) to step through all briefs in the directory's order, with its position shown, and they never appear in the printed PDF.",
+   "title": "feat(briefs): previous / next navigation through the country and region briefs",
+   "pr": 478
+  },
+  {
+   "date": "2026-11-25",
+   "time": "2026-11-25T17:37:42Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Data fetches run on days their sources actually publish, and Ireland, Czechia and Thailand no longer miss a month when the source is late.",
+   "title": "fetch: match cron windows to each source's real cadence",
+   "pr": 482
+  },
+  {
+   "date": "2026-11-25",
    "time": "2026-11-25T17:32:58Z",
    "type": "site",
    "kind": "site",
@@ -1125,43 +1143,6 @@
    ],
    "source": "statistikdatabasen.scb.se",
    "commit": "7e4977a68dc8"
-  },
-  {
-   "date": "2026-11-02",
-   "time": "2026-11-02T23:52:46Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Belgium",
-   "flag": "🇧🇪",
-   "slug": "belgium",
-   "headline": "Sep 2026 data",
-   "detail": "Private, Industry, Vans, Trucks, Buses · 1 earlier period revised",
-   "variants": [
-    "Private",
-    "Industry",
-    "Vans",
-    "HDV",
-    "Buses"
-   ],
-   "source": "DIV",
-   "commit": "85ba4a712241"
-  },
-  {
-   "date": "2026-11-02",
-   "time": "2026-11-02T23:52:23Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Paraguay",
-   "flag": "🇵🇾",
-   "slug": "paraguay",
-   "headline": "Oct 2026 data",
-   "detail": "Cars, Used",
-   "variants": [
-    "Whole",
-    "Used"
-   ],
-   "source": "DNIT customs import declarations",
-   "commit": "e3e611ccefbc"
   }
  ]
 }
