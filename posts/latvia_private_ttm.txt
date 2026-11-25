@@ -1,13 +1,10 @@
 🇱🇻 Latvia (Private) - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+3.4pp  BEV   (8.5% → 11.9%)
-−0.5pp  PHEV  (19.1% → 18.6%)
-+0.0pp  HEV   (0.0% → 0.0%)
-−2.9pp  ICE   (72.4% → 69.6%)
+Nov24–Oct25  vs  Nov25–Oct26
++5.9pp  BEV   (8.2% → 14.0%)
+−0.0pp  PHEV  (19.6% → 19.6%)
+−5.8pp  ICE   (72.2% → 66.4%)
 
-PHEV peaked at 19.9% in 2025-11 (declining for 10 months).
-If the changes from the last 6 months continued linearly, BEV would overtake PHEV in 2027-05.
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2029-03.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+PHEV peaked at 19.9% in 2025-11 (declining for 11 months).
+If the changes from the last 6 months continued linearly, BEV would overtake PHEV in 2027-04.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-04.
