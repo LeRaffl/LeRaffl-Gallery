@@ -435,6 +435,11 @@ def test_flyer_offers_pdf_and_png_export():
     assert "#fdfdfc" in js and "SCALE = 2" in js
     assert "pinTransformOrigins" in js
     assert "is-capturing" in js
+    # Safari/WebKit foreignObject drops transform-origin; re-pin 0 0 on
+    # the clone so scale() is not applied from the centre.
+    assert "pinCloneOrigins" in js
+    assert "onCloneEachNode" in js
+    assert "webkitTransformOrigin" in js
     # social cards are exported as images; a button would be baked in
     entries, _ = bsp.collect_entries()
     fm = next(fm for fm, _ in entries if fm.get("country") == "Ireland")

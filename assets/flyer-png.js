@@ -58,6 +58,21 @@
     };
   }
 
+  // Safari / WebKit paints the SVG foreignObject clone with
+  // transform-origin reset to 50% 50%, even when the source node has
+  // "top left" (inline or stylesheet). scale() then runs from the
+  // centre, leaving a large empty band at the top of the PNG and
+  // clipping the footer. Re-pin 0 0 on every cloned node that still
+  // carries a CSS transform.
+  function pinCloneOrigins(cloned) {
+    if (!cloned || !cloned.style) return;
+    var t = cloned.style.transform;
+    if (t && t !== "none") {
+      cloned.style.transformOrigin = "0 0";
+      cloned.style.webkitTransformOrigin = "0 0";
+    }
+  }
+
   function restore(sheet, box, prev, unpin) {
     sheet.style.transform = prev.transform;
     sheet.style.boxShadow = prev.shadow;
@@ -99,7 +114,8 @@
         scale: SCALE,
         backgroundColor: PAPER,
         style: { transform: "none", boxShadow: "none", margin: "0", overflow: "hidden" },
-        dpi: 96 * SCALE
+        dpi: 96 * SCALE,
+        onCloneEachNode: pinCloneOrigins
       });
     }).then(function (url) {
       var a = document.createElement("a");
