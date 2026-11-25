@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-25T17:50:54Z",
+ "generated": "2026-11-25T18:19:00Z",
  "today": "2026-11-25",
  "countries": [
   {
@@ -2804,10 +2804,10 @@
    "source_url": "https://www.customs.gov.np/",
    "cadence_text": "daily 07:50 UTC; cheap-skips until DoC publishes a new month",
    "interval": "monthly",
-   "latest_period": "2026-10",
+   "latest_period": "2026-11",
    "expected_period": "2026-10",
-   "behind": 0,
-   "behind_now": 0,
+   "behind": -1,
+   "behind_now": -1,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -2864,22 +2864,22 @@
     ],
     "workflow": ".github/workflows/fetch-nepal.yml"
    },
-   "last_render": "2026-10-28",
+   "last_render": "2026-11-25",
    "flag": "🇳🇵",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-10",
+     "latest": "2026-11",
      "first": "2020-08",
-     "rows": 75,
+     "rows": 76,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "3-Wheelers",
-     "latest": "2026-10",
+     "latest": "2026-11",
      "first": "2020-08",
-     "rows": 75,
+     "rows": 76,
      "cadence": "monthly",
      "in_repo": true
     }

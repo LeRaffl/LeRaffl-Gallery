@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-25T17:50:54Z",
+ "generated": "2026-11-25T18:19:00Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8424,6 +8424,22 @@
    "slug": "latvia_vans",
    "period": "2026-10",
    "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Nepal",
+   "base": "Nepal",
+   "slug": "nepal",
+   "period": "2026-11",
+   "flag": "🇳🇵"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Nepal (3-Wheelers)",
+   "base": "Nepal",
+   "slug": "nepal_3_wheelers",
+   "period": "2026-11",
+   "flag": "🇳🇵"
   }
  ]
 }

@@ -397,14 +397,14 @@
  },
  "Nepal": {
   "data_file": "data/Nepal.csv",
-  "delta": 4.2,
-  "head": "Most new cars are battery electric: 74 in 100.",
+  "delta": 6.4,
+  "head": "Most new cars are battery electric: 76 in 100.",
   "is_stub": false,
-  "share": 74.2,
+  "share": 75.7,
   "slug": "nepal",
   "source": "Department of Customs, ASYCUDA World customs records",
   "source_url": "https://www.customs.gov.np/",
-  "through": "Oct 2026"
+  "through": "Nov 2026"
  },
  "Netherlands": {
   "data_file": "data/Netherlands.csv",

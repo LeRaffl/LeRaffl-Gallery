@@ -4,6 +4,23 @@
  "entries": [
   {
    "date": "2026-11-25",
+   "time": "2026-11-25T18:13:41Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Nepal",
+   "flag": "🇳🇵",
+   "slug": "nepal",
+   "headline": "Nov 2026 data",
+   "detail": "Cars, 3-Wheelers",
+   "variants": [
+    "Whole",
+    "3-Wheelers"
+   ],
+   "source": "customs.gov.np (FTS)",
+   "commit": "33fb144f5960"
+  },
+  {
+   "date": "2026-11-25",
    "time": "2026-11-25T17:40:24Z",
    "type": "site",
    "kind": "site",
@@ -1127,22 +1144,6 @@
    ],
    "source": "ASTRA",
    "commit": "aa00343941c4"
-  },
-  {
-   "date": "2026-11-03",
-   "time": "2026-11-03T12:54:39Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Sweden",
-   "flag": "🇸🇪",
-   "slug": "sweden",
-   "headline": "Oct 2026 data",
-   "detail": "Cars",
-   "variants": [
-    "Whole"
-   ],
-   "source": "statistikdatabasen.scb.se",
-   "commit": "7e4977a68dc8"
   }
  ]
 }
