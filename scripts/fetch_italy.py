@@ -74,9 +74,13 @@ from datetime import date
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
+
+# One retrying session for every GET this fetcher makes (scripts/http_retry.py).
+HTTP = http_retry.mount(requests.Session())
 
 STRUTTURA_INDEX = "https://www.unrae.it/dati-statistici/immatricolazioni"
 SOURCE          = "unrae.it"
@@ -129,13 +133,13 @@ def csv_has_period(csv_path: str, period: str, variant: str) -> bool:
 
 
 def http_get(url: str) -> str:
-    r = requests.get(to_www(url), headers={"User-Agent": USER_AGENT}, timeout=30)
+    r = HTTP.get(to_www(url), headers={"User-Agent": USER_AGENT}, timeout=30)
     r.raise_for_status()
     return r.text
 
 
 def download_pdf(url: str, dest: Path) -> None:
-    r = requests.get(to_www(url), headers={"User-Agent": USER_AGENT}, timeout=60)
+    r = HTTP.get(to_www(url), headers={"User-Agent": USER_AGENT}, timeout=60)
     r.raise_for_status()
     dest.write_bytes(r.content)
 

@@ -88,8 +88,12 @@ from datetime import date
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
+
+# One retrying session for every GET this fetcher makes (scripts/http_retry.py).
+HTTP = http_retry.mount(requests.Session())
 
 ANL_PAGE = (
     "https://www.anl.gov/esia/reference/"
@@ -135,7 +139,7 @@ def previous_month(today: date) -> tuple[int, int]:
 def discover_pdf_url() -> str | None:
     """Returns the absolute URL of the latest "Total Sales" PDF, or None."""
     print(f"Scanning {ANL_PAGE} for the Total Sales PDF …")
-    resp = requests.get(ANL_PAGE, headers=HTTP_HEADERS, timeout=30)
+    resp = HTTP.get(ANL_PAGE, headers=HTTP_HEADERS, timeout=30)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
@@ -164,7 +168,7 @@ def discover_pdf_url() -> str | None:
 def load_pdf_bytes(url_or_path: str) -> bytes:
     if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
         print(f"Downloading: {url_or_path}")
-        resp = requests.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
+        resp = HTTP.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
         resp.raise_for_status()
         return resp.content
     path = url_or_path.replace("file://", "")
@@ -307,6 +311,14 @@ def _row_unchanged(existing: dict, new: dict) -> bool:
     return True
 
 
+def csv_has_period(csv_path: str, period: str) -> bool:
+    """True if the CSV already holds a row for `period` (YYYY-MM)."""
+    if not Path(csv_path).exists():
+        return False
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        return any(r.get("period") == period for r in csv.DictReader(f))
+
+
 def upsert_window(csv_path: str, rows: dict[str, dict], force: bool) -> list[str]:
     """Upsert each period in `rows` into the CSV (sorted). Returns periods written.
 
@@ -366,6 +378,18 @@ def main() -> int:
         cutoff_year, cutoff_month = previous_month(date.today())
     cutoff_period = f"{cutoff_year}-{cutoff_month:02d}"
     print(f"Cutoff period: {cutoff_period} (writing up to {args.months} trailing months)")
+
+    # Self-throttle (what the workflow header always promised): ANL releases
+    # one PDF a month, and that release carries the revisions too. Once the
+    # cutoff month is in the CSV, every further scheduled run until next
+    # month re-read the same PDF — and from 2026-11-14 on, mostly hit
+    # anl.gov's Cloudflare bot wall (403) and went red for nothing.
+    # Explicit runs (--force, --pdf-url, --months 0, --year/--month) still go.
+    explicit = args.force or args.pdf_url or args.months == 0 or args.year
+    if not explicit and csv_has_period(args.csv, cutoff_period):
+        print(f"{cutoff_period} is already in {args.csv} — nothing to do until "
+              "ANL's next monthly release.")
+        return 0
 
     # Resolve the PDF URL
     if args.pdf_url:

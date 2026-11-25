@@ -36,9 +36,17 @@ on:
     # and the Italy 10:00 slot (days 1-3 + 13-16).
     - cron: '30 10 10-31 * *'   # 10th through end of month at 10:30 UTC
 
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-usa
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: write
       actions: write
@@ -82,6 +90,11 @@ jobs:
           path: ${{ runner.temp }}/anl_total_sales.pdf*
           retention-days: 7
           if-no-files-found: ignore
+
+      # Shared last line of defence (scripts/check_fetch_diff.py): no empty,
+      # header-only or shrinking data CSV and no all-blank new row gets committed.
+      - name: Guard fetch output
+        run: python scripts/check_fetch_diff.py
 
       - name: Commit if changed
         id: commit

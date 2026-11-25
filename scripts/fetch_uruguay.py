@@ -133,10 +133,14 @@ from pathlib import Path
 
 import openpyxl
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 from bs4 import BeautifulSoup
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
+
+# One retrying session for every GET this fetcher makes (scripts/http_retry.py).
+HTTP = http_retry.mount(requests.Session())
 
 ACAU_HOME = "https://www.acau.com.uy/"
 ACAU_HOST = "https://www.acau.com.uy"
@@ -244,7 +248,7 @@ def find_compilado_url(year: int) -> str:
     label rather than the URL.
     """
     print(f"Scanning {ACAU_HOME} for Compilado {year} …")
-    resp = requests.get(ACAU_HOME, headers=HTTP_HEADERS, timeout=30)
+    resp = HTTP.get(ACAU_HOME, headers=HTTP_HEADERS, timeout=30)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
@@ -269,7 +273,7 @@ def find_compilado_url(year: int) -> str:
 def load_bytes(url_or_path: str) -> bytes:
     if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
         print(f"Downloading: {url_or_path}")
-        resp = requests.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
+        resp = HTTP.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
         resp.raise_for_status()
         return resp.content
     path = url_or_path.replace("file://", "")

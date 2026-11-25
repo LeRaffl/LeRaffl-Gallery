@@ -57,9 +57,17 @@ on:
     # 04:55 and 18:55 UTC on the 3rd-20th (NZTA reloads around the 5th).
     - cron: '55 4,18 3-20 * *'
 
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-new-zealand
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: write
     outputs:
@@ -99,6 +107,11 @@ jobs:
           FORCE:   ${{ inputs.force == true && '1' || '' }}
           DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
 
+      # Shared last line of defence (scripts/check_fetch_diff.py): no empty,
+      # header-only or shrinking data CSV and no all-blank new row gets committed.
+      - name: Guard fetch output
+        run: python scripts/check_fetch_diff.py
+
       - name: Commit if changed
         id: commit
         if: inputs.dry_run != true
@@ -120,6 +133,7 @@ jobs:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       actions: write
     steps:

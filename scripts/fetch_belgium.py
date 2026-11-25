@@ -421,7 +421,8 @@ def main() -> int:
     session = None
     if not args.from_dir:
         import requests
-        session = requests.Session()
+        import http_retry
+        session = http_retry.mount(requests.Session())
         session.headers.update(UA)
 
     def fetch(name: str, url: str) -> bytes | None:

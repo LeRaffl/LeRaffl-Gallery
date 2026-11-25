@@ -163,6 +163,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
@@ -293,7 +294,7 @@ class NotPublished(RuntimeError):
 # ── download & parse ───────────────────────────────────────────────────────
 
 def make_session() -> requests.Session:
-    s = requests.Session()
+    s = http_retry.mount(requests.Session())
     s.headers.update(HTTP_HEADERS)
     try:
         s.get("https://www.dgt.es/", timeout=30)

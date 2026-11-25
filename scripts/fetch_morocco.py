@@ -22,6 +22,7 @@ import io
 import re
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
       "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.7"}
@@ -40,7 +41,7 @@ PORTAL = "https://statistique.aivam.ma"
 
 def probe() -> None:
     print("=== PROBE: AIVAM (Morocco) publications ===", flush=True)
-    s = requests.Session()
+    s = http_retry.mount(requests.Session())
     s.headers.update(UA)
 
     pdf_links: list[str] = []

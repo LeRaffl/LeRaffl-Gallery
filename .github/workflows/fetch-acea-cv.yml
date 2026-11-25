@@ -57,9 +57,17 @@ on:
     - cron: '15 10 1-10 8 *'     # H1 release spillover: early August
     - cron: '15 10 20-31 10 *'   # Q1-Q3 release: late October
 
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-acea-cv
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     permissions:
       contents: write
       actions: write
@@ -99,6 +107,11 @@ jobs:
           # as the strings 'true'/'false' rather than JSON booleans; accept
           # either so a truthy-only check doesn't accidentally fire on 'false'.
           FORCE: ${{ (inputs.force == true || inputs.force == 'true') && '1' || '' }}
+
+      # Shared last line of defence (scripts/check_fetch_diff.py): no empty,
+      # header-only or shrinking data CSV and no all-blank new row gets committed.
+      - name: Guard fetch output
+        run: python scripts/check_fetch_diff.py
 
       - name: Commit if changed
         if: steps.fetch.outputs.any_changed == 'true'

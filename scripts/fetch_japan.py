@@ -87,6 +87,7 @@ from datetime import date
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
@@ -135,7 +136,7 @@ def latest_period(csv_path: str) -> str | None:
 def load_bytes(url_or_path: str) -> bytes:
     if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
         print(f"Downloading: {url_or_path}")
-        resp = requests.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
+        resp = HTTP.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
         resp.raise_for_status()
         return resp.content
     path = url_or_path.replace("file://", "")
@@ -154,7 +155,7 @@ def discover_latest(prefer_xlsx: bool = True) -> tuple[str | None, str | None]:
     from bs4 import BeautifulSoup
 
     print(f"Scanning {JADA_PAGE} for the latest monthly file …")
-    resp = requests.get(JADA_PAGE, headers=HTTP_HEADERS, timeout=30)
+    resp = HTTP.get(JADA_PAGE, headers=HTTP_HEADERS, timeout=30)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
@@ -554,6 +555,9 @@ def build_row(period: str, fuels: dict, source_url: str) -> dict:
 
 from csv_records import (csv_records as _csv_records, record_ending as _record_ending,
                          append_column, legacy_fcev, keep_numeric_tokens)
+
+# One retrying session for every GET this fetcher makes (scripts/http_retry.py).
+HTTP = http_retry.mount(requests.Session())
 
 
 def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:

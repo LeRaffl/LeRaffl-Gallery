@@ -118,6 +118,7 @@ from datetime import date
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
@@ -420,7 +421,7 @@ def review_report(rows: list[dict], target: str, top: int = 25) -> str:
 # ── download ───────────────────────────────────────────────────────────────
 
 def make_session() -> requests.Session:
-    s = requests.Session()
+    s = http_retry.mount(requests.Session())
     s.headers.update(HTTP_HEADERS)
     return s
 
@@ -437,6 +438,35 @@ def find_resource(resources: list[dict], suffix: str) -> str | None:
         if url.endswith(suffix):
             return url
     return None
+
+
+def month_listed(resources: list[dict], period: str) -> bool:
+    """Whether the portal already carries `period` (YYYY-MM), from metadata only.
+
+    The resource list is one small JSON call; the yearly zips are ~100 MB.
+    DNRPA publishes a month by adding its own CSV (…-autos-YYYYMM.csv) and
+    refreshing the year's zip, so either signal means "go and download":
+
+      * a resource named …-autos-YYYYMM.csv for the period, or
+      * the period's yearly zip modified on or after the 1st of the month
+        that follows the period (a refresh can only contain it from then on).
+
+    Without this check every scheduled run before the upload (twice a day,
+    8th–25th) pulled all nine zips just to find the month missing — ~3 GB a
+    month of traffic against datos.jus.gob.ar, and the reason its
+    "Remote end closed connection" errors turned runs red in 2026-11.
+    """
+    ym = period.replace("-", "")
+    if find_resource(resources, f"-autos-{ym}.csv"):
+        return True
+    y, m = int(period[:4]), int(period[5:7])
+    after = f"{y + (m == 12):04d}-{m % 12 + 1:02d}-01"
+    for res in resources:
+        url = res.get("url") or ""
+        if url.endswith(f"-autos-{period[:4]}.zip"):
+            stamp = (res.get("last_modified") or res.get("created") or "")[:10]
+            return bool(stamp) and stamp >= after
+    return False
 
 
 def ingest_year(session, resources, year: int, agg: Aggregator) -> str | None:
@@ -614,6 +644,11 @@ def main() -> int:
     else:
         session = make_session()
         resources = list_resources(session)
+        if not backfill and not args.force and not month_listed(resources, target):
+            print(f"{target} is not listed on datos.jus.gob.ar yet (no monthly "
+                  "CSV, yearly zip not refreshed since) — skipping the download; "
+                  "will retry on the next scheduled run.")
+            return emit(args, set())
         for year in range(int(args.backfill_from[:4]), int(target[:4]) + 1):
             print(f"Year {year}:")
             url = ingest_year(session, resources, year, agg)

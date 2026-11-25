@@ -36,12 +36,20 @@ on:
     # (06:30) and Brazil (08:00) slots.
     - cron: '45 6 1-15 * *'
 
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-luxembourg
+  cancel-in-progress: false
+
 jobs:
   fetch:
     outputs:
       committed: ${{ steps.commit.outputs.committed }}
       variants_json: ${{ steps.changed.outputs.variants_json }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: write
       actions: write
@@ -96,6 +104,11 @@ jobs:
           echo "variants_json=$json" >> "$GITHUB_OUTPUT"
           echo "Touched variants: ${variants:-<none>}"
 
+      # Shared last line of defence (scripts/check_fetch_diff.py): no empty,
+      # header-only or shrinking data CSV and no all-blank new row gets committed.
+      - name: Guard fetch output
+        run: python scripts/check_fetch_diff.py
+
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v10
@@ -123,6 +136,7 @@ jobs:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.variants_json != '[]'
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       actions: write
     steps:

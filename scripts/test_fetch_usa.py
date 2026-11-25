@@ -195,6 +195,23 @@ def test_main_aborts_on_gap_without_writing():
         assert not p.exists()
 
 
+def test_scheduled_run_skips_network_once_cutoff_month_is_in_csv():
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "USA.csv"
+        t = _table()
+        _write_csv(p, [fu.build_row("2025-09", t["2025-09"])])
+        argv = ["fetch_usa.py", "--csv", str(p)]
+        with mock.patch.object(fu, "previous_month", return_value=(2025, 9)), \
+             mock.patch.object(fu, "discover_pdf_url",
+                               side_effect=AssertionError("no network")), \
+             mock.patch.object(sys, "argv", argv), \
+             contextlib.redirect_stdout(io.StringIO()):
+            assert fu.main() == 0
+        assert fu.csv_has_period(str(p), "2025-09")
+        assert not fu.csv_has_period(str(p), "2025-10")
+        assert not fu.csv_has_period(str(Path(d) / "missing.csv"), "2025-11")
+
+
 def test_repo_csv_is_consistent():
     p = Path(__file__).resolve().parent.parent / "data" / "USA.csv"
     rows = _read(p)

@@ -101,6 +101,11 @@ jobs:
           BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
           FORCE:    ${{ inputs.force == true && '1' || '' }}
 
+      # Shared last line of defence (scripts/check_fetch_diff.py): no empty,
+      # header-only or shrinking data CSV and no all-blank new row gets committed.
+      - name: Guard fetch output
+        run: python scripts/check_fetch_diff.py
+
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v10
@@ -125,6 +130,7 @@ jobs:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       actions: write
     steps:

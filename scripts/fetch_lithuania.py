@@ -601,7 +601,8 @@ def existing_rows(path: Path) -> dict[str, dict[str, str]]:
 
 def make_session():
     import requests
-    s = requests.Session()
+    import http_retry
+    s = http_retry.mount(requests.Session())
     s.headers.update(UA)
     return s
 

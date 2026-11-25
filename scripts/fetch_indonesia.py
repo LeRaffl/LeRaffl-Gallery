@@ -83,6 +83,7 @@ from pathlib import Path
 
 import pdfplumber
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 from bs4 import BeautifulSoup
 
 PORTAL = "https://files.gaikindo.or.id/"
@@ -676,7 +677,7 @@ def main():
     if args.pdf_path:
         pdf_bytes = Path(args.pdf_path).read_bytes()
     else:
-        sess = requests.Session()
+        sess = http_retry.mount(requests.Session())
         sess.headers.update(HTTP_HEADERS)
         portal_login(sess)
         if args.download_url:

@@ -103,8 +103,12 @@ from datetime import date
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
+
+# One retrying session for every GET this fetcher makes (scripts/http_retry.py).
+HTTP = http_retry.mount(requests.Session())
 
 ANAC_PAGE = "https://www.anac.cl/category/estudio-de-mercado/"
 
@@ -294,7 +298,7 @@ def _first_resolving(candidates: list[str]) -> str | None:
 def _url_resolves(url: str) -> bool:
     """True if url returns HTTP 200 and the body starts with the %PDF magic."""
     try:
-        with requests.get(url, headers=HTTP_HEADERS, timeout=30, stream=True) as r:
+        with HTTP.get(url, headers=HTTP_HEADERS, timeout=30, stream=True) as r:
             if r.status_code != 200:
                 return False
             return next(r.iter_content(5), b"")[:4] == b"%PDF"
@@ -306,7 +310,7 @@ def discover_pdfs(year: int, month: int) -> tuple[str | None, str | None]:
     """Returns (mercado_url, emisiones_url) for the given year/month, or None each."""
     month_name = SPANISH_MONTHS[month]
     print(f"Scanning {ANAC_PAGE} for {month_name} {year} PDFs …")
-    resp = requests.get(ANAC_PAGE, headers=HTTP_HEADERS, timeout=30)
+    resp = HTTP.get(ANAC_PAGE, headers=HTTP_HEADERS, timeout=30)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
@@ -364,7 +368,7 @@ def discover_pdfs(year: int, month: int) -> tuple[str | None, str | None]:
 def load_pdf_bytes(url_or_path: str) -> bytes:
     if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
         print(f"Downloading: {url_or_path}")
-        resp = requests.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
+        resp = HTTP.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
         resp.raise_for_status()
         return resp.content
     path = url_or_path.replace("file://", "")

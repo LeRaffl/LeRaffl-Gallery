@@ -88,6 +88,7 @@ from datetime import date
 from pathlib import Path
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fetch_finland_register  # noqa: E402
@@ -807,7 +808,7 @@ def main() -> None:
         targets = [v for v in targets if v not in current]
         for v in current:
             print(f"[{v}] CSV already has {prev}; skipping (use --force to re-fetch).")
-    session = requests.Session()
+    session = http_retry.mount(requests.Session())
     session.headers.update(REQUEST_HEADERS)
     if not targets:
         latest = latest_whole_period()

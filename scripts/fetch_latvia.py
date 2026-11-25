@@ -728,7 +728,8 @@ def main() -> int:
         load = lambda k: (d / f"{k}.xlsx").read_bytes()  # noqa: E731
     else:
         import requests
-        session = requests.Session()
+        import http_retry
+        session = http_retry.mount(requests.Session())
         session.headers.update(UA)
         relay = os.environ.get("LATVIA_FETCH_RELAY", "").strip()
         token = os.environ.get("LATVIA_RELAY_TOKEN", "").strip()

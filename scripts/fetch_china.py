@@ -130,7 +130,11 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
+import http_retry  # shared retry/backoff, scripts/http_retry.py
 from bs4 import BeautifulSoup
+
+# One retrying session for every GET this fetcher makes (scripts/http_retry.py).
+HTTP = http_retry.mount(requests.Session())
 
 LISTING_URL = "https://www.cpcaauto.com/news.php?types=csjd&anid=129&nid=24"
 DETAIL_URL_TMPL = "https://www.cpcaauto.com/newslist.php?types=csjd&id={id}"
@@ -163,7 +167,7 @@ WHOLESALE_SOURCE = (
 
 
 def fetch(url: str) -> str:
-    resp = requests.get(url, headers=HTTP_HEADERS, timeout=30)
+    resp = HTTP.get(url, headers=HTTP_HEADERS, timeout=30)
     resp.raise_for_status()
     resp.encoding = resp.apparent_encoding or "utf-8"
     return resp.text
@@ -805,7 +809,7 @@ def main() -> None:
     ocr_retail = None
     if not args.no_ocr and parsed["retail"]["NEV"] is not None:
         nev_target_wan = parsed["retail"]["NEV"] / 10_000  # back to 万-units for OCR row match
-        session = requests.Session()
+        session = http_retry.mount(requests.Session())
         session.headers.update(HTTP_HEADERS)
 
         if args.image_dir:

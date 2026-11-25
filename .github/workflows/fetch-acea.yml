@@ -66,9 +66,17 @@ on:
   schedule:
     - cron: '40 8 16-31 * *'   # 16th through end of month at 08:40 UTC (staggered to avoid 08:00 pile-up)
 
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-acea
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     permissions:
       contents: write
       actions: write
@@ -120,6 +128,11 @@ jobs:
       # (BEV/PHEV/HEV shares) for the EU region brief; it changes once a
       # month with the release, independently of the country CSVs. It does
       # not feed the render matrix below (that is country charts only).
+      # Shared last line of defence (scripts/check_fetch_diff.py): no empty,
+      # header-only or shrinking data CSV and no all-blank new row gets committed.
+      - name: Guard fetch output
+        run: python scripts/check_fetch_diff.py
+
       - name: Commit if changed
         if: steps.fetch.outputs.any_changed == 'true' || steps.fetch.outputs.reference_changed == 'true'
         uses: EndBug/add-and-commit@v10

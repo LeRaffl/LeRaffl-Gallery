@@ -610,7 +610,8 @@ def main() -> int:
         load = lambda ref: Path(ref).read_bytes()  # noqa: E731
     else:
         import requests
-        session = requests.Session()
+        import http_retry
+        session = http_retry.mount(requests.Session())
         session.headers.update(UA)
         r = session.get(STATS_URL, timeout=120)
         r.raise_for_status()
