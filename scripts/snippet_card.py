@@ -73,8 +73,8 @@ def _strip(ctx: dict, role: str) -> dict | None:
     # exists when both year strips are drawn together).
     m = next((s for s in strips if s.get("kind") == want), None)
     if m:
-        # The post text names the median; the image keeps the country's own line.
-        m = {**m, "mid_line": "", "q_line": ""}
+        # The post text names the median. Keep q_line: it says what the box is.
+        m = {**m, "mid_line": ""}
     return m
 
 

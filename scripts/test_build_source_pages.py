@@ -444,6 +444,7 @@ def test_flyer_qr_compare_and_fractions():
     peers = [(f"C{i}", float(i)) for i in range(1, 21)]
     html = flyer.build_compare("C18", peers, 700)
     assert "<b>3rd of 20</b>" in html and "Typical share: 10.5%" in html
+    assert "Middle half of countries: between 6% and 15%." in html
     assert "25%:" not in html and "75%:" not in html
     assert "Box = middle half of the 20 countries in the Gallery" in html
     assert "the lines reach" not in html   # whisker/lines explanation dropped
