@@ -570,7 +570,7 @@ Rules that keep the card honest:
 
 ### The country brief (`scripts/flyer.py` → `sources/flyer/<slug>.html`)
 
-The source page is for checking a series; the brief is for a reader who wants to see at a glance where a country stands, and for passing on. One fixed A4 sheet per country (794 × 1123 px, scaled down on a narrow screen, printed 1:1 by its *Save as PDF* button), built in the same run from the same computed figures as the source page, so the two cannot disagree. `sources/flyer/index.html` lists all briefs, highest BEV share first; the source page and `sources/index.html` link to it.
+The source page is for checking a series; the brief is for a reader who wants to see at a glance where a country stands, and for passing on. One fixed A4 sheet per country (794 × 1123 px, scaled down on a narrow screen). *Save as PDF* opens the browser print dialog and prints the sheet 1:1, with the toolbar hidden; *Download PNG* saves the same white sheet as a 2× image (1588 × 2246, no nav, no desk, no shadow), always the paper page even if the visitor's system theme is dark. The PNG is drawn in the browser from the live page, not stored in the repo: committing ~70 A4 images would rewrite a large binary on every source-page rebuild. For a 200 dpi PNG plus PDF of one country, `export_post_kit.py` still renders in headless Chrome on demand. The brief is built in the same run from the same computed figures as the source page, so the two cannot disagree. `sources/flyer/index.html` lists all briefs, highest BEV share first; the source page and `sources/index.html` link to it.
 
 On the sheet, top to bottom:
 
