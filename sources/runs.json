@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-25T10:11:58Z",
+ "generated": "2026-11-25T10:46:51Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8368,6 +8368,62 @@
    "slug": "argentina_private",
    "period": "2026-10",
    "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia",
+   "base": "Latvia",
+   "slug": "latvia",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Buses)",
+   "base": "Latvia",
+   "slug": "latvia_buses",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (HDV)",
+   "base": "Latvia",
+   "slug": "latvia_hdv",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Industry)",
+   "base": "Latvia",
+   "slug": "latvia_industry",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Private)",
+   "base": "Latvia",
+   "slug": "latvia_private",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Used)",
+   "base": "Latvia",
+   "slug": "latvia_used",
+   "period": "2026-10",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Latvia (Vans)",
+   "base": "Latvia",
+   "slug": "latvia_vans",
+   "period": "2026-10",
+   "flag": "🇱🇻"
   }
  ]
 }

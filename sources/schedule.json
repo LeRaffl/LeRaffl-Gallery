@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-25T10:11:58Z",
+ "generated": "2026-11-25T10:46:51Z",
  "today": "2026-11-25",
  "countries": [
   {
@@ -2427,7 +2427,7 @@
     ],
     "workflow": ".github/workflows/fetch-latvia.yml"
    },
-   "last_render": "2026-11-23",
+   "last_render": "2026-11-25",
    "flag": "🇱🇻",
    "variants": [
     {
@@ -2440,49 +2440,49 @@
     },
     {
      "name": "Private",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2015-01",
-     "rows": 141,
+     "rows": 142,
      "cadence": "monthly",
      "in_repo": true
     }
