@@ -4,6 +4,15 @@
  "entries": [
   {
    "date": "2026-11-25",
+   "time": "2026-11-25T17:32:58Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Data fetches retry short outages instead of failing, refuse to save empty or shrunken data, and stop re-downloading sources that have nothing new.",
+   "title": "fetch: retry/backoff, output guard, concurrency and timeouts for all fetchers",
+   "pr": 481
+  },
+  {
+   "date": "2026-11-25",
    "time": "2026-11-25T16:23:02Z",
    "type": "site",
    "kind": "site",
@@ -1153,24 +1162,6 @@
    ],
    "source": "DNIT customs import declarations",
    "commit": "e3e611ccefbc"
-  },
-  {
-   "date": "2026-11-02",
-   "time": "2026-11-02T20:03:24Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Italy",
-   "flag": "🇮🇹",
-   "slug": "italy",
-   "headline": "Oct 2026 data",
-   "detail": "Cars, Rental, Non-rental",
-   "variants": [
-    "Whole",
-    "Rental",
-    "NonRental"
-   ],
-   "source": "UNRAE",
-   "commit": "b475eae23b37"
   }
  ]
 }
