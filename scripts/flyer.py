@@ -1101,9 +1101,10 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
   border:1px solid var(--text);background:var(--text);color:#fff;font-weight:600}
 .fl-bar button.fl-png{background:transparent;color:var(--text)}
 .fl-bar button:disabled{opacity:.65;cursor:progress}
-/* Previous / next through the briefs, in the directory's order (nav_html()). */
-.fl-nav{margin-left:auto;display:flex;align-items:center;gap:4px}
-.fl-nav+.fl-exports{margin-left:6px}
+/* Previous / next through the briefs, in the directory's order (nav_html()).
+   Its own row under the links and the export buttons: next to both buttons
+   the bar is wider than the sheet. */
+.fl-nav{order:3;flex-basis:100%;display:flex;align-items:center;justify-content:center;gap:4px}
 .fl-nav a{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0 10px;border-radius:8px;
   border:1px solid #c9c5bc;background:#f6f5f1;color:var(--text);text-decoration:none;font-weight:600;white-space:nowrap}
 .fl-nav a:hover,.fl-nav a:focus-visible{border-color:var(--text);background:#fff}
@@ -1113,8 +1114,7 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .fl-nav-pos{min-width:56px;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
 @media (max-width:600px){
   .fl-bar{padding:10px 8px}
-  .fl-nav{order:3;flex-basis:100%;margin-left:0;justify-content:space-between}
-  .fl-nav+.fl-exports{margin-left:auto}
+  .fl-nav{justify-content:space-between}
   .fl-nav a{min-height:44px;padding:0 14px}
   .fl-nav-name{max-width:110px}
 }
