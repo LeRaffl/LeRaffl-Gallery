@@ -17,7 +17,9 @@ after month end), each with the full history. Three are read:
    ("Autobusi"). Read first: it says whether the month is out (so the large
    files are only downloaded when there is something new) and it is the
    cross-check for the other two.
-2. **"Pirmoreiz reģistrēto vieglo automobiļu skaits"** (~70 MB) — sheet DATI:
+2. **"Pirmoreiz reģistrēto vieglo automobiļu skaits"** (~70 MB) — since
+   November 2026 a Pydio public link on datnes.csdd.lv, not a direct XLSX.
+   sheet DATI:
    every passenger car first registered in Latvia since 2000, aggregated to
    one row per year × month × make × model × model year × fuel × status
    (JAUNS: Jauns = new, Lietots = used, "180 dienas") × keeper type
@@ -87,17 +89,21 @@ Docs: docs/architecture/58-source-latvia.md (method, validation, runbook).
 from __future__ import annotations
 
 import argparse
+import base64
 import collections
 import csv
 import datetime as dt
+import hashlib
+import hmac
 import html
 import io
 import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 SCRIPTS = Path(__file__).resolve().parent
 REPO = SCRIPTS.parent
@@ -486,6 +492,141 @@ def find_files(page: str) -> dict[str, str]:
     return out
 
 
+# CSDD moved the cars workbook (Nov 2026) off www.csdd.lv onto a Pydio Cells
+# public link at datnes.csdd.lv. The page is HTML; the XLSX is one file in
+# that share. The prelogged user and the password suffix are in the public
+# page and in pydio.min.js (sessionLoginWithCredentials), not a secret.
+PYDIO_HOST = "datnes.csdd.lv"
+PYDIO_PRELOG_SUFFIX = "#$!Az1"
+PYDIO_GATEWAY_KEY = "gateway"
+PYDIO_GATEWAY_SECRET = "gatewaysecret"
+
+
+def is_pydio_public(url: str) -> bool:
+    return urlparse(url).hostname == PYDIO_HOST
+
+
+def pydio_hash(url: str) -> str:
+    match = re.search(r"/public/([0-9a-fA-F]+)", urlparse(url).path)
+    if not match:
+        raise SystemExit(f"Pydio link has no public hash: {url}")
+    return match.group(1)
+
+
+def parse_prelog(page: str) -> tuple[str, str]:
+    user = re.search(r'"PRELOG_USER":"([^"]+)"', page)
+    workspace = re.search(r'"START_REPOSITORY":"([^"]+)"', page)
+    if not user or not workspace:
+        raise SystemExit("Pydio page has no PRELOG_USER / START_REPOSITORY — layout changed?")
+    return user.group(1), workspace.group(1)
+
+
+def presign_pydio_get(key: str, jwt: str, expires: int, host: str = PYDIO_HOST) -> str:
+    """AWS signature version 2, the query shape Pydio's browser SDK builds
+    (access key ``gateway`` is in the public frontend, not a credential)."""
+    resource = "/io/" + key.lstrip("/")
+    string_to_sign = f"GET\n\n\n{expires}\n{resource}"
+    signature = base64.b64encode(
+        hmac.new(PYDIO_GATEWAY_SECRET.encode(), string_to_sign.encode(), hashlib.sha1).digest()
+    ).decode()
+    return (
+        f"https://{host}{resource}"
+        f"?AWSAccessKeyId={PYDIO_GATEWAY_KEY}"
+        f"&Expires={expires}"
+        f"&Signature={quote(signature, safe='')}"
+        f"&pydio_jwt={quote(jwt, safe='')}"
+    )
+
+
+def pydio_call(session, method: str, url: str, relay: str, *,
+               headers: dict | None = None, body: bytes | None = None,
+               timeout: int = 120):
+    """One call to datnes.csdd.lv, direct or through the fetch relay.
+
+    The relay only forwards the headers it is told about (X-Fwd-*), and
+    GitHub's runners cannot reach this host themselves."""
+    headers = headers or {}
+    if not relay:
+        return session.request(
+            method, url,
+            headers={"User-Agent": UA["User-Agent"], "Accept": "*/*", **headers},
+            data=body, timeout=timeout,
+        )
+    fwd = {}
+    if headers.get("Accept"):
+        fwd["X-Fwd-Accept"] = headers["Accept"]
+    if headers.get("Content-Type"):
+        fwd["X-Fwd-Content-Type"] = headers["Content-Type"]
+    if headers.get("X-Pydio-Minisite"):
+        fwd["X-Fwd-Pydio-Minisite"] = headers["X-Pydio-Minisite"]
+    if headers.get("Authorization"):
+        fwd["X-Fwd-Authorization"] = headers["Authorization"]
+    return session.request(method, relayed(url, relay), headers=fwd, data=body, timeout=timeout)
+
+
+def fetch_pydio_xlsx(session, url: str, relay: str) -> bytes:
+    link_hash = pydio_hash(url)
+    page = pydio_call(session, "GET", url, relay, timeout=120)
+    page.raise_for_status()
+    user, workspace = parse_prelog(page.text)
+    login = json.dumps({
+        "AuthInfo": {
+            "login": user,
+            "password": user + PYDIO_PRELOG_SUFFIX,
+            "type": "credentials",
+        },
+        "ClientTime": int(time.time()),
+    }).encode()
+    session_resp = pydio_call(
+        session, "POST", f"https://{PYDIO_HOST}/a/frontend/session", relay,
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-Pydio-Minisite": link_hash,
+        },
+        body=login, timeout=60,
+    )
+    session_resp.raise_for_status()
+    access = (session_resp.json().get("Token") or {}).get("AccessToken")
+    if not access:
+        raise SystemExit("Pydio session returned no access token")
+    auth = {
+        "Authorization": f"Bearer {access}",
+        "X-Pydio-Minisite": link_hash,
+    }
+    state = pydio_call(
+        session, "GET", f"https://{PYDIO_HOST}/a/frontend/state?ws={workspace}", relay,
+        headers={**auth, "Accept": "application/xml"}, timeout=120,
+    )
+    state.raise_for_status()
+    slug = re.search(r'repositorySlug="([^"]+)"', state.text)
+    if not slug:
+        raise SystemExit("Pydio state has no repositorySlug")
+    listed = pydio_call(
+        session, "POST", f"https://{PYDIO_HOST}/a/meta/bulk/get", relay,
+        headers={**auth, "Accept": "application/json", "Content-Type": "application/json"},
+        body=json.dumps({
+            "NodePaths": [f"{slug.group(1)}/*"],
+            "AllMetaProviders": True,
+        }).encode(),
+        timeout=120,
+    )
+    listed.raise_for_status()
+    leaves = [
+        node for node in (listed.json().get("Nodes") or [])
+        if node and node.get("Type") == "LEAF"
+        and str(node.get("Path", "")).lower().endswith(".xlsx")
+    ]
+    if len(leaves) != 1:
+        raise SystemExit(f"Pydio share {slug.group(1)}: expected one xlsx, found {len(leaves)}")
+    signed = presign_pydio_get(leaves[0]["Path"], access, int(time.time()) + 600)
+    blob = pydio_call(session, "GET", signed, relay, timeout=600)
+    blob.raise_for_status()
+    if blob.content[:2] != b"PK":
+        raise SystemExit(f"Pydio download is not an XLSX ({blob.headers.get('content-type')})")
+    return blob.content
+
+
 # ── checks & report ────────────────────────────────────────────────────────
 
 def median_fraction(period: str, total: int, have: dict[str, dict]) -> float | None:
@@ -567,14 +708,20 @@ def main() -> int:
                      "— layout changed? Not writing. See the runbook in 58-source-latvia.md.")
 
         def load(k):
-            resp = session.get(relayed(files[k], relay), timeout=600)
-            resp.raise_for_status()
-            if resp.content[:2] != b"PK":
-                raise SystemExit(f"{k}: not an XLSX ({resp.headers.get('content-type')})")
+            url = files[k]
+            if is_pydio_public(url):
+                print(f"[net] {k}: Pydio public link on {PYDIO_HOST}")
+                content = fetch_pydio_xlsx(session, url, relay)
+            else:
+                resp = session.get(relayed(url, relay), timeout=600)
+                resp.raise_for_status()
+                if resp.content[:2] != b"PK":
+                    raise SystemExit(f"{k}: not an XLSX ({resp.headers.get('content-type')})")
+                content = resp.content
             if args.dump_dir:
                 Path(args.dump_dir).mkdir(parents=True, exist_ok=True)
-                (Path(args.dump_dir) / f"{k}.xlsx").write_bytes(resp.content)
-            return resp.content
+                (Path(args.dump_dir) / f"{k}.xlsx").write_bytes(content)
+            return content
 
     headline = parse_headline(load("headline"))
     if target not in headline or "cars" not in headline[target]:
