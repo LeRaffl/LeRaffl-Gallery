@@ -425,11 +425,16 @@ def test_flyer_offers_pdf_and_png_export():
     assert "@media print{" in html
     printed = html.split("@media print{")[1].split("</style>")[0]
     assert ".fl-bar,.fl-nav{display:none!important}" in printed
+    assert "width:210mm" in printed and "overflow:hidden" in printed
+    # fitIn must collapse the layout leftover from transform:scale, otherwise
+    # the sheet's scroll box is taller than A4 and print can spill to page 2
+    assert "marginBottom=((z-1)*inn.offsetHeight)" in html
     js = (bsp.REPO / "assets" / "flyer-png.js").read_text(encoding="utf-8")
     assert "modern-screenshot 4.7.0" in js
     assert "domToPng" in js
     assert "#fdfdfc" in js and "SCALE = 2" in js
     assert "pinTransformOrigins" in js
+    assert "is-capturing" in js
     # social cards are exported as images; a button would be baked in
     entries, _ = bsp.collect_entries()
     fm = next(fm for fm, _ in entries if fm.get("country") == "Ireland")

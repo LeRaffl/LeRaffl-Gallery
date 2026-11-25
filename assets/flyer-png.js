@@ -61,6 +61,7 @@
   function restore(sheet, box, prev, unpin) {
     sheet.style.transform = prev.transform;
     sheet.style.boxShadow = prev.shadow;
+    sheet.classList.remove("is-capturing");
     if (box) {
       box.style.width = prev.w;
       box.style.height = prev.h;
@@ -82,6 +83,7 @@
     setBusy(btn, true);
     sheet.style.transform = "none";
     sheet.style.boxShadow = "none";
+    sheet.classList.add("is-capturing");
     if (box) {
       box.style.width = SHEET_W + "px";
       box.style.height = SHEET_H + "px";
@@ -89,12 +91,14 @@
     var unpin = pinTransformOrigins(sheet);
     var fonts = (document.fonts && document.fonts.ready) || Promise.resolve();
     return fonts.then(function () {
+      return new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); });
+    }).then(function () {
       return window.modernScreenshot.domToPng(sheet, {
         width: SHEET_W,
         height: SHEET_H,
         scale: SCALE,
         backgroundColor: PAPER,
-        style: { transform: "none", boxShadow: "none" },
+        style: { transform: "none", boxShadow: "none", margin: "0", overflow: "hidden" },
         dpi: 96 * SCALE
       });
     }).then(function (url) {
