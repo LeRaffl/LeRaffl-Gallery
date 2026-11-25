@@ -4,6 +4,15 @@
  "entries": [
   {
    "date": "2026-11-25",
+   "time": "2026-11-25T16:23:02Z",
+   "type": "site",
+   "kind": "site",
+   "headline": "Country briefs can be downloaded as a PNG as well as saved as a PDF.",
+   "title": "feat(briefs): Download PNG of the A4 sheet, next to Save as PDF",
+   "pr": 489
+  },
+  {
+   "date": "2026-11-25",
    "time": "2026-11-25T10:40:32Z",
    "type": "data",
    "kind": "data",
@@ -1162,26 +1171,6 @@
    ],
    "source": "UNRAE",
    "commit": "b475eae23b37"
-  },
-  {
-   "date": "2026-11-02",
-   "time": "2026-11-02T19:40:34Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Switzerland",
-   "flag": "🇨🇭",
-   "slug": "switzerland",
-   "headline": "Oct 2026 data",
-   "detail": "Cars, Vans, Trucks, Buses, Two-wheelers",
-   "variants": [
-    "Whole",
-    "Vans",
-    "HDV",
-    "Buses",
-    "2-Wheelers"
-   ],
-   "source": "ASTRA",
-   "commit": "4c9560e08f27"
   }
  ]
 }
