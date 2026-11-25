@@ -500,6 +500,48 @@ PYDIO_HOST = "datnes.csdd.lv"
 PYDIO_PRELOG_SUFFIX = "#$!Az1"
 PYDIO_GATEWAY_KEY = "gateway"
 PYDIO_GATEWAY_SECRET = "gatewaysecret"
+PYDIO_CHUNK = 8 * 1024 * 1024
+
+
+def download_ranged(session, url: str, relay: str) -> bytes:
+    """GET a file in 8 MiB ranges.
+
+    Cloud Run's HTTP/1 front end rejects a response over 32 MiB unless it is
+    streamed, and the 70 MB cars workbook comes back as 500 in one piece.
+    A short last chunk ends the read when the relay does not pass
+    Content-Range through."""
+    parts: list[bytes] = []
+    start = 0
+    total: int | None = None
+    content_type = ""
+    while total is None or start < total:
+        resp = pydio_call(
+            session, "GET", url, relay,
+            headers={"Range": f"bytes={start}-{start + PYDIO_CHUNK - 1}", "Accept": "*/*"},
+            timeout=180,
+        )
+        if resp.status_code >= 400:
+            raise SystemExit(
+                f"Pydio download HTTP {resp.status_code} at byte {start}: "
+                f"{resp.content[:240]!r}. A 500 on the whole file is the relay's "
+                "32 MiB cap; redeploy csdd-relay so it forwards Range. Do not rotate the token."
+            )
+        if resp.status_code == 200 and start == 0 and len(resp.content) > PYDIO_CHUNK:
+            raise SystemExit("Pydio ignored Range. Redeploy csdd-relay so it forwards Range.")
+        parts.append(resp.content)
+        content_type = resp.headers.get("content-type") or content_type
+        match = re.search(r"/(\d+)\s*$", resp.headers.get("Content-Range") or "")
+        if match:
+            total = int(match.group(1))
+        elif len(resp.content) < PYDIO_CHUNK:
+            break
+        if not resp.content or start > 200 * 1024 * 1024:
+            raise SystemExit("Pydio range download has no end")
+        start += len(resp.content)
+    blob = b"".join(parts)
+    if blob[:2] != b"PK":
+        raise SystemExit(f"Pydio download is not an XLSX ({content_type})")
+    return blob
 
 
 def is_pydio_public(url: str) -> bool:
@@ -561,6 +603,8 @@ def pydio_call(session, method: str, url: str, relay: str, *,
         fwd["X-Fwd-Pydio-Minisite"] = headers["X-Pydio-Minisite"]
     if headers.get("Authorization"):
         fwd["X-Fwd-Authorization"] = headers["Authorization"]
+    if headers.get("Range"):
+        fwd["X-Fwd-Range"] = headers["Range"]
     return session.request(method, relayed(url, relay), headers=fwd, data=body, timeout=timeout)
 
 
@@ -620,11 +664,7 @@ def fetch_pydio_xlsx(session, url: str, relay: str) -> bytes:
     if len(leaves) != 1:
         raise SystemExit(f"Pydio share {slug.group(1)}: expected one xlsx, found {len(leaves)}")
     signed = presign_pydio_get(leaves[0]["Path"], access, int(time.time()) + 600)
-    blob = pydio_call(session, "GET", signed, relay, timeout=600)
-    blob.raise_for_status()
-    if blob.content[:2] != b"PK":
-        raise SystemExit(f"Pydio download is not an XLSX ({blob.headers.get('content-type')})")
-    return blob.content
+    return download_ranged(session, signed, relay)
 
 
 # ── checks & report ────────────────────────────────────────────────────────

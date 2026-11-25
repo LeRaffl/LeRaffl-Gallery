@@ -388,7 +388,7 @@ Shell: `git pull` first).
 | `403 host not allowed: …` from the relay | CSDD moved its files, or the deployed relay predates the Latvia host | add the host to `ALLOW_HOSTS` (and `STREAM_HOSTS`) in `worker/deno-relay.ts`, redeploy (step 4) |
 | relay `502` / `503` or a timeout through the relay | the relay runs outside Europe, or CSDD tightened its filter | check the Cloud Run region (`europe-*`); re-run the check-host.net test; ACEA keeps Latvia Whole meanwhile |
 | `403 host not allowed: datnes.csdd.lv` | the deployed relay predates the Pydio host | add `datnes.csdd.lv` to `ALLOW_HOSTS` and `STREAM_HOSTS`, redeploy Cloud Run, do not rotate `RELAY_TOKEN` |
-| `403 Client Error` on `datnes.csdd.lv/public/…` | the cars workbook is a Pydio page, fetched as if it were an XLSX, or the relay does not forward `X-Pydio-Minisite` / `Authorization` | the fetcher must log in and presign; the relay must forward those two headers |
+| `500` on the cars download | the 70 MB workbook in one response, over Cloud Run's 32 MiB HTTP/1 cap | the fetcher reads it in 8 MiB ranges; the relay must forward `Range` (redeploy, do not rotate the token) |
 | `Pydio page has no PRELOG_USER` / `expected one xlsx` | CSDD changed the public-link page | open the cars link; the boot JSON and the single `.xlsx` in the share are the contract |
 | `not an XLSX` | an HTML error page or a block | rerun; check the URL by hand |
 | `cross-check failed — first-registered passenger cars` | a partial file, or a restatement | compare with the headline table by hand; `force` if the records are right |
