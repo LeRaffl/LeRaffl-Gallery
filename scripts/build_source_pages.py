@@ -2956,6 +2956,19 @@ def collect_candidates(gallery_slugs: set[str]) -> tuple[list[dict], list[str]]:
     return out, problems
 
 
+def flyer_nav(items: list[dict], kind: str) -> dict:
+    """slug -> previous / next navigation for a set of briefs (flyer.nav_html).
+
+    Steps through the brief directory's own order (flyer.index_order) and
+    wraps around at the ends; the "pos / total" tells where you are."""
+    order = flyer.index_order(items)
+    n = len(order)
+    if n < 2:
+        return {}
+    return {item["slug"]: flyer.nav_html(order[i - 1], order[(i + 1) % n], i + 1, n, kind)
+            for i, item in enumerate(order)}
+
+
 def build_regions(peers: list, peer_years: list | None = None,
                   peer_years_80: list | None = None) -> list[dict]:
     """Region briefs + social cards, one per group with a common window.
@@ -2972,13 +2985,17 @@ def build_regions(peers: list, peer_years: list | None = None,
         except RuntimeError as exc:
             print(f"  ! region {slug}: {exc}", file=sys.stderr)
             continue
-        (OUT_DIR / "flyer" / f"{slug}.html").write_text(brief, encoding="utf-8")
         (OUT_DIR / "flyer" / f"{slug}_social.html").write_text(social, encoding="utf-8")
         ttm = info["figures"].get("ttm") or {}
-        items.append({"country": info["label"], "slug": slug,
+        items.append({"html": brief, "country": info["label"], "slug": slug,
                       "share": ttm.get("share"), "delta": ttm.get("delta"),
                       "head": flyer.verdict(info["label"], info["figures"], info["shift"])[0],
                       "through": mc.period_label(info["t"])})
+    # Written once every region brief exists: each one links its neighbours.
+    nav = flyer_nav(items, "Region")
+    for item in items:
+        (OUT_DIR / "flyer" / f"{item['slug']}.html").write_text(
+            flyer.with_nav(item.pop("html"), nav.get(item["slug"], "")), encoding="utf-8")
     return items
 
 
@@ -3014,13 +3031,13 @@ def main() -> int:
     peer_years = flyer_peer_years(entries, params)
     peer_years_80 = flyer_peer_years(entries, params, level=0.8)
     (OUT_DIR / "flyer").mkdir(exist_ok=True)
+    flyer_html: dict[str, str] = {}
     for fm, is_stub in entries:
         page = build_page(fm, params, is_stub=is_stub)
         (OUT_DIR / f"{fm['slug']}.html").write_text(page, encoding="utf-8")
-        (OUT_DIR / "flyer").mkdir(exist_ok=True)
-        (OUT_DIR / "flyer" / f"{fm['slug']}.html").write_text(
-            build_flyer_page(fm, params, peers, peer_years=peer_years,
-                                   peer_years_80=peer_years_80), encoding="utf-8")
+        # Held back until every brief exists, so each can link its neighbours.
+        flyer_html[fm["slug"]] = build_flyer_page(fm, params, peers, peer_years=peer_years,
+                                                  peer_years_80=peer_years_80)
         (OUT_DIR / "flyer" / f"{fm['slug']}_social.html").write_text(
             build_social_page(fm, params, peers), encoding="utf-8")
         whole = params.get((fm.get("country"), "Whole")) or {}
@@ -3042,6 +3059,10 @@ def main() -> int:
 
     region_items = build_regions(peers, peer_years, peer_years_80)
     brief_items = [flyer_summary(fm, params) for fm, _ in entries]
+    nav = flyer_nav(brief_items, "Country")
+    for slug, html in flyer_html.items():
+        (OUT_DIR / "flyer" / f"{slug}.html").write_text(
+            flyer.with_nav(html, nav.get(slug, "")), encoding="utf-8")
     (OUT_DIR / "flyer" / "index.html").write_text(
         flyer.build_index(brief_items, "../../assets/theme.css", regions=region_items),
         encoding="utf-8")

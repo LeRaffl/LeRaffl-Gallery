@@ -423,7 +423,8 @@ def test_flyer_offers_pdf_and_png_export():
     assert 'src="../../assets/flyer-png.js"' in html
     # print hides the whole bar (both buttons, the links, later also nav)
     assert "@media print{" in html
-    assert ".fl-bar{display:none}" in html.split("@media print{")[1].split("</style>")[0]
+    printed = html.split("@media print{")[1].split("</style>")[0]
+    assert ".fl-bar,.fl-nav{display:none!important}" in printed
     js = (bsp.REPO / "assets" / "flyer-png.js").read_text(encoding="utf-8")
     assert "modern-screenshot 4.7.0" in js
     assert "domToPng" in js
