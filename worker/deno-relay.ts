@@ -40,12 +40,13 @@ const ALLOW_HOSTS = new Set([
   "www.statistik.at",               // Austria (fallback if CF relay dies)
   "data.statistik.gv.at",
   "www.csdd.lv",                    // Latvia (CSDD; drops Azure and Cloudflare too)
+  "datnes.csdd.lv",                 // Latvia cars workbook (Pydio public link)
 ]);
 // Hosts whose files are large (CSDD's record workbooks are ~25–70 MB): the
 // body is streamed through instead of buffered, which keeps memory and CPU
 // time per request flat. Plain GETs without a session, so the streaming
 // pitfalls noted at the end of the handler do not apply.
-const STREAM_HOSTS = new Set(["www.csdd.lv"]);
+const STREAM_HOSTS = new Set(["www.csdd.lv", "datnes.csdd.lv"]);
 
 // Read every Set-Cookie from an upstream response, robust across runtimes.
 // Headers.getSetCookie() is the correct API but isn't present in every Deno
@@ -122,6 +123,8 @@ Deno.serve(async (req: Request) => {
       "X-Fwd-Page-Type": "X-Page-Type",
       "X-Fwd-Antiforgery": "__RequestVerificationToken",
       "X-Fwd-Origin": "Origin",
+      "X-Fwd-Pydio-Minisite": "X-Pydio-Minisite",
+      "X-Fwd-Authorization": "Authorization",
     };
     for (const [from, to] of Object.entries(extraHeaders)) {
       const v = req.headers.get(from);
