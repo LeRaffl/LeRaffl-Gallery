@@ -12,14 +12,14 @@
  },
  "Argentina": {
   "data_file": "data/Argentina.csv",
-  "delta": 1.6,
-  "head": "About 1 in 58 new cars is battery electric.",
+  "delta": 1.7,
+  "head": "About 1 in 53 new cars is battery electric.",
   "is_stub": false,
-  "share": 1.7,
+  "share": 1.9,
   "slug": "argentina",
   "source": "DNRPA — Dirección Nacional de los Registros Nacionales de la Propiedad del Automotor",
   "source_url": "https://datos.jus.gob.ar/dataset/inscripciones-iniciales-de-autos",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Australia": {
   "data_file": "data/Australia.csv",

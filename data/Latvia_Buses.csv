@@ -140,3 +140,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-07,monthly,Buses,CSDD,4.0,0.0,,0.0,5.0,0.0,9.0,CSDD 2026-07: new M2 + M3 (incl. G) by energy source
 2026-08,monthly,Buses,CSDD,3.0,0.0,,0.0,6.0,0.0,9.0,CSDD 2026-08: new M2 + M3 (incl. G) by energy source
 2026-09,monthly,Buses,CSDD,1.0,0.0,,0.0,5.0,0.0,6.0,CSDD 2026-09: new M2 + M3 (incl. G) by energy source
+2026-10,monthly,Buses,CSDD,2.0,0.0,,0.0,0.0,0.0,2.0,CSDD 2026-10: new M2 + M3 (incl. G) by energy source

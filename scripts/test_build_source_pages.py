@@ -412,6 +412,31 @@ def test_flyer_page_builds_without_data():
     assert "The curve is a model, not a forecast." not in html
 
 
+def test_flyer_offers_pdf_and_png_export():
+    """The A4 brief can be saved as a PDF (print dialog) or as a PNG of the
+    same white sheet. The toolbar is hidden in print; the PNG script lives
+    next to theme.css and is not on the social card."""
+    html = flyer.build_flyer({"country": "Nowhere", "slug": "nowhere"}, [], None, {}, None, None, "t.css")
+    assert 'onclick="window.print()"' in html and "Save as PDF" in html
+    assert "Download PNG" in html and 'class="fl-png"' in html
+    assert 'class="fl-exports"' in html
+    assert 'src="../../assets/flyer-png.js"' in html
+    # print hides the whole bar (both buttons, the links, later also nav)
+    assert "@media print{" in html
+    assert ".fl-bar{display:none}" in html.split("@media print{")[1].split("</style>")[0]
+    js = (bsp.REPO / "assets" / "flyer-png.js").read_text(encoding="utf-8")
+    assert "modern-screenshot 4.7.0" in js
+    assert "domToPng" in js
+    assert "#fdfdfc" in js and "SCALE = 2" in js
+    assert "pinTransformOrigins" in js
+    # social cards are exported as images; a button would be baked in
+    entries, _ = bsp.collect_entries()
+    fm = next(fm for fm, _ in entries if fm.get("country") == "Ireland")
+    social = bsp.build_social_page(fm, bsp.load_params(), bsp.flyer_peers(entries, bsp.load_params()))
+    assert "Download PNG" not in social and "flyer-png.js" not in social
+    assert "Save as PDF" not in social
+
+
 def test_flyer_qr_compare_and_fractions():
     qr = flyer.build_qr("https://example.org/x")
     assert qr.startswith("<svg") and "QR code: https://example.org/x" in qr

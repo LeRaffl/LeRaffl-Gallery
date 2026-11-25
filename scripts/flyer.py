@@ -1093,10 +1093,13 @@ FLYER_CSS = mstr.CSS + """
 html{background:#e9e7e1}
 body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sans-serif}
 .fl-bar{max-width:794px;margin:0 auto;padding:12px 8px;display:flex;gap:12px;align-items:center;
-  font-size:13px}
+  font-size:13px;flex-wrap:wrap}
 .fl-bar a{color:var(--muted)}
-.fl-bar button{margin-left:auto;font:inherit;padding:6px 14px;border-radius:8px;cursor:pointer;
+.fl-exports{margin-left:auto;display:flex;gap:8px;flex:none}
+.fl-bar button{font:inherit;padding:6px 14px;border-radius:8px;cursor:pointer;
   border:1px solid var(--text);background:var(--text);color:#fff;font-weight:600}
+.fl-bar button.fl-png{background:transparent;color:var(--text)}
+.fl-bar button:disabled{opacity:.65;cursor:progress}
 .sheet-box{margin:0 auto 32px}
 .sheet{width:794px;height:1123px;box-sizing:border-box;padding:32px 46px 26px;background:#fdfdfc;
   box-shadow:0 2px 18px rgba(0,0,0,.14);overflow:hidden;
@@ -1272,7 +1275,9 @@ FLYER_TEMPLATE = """<!doctype html>
 <body>
 <div class="fl-bar"><a href="./">← All country briefs</a>
   <a href="../{slug}.html">{country}: sources and method</a>
-  <button type="button" onclick="window.print()">Save as PDF</button></div>
+  <div class="fl-exports">
+  <button type="button" class="fl-pdf" onclick="window.print()">Save as PDF</button>
+  <button type="button" class="fl-png">Download PNG</button></div></div>
 <div class="sheet-box"><article class="sheet"><div class="sheet-in">
   <header class="fl-top">{flag}
     <div><h1>{country}</h1><div class="fl-kick">{kicker}</div></div>
@@ -1318,6 +1323,7 @@ FLYER_TEMPLATE = """<!doctype html>
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitIn);
 }})();
 </script>
+<script src="../../assets/flyer-png.js" defer></script>
 </body>
 </html>
 """
