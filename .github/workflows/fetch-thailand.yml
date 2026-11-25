@@ -48,13 +48,6 @@ concurrency:
   group: fetch-thailand
   cancel-in-progress: false
 
-# One run per fetcher at a time: a manual dispatch or a late cron tick
-# queues behind a running fetch instead of racing it to the same CSVs.
-# Not cancelled (a half-written fetch is worse than a wait).
-concurrency:
-  group: fetch-thailand
-  cancel-in-progress: false
-
 jobs:
   fetch:
     runs-on: ubuntu-24.04
