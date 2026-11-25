@@ -1144,7 +1144,8 @@ body{margin:0;background:#e9e7e1;color:var(--text);font-family:var(--font-ui),sa
 .sheet-in{width:100%;min-height:100%;display:flex;flex-direction:column;transform-origin:top left}
 .sheet.is-capturing{box-shadow:none!important;transform:none!important;filter:none!important;overflow:hidden!important}
 .sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.fl-top{display:flex;align-items:center;gap:14px;padding-bottom:10px;border-bottom:2px solid var(--text)}
+/* Flag, title, map and date share the 32px top padding. align-items:center on the 92px locator map left a gap above the name that read as a top margin, especially on briefs that barely scale. */
+.fl-top{display:flex;align-items:flex-start;gap:14px;padding-bottom:10px;border-bottom:2px solid var(--text)}
 .fl-flag,.fl-mark{width:54px;height:37px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px var(--line);display:block}
 .fl-mark{background:#eceae4}
 .fl-top h1{font-family:var(--font-display);font-size:30px;line-height:1;margin:0;font-weight:600}

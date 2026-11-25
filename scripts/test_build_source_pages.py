@@ -429,6 +429,8 @@ def test_flyer_offers_pdf_and_png_export():
     # fitIn must collapse the layout leftover from transform:scale, otherwise
     # the sheet's scroll box is taller than A4 and print can spill to page 2
     assert "marginBottom=((z-1)*inn.offsetHeight)" in html
+    # Header: flag and title start at the sheet padding, not centred on the map
+    assert ".fl-top{display:flex;align-items:flex-start" in html
     js = (bsp.REPO / "assets" / "flyer-png.js").read_text(encoding="utf-8")
     assert "modern-screenshot 4.7.0" in js
     assert "domToPng" in js
