@@ -33,9 +33,11 @@ on:
         type: boolean
   schedule:
     # SIMI publishes the new month very early — usually on the 1st. Poll twice
-    # daily on the 1st–5th; per-variant early-exit makes runs no-ops once the
-    # previous month is in each CSV. 04:00 & 13:00 UTC are free slots.
-    - cron: '0 4 1-5 * *'
+    # daily on the 1st–5th, then once daily to the 12th: in 2026-11 SIMI sat on
+    # its /updating page through the whole 1st–5th window and October was
+    # simply never fetched. Per-variant early-exit keeps the extra days free
+    # once the month is in. 04:00 & 13:00 UTC are free slots.
+    - cron: '0 4 1-12 * *'
     - cron: '0 13 1-5 * *'
 
 # One run per fetcher at a time: a manual dispatch or a late cron tick

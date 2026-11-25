@@ -32,12 +32,21 @@ on:
         default: false
         type: boolean
   schedule:
-    # Daily 1st–20th at 04:40 UTC. The AIU portal publishes the previous month's
-    # figures partway through the following month; we poll daily until the row
-    # materialises, then the per-month early-exit makes subsequent runs no-ops
-    # (no diff, no commit, no render trigger). 04:40 UTC stays clear of
-    # fetch-denmark (05:15), fetch-netherlands (06:30) and fetch-acea (08:00).
-    - cron: '40 4 1-20 * *'
+    # Daily at 04:40 UTC on the 20th–31st and 1st–10th. The AIU portal posts
+    # month M late in M+1 (August 2026 by Sep 27, September 2026 by Oct 31;
+    # October 2026 still missing on Nov 23), so the old 1st–20th window
+    # closed before the month appeared and every month needed a manual run.
+    # The fetch re-reads the whole year, so a month that slips past the 31st
+    # is picked up in the 1st–10th. 04:40 UTC stays clear of fetch-denmark
+    # (05:15), fetch-netherlands (06:30) and fetch-acea (08:00).
+    - cron: '40 4 1-10,20-31 * *'
+
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-thailand
+  cancel-in-progress: false
 
 # One run per fetcher at a time: a manual dispatch or a late cron tick
 # queues behind a running fetch instead of racing it to the same CSVs.

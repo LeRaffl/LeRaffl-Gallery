@@ -36,7 +36,16 @@ on:
         default: 'false'
         type: boolean
   schedule:
-    - cron: '0 8 1-31 * *'   # daily at 08:00 UTC, from the 1st onward
+    # JADA publishes on the first business days of the month (October 2026
+    # on Nov 6 at the latest); after the 15th the run was always a no-op.
+    - cron: '0 8 1-15 * *'   # daily at 08:00 UTC, 1st-15th
+
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-japan
+  cancel-in-progress: false
 
 # One run per fetcher at a time: a manual dispatch or a late cron tick
 # queues behind a running fetch instead of racing it to the same CSVs.

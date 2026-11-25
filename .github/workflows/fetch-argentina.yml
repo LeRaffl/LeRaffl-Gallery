@@ -64,9 +64,18 @@ on:
         default: false
         type: boolean
   schedule:
-    # Twice daily on the 8th–25th, 09:15 and 21:15 UTC (the evening slot
-    # catches a same-day afternoon upload in Buenos Aires, UTC−3).
-    - cron: '15 9,21 8-25 * *'
+    # Once daily on the 8th–25th, 15:15 UTC (12:15 Buenos Aires). With
+    # GitHub's usual multi-hour cron delay it lands in the BA afternoon, which
+    # is what the old 21:15 slot was for; the 09:15 slot added nothing. Runs
+    # before the upload cost one CKAN metadata call (month_listed()).
+    - cron: '15 15 8-25 * *'
+
+# One run per fetcher at a time: a manual dispatch or a late cron tick
+# queues behind a running fetch instead of racing it to the same CSVs.
+# Not cancelled (a half-written fetch is worse than a wait).
+concurrency:
+  group: fetch-argentina
+  cancel-in-progress: false
 
 # One run per fetcher at a time: a manual dispatch or a late cron tick
 # queues behind a running fetch instead of racing it to the same CSVs.
