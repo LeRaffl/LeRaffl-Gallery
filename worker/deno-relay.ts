@@ -125,6 +125,7 @@ Deno.serve(async (req: Request) => {
       "X-Fwd-Origin": "Origin",
       "X-Fwd-Pydio-Minisite": "X-Pydio-Minisite",
       "X-Fwd-Authorization": "Authorization",
+      "X-Fwd-Range": "Range",
     };
     for (const [from, to] of Object.entries(extraHeaders)) {
       const v = req.headers.get(from);
@@ -157,6 +158,8 @@ Deno.serve(async (req: Request) => {
       "Content-Type": upstream.headers.get("Content-Type") ?? "application/octet-stream",
       "Cache-Control": "no-store",
     };
+    const contentRange = upstream.headers.get("Content-Range");
+    if (contentRange) responseHeaders["Content-Range"] = contentRange;
     const setCookies = readSetCookies(upstream.headers);
     if (setCookies.length > 0) {
       // \n-joined then base64'd: header values can't carry raw newlines.
