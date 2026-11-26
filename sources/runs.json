@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-26T14:23:32Z",
+ "generated": "2026-11-26T14:36:02Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8440,6 +8440,38 @@
    "slug": "nepal_3_wheelers",
    "period": "2026-11",
    "flag": "🇳🇵"
+  },
+  {
+   "date": "2026-11-26",
+   "label": "Thailand",
+   "base": "Thailand",
+   "slug": "thailand",
+   "period": "2026-10",
+   "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-11-26",
+   "label": "Thailand (3-Wheelers)",
+   "base": "Thailand",
+   "slug": "thailand_3_wheelers",
+   "period": "2026-10",
+   "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-11-26",
+   "label": "Thailand (Buses)",
+   "base": "Thailand",
+   "slug": "thailand_buses",
+   "period": "2026-10",
+   "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-11-26",
+   "label": "Thailand (HDV)",
+   "base": "Thailand",
+   "slug": "thailand_hdv",
+   "period": "2026-10",
+   "flag": "🇹🇭"
   }
  ]
 }

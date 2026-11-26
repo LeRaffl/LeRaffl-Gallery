@@ -3,6 +3,25 @@
  "window_days": 60,
  "entries": [
   {
+   "date": "2026-11-26",
+   "time": "2026-11-26T14:29:48Z",
+   "type": "data",
+   "kind": "data",
+   "country": "Thailand",
+   "flag": "🇹🇭",
+   "slug": "thailand",
+   "headline": "Oct 2026 data",
+   "detail": "Cars, Trucks, Buses, 3-Wheelers",
+   "variants": [
+    "Whole",
+    "HDV",
+    "Buses",
+    "3-Wheelers"
+   ],
+   "source": "aiu.thaiauto.or.th (veh_reg_fuel)",
+   "commit": "30ee0f6a2a84"
+  },
+  {
    "date": "2026-11-25",
    "time": "2026-11-25T18:13:41Z",
    "type": "data",
@@ -1128,22 +1147,6 @@
    ],
    "source": "SRI new-vehicle register (open data)",
    "commit": "6c3ba51e698b"
-  },
-  {
-   "date": "2026-11-03",
-   "time": "2026-11-03T17:31:42Z",
-   "type": "data",
-   "kind": "data",
-   "country": "Switzerland",
-   "flag": "🇨🇭",
-   "slug": "switzerland",
-   "headline": "Oct 2026 data",
-   "detail": "Used",
-   "variants": [
-    "Used"
-   ],
-   "source": "ASTRA",
-   "commit": "aa00343941c4"
   }
  ]
 }

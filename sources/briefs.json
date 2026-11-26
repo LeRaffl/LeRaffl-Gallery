@@ -598,11 +598,11 @@
   "delta": 12.2,
   "head": "About 1 in 3 new cars is battery electric.",
   "is_stub": false,
-  "share": 29.5,
+  "share": 30.3,
   "slug": "thailand",
   "source": "Thailand Automotive Institute (thaiauto)",
   "source_url": "https://aiu.thaiauto.or.th/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Türkiye": {
   "data_file": "data/Türkiye.csv",
