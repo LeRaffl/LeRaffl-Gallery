@@ -1,0 +1,9 @@
+🇹🇭 Thailand (HDV) - October 26 - BEV Trajectory
+2.3% BEV
+0.0% PHEV
+97.7% ICE
+
+Trailing 12 months are:
+1.7% BEV
+0.0% PHEV
+98.3% ICE

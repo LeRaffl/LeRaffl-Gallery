@@ -1,0 +1,10 @@
+🇹🇭 Thailand - TTM Market Split
+
+Nov24–Oct25  vs  Nov25–Oct26
++12.2pp  BEV   (18.1% → 30.3%)
+−0.0pp  PHEV  (3.0% → 2.9%)
++1.2pp  HEV   (22.0% → 23.2%)
+−13.3pp  ICE   (56.9% → 43.6%)
+
+PHEV peaked at 3.0% in 2025-12 (declining for 10 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-05.
