@@ -4494,6 +4494,7 @@ const VIEW_START_YEAR = 2015;
     <div class="container tablepad">
       <div id="thresholdsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
       <p id="thresholdsHiddenNote" class="rank-hidden-note" hidden></p>
+      <p id="thresholdsUsedNote" class="rank-hidden-note" hidden></p>
     </div>
   </section>
 
@@ -4622,6 +4623,7 @@ const VIEW_START_YEAR = 2015;
     <div class="container tablepad">
       <div id="durationsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
       <p id="durationsHiddenNote" class="rank-hidden-note" hidden></p>
+      <p id="durationsUsedNote" class="rank-hidden-note" hidden></p>
     </div>
   </section>
 
@@ -4679,6 +4681,7 @@ const VIEW_START_YEAR = 2015;
         <div style="padding:14px">Loading <code>params.csv</code>…</div>
       </div>
       <p id="speedHiddenNote" class="rank-hidden-note" hidden></p>
+      <p id="speedUsedNote" class="rank-hidden-note" hidden></p>
     </div>
   </section>
 
@@ -5026,6 +5029,7 @@ const VIEW_START_YEAR = 2015;
   <div class="field settings-block is-primary" style="flex: 1 1 360px; max-width: 460px;">
     <label for="fleetCountries">Countries (multi-select)</label>
     <select id="fleetCountries" multiple size="6"></select>
+    <p id="fleetUsedNote" class="rank-hidden-note" hidden></p>
   </div>
 
 
@@ -8167,7 +8171,18 @@ const SCOPE_BADGES = {
   USA: {
     label: 'Sales · cars + light trucks incl. pickups',
     tip: 'USA = new light-vehicle SALES, not registrations: passenger cars AND light trucks (pickups, SUVs, vans) up to 10,000 lb GVWR, compiled by Argonne National Laboratory (ANL) from Wards Auto. Not comparable 1:1 with passenger-car (EU M1) registration series.'
+  },
+  Georgia: {
+    label: 'First registrations · all vehicles incl. used imports',
+    tip: 'Georgia = first registrations of every vehicle category, including used imports (79% over 2 years old in Q3 2026). Not comparable 1:1 with new passenger-car registration series.'
+  },
+  Malaysia: {
+    label: 'Registrations incl. recon (used) imports',
+    tip: 'Malaysia = JPJ first registrations of passenger cars, including reconditioned (used) imports, mostly from Japan. The recon share is not published; charts keep the new-registrations wording because recons are a minority.'
   }
+  // Albania is deliberately omitted: the source cannot yet be split into new
+  // vs used, and the gallery / Compare / Rankings / Fleet labels stay as they
+  // are until that source problem is addressed (#342, left open; #439).
 };
 function scopeBadgeFor(country){
   const base = String(country || '').replace(/\s*\(.*\)\s*$/, '').trim();
@@ -8175,6 +8190,59 @@ function scopeBadgeFor(country){
   if (!b) return '';
   const esc = v => String(v).replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]));
   return `<div class="scope-badge" title="${esc(b.tip)}" style="font-size:.72em;line-height:1.25;margin-top:2px;opacity:.85">ⓘ ${esc(b.label)}</div>`;
+}
+
+/* Countries whose Whole series includes used imports and should be marked
+   in Compare, Rankings, Fleet and the Builder country list (#342). The
+   mark is †, not *, because * is already the ACEA "BEV column is really
+   EV" caveat. Albania is left unmarked on purpose (see SCOPE_BADGES).
+   Keep this in step with footnotes.csv and the source pages; do not add
+   a country unless the docs actually say used imports are in Whole. */
+const USED_IN_WHOLE = {
+  Georgia: {
+    variants: 'all',
+    shortLabel: 'First registrations',
+    brief: 'first registrations of all vehicle categories, including used imports (79% over 2 years old in Q3 2026)'
+  },
+  Malaysia: {
+    variants: ['whole'],
+    shortLabel: 'Cars incl. recon imports',
+    brief: 'passenger-car registrations including recon (used) imports; the recon share is not published'
+  }
+};
+function usedInWholeScope(country, variantCanon){
+  const base = String(country || '').replace(/\s*\(.*\)\s*$/, '').trim();
+  const rec = USED_IN_WHOLE[base];
+  if (!rec) return null;
+  const v = normalizeBase(variantCanon || 'whole');
+  if (['used', 'used imports', 'resale'].includes(v)) return null;
+  if (rec.variants !== 'all' && !(rec.variants || ['whole']).includes(v)) return null;
+  return rec;
+}
+function usedInWholeMark(country, variantCanon){
+  return usedInWholeScope(country, variantCanon) ? ' †' : '';
+}
+function usedInWholeNote(names){
+  const unique = [...new Set((names || []).filter(Boolean))];
+  const bits = unique.map(c => {
+    const rec = USED_IN_WHOLE[String(c || '').replace(/\s*\(.*\)\s*$/, '').trim()];
+    if (!rec) return '';
+    return `<strong>${escapeHtml(c)}</strong>: ${escapeHtml(rec.brief)}`;
+  }).filter(Boolean);
+  if (!bits.length) return '';
+  return `<div class="used-in-whole-note" style="margin-top:8px;opacity:.75">
+      † These series are not new vehicles only. ${bits.join('. ')}.
+      See the country's source page.
+    </div>`;
+}
+function renderUsedInWholeNote(el, rows, keep){
+  if (!el) return;
+  const names = (rows || []).filter(r => (!keep || keep(r)) && usedInWholeScope(r.country, r.variant || r.baseCanon || r.variantBaseCanonical))
+    .map(r => r.country);
+  const html = usedInWholeNote(names);
+  if (!html) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = html;
 }
 
 // country (base name) → source-page slug, populated from sources/sources.json.
@@ -9083,7 +9151,7 @@ function bodyHTML(){
     const key = (!v || v.toLowerCase() === 'whole') ? r.country : `${r.country} (${v})`;
     return `<tr>
     <td class="num">${i+1}</td>
-    <td>${r.country}</td>
+    <td>${escapeHtml(r.country)}${usedInWholeMark(r.country, r.variant)}</td>
     ${tdWithClass(r.val20, r._v20)}
     ${tdWithClass(r.val50, r._v50)}
     ${tdWithClass(r.val80, r._v80, true)}
@@ -9104,6 +9172,7 @@ function renderTable(){
   const inRegionNote = rankRegionMatcher(regionEl ? regionEl.value : '');
   renderHiddenFitsNote(document.getElementById('thresholdsHiddenNote'), rows,
     r => selectedBases.has(normalizeBase(extractVariantParts(r.variant || '').base || '')) && inRegionNote(r.country));
+  renderUsedInWholeNote(document.getElementById('thresholdsUsedNote'), applyVariantFilter(data));
 
   mount.querySelectorAll('th.sortable').forEach(th=>{
     th.classList.remove('asc','desc');
@@ -9251,7 +9320,7 @@ renderTable();
         const key = (!v || v.toLowerCase() === 'whole') ? r.country : `${r.country} (${v})`;
         return `<tr>
         <td class="num">${i+1}</td>
-        <td>${r.country}</td>
+        <td>${escapeHtml(r.country)}${usedInWholeMark(r.country, r.variant)}</td>
         <td>${r.d2080_text}</td>
         <td>${r.d1090_text}</td>
         <td>${r.dC_text}</td>
@@ -9261,7 +9330,7 @@ renderTable();
         <td class="col-tags"><div class="tag-stack" data-tag-country="${key.replace(/"/g,'&quot;')}"></div></td>
       </tr>`;}).join('')}</tbody>`; 
     }
-    function draw(){ data=computeDurations(rows); const arr=sortNow(); mount.innerHTML=`<table class="tablecard__table">${head()}${body(arr)}</table>`; mount.classList.add('tablecard'); const sb=selected(); const inRegionNote=rankRegionMatcher(regionEl?regionEl.value:''); renderHiddenFitsNote(document.getElementById('durationsHiddenNote'), rows, r=>sb.has(normalizeBase(extractVariantParts(r.variant||'').base||'')) && inRegionNote(r.country)); mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); const k=th.dataset.k; if(k===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; } draw(); }; }); }
+    function draw(){ data=computeDurations(rows); const arr=sortNow(); mount.innerHTML=`<table class="tablecard__table">${head()}${body(arr)}</table>`; mount.classList.add('tablecard'); const sb=selected(); const inRegionNote=rankRegionMatcher(regionEl?regionEl.value:''); renderHiddenFitsNote(document.getElementById('durationsHiddenNote'), rows, r=>sb.has(normalizeBase(extractVariantParts(r.variant||'').base||'')) && inRegionNote(r.country)); renderUsedInWholeNote(document.getElementById('durationsUsedNote'), arr); mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); const k=th.dataset.k; if(k===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; } draw(); }; }); }
     document.getElementById('applyDurBtn').addEventListener('click', draw); sel.addEventListener('change', draw);
     if(regionEl) regionEl.addEventListener('change', draw);
     ['customFrom','customTo'].forEach(id => document.getElementById(id).addEventListener('change', draw));
@@ -9445,7 +9514,8 @@ renderTable();
   }
   function labelFor(d){
     const suf=variantShort(d.baseCanon);
-    return suf ? `${d.country}   (${suf})` : d.country;
+    const base = suf ? `${d.country}   (${suf})` : d.country;
+    return base + usedInWholeMark(d.country, d.baseCanon);
   }
   function svgEl(name, attrs, text){
     const el=document.createElementNS(SVG_NS, name);
@@ -9538,7 +9608,14 @@ renderTable();
       const w=_measureCtx.measureText(labelFor(d)).width;
       return w>m?w:m;
     },0);
-    const rowH=22, padTop=90, padBottom=70, padRight=40;
+    const usedNames=[...new Set(sorted.filter(d=>usedInWholeScope(d.country,d.baseCanon)).map(d=>d.country))];
+    const usedFoot=usedNames.length
+      ? '† '+usedNames.map(c=>{
+          const rec=USED_IN_WHOLE[c];
+          return rec ? `${c}: ${rec.brief}` : c;
+        }).join('; ')
+      : '';
+    const rowH=22, padTop=90, padBottom=usedFoot?86:70, padRight=40;
     const padLeft=Math.ceil(maxLabelW)+16;
     const W=Math.max(900, mount.clientWidth || 1100);
     const variantsPresent=Array.from(new Set(sorted.map(d=>d.baseCanon)));
@@ -9611,9 +9688,10 @@ renderTable();
         }
       }
       const bar=svgEl('rect', barAttrs);
-      const variantTxt=variantShort(d.baseCanon) || 'New Cars';
+      const scope=usedInWholeScope(d.country, d.baseCanon);
+      const variantTxt=scope ? scope.shortLabel : (variantShort(d.baseCanon) || 'New Cars');
       const tipHTML = `
-        <div style="font-weight:600;margin-bottom:4px">${d.country}<span style="opacity:.6"> · ${variantTxt}</span></div>
+        <div style="font-weight:600;margin-bottom:4px">${d.country}${usedInWholeMark(d.country, d.baseCanon)}<span style="opacity:.6"> · ${variantTxt}</span></div>
         <div style="display:grid;grid-template-columns:auto auto;gap:2px 10px">
           <span style="opacity:.7">${opts.fromPct}%</span><span>${fmtYearMonth(d.yStart)}</span>
           <span style="opacity:.7">${opts.midPct}%</span><span>${fmtYearMonth(d.yMid)}</span>
@@ -9693,12 +9771,17 @@ renderTable();
     const today=now.getUTCFullYear()+'-'+pad2(now.getUTCMonth()+1)+'-'+pad2(now.getUTCDate())
       +' '+pad2(now.getUTCHours())+':'+pad2(now.getUTCMinutes())+' UTC';
     svg.appendChild(svgEl('text',{
-      x:padLeft, y:H-12, fill:tok('--muted-2','#8a877e'),'font-size':'11'
+      x:padLeft, y:usedFoot?H-28:H-12, fill:tok('--muted-2','#8a877e'),'font-size':'11'
     }, `Created ${today} · ${dataRange}`));
     const tag=svgEl('text',{
-      x:W-padRight, y:H-12, fill:tok('--muted','#55534c'),'font-size':'11','font-weight':'600','text-anchor':'end'
+      x:W-padRight, y:usedFoot?H-28:H-12, fill:tok('--muted','#55534c'),'font-size':'11','font-weight':'600','text-anchor':'end'
     },'@LeRaffl');
     svg.appendChild(tag);
+    if(usedFoot){
+      svg.appendChild(svgEl('text',{
+        x:padLeft, y:H-12, fill:tok('--muted','#55534c'),'font-size':'10'
+      }, usedFoot.length>160 ? usedFoot.slice(0,157)+'…' : usedFoot));
+    }
 
     mount.appendChild(svg);
     mount._lastSorted=sorted;
@@ -9754,6 +9837,8 @@ renderTable();
         const sb=new Set(Array.from(sel?.selectedOptions||[]).map(x=>x.value));
         renderHiddenFitsNote(document.getElementById('speedHiddenNote'), rows,
           r=>(!sb.size || sb.has(normalizeBase(extractVariantParts(r.variant||'').base||''))) && inRegion(r.country));
+        renderUsedInWholeNote(document.getElementById('speedUsedNote'),
+          compute(rows,o.fromPct,o.midPct,o.toPct).filter(d=>inRegion(d.country)));
       };
       document.getElementById('speedApplyBtn').addEventListener('click', redraw);
       document.getElementById('speedSort').addEventListener('change', redraw);
@@ -10353,11 +10438,14 @@ function marketBucket(rows, vars, test){
   };
 
   let evMarked = 0;
+  const usedMarked = [];
   const lines = sorted.map(r => {
     const w = weightForRow(r);
     if (isFinite(w)) total += w;
     const star = hasEvLabel(r.country, normalizeBase(r.variant), 'BEV') ? (evMarked++, ' *') : '';
-    return `${r.country}${star}: ${fmtInt(w)}`;
+    const dagger = usedInWholeMark(r.country, r.variant);
+    if (dagger) usedMarked.push(r.country);
+    return `${r.country}${star}${dagger}: ${fmtInt(w)}`;
   });
 
   const WORLD_2024_REF = 87e6;
@@ -10393,6 +10481,7 @@ function marketBucket(rows, vars, test){
     <br>
     ${coverageLine}
     ${evLabelNote(evMarked, 'BEV')}
+    ${usedInWholeNote(usedMarked)}
   `;
     // -------- PLOT (restored) --------
   const grid = monthGrid(2015, 2050);
@@ -11451,6 +11540,7 @@ if (stepTraces.length){
     const mount = document.getElementById('compareDebug');
     if(!mount) return;
     let evMarked = 0;
+    const usedMarked = [];
     const blocks = slotValues.map(sv => {
       const vc = slotVariantCanon(sv, variant);
       const set = new Set(compareCountriesFor(sv));
@@ -11463,7 +11553,9 @@ if (stepTraces.length){
         const w = weightForRowCompare(r);
         if (isFinite(w)) total += w;
         const star = hasEvLabel(r.country, vc, powertrain) ? (evMarked++, ' *') : '';
-        return `<div>${escapeHtml(r.country)}${star}: ${fmtInt(w)}</div>`;
+        const dagger = usedInWholeMark(r.country, vc);
+        if (dagger) usedMarked.push(r.country);
+        return `<div>${escapeHtml(r.country)}${star}${dagger}: ${fmtInt(w)}</div>`;
       });
       return `
         <div style="margin-bottom:12px">
@@ -11475,7 +11567,7 @@ if (stepTraces.length){
         </div>`;
     }).filter(Boolean);
     mount.innerHTML = blocks.length
-      ? blocks.join('') + evLabelNote(evMarked, powertrain)
+      ? blocks.join('') + evLabelNote(evMarked, powertrain) + usedInWholeNote(usedMarked)
       : `<div style="opacity:.75">No fitted series for this combination —
            none of the selected countries has a
            <strong>${escapeHtml(document.getElementById('compareVariant')
@@ -12850,6 +12942,13 @@ function updateFleetCalibrationStatus(countries, options){
 /* Display label only (data keys stay as they are): the rest of the site says "UK". */
 function fleetDisplayName(name){ return name === 'United Kingdom' ? 'UK' : name; }
 
+function updateFleetUsedNote(){
+  const sel = document.getElementById('fleetCountries');
+  const names = [...(sel?.selectedOptions || [])].map(o => o.value).filter(Boolean);
+  renderUsedInWholeNote(document.getElementById('fleetUsedNote'),
+    names.map(c => ({ country: c, variant: 'whole' })));
+}
+
 function populateFleetCountries() {
   const sel = document.getElementById("fleetCountries");
   if (!sel) return;
@@ -12881,7 +12980,7 @@ function populateFleetCountries() {
     if (regionNames) {
       try { label = regionNames.of(c) || c; } catch { label = c; }
     }
-    opt.textContent = fleetDisplayName(label);
+    opt.textContent = fleetDisplayName(label) + usedInWholeMark(c, 'whole');
     // Keep the full name + Gallery aliases searchable (UK ← "United Kingdom").
     const bits = [];
     if (fleetDisplayName(label) !== label) bits.push(label);
@@ -13971,6 +14070,7 @@ document.getElementById('fleetInflowDecayFloor')
 // the DOM nodes are replaced on every call.
 document.getElementById("fleetCountries")?.addEventListener("change", () => {
   updateCategoryCheckboxes();
+  updateFleetUsedNote();
   updateFleetPlot();
 });
 

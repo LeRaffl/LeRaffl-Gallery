@@ -141,6 +141,15 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 > `Georgia.csv` `Whole` keeps that scope (as it had when entered by hand;
 > [52-source-georgia.md](52-source-georgia.md) §4).
 >
+> **Gallery and cross-country views.** The variant dropdown still says
+> "New Cars" because that is the default for most countries. Georgia and
+> Malaysia are marked on the gallery card (scope badge) and with a † in
+> Compare, Rankings, Fleet and the Builder country list, plus a short note
+> (`SCOPE_BADGES` / `USED_IN_WHOLE` in `index.html`). Albania's chart
+> titles already drop "New"; its gallery and cross-country labels stay as
+> they are until the source can be split ([#342](https://github.com/LeRaffl/LeRaffl-Gallery/issues/342)).
+> Peru's "may include near-new used imports" stays in the footnote only.
+>
 > **South Africa** is wide in a different direction: new vehicles only, but
 > **every segment** — naamsa's BEV / PHEV / HEV table covers passenger cars,
 > bakkies and minibuses (LCV), medium / heavy / extra-heavy trucks and buses

@@ -165,8 +165,7 @@ of 42,758 (21.4%) were at most two years old and 33,607 (78.6%) older
 imports, Georgia is in `FIRST_REG_SOURCES` (`R/render_country.R`): the
 extrapolation titles say "first registrations" instead of "new
 registrations" (y-axis "First Registration Share", legend "First
-Registrations", annotation "First-registration ICE in"). The gallery label
-("New Cars") is unchanged for now — open question in the follow-up issue.
+Registrations", annotation "First-registration ICE in"). The gallery card now carries a scope badge ("First registrations · all vehicles incl. used imports"), and Georgia is marked with a † in Compare, Rankings, Fleet and the Builder country list (#342). The variant dropdown still says "New Cars" because that is the default for most countries.
 
 ## 5. Governance and validation
 

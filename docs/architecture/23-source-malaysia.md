@@ -155,6 +155,8 @@ earlier data is available from this source. The backfill covers
   Malaysian registration, so grey-market reconditioned imports (mostly from
   Japan) are in the counts; the data has no new/used field. The footnote says
   so; the charts keep the "new registrations" wording (recons are a minority).
+  The gallery card carries a scope badge, and Malaysia is marked with a † in
+  Compare, Rankings, Fleet and the Builder country list (#342).
 - **No commercial vehicle split.** The `cars` catalogue covers passenger
   cars only. Vans, trucks, and buses are not in scope from this source.
 - **greendiesel merged into diesel.** A small number of registrations use
