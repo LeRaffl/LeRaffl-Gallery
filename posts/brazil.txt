@@ -5,5 +5,5 @@
 
 Trailing 12 months are:
 7.1% BEV
-6.2% PHEV
-86.7% ICE (of which 6.0%p were HEV)
+6.3% PHEV
+86.6% ICE (of which 6.0%p were HEV)
