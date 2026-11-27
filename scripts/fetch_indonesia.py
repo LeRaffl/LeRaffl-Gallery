@@ -114,10 +114,18 @@ FUEL_COLUMN = {
     "BEV": "BEV", "EV": "BEV",   # some model rows print EV instead of BEV
     "HEV": "HEV", "PHEV": "PHEV",
 }
-# Category-column labels ("PICK UP GVW < 5 Ton") used to sit at x0 < 190.
-# On the tighter two-page Jan-Okt 2026 layout they start around x=197;
-# 240 still stops before the brand column (~249).
+# Fallback right edge of the PU/TRUCK category column when the sheet
+# header has no BRAND word. Wide enough for the Jan-Okt 2026 labels
+# (they start around x=197) and still used only as a fallback — the
+# live cutoff is pu_label_x_max(), which reads the BRAND header.
 PU_LABEL_X_MAX = 240
+# Tokens that make up a GVW subsection label ("PICK UP GVW < 5 Ton").
+# Brand names are excluded even if they sit slightly left of the BRAND
+# header (e.g. "MERCEDES" at x=245.6 vs BRAND at 250.6).
+PU_LABEL_TOKEN_RE = re.compile(
+    r"^(PICK|UP|UP/TRUCK|TRUCK|GVW|TON|[<>\-]|[0-9]+(?:\.[0-9]+)?)(?:\.)?$",
+    re.I,
+)
 FUEL_KEYS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 
 MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -386,26 +394,57 @@ def process_region(rows, key, parsed):
         segment_pu_truck(rows, fuel_rows, cumulative_tops, parsed)
 
 
+def is_pu_label_token(text):
+    return bool(PU_LABEL_TOKEN_RE.fullmatch(text.strip()))
+
+
+def pu_label_x_max(rows, default=PU_LABEL_X_MAX):
+    """Right edge of the category column, from the sheet's BRAND header.
+
+    Layout-adaptive: the older 3-page editions put labels at x0 < 190,
+    the two-page Jan-Okt 2026 edition further right (~197–229). In both
+    cases the BRAND header marks the start of the brand column, so words
+    with x0 < that edge belong to the category label. Falls back to
+    PU_LABEL_X_MAX when the header is missing.
+    """
+    for r in rows:
+        for w in r["words"]:
+            if w["text"].upper() == "BRAND":
+                return w["x0"]
+    return default
+
+
+def pu_segment_label(rows, lo, hi, xmax):
+    """Join GVW-band tokens in (lo, hi] left of xmax, ignoring brand names."""
+    words = [
+        w["text"]
+        for r in rows if lo < r["top"] <= hi
+        for w in r["words"]
+        if w["x0"] < xmax and is_pu_label_token(w["text"])
+    ]
+    return " ".join(words)
+
+
 def segment_pu_truck(rows, fuel_rows, cumulative_tops, parsed):
     """Split the PICK UP/TRUCK sheet into GVW subsections.
 
     Subsections end with a CUMULATIVE row; the label ("PICK UP GVW < 5 Ton",
-    "TRUCK GVW 5 - 10 Ton", ...) sits vertically centered in the leftmost
-    category column (x0 < PU_LABEL_X_MAX; 240, not the older 190 — see
-    the constant).
+    "TRUCK GVW 5 - 10 Ton", ...) sits in the leftmost category column.
+    The right edge of that column is read from the BRAND header so a
+    return to the older 3-page layout (labels at x0 < 190) keeps working.
     """
+    xmax = pu_label_x_max(rows)
     boundaries = sorted(cumulative_tops)
     for i, hi in enumerate(boundaries):
         lo = boundaries[i - 1] if i else 0
         seg_fuel = [fr for fr in fuel_rows if lo < fr["top"] <= hi]
         if not seg_fuel:
             continue
-        label_words = [
-            w["text"]
-            for r in rows if lo < r["top"] <= hi
-            for w in r["words"] if w["x0"] < PU_LABEL_X_MAX
-        ]
-        label = " ".join(label_words)
+        label = pu_segment_label(rows, lo, hi, xmax)
+        # If the header-derived cutoff missed the label (layout we have
+        # not seen), retry with the wide fallback before giving up.
+        if not re.search(r"PICK\s*UP|TRUCK|GVW", label, re.I) and xmax != PU_LABEL_X_MAX:
+            label = pu_segment_label(rows, lo, hi, PU_LABEL_X_MAX)
         months = defaultdict(lambda: defaultdict(int))
         categories = set()
         for fr in seg_fuel:

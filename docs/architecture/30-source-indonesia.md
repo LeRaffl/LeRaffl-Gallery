@@ -155,9 +155,12 @@ Parsing gotchas, all handled in `scripts/fetch_indonesia.py`:
   `( 1)` / `(1)`. These are -1, not unparseable cells. Coercing with
   `v or 0` would also turn -1 into 0 and must not be used.
 * **PU/TRUCK category labels**: "PICK UP GVW < 5 Ton" and the truck GVW
-  bands sit in the leftmost category column. On the two-page layout they
-  start around x=197, past the older x<190 cutoff, so the cutoff is 240
-  (still left of the brand column at ~249).
+  bands sit in the leftmost category column. The right edge of that
+  column is read from the sheet's BRAND header (fallback x=240 if the
+  header is missing), and only GVW-band tokens are kept — so a return to
+  the older 3-page layout (labels at x0 < 190) and the tighter two-page
+  layout (labels ~197–229, some brand names starting left of the header)
+  use the same rule.
 * **Corrupt digits**: some spec columns render `0` as `-`
   (`462-X1776X146-`) — a font-encoding defect in the source file. Sales
   columns are unaffected; if it ever bleeds into them the checksums below

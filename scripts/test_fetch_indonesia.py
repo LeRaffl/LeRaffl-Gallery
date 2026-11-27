@@ -164,23 +164,71 @@ def test_ev_fuel_token_maps_to_bev():
     assert fi.FUEL_COLUMN["BEV"] == "BEV"
 
 
-def test_pu_label_cutoff_reaches_category_column():
-    """'PICK UP GVW < 5 Ton' starts around x=197 on the Jan-Okt 2026 pages."""
-    assert fi.PU_LABEL_X_MAX == 240
-    words = [
-        {"text": "PICK", "x0": 196.6},
-        {"text": "UP", "x0": 200.4},
-        {"text": "GVW", "x0": 219.2},
-        {"text": "<", "x0": 223.2},
-        {"text": "5", "x0": 224.7},
-        {"text": "Ton", "x0": 225.9},
-        {"text": "DAIHATSU", "x0": 249.4},
+def _row(top, *pairs):
+    """pairs: (text, x0) — enough for pu_label_x_max / pu_segment_label."""
+    words = [{"text": t, "x0": x, "x1": x + 4, "top": top} for t, x in pairs]
+    return {"top": top, "words": words, "text": " ".join(t for t, _ in pairs)}
+
+
+def test_pu_label_x_max_reads_brand_header():
+    """Cutoff follows the BRAND header so both layouts share one rule."""
+    # Jan-Okt 2026 two-page positions (measured)
+    new_layout = [_row(10, ("CATEGORY", 209.1), ("BRAND", 250.6), ("MODEL/TYPE", 291.2))]
+    assert fi.pu_label_x_max(new_layout) == 250.6
+    # Pre-Okt 3-page layout as documented: labels at x0 < 190, so BRAND
+    # starts at or right of 190. A typical gap: CATEGORY then BRAND at 200.
+    old_layout = [_row(10, ("CATEGORY", 160.0), ("BRAND", 200.0), ("MODEL/TYPE", 240.0))]
+    assert fi.pu_label_x_max(old_layout) == 200.0
+    assert fi.pu_label_x_max([]) == fi.PU_LABEL_X_MAX == 240
+
+
+def test_pu_segment_label_new_layout_coordinates():
+    """Jan-Okt 2026: label starts ~197 (past the old 190 cutoff); MERCEDES
+    sits slightly left of the BRAND header and must not enter the label."""
+    rows = [
+        _row(10, ("CATEGORY", 209.1), ("BRAND", 250.6)),
+        _row(20, ("PICK", 196.6), ("UP", 200.4), ("GVW", 219.2),
+             ("<", 223.2), ("5", 224.7), ("Ton", 225.9),
+             ("DAIHATSU", 249.4)),
+        _row(30, ("TRUCK", 197.1), ("GVW", 218.4), ("5", 222.5),
+             ("-", 223.7), ("10", 224.7), ("Ton", 226.6),
+             ("MERCEDES", 245.6)),
     ]
-    kept = [w["text"] for w in words if w["x0"] < fi.PU_LABEL_X_MAX]
-    assert kept == ["PICK", "UP", "GVW", "<", "5", "Ton"]
-    assert "DAIHATSU" not in kept
-    # the pre-2026 cutoff of 190 would have dropped the whole label
-    assert [w["text"] for w in words if w["x0"] < 190] == []
+    xmax = fi.pu_label_x_max(rows)
+    pick = fi.pu_segment_label(rows, 15, 25, xmax)
+    truck = fi.pu_segment_label(rows, 25, 35, xmax)
+    assert pick == "PICK UP GVW < 5 Ton"
+    assert truck == "TRUCK GVW 5 - 10 Ton"
+    assert "DAIHATSU" not in pick and "MERCEDES" not in truck
+    # the old hardcoded 190 cutoff would have missed both labels
+    assert fi.pu_segment_label(rows, 15, 25, 190) == ""
+
+
+def test_pu_segment_label_old_layout_coordinates():
+    """3-page layout as the previous cutoff assumed: label words at
+    x0 < 190, brand column from x=200. A cutoff of 240 would have
+    swallowed the brand; the header-derived edge plus the token filter
+    must not."""
+    rows = [
+        _row(10, ("CATEGORY", 160.0), ("BRAND", 200.0)),
+        _row(20, ("PICK", 150.0), ("UP", 158.0), ("GVW", 170.0),
+             ("<", 178.0), ("5", 182.0), ("Ton", 186.0),
+             ("DAIHATSU", 205.0)),
+        _row(30, ("TRUCK", 152.0), ("GVW", 168.0), ("5", 176.0),
+             ("-", 180.0), ("10", 184.0), ("Ton", 188.0),
+             ("HINO", 205.0)),
+        # a brand that starts *left* of a naive 240 fallback
+        _row(40, ("GVW", 168.0), (">", 176.0), ("24", 180.0),
+             ("Ton", 186.0), ("TOYOTA", 202.0)),
+    ]
+    xmax = fi.pu_label_x_max(rows)
+    assert xmax == 200.0
+    assert fi.pu_segment_label(rows, 15, 25, xmax) == "PICK UP GVW < 5 Ton"
+    assert fi.pu_segment_label(rows, 25, 35, xmax) == "TRUCK GVW 5 - 10 Ton"
+    assert fi.pu_segment_label(rows, 35, 45, xmax) == "GVW > 24 Ton"
+    # 240 would still be safe here only because of the token filter
+    assert "TOYOTA" not in fi.pu_segment_label(rows, 35, 45, 240)
+    assert "DAIHATSU" not in fi.pu_segment_label(rows, 15, 25, 240)
 
 
 def main():
