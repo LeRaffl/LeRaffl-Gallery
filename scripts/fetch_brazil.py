@@ -52,10 +52,12 @@ Column mapping (Portuguese → CSV column)
     GASOLINA          → PETROL
     DIESEL            → DIESEL
     FLEX FUEL         → FLEXFUEL    (Brazil-specific: gasoline + ethanol)
-    ETANOL            → OTHERS      (pure-ethanol cars; the old workbook had
-                                     no such row, so OTHERS was always 0 before
-                                     2026-09 — tiny volumes, ICE side)
+    ETANOL            → OTHERS      (pure-ethanol cars; small counts)
     sum of all above  → TOTAL       (checked against ANFAVEA's own TOTAL column)
+
+A fuel the header does not list is left empty, never stored as 0. A cell the
+table shows as 0 or "-" is a counted zero and stays 0. The old workbook had
+no ethanol row, so imported OTHERS was 0; the dashboard does report it.
 
 An unknown fuel label aborts the run rather than being silently dropped, so a
 new ANFAVEA category shows up as a red workflow instead of a shrinking TOTAL.
@@ -231,6 +233,7 @@ def parse_table(html: str) -> dict[str, dict]:
         col_map[i] = FUEL_MAP[fuel]
     if not col_map:
         raise RuntimeError(f"No fuel columns in ANFAVEA table header: {header}")
+    present_cols = set(col_map.values())
     print(f"Fuel columns found: {[header[i] for i in col_map]}")
 
     result: dict[str, dict] = {}
@@ -239,18 +242,20 @@ def parse_table(html: str) -> dict[str, dict]:
         period = parse_period(cells[0].get_text(" ", strip=True))
         if period is None:
             continue
-        values = dict.fromkeys(FUEL_COLUMNS, 0.0)
+        values = {col: 0.0 for col in present_cols}
         for i, col in col_map.items():
             values[col] += _cell_value(cells[i])
-        if all(v == 0.0 for v in values.values()):
+        if not values or all(v == 0.0 for v in values.values()):
             continue
         row: dict = {
             "period": period,
             "time_interval": "monthly",
             "variant": "Whole",
             "source": "ANFAVEA",
-            **values,
         }
+        for col in FUEL_COLUMNS:
+            # Absent from this table: not reported. A seen 0 stays 0.0.
+            row[col] = values[col] if col in present_cols else ""
         row["TOTAL"] = sum(values.values())
         if total_idx is not None:
             reported = _cell_value(cells[total_idx])
@@ -284,8 +289,21 @@ def upsert_csv(csv_path: str, new_rows: dict[str, dict], provenance: str) -> tup
         else:
             old = existing[period]
             for col in FUEL_COLUMNS:
-                old_val = float(old.get(col) or 0)
-                new_val = float(new_row[col])
+                old_raw = old.get(col, "")
+                new_raw = new_row.get(col, "")
+                old_missing = old_raw in ("", None)
+                new_missing = new_raw in ("", None)
+                if old_missing and new_missing:
+                    continue
+                if old_missing or new_missing:
+                    print(
+                        f"  WARNING {period} {col}: "
+                        f"existing={old_raw or 'empty'}, new={new_raw or 'empty'} "
+                        f"— reported/unreported changed"
+                    )
+                    continue
+                old_val = float(old_raw)
+                new_val = float(new_raw)
                 if old_val > 0 and abs(new_val - old_val) / old_val > 0.5:
                     print(
                         f"  WARNING {period} {col}: existing={old_val:.0f}, "
