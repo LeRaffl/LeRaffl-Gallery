@@ -105,7 +105,7 @@ jobs:
         run: python3 scripts/runner_canary.py leg "$TARGET" --out "$RUNNER_TEMP/canary" --image "$IMAGE"
 
       - if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: canary-${{ matrix.target }}-${{ matrix.os }}
           path: ${{ runner.temp }}/canary
@@ -141,7 +141,7 @@ jobs:
           exit "$rc"
 
       - if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: runner-canary-report
           path: ${{ runner.temp }}/report.md

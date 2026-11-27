@@ -121,7 +121,7 @@ jobs:
       # run is debugged from (python scripts/fetch_taiwan.py --from-dir DIR).
       - name: Upload MOTC responses
         if: always() && inputs.debug_dump == true
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: taiwan-motc-responses
           path: taiwan_dump/
