@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-27T14:17:36Z",
+ "generated": "2026-11-27T20:34:48Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -8472,6 +8472,14 @@
    "slug": "thailand_hdv",
    "period": "2026-10",
    "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-11-27",
+   "label": "Indonesia",
+   "base": "Indonesia",
+   "slug": "indonesia",
+   "period": "2026-10",
+   "flag": "🇮🇩"
   }
  ]
 }

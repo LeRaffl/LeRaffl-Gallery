@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-27T14:17:36Z",
+ "generated": "2026-11-27T20:34:48Z",
  "today": "2026-11-27",
  "countries": [
   {
@@ -1954,11 +1954,11 @@
    "source_url": "https://www.gaikindo.or.id/",
    "cadence_text": "daily 09:35 UTC, 10th–EOM (GAIKINDO publishes ~10th–15th)",
    "interval": "monthly",
-   "latest_period": "2026-09",
+   "latest_period": "2026-10",
    "expected_period": "2026-10",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2005,38 +2005,38 @@
     ],
     "workflow": ".github/workflows/fetch-indonesia.yml"
    },
-   "last_render": "2026-10-26",
+   "last_render": "2026-11-27",
    "flag": "🇮🇩",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2010-01",
-     "rows": 201,
+     "rows": 202,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Pickups",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2026-01",
-     "rows": 9,
+     "rows": 10,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2026-01",
-     "rows": 9,
+     "rows": 10,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-09",
+     "latest": "2026-10",
      "first": "2026-01",
-     "rows": 9,
+     "rows": 10,
      "cadence": "monthly",
      "in_repo": true
     }

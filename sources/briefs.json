@@ -287,14 +287,14 @@
  },
  "Indonesia": {
   "data_file": "data/Indonesia.csv",
-  "delta": 13.8,
+  "delta": 12.5,
   "head": "About 1 in 4 new cars is battery electric.",
   "is_stub": false,
-  "share": 25.1,
+  "share": 25.4,
   "slug": "indonesia",
   "source": "GAIKINDO — Indonesian Automotive Industry Association",
   "source_url": "https://www.gaikindo.or.id/",
-  "through": "Sep 2026"
+  "through": "Oct 2026"
  },
  "Ireland": {
   "data_file": "data/Ireland.csv",
