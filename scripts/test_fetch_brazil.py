@@ -10,8 +10,10 @@ returned on 2026-09-23 for Total Leves by fuel, trimmed to two months plus the
 closing TOTAL row.
 """
 import csv
+import io
 import sys
 import tempfile
+from contextlib import redirect_stdout
 from datetime import date
 from pathlib import Path
 
@@ -89,6 +91,68 @@ def test_default_window():
     # Jan/Feb still re-read the previous year so December lands.
     assert fb.default_window(date(2027, 1, 10)) == ("2026-01", "2027-01")
     assert fb.default_window(date(2027, 3, 10)) == ("2027-01", "2027-03")
+
+
+def _table(headers: list[str], body: str) -> str:
+    return (
+        "<table><thead><tr><th>PERÍODO</th>"
+        + "".join(f"<th>TOTAL LEVES - {h}</th>" for h in headers)
+        + "<th>TOTAL</th></tr></thead><tbody>"
+        + body
+        + "</tbody></table>"
+    )
+
+
+def test_absent_fuel_column_is_empty_not_zero():
+    """A fuel the header does not list was not reported. 0 would be a counted zero."""
+    headers = ["DIESEL", "ELÉTRICO", "FLEX FUEL", "GASOLINA", "HÍBRIDO", "HÍBRIDO PLUG-IN"]
+    html = _table(headers, row(
+        "2025 - JUN",
+        [(10, "10"), (20, "20"), (30, "30"), (40, "40"), (50, "50"), (60, "60")],
+        (210, "210"),
+    ))
+    got = fb.parse_table(html)["2025-06"]
+    assert got["OTHERS"] == "", got["OTHERS"]
+    assert got["BEV"] == 20.0 and got["DIESEL"] == 10.0
+    assert got["TOTAL"] == 210.0
+
+
+def test_reported_zero_ethanol_stays_zero():
+    html = _table(HEADER, row(
+        "2025 - JUL",
+        [(10, "10"), (20, "20"), (0, "0"), (30, "30"), (40, "40"), (50, "50"), (60, "60")],
+        (210, "210"),
+    ))
+    got = fb.parse_table(html)["2025-07"]
+    assert got["OTHERS"] == 0.0
+    assert got["TOTAL"] == 210.0
+
+
+def test_upsert_writes_unreported_fuel_as_empty():
+    with tempfile.TemporaryDirectory() as d:
+        path = Path(d) / "Brazil.csv"
+        original = (
+            ",".join(fb.CSV_COLUMNS) + "\n"
+            "2012-01,monthly,Whole,ANFAVEA,1.0,2.0,3.0,4.0,5.0,6.0,0.0,21.0,old\n"
+            "2025-06,monthly,Whole,ANFAVEA,20.0,60.0,50.0,40.0,10.0,30.0,0.0,210.0,\n"
+        )
+        path.write_text(original, encoding="utf-8")
+        new = {
+            "period": "2025-06", "time_interval": "monthly", "variant": "Whole",
+            "source": "ANFAVEA", "BEV": 20.0, "PHEV": 60.0, "HEV": 50.0,
+            "PETROL": 40.0, "DIESEL": 10.0, "FLEXFUEL": 30.0, "OTHERS": "",
+            "TOTAL": 210.0,
+        }
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            added, updated = fb.upsert_csv(str(path), {"2025-06": new}, "prov")
+        assert (added, updated) == (0, 1)
+        assert "WARNING 2025-06 OTHERS" in buf.getvalue()
+        lines = path.read_text(encoding="utf-8").splitlines()
+        assert lines[1] == original.splitlines()[1]
+        assert lines[2] == (
+            "2025-06,monthly,Whole,ANFAVEA,20.0,60.0,50.0,40.0,10.0,30.0,,210.0,prov"
+        )
 
 
 def test_upsert_keeps_untouched_rows_byte_identical():

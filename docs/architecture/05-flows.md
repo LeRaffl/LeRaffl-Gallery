@@ -347,7 +347,7 @@ sequenceDiagram
 
 **Why overwrite the running year:** ANFAVEA revises recent months (the Central de Dados figures for early 2026 differ by a few hundred units between BEV/PHEV/HEV from the last workbook). Re-reading the window keeps the series on ANFAVEA's current numbers; older years are not re-fetched unless dispatched with `year` or `from`/`to` (invariant 3).
 
-**Why ETANOL → OTHERS:** the Central de Dados reports a small pure-ethanol category that the workbook didn't. Mapping it to the existing, previously always-zero `OTHERS` column keeps it on the combustion side without adding a column to all of `data/Brazil.csv`.
+**Why ETANOL → OTHERS:** the Central de Dados reports a small pure-ethanol category that the workbook didn't break out. Mapping it to the existing `OTHERS` column keeps it on the combustion side without adding a column. A fuel the header does not list is written empty, not 0 — a counted zero and an unreported category are different facts, and an empty `OTHERS` in an otherwise filled column is what stalls the strict TTM window.
 
 **No brands / models:** the Central de Dados has registrations by company (`empresa`) and brand (`marca`), but only as totals — the brand dimension cannot be crossed with fuel, and there are no models. A `market/brazil_top.json` (the "who sells the electrified cars" section) is therefore not possible from this source.
 
