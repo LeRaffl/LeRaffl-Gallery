@@ -33,6 +33,7 @@ caveats:
 - When SMMT releases early, its first figures are preliminary ("subject to change"); the final figures follow a few days later and replace them. Until then the month's row says "provisional" in its notes.
 - SMMT restates last year's figures in each release (the year-ago column). The chart keeps each month as first published; the difference is reported by every fetch run and is small — mostly a few hundred cars moved between HEV and PETROL.
 - The UK's two plate-change months (March and September) carry about a quarter of the year's registrations each, February and August very few. Read single months against the same month a year earlier, not against the month before.
+- 2015-01..2017-12 have no petrol/diesel split in the transcribed rows. Those cells are empty, not zero. From 2018-01 the split is present.
 - The brand table on this page is every powertrain together — SMMT publishes its brand table without a fuel split, and only a top 10 of models.
 processing:
 - title: Find the release
@@ -108,6 +109,10 @@ Fuel:      BEV → BEV; PHEV → PHEV; HEV → HEV; PETROL (incl. MHEV) → PETR
            DIESEL (incl. MHEV) → DIESEL; TOTAL; OTHERS = residual (0)
 History:   2015-01 → 2026-09 hand-entered from the same releases (source
            "SMMT"); automated from the October 2026 release on.
+           2015-01..2017-12 PETROL and DIESEL are empty: that split was
+           not in the transcribed rows, and the old zeros were not a
+           market with no petrol cars (TOTAL is ~150–250k). From 2018-01
+           the split is present; OTHERS stays the residual, 0 so far.
 Checked:   all 23 releases 2024-11 → 2026-09 reproduce the CSV byte for byte
            (fuel columns); YTD − earlier months = month within 3 cars.
 ```

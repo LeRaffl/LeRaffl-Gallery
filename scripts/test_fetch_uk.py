@@ -10,6 +10,7 @@ table. These cases pin every fuel label, each header layout seen since
 2024-11, the column-shift checks, the year-to-date and plausibility guards,
 the line-level upsert, the brand / top-model tables, the self-throttle and\nthe preliminary -> final replacement of a month.
 """
+import csv
 import json
 import sys
 import tempfile
@@ -433,6 +434,20 @@ def test_a_provisional_row_does_not_throttle():
             pass
         finally:
             fu.find_release = old_find
+
+
+def test_2015_2017_petrol_diesel_are_unreported():
+    """#427: 2015–17 stored 0 for a petrol/diesel split the transcribed rows did not have."""
+    path = Path(__file__).resolve().parents[1] / "data" / "UK.csv"
+    seen = 0
+    with path.open(newline="", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            if "2015-01" <= r["period"] <= "2017-12" and r["variant"] == "Whole":
+                seen += 1
+                assert r["PETROL"] == "" and r["DIESEL"] == "" and r["OTHERS"] == "", r["period"]
+            if r["period"] == "2018-01" and r["variant"] == "Whole":
+                assert float(r["PETROL"]) > 1000
+    assert seen == 36
 
 
 def main() -> int:
