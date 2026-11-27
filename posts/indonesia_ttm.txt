@@ -1,9 +1,9 @@
 🇮🇩 Indonesia - TTM Market Split
 
-Oct24–Sep25  vs  Oct25–Sep26
-+13.8pp  BEV   (11.3% → 25.1%)
-+1.3pp  PHEV  (0.5% → 1.8%)
-+2.5pp  HEV   (10.0% → 12.5%)
-−17.5pp  ICE   (78.2% → 60.6%)
+Nov24–Oct25  vs  Nov25–Oct26
++12.5pp  BEV   (12.9% → 25.4%)
++1.4pp  PHEV  (0.6% → 2.0%)
++2.7pp  HEV   (10.1% → 12.8%)
+−16.6pp  ICE   (76.4% → 59.8%)
 
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-03.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-02.
