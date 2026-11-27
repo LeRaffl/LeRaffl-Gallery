@@ -3,6 +3,11 @@
 
 Run:  python scripts/test_fetch_indonesia.py
 
+Also covers Jan-Okt 2026 layout drift (origin-text overflow into the
+January band, parenthetical negatives, EV as a BEV synonym, and the
+rightward shift of PU/TRUCK category labels) without committing the
+copyrighted source PDF.
+
 Focus: the 0-vs-empty writer defect (#438). `fuels.get(f, 0)` used to
 default every FUEL_KEY to 0 regardless of whether the PDF's fuel table ever
 listed that category for the section/variant, so "no BEV row this month"
@@ -128,6 +133,102 @@ def test_empty_to_zero_transition_is_an_update_not_noop():
         changes = fi.upsert_csv(path, "Whole", months, {"PETROL", "HEV"}, 2026,
                                  "GAIKINDO", "Wholesales Jan 2026", force=False)
         assert changes == [("2026-01", "updated")]
+
+
+def test_parse_cell_ignores_origin_overflow():
+    """'South Korea' can sit inside the January band on the 2-page layout."""
+    assert fi.parse_cell(["Korea", "2"]) == 2
+    assert fi.parse_cell(["Korea", "-"]) == 0
+    assert fi.parse_cell(["Korea"]) == 0
+    # split numbers still reassemble
+    assert fi.parse_cell(["3", "80"]) == 380
+    assert fi.parse_cell(["1", ".044"]) == 1044
+    assert fi.parse_cell(["-"]) == 0
+    assert fi.parse_cell([]) == 0
+
+
+def test_parse_cell_parenthetical_negative():
+    """GAIKINDO writes returns/adjustments as '( 1)' or '(1)'."""
+    assert fi.parse_cell(["(", "1)"]) == -1
+    assert fi.parse_cell(["(", "1", ")"]) == -1
+    assert fi.parse_cell(["(12)"]) == -12
+    # cell_or_zero must not treat -1 as missing
+    assert fi.cell_or_zero(-1) == -1
+    assert fi.cell_or_zero(None) == 0
+    assert fi.cell_or_zero(0) == 0
+
+
+def test_ev_fuel_token_maps_to_bev():
+    """Mazda 6e (and similar) print EV in the FUEL column, not BEV."""
+    assert fi.FUEL_COLUMN["EV"] == "BEV"
+    assert fi.FUEL_COLUMN["BEV"] == "BEV"
+
+
+def _row(top, *pairs):
+    """pairs: (text, x0) — enough for pu_label_x_max / pu_segment_label."""
+    words = [{"text": t, "x0": x, "x1": x + 4, "top": top} for t, x in pairs]
+    return {"top": top, "words": words, "text": " ".join(t for t, _ in pairs)}
+
+
+def test_pu_label_x_max_reads_brand_header():
+    """Cutoff follows the BRAND header so both layouts share one rule."""
+    # Jan-Okt 2026 two-page positions (measured)
+    new_layout = [_row(10, ("CATEGORY", 209.1), ("BRAND", 250.6), ("MODEL/TYPE", 291.2))]
+    assert fi.pu_label_x_max(new_layout) == 250.6
+    # Pre-Okt 3-page layout as documented: labels at x0 < 190, so BRAND
+    # starts at or right of 190. A typical gap: CATEGORY then BRAND at 200.
+    old_layout = [_row(10, ("CATEGORY", 160.0), ("BRAND", 200.0), ("MODEL/TYPE", 240.0))]
+    assert fi.pu_label_x_max(old_layout) == 200.0
+    assert fi.pu_label_x_max([]) == fi.PU_LABEL_X_MAX == 240
+
+
+def test_pu_segment_label_new_layout_coordinates():
+    """Jan-Okt 2026: label starts ~197 (past the old 190 cutoff); MERCEDES
+    sits slightly left of the BRAND header and must not enter the label."""
+    rows = [
+        _row(10, ("CATEGORY", 209.1), ("BRAND", 250.6)),
+        _row(20, ("PICK", 196.6), ("UP", 200.4), ("GVW", 219.2),
+             ("<", 223.2), ("5", 224.7), ("Ton", 225.9),
+             ("DAIHATSU", 249.4)),
+        _row(30, ("TRUCK", 197.1), ("GVW", 218.4), ("5", 222.5),
+             ("-", 223.7), ("10", 224.7), ("Ton", 226.6),
+             ("MERCEDES", 245.6)),
+    ]
+    xmax = fi.pu_label_x_max(rows)
+    pick = fi.pu_segment_label(rows, 15, 25, xmax)
+    truck = fi.pu_segment_label(rows, 25, 35, xmax)
+    assert pick == "PICK UP GVW < 5 Ton"
+    assert truck == "TRUCK GVW 5 - 10 Ton"
+    assert "DAIHATSU" not in pick and "MERCEDES" not in truck
+    # the old hardcoded 190 cutoff would have missed both labels
+    assert fi.pu_segment_label(rows, 15, 25, 190) == ""
+
+
+def test_pu_segment_label_old_layout_coordinates():
+    """3-page layout as the previous cutoff assumed: label words at
+    x0 < 190, brand column from x=200. A cutoff of 240 would have
+    swallowed the brand; the header-derived edge plus the token filter
+    must not."""
+    rows = [
+        _row(10, ("CATEGORY", 160.0), ("BRAND", 200.0)),
+        _row(20, ("PICK", 150.0), ("UP", 158.0), ("GVW", 170.0),
+             ("<", 178.0), ("5", 182.0), ("Ton", 186.0),
+             ("DAIHATSU", 205.0)),
+        _row(30, ("TRUCK", 152.0), ("GVW", 168.0), ("5", 176.0),
+             ("-", 180.0), ("10", 184.0), ("Ton", 188.0),
+             ("HINO", 205.0)),
+        # a brand that starts *left* of a naive 240 fallback
+        _row(40, ("GVW", 168.0), (">", 176.0), ("24", 180.0),
+             ("Ton", 186.0), ("TOYOTA", 202.0)),
+    ]
+    xmax = fi.pu_label_x_max(rows)
+    assert xmax == 200.0
+    assert fi.pu_segment_label(rows, 15, 25, xmax) == "PICK UP GVW < 5 Ton"
+    assert fi.pu_segment_label(rows, 25, 35, xmax) == "TRUCK GVW 5 - 10 Ton"
+    assert fi.pu_segment_label(rows, 35, 45, xmax) == "GVW > 24 Ton"
+    # 240 would still be safe here only because of the token filter
+    assert "TOYOTA" not in fi.pu_segment_label(rows, 35, 45, 240)
+    assert "DAIHATSU" not in fi.pu_segment_label(rows, 15, 25, 240)
 
 
 def main():
