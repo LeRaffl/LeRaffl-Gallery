@@ -105,7 +105,7 @@ jobs:
 
       - name: Upload bulletin PDF + text
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: colombia-bulletin
           path: ${{ runner.temp }}/colombia-bulletin

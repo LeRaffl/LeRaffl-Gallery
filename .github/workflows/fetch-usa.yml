@@ -84,7 +84,7 @@ jobs:
       # suspicious value can be checked against the source after the fact.
       - name: Upload ANL PDF
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: anl-total-sales
           path: ${{ runner.temp }}/anl_total_sales.pdf*
