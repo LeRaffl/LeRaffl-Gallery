@@ -32,9 +32,11 @@ so every run rewrites all covered months of the current year.
 
 PDF layout
 ----------
-The PDF is an Excel paste-up: 3 A3 pages, ~1.56 pt font, seven per-model
-sheets with a fixed section structure (validated against the printed
-section-total rows, so any format drift fails loudly):
+The PDF is an Excel paste-up: A3 pages (~1.56 pt font, seven per-model
+sheets). Early 2026 editions were three pages; from Jan-Okt 2026 the same
+sheets are packed onto two pages and some columns shift right. Structure is
+validated against the printed section-total rows, so any format drift fails
+loudly:
 
     1. SEDAN TYPE SALES               → Whole (passenger cars)
     2. 4X2 TYPE SALES                 → Whole
@@ -57,8 +59,12 @@ JAN..DEC header row, the fuel column from the FUEL header. Values are
 right-aligned and sometimes split into several tokens ("3 00" = 300), so
 tokens are concatenated per column band. Rows wrap vertically (long tyre
 texts); value fragments without a fuel cell are re-attached to the nearest
-fuel row. FUEL is one of G/D/BEV/HEV/PHEV; "-" and rarities (e.g. CNG
-tractor heads) go to OTHERS.
+fuel row. FUEL is one of G/D/BEV/HEV/PHEV (EV is treated as BEV — some
+rows, e.g. the Mazda 6e, print EV in the fuel column); "-" and rarities
+(e.g. CNG tractor heads) go to OTHERS. Tokens with letters that overflow
+from the ORIGIN cell into a month band ("South Korea") are ignored, and
+parenthetical figures ('( 1)' / '(1)') are GAIKINDO's negatives (returns
+or adjustments).
 
 Validation (hard failure on any mismatch):
   * per section × month: sum of model rows == printed "<SECTION> SALES TOTAL"
@@ -68,7 +74,7 @@ Validation (hard failure on any mismatch):
 CSV layout
 ----------
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-  G → PETROL, D → DIESEL, BEV/HEV/PHEV → same-named columns,
+  G → PETROL, D → DIESEL, BEV/EV/HEV/PHEV → same-named columns,
   everything else → OTHERS. TOTAL = sum of the six fuel columns.
   source = "GAIKINDO", notes = portal file title.
 """
@@ -103,7 +109,15 @@ CSV_COLUMNS = [
     "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL", "notes",
 ]
 
-FUEL_COLUMN = {"G": "PETROL", "D": "DIESEL", "BEV": "BEV", "HEV": "HEV", "PHEV": "PHEV"}
+FUEL_COLUMN = {
+    "G": "PETROL", "D": "DIESEL",
+    "BEV": "BEV", "EV": "BEV",   # some model rows print EV instead of BEV
+    "HEV": "HEV", "PHEV": "PHEV",
+}
+# Category-column labels ("PICK UP GVW < 5 Ton") used to sit at x0 < 190.
+# On the tighter two-page Jan-Okt 2026 layout they start around x=197;
+# 240 still stops before the brand column (~249).
+PU_LABEL_X_MAX = 240
 FUEL_KEYS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 
 MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -163,13 +177,33 @@ def canon_section(title_body):
 
 
 def parse_cell(tokens):
-    """Concatenate the tokens of one column band into an int; '-'/empty = 0."""
-    joined = "".join(tokens).replace(".", "").replace(",", "").strip()
+    """Concatenate the tokens of one column band into an int; '-'/empty = 0.
+
+    Alphabetic tokens are dropped first: on the tighter Jan-Okt 2026 layout
+    the ORIGIN value (e.g. "South Korea") can overflow into the January
+    band and would otherwise make a valid number unparseable. Parenthetical
+    figures are GAIKINDO's notation for negatives — '( 1)' or '(1)' is -1.
+    Split numbers ('3 00' = 300) are still reassembled after the filter.
+    """
+    kept = [t for t in tokens if not re.search(r"[A-Za-z]", t)]
+    joined = "".join(kept).replace(".", "").replace(",", "").strip()
     if joined in ("", "-"):
         return 0
+    m = re.fullmatch(r"\(\s*(\d+)\s*\)", joined)
+    if m:
+        return -int(m.group(1))
     if not re.fullmatch(r"\d+", joined):
         return None
     return int(joined)
+
+
+def cell_or_zero(v):
+    """None (unparseable) becomes 0; a real 0 or a negative stays as-is.
+
+    `v or 0` would also turn -1 into 0, which drops GAIKINDO's parenthetical
+    adjustments and silently breaks the September checksums.
+    """
+    return 0 if v is None else v
 
 
 def find_month_bands(rows):
@@ -288,7 +322,7 @@ def process_region(rows, key, parsed):
         m = SUMMARY_RE.match(r["text"])
         if m:
             if any(vals):
-                parsed.summary[m.group(1)] = [v or 0 for v in vals]
+                parsed.summary[m.group(1)] = [cell_or_zero(v) for v in vals]
             continue
 
         # tokens left of the month columns decide the row type; TOTAL rows
@@ -300,7 +334,7 @@ def process_region(rows, key, parsed):
             continue
         if re.search(r"\bTOTAL\b", left_text):
             if "SALES" in left_text:
-                parsed.printed[key] = [v or 0 for v in vals]
+                parsed.printed[key] = [cell_or_zero(v) for v in vals]
             elif any(vals):
                 parsed.skipped[key].append(f"{r['text'][:110]!r} | read as subtotal | months: {vals}")
             continue                     # subsection totals: no data, no orphan
@@ -322,7 +356,7 @@ def process_region(rows, key, parsed):
             if any(v is None for v in vals):
                 parsed.warnings.append(f"{key}: unparseable cell in {r['text'][:70]!r}")
             fuel_rows.append({"top": r["top"], "fuel": fuel,
-                              "vals": [v or 0 for v in vals]})
+                              "vals": [cell_or_zero(v) for v in vals]})
         elif any(vals) and not any(v is None for v in vals):
             orphans.append({"top": r["top"], "vals": vals, "text": r["text"]})
         elif any(vals):
@@ -357,7 +391,8 @@ def segment_pu_truck(rows, fuel_rows, cumulative_tops, parsed):
 
     Subsections end with a CUMULATIVE row; the label ("PICK UP GVW < 5 Ton",
     "TRUCK GVW 5 - 10 Ton", ...) sits vertically centered in the leftmost
-    category column (x0 < 190).
+    category column (x0 < PU_LABEL_X_MAX; 240, not the older 190 — see
+    the constant).
     """
     boundaries = sorted(cumulative_tops)
     for i, hi in enumerate(boundaries):
@@ -368,7 +403,7 @@ def segment_pu_truck(rows, fuel_rows, cumulative_tops, parsed):
         label_words = [
             w["text"]
             for r in rows if lo < r["top"] <= hi
-            for w in r["words"] if w["x0"] < 190
+            for w in r["words"] if w["x0"] < PU_LABEL_X_MAX
         ]
         label = " ".join(label_words)
         months = defaultdict(lambda: defaultdict(int))

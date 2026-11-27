@@ -3,6 +3,11 @@
 
 Run:  python scripts/test_fetch_indonesia.py
 
+Also covers Jan-Okt 2026 layout drift (origin-text overflow into the
+January band, parenthetical negatives, EV as a BEV synonym, and the
+rightward shift of PU/TRUCK category labels) without committing the
+copyrighted source PDF.
+
 Focus: the 0-vs-empty writer defect (#438). `fuels.get(f, 0)` used to
 default every FUEL_KEY to 0 regardless of whether the PDF's fuel table ever
 listed that category for the section/variant, so "no BEV row this month"
@@ -128,6 +133,54 @@ def test_empty_to_zero_transition_is_an_update_not_noop():
         changes = fi.upsert_csv(path, "Whole", months, {"PETROL", "HEV"}, 2026,
                                  "GAIKINDO", "Wholesales Jan 2026", force=False)
         assert changes == [("2026-01", "updated")]
+
+
+def test_parse_cell_ignores_origin_overflow():
+    """'South Korea' can sit inside the January band on the 2-page layout."""
+    assert fi.parse_cell(["Korea", "2"]) == 2
+    assert fi.parse_cell(["Korea", "-"]) == 0
+    assert fi.parse_cell(["Korea"]) == 0
+    # split numbers still reassemble
+    assert fi.parse_cell(["3", "80"]) == 380
+    assert fi.parse_cell(["1", ".044"]) == 1044
+    assert fi.parse_cell(["-"]) == 0
+    assert fi.parse_cell([]) == 0
+
+
+def test_parse_cell_parenthetical_negative():
+    """GAIKINDO writes returns/adjustments as '( 1)' or '(1)'."""
+    assert fi.parse_cell(["(", "1)"]) == -1
+    assert fi.parse_cell(["(", "1", ")"]) == -1
+    assert fi.parse_cell(["(12)"]) == -12
+    # cell_or_zero must not treat -1 as missing
+    assert fi.cell_or_zero(-1) == -1
+    assert fi.cell_or_zero(None) == 0
+    assert fi.cell_or_zero(0) == 0
+
+
+def test_ev_fuel_token_maps_to_bev():
+    """Mazda 6e (and similar) print EV in the FUEL column, not BEV."""
+    assert fi.FUEL_COLUMN["EV"] == "BEV"
+    assert fi.FUEL_COLUMN["BEV"] == "BEV"
+
+
+def test_pu_label_cutoff_reaches_category_column():
+    """'PICK UP GVW < 5 Ton' starts around x=197 on the Jan-Okt 2026 pages."""
+    assert fi.PU_LABEL_X_MAX == 240
+    words = [
+        {"text": "PICK", "x0": 196.6},
+        {"text": "UP", "x0": 200.4},
+        {"text": "GVW", "x0": 219.2},
+        {"text": "<", "x0": 223.2},
+        {"text": "5", "x0": 224.7},
+        {"text": "Ton", "x0": 225.9},
+        {"text": "DAIHATSU", "x0": 249.4},
+    ]
+    kept = [w["text"] for w in words if w["x0"] < fi.PU_LABEL_X_MAX]
+    assert kept == ["PICK", "UP", "GVW", "<", "5", "Ton"]
+    assert "DAIHATSU" not in kept
+    # the pre-2026 cutoff of 190 would have dropped the whole label
+    assert [w["text"] for w in words if w["x0"] < 190] == []
 
 
 def main():

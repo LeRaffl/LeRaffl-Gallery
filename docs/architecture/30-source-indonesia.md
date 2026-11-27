@@ -95,7 +95,10 @@ year-end stock pushes.
 
 ## 3. The PDF: seven Excel sheets pasted at 1.56 pt
 
-Three A3 pages, each a paste-up of per-model Excel sheets in ~1.56 pt font.
+A3 pages (three in earlier 2026 editions; two from the Jan-Okt 2026 file),
+each a paste-up of per-model Excel sheets in ~1.56 pt font. The tighter
+two-page layout shifts some columns right and is what the parser has to
+tolerate from that edition on.
 Sheet titles carry an Excel-artifact backtick date (`` `JAN-JUN 2026 ``) that
 doubles as the coverage marker:
 
@@ -141,8 +144,20 @@ Parsing gotchas, all handled in `scripts/fetch_indonesia.py`:
   (header block, read-as-subtotal, unparseable cells, numeric rows above a
   page's first sheet title) so the next layout drift is readable from the log.
 * **Fuel column**: token under the FUEL header → `G`→PETROL, `D`→DIESEL,
-  `BEV`/`HEV`/`PHEV`→ same-named columns; `-` (blank spec rows, a few dozen
-  units/month) and rarities (`CNG` tractor heads) → OTHERS with a warning.
+  `BEV`/`EV`/`HEV`/`PHEV`→ same-named columns (`EV` is a synonym some rows
+  print instead of `BEV`, e.g. the Mazda 6e); `-` (blank spec rows, a few
+  dozen units/month) and rarities (`CNG` tractor heads) → OTHERS with a warning.
+* **Origin overflow into January**: on the two-page Jan-Okt 2026 layout,
+  a long ORIGIN value such as "South Korea" can straddle the January
+  column. Alphabetic tokens in a month band are ignored so the sales
+  figure is kept.
+* **Parenthetical negatives**: GAIKINDO writes returns/adjustments as
+  `( 1)` / `(1)`. These are -1, not unparseable cells. Coercing with
+  `v or 0` would also turn -1 into 0 and must not be used.
+* **PU/TRUCK category labels**: "PICK UP GVW < 5 Ton" and the truck GVW
+  bands sit in the leftmost category column. On the two-page layout they
+  start around x=197, past the older x<190 cutoff, so the cutoff is 240
+  (still left of the brand column at ~249).
 * **Corrupt digits**: some spec columns render `0` as `-`
   (`462-X1776X146-`) — a font-encoding defect in the source file. Sales
   columns are unaffected; if it ever bleeds into them the checksums below
