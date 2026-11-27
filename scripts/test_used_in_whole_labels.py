@@ -100,6 +100,14 @@ check("glossary still leaves Albania's UI labels to the source split",
       "gallery and cross-country labels stay as" in GLOSS
       or "labels stay as they are until the source can be split" in GLOSS)
 
+# usedInWholeNote / rankings cells call escapeHtml. The helper inside the
+# Builder IIFE is not visible to them, so a top-level copy must exist above
+# that IIFE (regression: "escapeHtml is not defined" on Compare).
+builder = H.find("// -------- BUILDER")
+top = H[:builder] if builder != -1 else H
+check("top-level escapeHtml exists before the Builder IIFE",
+      "function escapeHtml(" in top)
+
 if fails:
     print(f"\n{len(fails)} failed:")
     for n in fails:

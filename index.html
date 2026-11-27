@@ -8222,6 +8222,12 @@ function usedInWholeScope(country, variantCanon){
 function usedInWholeMark(country, variantCanon){
   return usedInWholeScope(country, variantCanon) ? ' †' : '';
 }
+// Top-level copy of the Builder/Compare helper: that one lives inside an
+// IIFE, so the gallery / rankings / note helpers above it cannot call it.
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"]/g,
+    ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]));
+}
 function usedInWholeNote(names){
   const unique = [...new Set((names || []).filter(Boolean))];
   const bits = unique.map(c => {
@@ -8230,9 +8236,10 @@ function usedInWholeNote(names){
     return `<strong>${escapeHtml(c)}</strong>: ${escapeHtml(rec.brief)}`;
   }).filter(Boolean);
   if (!bits.length) return '';
+  const pageWord = bits.length === 1 ? "the country's source page" : "the countries' source pages";
   return `<div class="used-in-whole-note" style="margin-top:8px;opacity:.75">
       † These series are not new vehicles only. ${bits.join('. ')}.
-      See the country's source page.
+      See ${pageWord}.
     </div>`;
 }
 function renderUsedInWholeNote(el, rows, keep){
@@ -9615,7 +9622,19 @@ renderTable();
           return rec ? `${c}: ${rec.brief}` : c;
         }).join('; ')
       : '';
-    const rowH=22, padTop=90, padBottom=usedFoot?86:70, padRight=40;
+    const usedFootLines=(function(text, max){
+      if(!text) return [];
+      const lines=[]; let rest=text;
+      while(rest.length>max){
+        let cut=rest.lastIndexOf(' ', max);
+        if(cut<Math.floor(max/2)) cut=max;
+        lines.push(rest.slice(0, cut));
+        rest=rest.slice(cut).trimStart();
+      }
+      if(rest) lines.push(rest);
+      return lines;
+    })(usedFoot, 140);
+    const rowH=22, padTop=90, padBottom=usedFootLines.length?70+16*usedFootLines.length:70, padRight=40;
     const padLeft=Math.ceil(maxLabelW)+16;
     const W=Math.max(900, mount.clientWidth || 1100);
     const variantsPresent=Array.from(new Set(sorted.map(d=>d.baseCanon)));
@@ -9770,18 +9789,19 @@ renderTable();
     const now=new Date();
     const today=now.getUTCFullYear()+'-'+pad2(now.getUTCMonth()+1)+'-'+pad2(now.getUTCDate())
       +' '+pad2(now.getUTCHours())+':'+pad2(now.getUTCMinutes())+' UTC';
+    const createdY=usedFootLines.length ? H-12-16*usedFootLines.length : H-12;
     svg.appendChild(svgEl('text',{
-      x:padLeft, y:usedFoot?H-28:H-12, fill:tok('--muted-2','#8a877e'),'font-size':'11'
+      x:padLeft, y:createdY, fill:tok('--muted-2','#8a877e'),'font-size':'11'
     }, `Created ${today} · ${dataRange}`));
     const tag=svgEl('text',{
-      x:W-padRight, y:usedFoot?H-28:H-12, fill:tok('--muted','#55534c'),'font-size':'11','font-weight':'600','text-anchor':'end'
+      x:W-padRight, y:createdY, fill:tok('--muted','#55534c'),'font-size':'11','font-weight':'600','text-anchor':'end'
     },'@LeRaffl');
     svg.appendChild(tag);
-    if(usedFoot){
+    usedFootLines.forEach((line,i)=>{
       svg.appendChild(svgEl('text',{
-        x:padLeft, y:H-12, fill:tok('--muted','#55534c'),'font-size':'10'
-      }, usedFoot.length>160 ? usedFoot.slice(0,157)+'…' : usedFoot));
-    }
+        x:padLeft, y:H-12-16*(usedFootLines.length-1-i), fill:tok('--muted','#55534c'),'font-size':'10'
+      }, line));
+    });
 
     mount.appendChild(svg);
     mount._lastSorted=sorted;
