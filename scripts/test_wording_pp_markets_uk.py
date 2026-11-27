@@ -17,7 +17,9 @@ checks = [
      "Updated as new figures land. Not every market counts the same thing." in HTML
      and "Open data." not in HTML and "40+ markets" not in HTML),
     ("fleet display helper", "function fleetDisplayName(name){ return name === 'United Kingdom' ? 'UK' : name; }" in HTML),
-    ("fleet option label uses helper", "opt.textContent = fleetDisplayName(label);" in HTML),
+    ("fleet option label uses helper",
+     "opt.textContent = fleetDisplayName(label)" in HTML
+     and "usedInWholeMark(c, 'whole')" in HTML),
     ("fleet chart footer uses helper", "selectedCountries.map(fleetDisplayName)" in HTML),
     ("fleet option value stays the data key", "opt.value = c;" in HTML),
     ("fleet option keeps full name searchable",
