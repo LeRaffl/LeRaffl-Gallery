@@ -107,6 +107,8 @@ stubs:
     variants: [Whole]
     variant_notes:
       Whole: "New passenger-car registrations as reported by ACEA."
+    caveats:
+      - "2018 has BEV, PHEV and TOTAL only. The combustion split (hybrid, petrol, diesel, other) was not reported for that year, so those cells are empty, not zero. The trailing-12-month shares therefore start in December 2019, when a full window of split months exists."
     cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
     fetcher: "scripts/fetch_acea.py"
     workflow: ".github/workflows/fetch-acea.yml"
